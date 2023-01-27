@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	"$baseTexture" "models\weapons\arcticvr\p38/v_p38"
+
+	"$bumpmap" "models\weapons\arcticvr\p38/bullet_normal_flat"
+
+	"$phong" "1"
+	"$phongexponent" "3"
+	"$phongboost"	"2.3"
+	"$phongfresnelranges"	"[ 0.2 0.5 1.5 ]"
+}
+}

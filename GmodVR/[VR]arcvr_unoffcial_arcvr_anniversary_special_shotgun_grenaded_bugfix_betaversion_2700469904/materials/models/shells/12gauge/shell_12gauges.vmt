@@ -1,0 +1,10 @@
+"vertexlitgeneric"
+{
+	"$baseTexture" "models\shells\12gauge\shell_12gauges"
+	"$bumpmap" "models\shells\12gauge/12g_normal_flat"
+
+	"$phong" "1"
+	"$phongexponent" "5"
+	"$phongboost"	"0.1"
+	"$phongfresnelranges"	"[ 0.2 0.5 1.5 ]"
+}
