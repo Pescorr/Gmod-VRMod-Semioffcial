@@ -1,1 +1,0 @@
-ArcticVR = ArcticVR or {}
