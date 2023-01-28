@@ -368,10 +368,10 @@ function VREaddvrmenuOpen()
 			--command start
 				if buttonAon == 1 then
 					buttonAon = 0
-					LocalPlayer():ConCommand("vrmod_pickup_retry_client 0")
+					LocalPlayer():ConCommand("vrmod_pickup_retry 1")
 				else
 					buttonAon = 1
-					LocalPlayer():ConCommand("vrmod_pickup_retry_client 1")
+					LocalPlayer():ConCommand("vrmod_pickup_retry 0")
 				end
 			--command end
 			end
