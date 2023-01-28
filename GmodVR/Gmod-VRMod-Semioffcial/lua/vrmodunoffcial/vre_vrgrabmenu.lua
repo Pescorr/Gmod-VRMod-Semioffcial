@@ -258,10 +258,10 @@ end
 			--command start
 				if button7on == 1 then
 					button7on = 0
-					LocalPlayer():ConCommand("vrmod_pickup_retry_client 0")
+					LocalPlayer():ConCommand("vrmod_pickup_retry 1")
 				else
 					button7on = 1
-					LocalPlayer():ConCommand("vrmod_pickup_retry_client 1")
+					LocalPlayer():ConCommand("vrmod_pickup_retry 0")
 				end
 			--command end
 			end
