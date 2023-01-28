@@ -74,37 +74,6 @@ function VREaddvrmenuOpen()
 	
 	
 
---2button toggle start
-
-
-		
-			local button1 = vgui.Create("DButton")
-			button1:SetText("pickup_disable: ")
-			button1:SetSize(120, 60)
-			button1:SetTextColor(Color(255, 255, 255))
-			grid:AddItem(button1)
-			button1.DoClick = function()
-			--command start
-				if button1on == 1 then
-					button1on = 0
-					LocalPlayer():ConCommand("vr_pickup_disable_client 1")
-
-				else
-					button1on = 1
-					LocalPlayer():ConCommand("vr_pickup_disable_client 0")
-
-				end
-			--command end
-			end
-
-			function button1:Paint(w, h)
-				button1:SetText("pickup_disable: "..GetConVar("vr_pickup_disable_client"):GetInt())
-				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(button1on -2)])
-			end
-
-
--- --2button toggle end
-
   
 --3button toggle start
 
@@ -387,6 +356,7 @@ function VREaddvrmenuOpen()
 --button toggle end
 
 
+		if not !GetConVar("vrgrab_range") then
 --2button toggle start
 			local buttonA = vgui.Create("DButton")
 			local ccvalA = {"OFF", "ON"}
@@ -410,8 +380,37 @@ function VREaddvrmenuOpen()
 				buttonA:SetText("original pickup\noverride\nproof"..ccvalA[buttonAon+1])
 				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon -2)])
 			end
-
 --2button toggle end
+end
+
+--2button toggle start		
+			local buttonb = vgui.Create("DButton")
+			buttonb:SetText("pickup_disable: ")
+			buttonb:SetSize(120, 60)
+			buttonb:SetTextColor(Color(255, 255, 255))
+			grid:AddItem(buttonb)
+			buttonb.DoClick = function()
+			--command start
+				if buttonbon == 1 then
+					buttonbon = 0
+					LocalPlayer():ConCommand("vr_pickup_disable_client 1")
+
+				else
+					buttonbon = 1
+					LocalPlayer():ConCommand("vr_pickup_disable_client 0")
+
+				end
+			--command end
+			end
+
+			function buttonb:Paint(w, h)
+				buttonb:SetText("pickup_disable: "..GetConVar("vr_pickup_disable_client"):GetInt())
+				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonbon -2)])
+			end
+
+
+-- --2button toggle end
+
 
 
 --2button toggle start
@@ -422,7 +421,7 @@ function VREaddvrmenuOpen()
 			grid:AddItem(buttonX)
 			buttonX.DoClick = function()
 			--command start
-			LocalPlayer():ConCommand("vremenu_addvrmenu")
+			LocalPlayer():ConCommand("vre_addvrmenu")
 			LocalPlayer():ConCommand("vre_vrgrabmenu")
 
 			--command end
