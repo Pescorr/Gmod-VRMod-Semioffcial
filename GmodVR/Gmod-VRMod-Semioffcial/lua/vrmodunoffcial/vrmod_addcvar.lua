@@ -7,6 +7,54 @@ if CLIENT then
 	local drivingmode = 0
 	local bothmode = 0
 	local ply = LocalPlayer()
+	
+	-- local hands = {
+		-- {
+			-- poseName = "pose_lefthand",
+			-- overrideFunc = vrmod.SetLeftHandPose,
+			-- getFunc = vrmod.GetLeftHandPose
+		-- },
+		-- {
+			-- poseName = "pose_righthand",
+			-- overrideFunc = vrmod.SetRightHandPose,
+			-- getFunc = vrmod.GetRightHandPose,
+		-- },
+	-- }
+
+
+-- concommand.Add("vrmod_print_righthand_pos", function(ply)
+-- print(g_VR.tracking.pose_righthand.pos)
+-- end)
+
+-- concommand.Add("vrmod_print_righthand_pos_x", function(ply)
+-- print(g_VR.tracking.pose_righthand.pos.x)
+-- end)
+
+
+-- concommand.Add("vrmod_print_righthand_pos_y", function(ply)
+-- print(g_VR.tracking.pose_righthand.pos.y)
+-- end)
+
+-- concommand.Add("vrmod_print_righthand_pos_z", function(ply)
+-- print(g_VR.tracking.pose_righthand.pos.z)
+-- end)
+
+-- concommand.Add("vrmod_print_righthand_ang", function(ply)
+-- print(g_VR.tracking.pose_righthand.ang)
+-- end)
+
+-- concommand.Add("vrmod_print_righthand_ang_x", function(ply)
+-- print(g_VR.tracking.pose_righthand.ang.x)
+-- end)
+
+-- concommand.Add("vrmod_print_righthand_ang_y", function(ply)
+-- print(g_VR.tracking.pose_righthand.ang.y)
+-- end)
+
+-- concommand.Add("vrmod_print_righthand_ang_z", function(ply)
+-- print(g_VR.tracking.pose_righthand.ang.z)
+-- end)
+
 
 	concommand.Add( "vrmod_keymode_restore", function( ply, cmd, args )
 		bothmode = 0
@@ -95,6 +143,20 @@ if CLIENT then
 
 	end)
 	
+	
+	concommand.Add( "vrmod_character_reset", function( ply, cmd, args )
+		LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
+			print("vrmod_characterEyeHeight 66.8")
+		LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
+			print("vrmod_characterHeadToHmdDist 6.3")
+		LocalPlayer():ConCommand("vrmod_scale 38.7")
+			print("vrmod_scale 38.7")
+		LocalPlayer():ConCommand("vrmod_crouchthreshold 40.0")
+			print("vrmod_crouchthreshold 40.0")
+
+	end)
+
+
 	-- concommand.Add( "vrmod_character_heightadjestmode", function( ply, cmd, args )
 		-- LocalPlayer():ConCommand("vrmod_characterEyeHeight 25.0")
 			-- print("vrmod_characterEyeHeight 25.0")
