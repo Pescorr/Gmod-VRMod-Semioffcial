@@ -74,6 +74,42 @@ function vre_vrgrabmenuOpen()
 	
 	
 
+
+--button toggle start
+			local button1 = vgui.Create("DButton")
+			button1:SetText("pickup_range:")
+			button1:SetSize(120, 60)
+			button1:SetTextColor(Color(255, 255, 255))
+			grid:AddItem(button1)
+			button1.DoClick = function()
+			--command start
+				if button1on == 0 then
+				   button1on = 1
+					LocalPlayer():ConCommand("vrmod_pickup_range 2.0")
+				elseif button1on == 1 then
+					button1on = 2
+					LocalPlayer():ConCommand("vrmod_pickup_range 5.0")
+
+				elseif button1on == 2 then
+					button1on = 3
+					LocalPlayer():ConCommand("vrmod_pickup_range 10.00")
+				elseif button1on == 3 then
+					button1on = 4
+					LocalPlayer():ConCommand("vrmod_pickup_range 99.00")
+				else
+					button1on = 0
+					LocalPlayer():ConCommand("vrmod_pickup_range 1.2")
+				end
+			--command end
+			end
+
+			function button1:Paint(w, h)
+				button1:SetText("pickup_range: "..GetConVar("vrmod_pickup_range"):GetFloat())
+				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button1on+1])
+			end
+--button toggle end
+
+
 --button toggle start
 					local button2 = vgui.Create("DButton")
 					button2:SetText("vrgrab_maxmass \n (server):")
@@ -110,160 +146,126 @@ function vre_vrgrabmenuOpen()
 
 
 --button toggle start
-			local button3 = vgui.Create("DButton")
-			button3:SetText("vrgrab_range:")
-			button3:SetSize(120, 60)
-			button3:SetTextColor(Color(255, 255, 255))
-			grid:AddItem(button3)
-			button3.DoClick = function()
+			local button4 = vgui.Create("DButton")
+			button4:SetText("vrgrab_range:")
+			button4:SetSize(120, 60)
+			button4:SetTextColor(Color(255, 255, 255))
+			grid:AddItem(button4)
+			button4.DoClick = function()
 			--command start
-				if button3on == 0 then
-				   button3on = 1
+				if button4on == 0 then
+				   button4on = 1
 					LocalPlayer():ConCommand("vrgrab_range 128")
-				elseif button3on == 1 then
-					button3on = 2
+				elseif button4on == 1 then
+					button4on = 2
 					LocalPlayer():ConCommand("vrgrab_range 256")
-				elseif button3on == 2 then
-					button3on = 3
+				elseif button4on == 2 then
+					button4on = 3
 					LocalPlayer():ConCommand("vrgrab_range 480")
-				elseif button3on == 3 then
-					button3on = 4
+				elseif button4on == 3 then
+					button4on = 4
 					LocalPlayer():ConCommand("vrgrab_range 0")
 				else
-					button3on = 0
+					button4on = 0
 					LocalPlayer():ConCommand("vrgrab_range 72")
 				end
 			--command end
 			end
 
-			function button3:Paint(w, h)
-				button3:SetText("vrgrab_range: "..GetConVar("vrgrab_range"):GetFloat())
-				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button3on+1])
+			function button4:Paint(w, h)
+				button4:SetText("vrgrab_range: "..GetConVar("vrgrab_range"):GetFloat())
+				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button4on+1])
 			end
 --button toggle end
 		
 		
 --2button toggle start
-			local button6 = vgui.Create("DButton")
-			button6:SetText("vrgrab_gravitygloves: ")
-			button6:SetSize(120, 60)
-			button6:SetTextColor(Color(255, 255, 255))
-			grid:AddItem(button6)
-			button6.DoClick = function()
+			local button5 = vgui.Create("DButton")
+			button5:SetText("vrgrab_gravitygloves: ")
+			button5:SetSize(120, 60)
+			button5:SetTextColor(Color(255, 255, 255))
+			grid:AddItem(button5)
+			button5.DoClick = function()
 			--command start
-				if button6on == 1 then
-					button6on = 0
+				if button5on == 1 then
+					button5on = 0
 					LocalPlayer():ConCommand("vrgrab_gravitygloves 1")
 
 				else
-					button6on = 1
+					button5on = 1
 					LocalPlayer():ConCommand("vrgrab_gravitygloves 0")
 
 				end
 			--command end
 			end
 
-			function button6:Paint(w, h)
-				button6:SetText("vrgrab_gravitygloves: "..GetConVar("vrgrab_gravitygloves"):GetInt())
-				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(button6on -2)])
+			function button5:Paint(w, h)
+				button5:SetText("vrgrab_gravitygloves: "..GetConVar("vrgrab_gravitygloves"):GetInt())
+				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(button5on -2)])
 			end
 
 --2button toggle end
 
-
 		--button toggle start
-			local button7 = vgui.Create("DButton")
-			button7:SetText("gravitygloves\nminrange:")
-			button7:SetSize(120, 60)
-			button7:SetTextColor(Color(255, 255, 255))
-			grid:AddItem(button7)
-			button7.DoClick = function()
+			local button6 = vgui.Create("DButton")
+			button6:SetText("gravitygloves\nminrange:")
+			button6:SetSize(120, 60)
+			button6:SetTextColor(Color(255, 255, 255))
+			grid:AddItem(button6)
+			button6.DoClick = function()
 			--command start
-				if button7on == 0 then
-				   button7on = 1
-					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 42.00")
-				elseif button7on == 1 then
-					button7on = 2
-					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 60.0")
-
-				elseif button7on == 2 then
-					button7on = 3
+				if button6on == 0 then
+				   button6on = 1
+					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 60.00")
+				elseif button6on == 1 then
+					button6on = 2
 					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 80.00")
-				elseif button7on == 3 then
-					button7on = 4
+
+				elseif button6on == 2 then
+					button6on = 3
 					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 100.00")
+				elseif button6on == 3 then
+					button6on = 4
+					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 0.00")
 				else
-					button7on = 0
+					button6on = 0
 					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 24.00")
 				end
 			--command end
 			end
 
-			function button7:Paint(w, h)
-				button7:SetText("gravitygloves\nminrange: "..GetConVar("vrgrab_gravitygloves_minrange"):GetFloat())
-				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button7on+1])
+			function button6:Paint(w, h)
+				button6:SetText("gravitygloves\nminrange: "..GetConVar("vrgrab_gravitygloves_minrange"):GetFloat())
+				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button6on+1])
 			end
 		--button toggle end
 		
 		
 
 
--- --button toggle start
-			-- local button9 = vgui.Create("DButton")
-			-- button9:SetText("pickup_range:")
-			-- button9:SetSize(120, 60)
-			-- button9:SetTextColor(Color(255, 255, 255))
-			-- grid:AddItem(button9)
-			-- button9.DoClick = function()
-			-- --command start
-				-- if button9on == 0 then
-				   -- button9on = 1
-					-- LocalPlayer():ConCommand("vrmod_pickup_range 2.0")
-				-- elseif button9on == 1 then
-					-- button9on = 2
-					-- LocalPlayer():ConCommand("vrmod_pickup_range 5.0")
-
-				-- elseif button9on == 2 then
-					-- button9on = 3
-					-- LocalPlayer():ConCommand("vrmod_pickup_range 10.00")
-				-- elseif button9on == 3 then
-					-- button9on = 4
-					-- LocalPlayer():ConCommand("vrmod_pickup_range 99.00")
-				-- else
-					-- button9on = 0
-					-- LocalPlayer():ConCommand("vrmod_pickup_range 1.2")
-				-- end
-			-- --command end
-			-- end
-
-			-- function button9:Paint(w, h)
-				-- button9:SetText("pickup_range: "..GetConVar("vrmod_pickup_range"):GetFloat())
-				-- draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button9on+1])
-			-- end
--- --button toggle end
 
 --2button toggle start
-			local buttonA = vgui.Create("DButton")
-			local ccvalA = {"OFF", "ON"}
-			buttonA:SetText("original pickup\noverride\nproof")
-			buttonA:SetSize(120, 60)
-			buttonA:SetTextColor(Color(255, 255, 255))
-			grid:AddItem(buttonA)
-			buttonA.DoClick = function()
+			local button7 = vgui.Create("DButton")
+			local ccval7 = {"OFF", "ON"}
+			button7:SetText("original pickup\noverride\nproof")
+			button7:SetSize(120, 60)
+			button7:SetTextColor(Color(255, 255, 255))
+			grid:AddItem(button7)
+			button7.DoClick = function()
 			--command start
-				if buttonAon == 1 then
-					buttonAon = 0
+				if button7on == 1 then
+					button7on = 0
 					LocalPlayer():ConCommand("vrmod_pickup_retry_client 0")
 				else
-					buttonAon = 1
+					button7on = 1
 					LocalPlayer():ConCommand("vrmod_pickup_retry_client 1")
 				end
 			--command end
 			end
 
-			function buttonA:Paint(w, h)
-				buttonA:SetText("original pickup\noverride\nproof"..ccvalA[buttonAon+1])
-				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon -2)])
+			function button7:Paint(w, h)
+				button7:SetText("original pickup\noverride\nproof"..ccval7[button7on+1])
+				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(button7on -2)])
 			end
 
 --2button toggle end
