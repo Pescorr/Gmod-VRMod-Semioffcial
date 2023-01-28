@@ -77,7 +77,7 @@ function vre_vrgrabmenuOpen()
 
 --button toggle start
 			local button1 = vgui.Create("DButton")
-			button1:SetText("pickup_range:")
+			button1:SetText("pickup_hand_range:")
 			button1:SetSize(120, 60)
 			button1:SetTextColor(Color(255, 255, 255))
 			grid:AddItem(button1)
@@ -104,7 +104,7 @@ function vre_vrgrabmenuOpen()
 			end
 
 			function button1:Paint(w, h)
-				button1:SetText("pickup_range: "..GetConVar("vrmod_pickup_range"):GetFloat())
+				button1:SetText("pickup_hand_range: "..GetConVar("vrmod_pickup_range"):GetFloat())
 				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button1on+1])
 			end
 --button toggle end
@@ -112,7 +112,7 @@ function vre_vrgrabmenuOpen()
 
 --button toggle start
 					local button2 = vgui.Create("DButton")
-					button2:SetText("vrgrab_maxmass \n (server):")
+					button2:SetText("vrmod_pickup_weight \n (server):")
 					button2:SetSize(120, 60)
 					button2:SetTextColor(Color(255, 255, 255))
 					grid:AddItem(button2)
@@ -139,15 +139,16 @@ function vre_vrgrabmenuOpen()
 					end
 
 					function button2:Paint(w, h)
-						button2:SetText("vrgrab_maxmass \n (server): "..GetConVar("vrgrab_maxmass"):GetFloat())
+						button2:SetText("vrmod_pickup_weight \n (server): "..GetConVar("vrmod_pickup_weight"):GetFloat())
 						draw.RoundedBox(8, 0, 0, w, h, BUTTON_4TIER[math.abs(button2on+1)])
 					end
 --button toggle end
 
 
+		if not !GetConVar("vrgrab_range") then
 --button toggle start
 			local button4 = vgui.Create("DButton")
-			button4:SetText("vrgrab_range:")
+			button4:SetText("vrgrab_pickup_range:")
 			button4:SetSize(120, 60)
 			button4:SetTextColor(Color(255, 255, 255))
 			grid:AddItem(button4)
@@ -177,8 +178,9 @@ function vre_vrgrabmenuOpen()
 				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button4on+1])
 			end
 --button toggle end
+		end
 		
-		
+		if not !GetConVar("vrgrab_gravitygloves") then
 --2button toggle start
 			local button5 = vgui.Create("DButton")
 			button5:SetText("vrgrab_gravitygloves: ")
@@ -203,9 +205,10 @@ function vre_vrgrabmenuOpen()
 				button5:SetText("vrgrab_gravitygloves: "..GetConVar("vrgrab_gravitygloves"):GetInt())
 				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(button5on -2)])
 			end
-
 --2button toggle end
+end
 
+		if not !GetConVar("vrgrab_gravitygloves_minrange") then
 		--button toggle start
 			local button6 = vgui.Create("DButton")
 			button6:SetText("gravitygloves\nminrange:")
@@ -239,7 +242,7 @@ function vre_vrgrabmenuOpen()
 				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button6on+1])
 			end
 		--button toggle end
-		
+		end
 		
 
 
