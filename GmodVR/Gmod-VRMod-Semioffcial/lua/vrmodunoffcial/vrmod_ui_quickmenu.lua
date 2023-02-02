@@ -4,7 +4,7 @@ local open = false
 
 function g_VR.MenuOpen()
 local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1") 
-	local grabbutton = CreateClientConVar("vre_vrgrabmenu_enable","0")
+	local grabbutton = CreateClientConVar("vre_svmenu_enable","0")
 
 	if hook.Call("VRMod_OpenQuickMenu") == false then return end
 
@@ -65,7 +65,7 @@ local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1")
 			if grabbutton:GetBool() then
 				if not !GetConVar("vrgrab_maxmass") then
 					vrmod.AddInGameMenuItem("VRE grabmenu", 0, 4, function()
-				LocalPlayer():ConCommand("vre_vrgrabmenu")
+				LocalPlayer():ConCommand("vre_svmenu")
 					
 					end)
 				end

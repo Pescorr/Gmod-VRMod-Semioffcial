@@ -7,6 +7,7 @@ surface.CreateFont( "vrmod_Trebuchet24", {
 } )
 
 local menushutdown = CreateClientConVar("vrmod_open_menu_shutdown","0",FCVAR_ARCHIVE)
+local menumcore = CreateClientConVar("vrmod_open_menu_automcore","1",FCVAR_ARCHIVE)
 
 
 local frame = nil
@@ -16,6 +17,12 @@ local function OpenMenu()
 	if menushutdown:GetBool() then
 		LocalPlayer():ConCommand("vrmod_exit")
 	end
+
+	if menumcore:GetBool() then
+		LocalPlayer():ConCommand("gmod_mcore_test 0")
+	end
+
+
 	
 	if IsValid(frame) then return frame end
 

@@ -384,28 +384,28 @@ function VREaddvrmenuOpen()
 end
 
 --2button toggle start		
-			local buttonb = vgui.Create("DButton")
-			buttonb:SetText("pickup_disable: ")
-			buttonb:SetSize(120, 60)
-			buttonb:SetTextColor(Color(255, 255, 255))
-			grid:AddItem(buttonb)
-			buttonb.DoClick = function()
+			local buttonB = vgui.Create("DButton")
+			buttonB:SetText("pickup_disable: ")
+			buttonB:SetSize(120, 60)
+			buttonB:SetTextColor(Color(255, 255, 255))
+			grid:AddItem(buttonB)
+			buttonB.DoClick = function()
 			--command start
-				if buttonbon == 1 then
-					buttonbon = 0
+				if buttonBon == 1 then
+					buttonBon = 0
 					LocalPlayer():ConCommand("vr_pickup_disable_client 1")
 
 				else
-					buttonbon = 1
+					buttonBon = 1
 					LocalPlayer():ConCommand("vr_pickup_disable_client 0")
 
 				end
 			--command end
 			end
 
-			function buttonb:Paint(w, h)
-				buttonb:SetText("pickup_disable: "..GetConVar("vr_pickup_disable_client"):GetInt())
-				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonbon -2)])
+			function buttonB:Paint(w, h)
+				buttonB:SetText("pickup_disable: "..GetConVar("vr_pickup_disable_client"):GetInt())
+				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonBon -2)])
 			end
 
 
@@ -422,7 +422,7 @@ end
 			buttonX.DoClick = function()
 			--command start
 			LocalPlayer():ConCommand("vre_addvrmenu")
-			LocalPlayer():ConCommand("vre_vrgrabmenu")
+			LocalPlayer():ConCommand("vre_svmenu")
 
 			--command end
 			end
