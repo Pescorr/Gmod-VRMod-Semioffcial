@@ -3,7 +3,7 @@ if SERVER then return end
 local open = false
 
 function g_VR.MenuOpen()
-local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1") 
+	local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1") 
 	local grabbutton = CreateClientConVar("vre_svmenu_enable","0")
 
 	if hook.Call("VRMod_OpenQuickMenu") == false then return end

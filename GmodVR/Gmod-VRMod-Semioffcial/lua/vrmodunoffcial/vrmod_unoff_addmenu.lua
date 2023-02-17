@@ -886,6 +886,23 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				menu_automcore:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
+		--DCheckBoxLabel Start
+			local autojumpduck = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			autojumpduck:SetPos( 20, 30 )						-- Set the position
+			autojumpduck:SetText("[Jumpkey Auto Duck]\nON => Jumpkey = IN_DUCK + IN_JUMP\nOFF => Jumpkey = IN_JUMP")					-- Set the text next to the box
+			autojumpduck:SetConVar( "vrmod_autojumpduck" )				-- Change a ConVar when the box it ticked/unticked
+			autojumpduck:SizeToContents()						-- Make its size the same as the contents
+		--DCheckBoxLabel end
+
+		--DCheckBoxLabel Start
+			local contextmenu_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			contextmenu_button:SetPos( 20, 80 )						-- Set the position
+			contextmenu_button:SetText("[enable_contextmenu_button]")					-- Set the text next to the box
+			contextmenu_button:SetConVar( "vrmod_enable_contextmenu_button" )				-- Change a ConVar when the box it ticked/unticked
+			contextmenu_button:SizeToContents()						-- Make its size the same as the contents
+		--DCheckBoxLabel end
+
+
 
 		-- Panel8 "TAB8" End
 

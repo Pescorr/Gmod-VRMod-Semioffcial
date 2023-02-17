@@ -6,8 +6,9 @@ surface.CreateFont( "vrmod_Trebuchet24", {
 	weight = 100
 } )
 
-local menushutdown = CreateClientConVar("vrmod_open_menu_shutdown","0",FCVAR_ARCHIVE)
-local menumcore = CreateClientConVar("vrmod_open_menu_automcore","1",FCVAR_ARCHIVE)
+local menushutdown = CreateClientConVar("vrmod_open_menu_shutdown","0",true,FCVAR_ARCHIVE)
+local menumcore = CreateClientConVar("vrmod_open_menu_automcore","1",true,FCVAR_ARCHIVE)
+local contexticon = CreateClientConVar("vrmod_enable_contextmenu_button","1",true,FCVAR_ARCHIVE)
 
 
 local frame = nil
@@ -139,16 +140,16 @@ end )
 
 local convars = vrmod.AddCallbackedConvar("vrmod_showonstartup", nil, "0")
 
-if convars.vrmod_showonstartup:GetBool() then
-	hook.Add("CreateMove","vrmod_showonstartup",function()
-		hook.Remove("CreateMove","vrmod_showonstartup")
-		timer.Simple(1,function()
-			RunConsoleCommand("vrmod")
-		end)
-	end)
+if contexticon:GetBool() then
+	list.Set( "DesktopWindows", "vrmod_context", {
+		title = "VRMod_Menu",
+		icon = "icon16/find.png",
+		init		= function()
+			LocalPlayer():ConCommand("vrmod")
+			LocalPlayer():ConCommand("-menu_context")
+		end
+	})		
 end
-
-
 
 vrmod.AddInGameMenuItem("Settings", 4, 0, function()
 	OpenMenu()

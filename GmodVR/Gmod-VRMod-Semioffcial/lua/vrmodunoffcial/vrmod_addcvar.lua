@@ -144,17 +144,17 @@ if CLIENT then
 	end)
 	
 	
-	concommand.Add( "vrmod_character_reset", function( ply, cmd, args )
-		LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
-			print("vrmod_characterEyeHeight 66.8")
-		LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
-			print("vrmod_characterHeadToHmdDist 6.3")
-		LocalPlayer():ConCommand("vrmod_scale 38.7")
-			print("vrmod_scale 38.7")
-		LocalPlayer():ConCommand("vrmod_crouchthreshold 40.0")
-			print("vrmod_crouchthreshold 40.0")
+	-- concommand.Add( "vrmod_character_reset", function( ply, cmd, args )
+	-- 	LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
+	-- 		print("vrmod_characterEyeHeight 66.8")
+	-- 	LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
+	-- 		print("vrmod_characterHeadToHmdDist 6.3")
+	-- 	LocalPlayer():ConCommand("vrmod_scale 38.7")
+	-- 		print("vrmod_scale 38.7")
+	-- 	LocalPlayer():ConCommand("vrmod_crouchthreshold 40.0")
+	-- 		print("vrmod_crouchthreshold 40.0")
 
-	end)
+	-- end)
 
 
 	-- concommand.Add( "vrmod_character_heightadjestmode", function( ply, cmd, args )
@@ -189,8 +189,8 @@ if CLIENT then
 			print("gmod_mcore_test 0")
 		LocalPlayer():ConCommand("mat_antialias 0")
 			print("mat_antialias 0")
-		LocalPlayer():ConCommand("snd_restart")
-			print("snd_restart")
+		-- LocalPlayer():ConCommand("snd_restart")
+		-- 	print("snd_restart")
 		LocalPlayer():ConCommand("mat_alphacoverage 0")
 			print("mat_alphacoverage 0")
 		LocalPlayer():ConCommand("mat_motion_blur_enabled 0")
