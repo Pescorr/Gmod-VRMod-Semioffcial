@@ -85,7 +85,7 @@ vrmod.AddCallbackedConvar("vrmod_smoothturnrate", "smoothTurnRate", "180", nil, 
 vrmod.AddCallbackedConvar("vrmod_crouchthreshold", "crouchThreshold", "40", nil, nil, nil, nil, tonumber)
 local cv_cargunmode = CreateClientConVar("vrmod_vehicle_reticlemode","1",FCVAR_ARCHIVE)
 local cv_sight = CreateClientConVar("vrmod_sight_bodypart","1",FCVAR_ARCHIVE)
-
+local jumpduck = CreateClientConVar("vrmod_autojumpduck","1",true,FCVAR_ARCHIVE,nil,"0","1")
 local zeroVec, zeroAng = Vector(), Angle()
 local upVec = Vector(0,0,1)
 
@@ -99,6 +99,7 @@ local function start()
 	end)
 	
 	hook.Add("PreRender","vrmod_locomotion",function()
+
 		if not g_VR.threePoints then return end
 		if ply:InVehicle() then
 			local v = ply:GetVehicle()
@@ -157,8 +158,11 @@ local function start()
 			cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_turbo and IN_SPEED or 0, g_VR.input.boolean_handbrake and IN_JUMP or 0) )
 			return
 		end
-
+		if jumpduck:GetBool() then
 		cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP + IN_DUCK or 0,  g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < ( g_VR.origin.z + convarValues.crouchThreshold )) and IN_DUCK or 0 ) )
+		else
+			cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP  or 0,  g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < ( g_VR.origin.z + convarValues.crouchThreshold )) and IN_DUCK or 0 ) )
+		end
 		--set view angles to viewmodel muzzle angles for engine weapon support, note: movement is relative to view angles
 		local viewAngles = g_VR.currentvmi and g_VR.currentvmi.wrongMuzzleAng and g_VR.tracking.pose_righthand.ang or g_VR.viewModelMuzzle and g_VR.viewModelMuzzle.Ang or g_VR.tracking.hmd.ang
 		viewAngles = viewAngles:Forward():Angle()
@@ -186,6 +190,7 @@ local function start()
 			cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_turbo and IN_SPEED or 0, g_VR.input.boolean_handbrake and IN_JUMP or 0) )
 			return
 		end
+
 
 
 	end)
