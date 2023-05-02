@@ -4,7 +4,7 @@ local open = false
 
 function g_VR.MenuOpen()
 	local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1") 
-	local grabbutton = CreateClientConVar("vre_svmenu_enable","0")
+	local shutdownbutton = CreateClientConVar("vrmod_shutdownmenu","0")
 
 	if hook.Call("VRMod_OpenQuickMenu") == false then return end
 
@@ -62,15 +62,12 @@ function g_VR.MenuOpen()
 			vrmod.RemoveInGameMenuItem("Map Browser")
 	end
 
-			if grabbutton:GetBool() then
-				if not !GetConVar("vrgrab_maxmass") then
-					vrmod.AddInGameMenuItem("VRE grabmenu", 0, 4, function()
-				LocalPlayer():ConCommand("vre_svmenu")
-					
+			if shutdownbutton:GetBool() then
+				vrmod.AddInGameMenuItem("VR EXIT", 0, 0, function()
+				LocalPlayer():ConCommand("vrmod_exit")
 					end)
-				end
 			else
-				vrmod.RemoveInGameMenuItem("VRE grabmenu")
+				vrmod.RemoveInGameMenuItem("VR EXIT")
 			end
 
 	--add button end

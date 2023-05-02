@@ -20,44 +20,44 @@ local BUTTON_4TIER = {Color(80, 0, 51), Color(142, 111, 48), Color(51, 120, 51),
 local BUTTON_5TIER = {Color(80, 0, 51), Color(142, 111, 48), Color(51, 120, 51), Color(0, 0, 139),Color(139, 0, 139)}
 
 
-function vre_vrgrabmenuToggle()
+function vre_svmenuToggle()
     if !open then
-        vre_vrgrabmenuOpen()
+        vre_svmenuOpen()
     else
-        VRUtilMenuClose("vre_vrgrabmenu")
+        VRUtilMenuClose("vre_svmenu")
     end
 end
 
 
-function vre_vrgrabmenuOpen()
+function vre_svmenuOpen()
 	if open then return end
     open = true
 
 
-    local vre_vrgrabmenuPanel = vgui.Create( "DPanel" )
-    vre_vrgrabmenuPanel:SetPos( 0, 0 )
-    vre_vrgrabmenuPanel:SetSize( 600, 650 )
-    function vre_vrgrabmenuPanel:GetSize()
+    local vre_svmenuPanel = vgui.Create( "DPanel" )
+    vre_svmenuPanel:SetPos( 0, 0 )
+    vre_svmenuPanel:SetSize( 600, 650 )
+    function vre_svmenuPanel:GetSize()
         return 450,310
     end
 
 
 
-    local grid = vgui.Create("DGrid", vre_vrgrabmenuPanel)
+    local grid = vgui.Create("DGrid", vre_svmenuPanel)
     grid:SetPos( 10, 30 )
     grid:SetCols( 4 )
     grid:SetColWide( 150 )
     grid:SetRowHeight( 80 )
 
 
-    local backbutton = vgui.Create("DButton", vre_vrgrabmenuPanel)
+    local backbutton = vgui.Create("DButton", vre_svmenuPanel)
 
     backbutton:SetText("<---")
     backbutton:SetSize(60, 30)
     backbutton:SetPos(260, 270)
     backbutton:SetTextColor(Color(255, 255, 255))
     backbutton.DoClick = function()
-            VRUtilMenuClose("vre_vrgrabmenu")
+            VRUtilMenuClose("vre_svmenu")
 
 		
     end
@@ -77,7 +77,7 @@ function vre_vrgrabmenuOpen()
 
 --button toggle start
 			local button1 = vgui.Create("DButton")
-			button1:SetText("pickup_hand_range:")
+			button1:SetText("pickup_range:")
 			button1:SetSize(120, 60)
 			button1:SetTextColor(Color(255, 255, 255))
 			grid:AddItem(button1)
@@ -85,26 +85,26 @@ function vre_vrgrabmenuOpen()
 			--command start
 				if button1on == 0 then
 				   button1on = 1
-					LocalPlayer():ConCommand("vrmod_pickup_range 2.0")
+					LocalPlayer():ConCommand("vrmod_pickup_range 144")
 				elseif button1on == 1 then
 					button1on = 2
-					LocalPlayer():ConCommand("vrmod_pickup_range 5.0")
+					LocalPlayer():ConCommand("vrmod_pickup_range 216")
 
 				elseif button1on == 2 then
 					button1on = 3
-					LocalPlayer():ConCommand("vrmod_pickup_range 10.00")
+					LocalPlayer():ConCommand("vrmod_pickup_range 512")
 				elseif button1on == 3 then
 					button1on = 4
-					LocalPlayer():ConCommand("vrmod_pickup_range 99.00")
+					LocalPlayer():ConCommand("vrmod_pickup_range 1024")
 				else
 					button1on = 0
-					LocalPlayer():ConCommand("vrmod_pickup_range 1.2")
+					LocalPlayer():ConCommand("vrmod_pickup_range 72")
 				end
 			--command end
 			end
 
 			function button1:Paint(w, h)
-				button1:SetText("pickup_hand_range: "..GetConVar("vrmod_pickup_range"):GetFloat())
+				button1:SetText("pickup_range: "..GetConVar("vrmod_pickup_range"):GetFloat())
 				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button1on+1])
 			end
 --button toggle end
@@ -120,14 +120,17 @@ function vre_vrgrabmenuOpen()
 					--command start
 						if button2on == 0 then
 						   button2on = 1
-							LocalPlayer():ConCommand("vrgrab_maxmass 5")
-							LocalPlayer():ConCommand("vrmod_pickup_weight 5")
+							LocalPlayer():ConCommand("vrgrab_maxmass 60")
 						elseif button2on == 1 then
 							button2on = 2
 							LocalPlayer():ConCommand("vrgrab_maxmass 100")
 							LocalPlayer():ConCommand("vrmod_pickup_weight 100")
 						elseif button2on == 2 then
 							button2on = 3
+							LocalPlayer():ConCommand("vrgrab_maxmass 200")
+							LocalPlayer():ConCommand("vrmod_pickup_weight 200")
+						elseif button2on == 3 then
+							button2on = 4
 							LocalPlayer():ConCommand("vrgrab_maxmass 99999")
 							LocalPlayer():ConCommand("vrmod_pickup_weight 99999")
 						else
@@ -140,7 +143,7 @@ function vre_vrgrabmenuOpen()
 
 					function button2:Paint(w, h)
 						button2:SetText("vrmod_pickup_weight \n (server): "..GetConVar("vrmod_pickup_weight"):GetFloat())
-						draw.RoundedBox(8, 0, 0, w, h, BUTTON_4TIER[math.abs(button2on+1)])
+						draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[math.abs(button2on+1)])
 					end
 --button toggle end
 
@@ -191,11 +194,10 @@ function vre_vrgrabmenuOpen()
 			--command start
 				if button5on == 1 then
 					button5on = 0
-					LocalPlayer():ConCommand("vrgrab_gravitygloves 1")
-
+					LocalPlayer():ConCommand("vrgrab_gravitygloves 0")
 				else
 					button5on = 1
-					LocalPlayer():ConCommand("vrgrab_gravitygloves 0")
+					LocalPlayer():ConCommand("vrgrab_gravitygloves 1")
 
 				end
 			--command end
@@ -219,20 +221,20 @@ end
 			--command start
 				if button6on == 0 then
 				   button6on = 1
-					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 60.00")
+					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 24.00")
 				elseif button6on == 1 then
 					button6on = 2
-					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 80.00")
+					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 60.00")
 
 				elseif button6on == 2 then
 					button6on = 3
-					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 100.00")
+					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 80.00")
 				elseif button6on == 3 then
 					button6on = 4
-					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 0.00")
+					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 100.00")
 				else
 					button6on = 0
-					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 24.00")
+					LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 0.00")
 				end
 			--command end
 			end
@@ -258,10 +260,10 @@ end
 			--command start
 				if button7on == 1 then
 					button7on = 0
-					LocalPlayer():ConCommand("vrmod_pickup_retry 1")
+					LocalPlayer():ConCommand("vrmod_pickup_retry 0")
 				else
 					button7on = 1
-					LocalPlayer():ConCommand("vrmod_pickup_retry 0")
+					LocalPlayer():ConCommand("vrmod_pickup_retry 1")
 				end
 			--command end
 			end
@@ -273,7 +275,34 @@ end
 
 --2button toggle end
 
-
+if not !GetConVar("arcticvr_gunmelee_client") then
+	--button toggle start
+				local button8 = vgui.Create("DButton")
+				button8:SetText("ArcVR_melee:")
+				button8:SetSize(120, 60)
+				button8:SetTextColor(Color(255, 255, 255))
+				grid:AddItem(button8)
+				button8.DoClick = function()
+				--command start
+					if button8on == 0 then
+					   button8on = 1
+						LocalPlayer():ConCommand("arcticvr_gunmelee_client 1")
+						LocalPlayer():ConCommand("arcticvr_fist_client 1")
+					else
+						button8on = 0
+						LocalPlayer():ConCommand("arcticvr_gunmelee_client 0")
+						LocalPlayer():ConCommand("arcticvr_fist_client 0")
+					end
+				--command end
+				end
+	
+				function button8:Paint(w, h)
+					button8:SetText("ArcVR_melee: "..GetConVar("arcticvr_gunmelee_client"):GetFloat())
+					draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[button8on+1])
+				end
+	--button toggle end
+			end
+	
 
 -- --2button toggle start
 
@@ -406,9 +435,9 @@ end
         mode = 4
     end
 
-    VRUtilMenuOpen("vre_vrgrabmenu", 600, 310, vre_vrgrabmenuPanel, mode, pos, ang, 0.03, true, function()
-        vre_vrgrabmenuPanel:Remove()
-        vre_vrgrabmenuPanel = nil
+    VRUtilMenuOpen("vre_svmenu", 600, 310, vre_svmenuPanel, mode, pos, ang, 0.03, true, function()
+        vre_svmenuPanel:Remove()
+        vre_svmenuPanel = nil
          hook.Remove("PreRender","vre_renderaddvrmenu")
 			
 		 open = false
@@ -418,22 +447,22 @@ end
         if VRUtilIsMenuOpen("miscmenu") or VRUtilIsMenuOpen("vremenu") then
 	
 
-            VRUtilMenuClose("vre_vrgrabmenu")
-        elseif IsValid(vre_vrgrabmenuPanel) then
-            function vre_vrgrabmenuPanel:Paint( w, h )
+            VRUtilMenuClose("vre_svmenu")
+        elseif IsValid(vre_svmenuPanel) then
+            function vre_svmenuPanel:Paint( w, h )
                 surface.SetDrawColor( Color( 51, 51, 51, 200 ) )
                 surface.DrawRect(0,0,w,h)
             end
-            VRUtilMenuRenderPanel("vre_vrgrabmenu")
+            VRUtilMenuRenderPanel("vre_svmenu")
         end
 	end)
 	
 end
 
-	concommand.Add( "vre_vrgrabmenu", function( ply, cmd, args )
+	concommand.Add( "vre_svmenu", function( ply, cmd, args )
 		if g_VR.net[ply:SteamID()] then
 			VREMenuClose()
-			vre_vrgrabmenuToggle()
+			vre_svmenuToggle()
 		end
 	end)
 

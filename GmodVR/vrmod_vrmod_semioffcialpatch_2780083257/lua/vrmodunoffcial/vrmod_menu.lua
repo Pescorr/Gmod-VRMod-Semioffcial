@@ -151,6 +151,32 @@ if contexticon:GetBool() then
 	})		
 end
 
+hook.Add( "PopulateToolMenu", "vrmod_addspawnmenu", function()
+	spawnmenu.AddToolMenuOption( "Utilities", "Virtual Reality", "VRMod SemiOffcial", "VRMod SemiOffcial", "", "", function( panel )
+			--DButton Start
+				--vrmod_spawnmenu
+				local vrmod_spawnmenu = vgui.Create( "DButton", panel ) -- Create the button and parent it to the frame
+				vrmod_spawnmenu:SetText( "VRMOD MENU" )					-- Set the text on the button
+				vrmod_spawnmenu:SetPos( 20, 30 )					-- Set the position on the frame
+				vrmod_spawnmenu:SetSize( 330, 30 )					-- Set the size
+				vrmod_spawnmenu.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
+					RunConsoleCommand( "vrmod" )			-- Run the console command "say hi" when you click it ( command, args )
+					LocalPlayer():ConCommand("-menu")
+				end
+
+				vrmod_spawnmenu.DoRightClick = function()
+					RunConsoleCommand( "vrmod" )					LocalPlayer():ConCommand("-menu")
+					LocalPlayer():ConCommand("-menu")
+				end
+			--DButton end		
+
+
+
+
+	end)
+end)
+
+
 vrmod.AddInGameMenuItem("Settings", 4, 0, function()
 	OpenMenu()
 	hook.Add("VRMod_OpenQuickMenu","closesettings",function()
