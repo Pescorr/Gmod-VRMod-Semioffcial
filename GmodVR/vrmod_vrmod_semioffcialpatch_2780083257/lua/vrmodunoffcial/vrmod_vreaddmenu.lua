@@ -360,8 +360,7 @@ end
 if not !GetConVar("vrgrab_range") then
 	--2button toggle start
 				local buttonA = vgui.Create("DButton")
-				local ccvalA = {"OFF", "ON"}
-				buttonA:SetText("original pickup\noverride\nproof")
+				buttonA:SetText("pickup type")
 				buttonA:SetSize(120, 60)
 				buttonA:SetTextColor(Color(255, 255, 255))
 				grid:AddItem(buttonA)
@@ -369,17 +368,17 @@ if not !GetConVar("vrgrab_range") then
 				--command start
 					if buttonAon == 1 then
 						buttonAon = 0
-						LocalPlayer():ConCommand("vrmod_pickup_retry 1")
+						LocalPlayer():ConCommand("vrmod_pickup_retry 0")
 					else
 						buttonAon = 1
-						LocalPlayer():ConCommand("vrmod_pickup_retry 0")
+						LocalPlayer():ConCommand("vrmod_pickup_retry 1")
 					end
 				--command end
 				end
 
 				function buttonA:Paint(w, h)
-					buttonA:SetText("original pickup\noverride\nproof"..ccvalA[buttonAon+1])
-					draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon -2)])
+					buttonA:SetText("pickup type"..GetConVar("vrmod_pickup_retry"):GetInt())
+					draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon-2)])
 				end
 	--2button toggle end
 end

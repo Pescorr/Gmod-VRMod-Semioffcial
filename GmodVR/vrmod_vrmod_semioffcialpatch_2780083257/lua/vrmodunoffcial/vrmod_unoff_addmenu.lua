@@ -464,6 +464,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 						cameraoverride:SetConVar( "vrmod_cameraoverride" )	-- Changes the ConVar when you slide
 						-- If not using convars, you can use this hook + Panel.SetValue()
 						cameraoverride.OnValueChanged = function( self, value )
+							
 						
 						-- Called when the slider value changes
 						end
@@ -475,7 +476,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				local vrmod_znear= vgui.Create( "DNumSlider", Panel3 )
 					vrmod_znear:SetPos( 20, 100 )				-- Set the position (X,Y)
 					vrmod_znear:SetSize( 370, 120 )			-- Set the size (X,Y)
-					vrmod_znear:SetText( "[vrmod_znear]\n(VRMod Restart Requied)\nObjects at distances less than\nthis value become transparent\nIf you are using a player model\nwith hair or head parts\nthat appear in front of you\nyou may want to set a larger\nvalue." )	-- Set the text above the slider
+					vrmod_znear:SetText( "[znear]\n(VRMod Restart Requied)\nObjects at distances less than\nthis value become transparent\nIf you are using a player model\nwith hair or head parts\nthat appear in front of you\nyou may want to set a larger\nvalue." )	-- Set the text above the slider
 					vrmod_znear:SetMin( 1.00 )				 	-- Set the minimum number you can slide to
 					vrmod_znear:SetMax( 20.00 )				-- Set the maximum number you can slide to
 					vrmod_znear:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
@@ -490,18 +491,18 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DCheckBoxLabel Start
 				local vrmod_mapbrowser = Panel3:Add( "DCheckBoxLabel" ) -- Create the checkbox
 					vrmod_mapbrowser:SetPos( 20, 250 )						-- Set the position
-					vrmod_mapbrowser:SetText("[vrmod_mapbrowser_enable]\nON = Show the Map Browser button in the Quick Menu\nOFF = Do not display the map browser button")					-- Set the text next to the box
+					vrmod_mapbrowser:SetText("[quickmenu_mapbrowser_enable]\nON = Show the Map Browser button in the Quick Menu\nOFF = Do not display the map browser button")					-- Set the text next to the box
 					vrmod_mapbrowser:SetConVar( "vrmod_mapbrowser_enable" )				-- Change a ConVar when the box it ticked/unticked
 					vrmod_mapbrowser:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
 
 			--DCheckBoxLabel Start
-				local vre_svmenu = Panel3:Add( "DCheckBoxLabel" ) -- Create the checkbox
-					vre_svmenu:SetPos( 20, 300 )						-- Set the position
-					vre_svmenu:SetText("[vre_svmenu_enable]\nON = Show the grab button in the Quick Menu\nOFF = Do not display the map grab settings button")					-- Set the text next to the box
-					vre_svmenu:SetConVar( "vre_svmenu_enable" )				-- Change a ConVar when the box it ticked/unticked
-					vre_svmenu:SizeToContents()						-- Make its size the same as the contents
+				local vrmod_shutdownmenu = Panel3:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_shutdownmenu:SetPos( 20, 300 )						-- Set the position
+				vrmod_shutdownmenu:SetText("[quickmenu VR EXIT button]\nON = Show the [VR EXIT] button in the Quick Menu\nOFF = Do not the [VR EXIT] in the Quick Menu")					-- Set the text next to the box
+				vrmod_shutdownmenu:SetConVar( "vrmod_shutdownmenu" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_shutdownmenu:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
 
@@ -599,9 +600,9 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DNumSlider Start
 				--vrmod_pickup_weight
 				local pickup_weight= vgui.Create( "DNumSlider", Panel5 )
-					pickup_weight:SetPos( 20, 175 )				-- Set the position (X,Y)
+					pickup_weight:SetPos( 20, 150 )				-- Set the position (X,Y)
 					pickup_weight:SetSize( 370, 25 )			-- Set the size (X,Y)
-					pickup_weight:SetText( "pickup_weight(serverlimit)" )	-- Set the text above the slider
+					pickup_weight:SetText( "pickup_weight" )	-- Set the text above the slider
 					pickup_weight:SetMin( 1 )				 	-- Set the minimum number you can slide to
 					pickup_weight:SetMax( 1000 )				-- Set the maximum number you can slide to
 					pickup_weight:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
@@ -613,16 +614,18 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					-- Called when the slider value changes
 					end
 			--DNumSlider end
+
+
 				
 			--DNumSlider Start
 				--vr_vrmod_pickup_range
 				local vrmod_pickup_range= vgui.Create( "DNumSlider", Panel5 )
-					vrmod_pickup_range:SetPos( 20, 200 )				-- Set the position (X,Y)
+					vrmod_pickup_range:SetPos( 20, 175 )				-- Set the position (X,Y)
 					vrmod_pickup_range:SetSize( 370, 25 )			-- Set the size (X,Y)
-					vrmod_pickup_range:SetText( "vrmod_pickup_range(serverlimit)" )	-- Set the text above the slider
+					vrmod_pickup_range:SetText( "vrmod_pickup_range" )	-- Set the text above the slider
 					vrmod_pickup_range:SetMin( 1.0 )				 	-- Set the minimum number you can slide to
-					vrmod_pickup_range:SetMax( 99.0 )				-- Set the maximum number you can slide to
-					vrmod_pickup_range:SetDecimals( 1 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
+					vrmod_pickup_range:SetMax( 999.0 )				-- Set the maximum number you can slide to
+					vrmod_pickup_range:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
 					vrmod_pickup_range:SetConVar( "vrmod_pickup_range" )	-- Changes the ConVar when you slide
 
 					-- If not using convars, you can use this hook + Panel.SetValue()
@@ -631,24 +634,26 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					-- Called when the slider value changes
 					end
 			--DNumSlider end
-				
+
 			--DNumSlider Start
-				--vr_vrmod_pickup_limit
-				local vrmod_pickup_limit= vgui.Create( "DNumSlider", Panel5 )
-					vrmod_pickup_limit:SetPos( 20, 225 )				-- Set the position (X,Y)
-					vrmod_pickup_limit:SetSize( 370, 25 )			-- Set the size (X,Y)
-					vrmod_pickup_limit:SetText( "vrmod_pickup_limit" )	-- Set the text above the slider
-					vrmod_pickup_limit:SetMin( 0 )				 	-- Set the minimum number you can slide to
-					vrmod_pickup_limit:SetMax( 2 )				-- Set the maximum number you can slide to
-					vrmod_pickup_limit:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
-					vrmod_pickup_limit:SetConVar( "vrmod_pickup_limit" )	-- Changes the ConVar when you slide
+				--vr_vrmod_pickup_range
+				local vrmod_pickup_retry= vgui.Create( "DNumSlider", Panel5 )
+				vrmod_pickup_retry:SetPos( 20, 200 )				-- Set the position (X,Y)
+					vrmod_pickup_retry:SetSize( 370, 25 )			-- Set the size (X,Y)
+					vrmod_pickup_retry:SetText( "vrmod_pickup_retry" )	-- Set the text above the slider
+					vrmod_pickup_retry:SetMin( 0 )				 	-- Set the minimum number you can slide to
+					vrmod_pickup_retry:SetMax( 2 )				-- Set the maximum number you can slide to
+					vrmod_pickup_retry:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
+					vrmod_pickup_retry:SetConVar( "vrmod_pickup_retry" )	-- Changes the ConVar when you slide
 
 					-- If not using convars, you can use this hook + Panel.SetValue()
-					vrmod_pickup_limit.OnValueChanged = function( self, value )
+					vrmod_pickup_retry.OnValueChanged = function( self, value )
 
 					-- Called when the slider value changes
 					end
 			--DNumSlider end
+
+				
 
 		-- --Panel5 "TAB5" end
 				
@@ -809,8 +814,8 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DCheckBoxLabel Start
 				local manualpickup = Panel7:Add( "DCheckBoxLabel" ) -- Create the checkbox
 					manualpickup:SetPos( 10, 120 )						-- Set the position
-					manualpickup:SetText("[vrmod_manualpickup(Server)]\nUse of this requires\n{VRMod Manual Item Pickup}\nby Dr. Hugo.\nhttps://steamcommunity.com/sharedfiles/filedetails/?id=2910621738\nAllows manual pickup of supplies and weaponsto increase immersion.\nDisables automatic pickup when walkin over an item.")-- Set the text next to the box
-					manualpickup:SetConVar( "sv_vrmod_manualpickup" )				-- Change a ConVar when the box it ticked/unticked
+					manualpickup:SetText("[vrmod_manualpickups(Server)]\nUse of this requires\n{VRMod Manual Item Pickup}\nby Dr. Hugo.\nhttps://steamcommunity.com/sharedfiles/filedetails/?id=2910621738\nAllows manual pickup of supplies and weaponsto increase immersion.\nDisables automatic pickup when walkin over an item.")-- Set the text next to the box
+					manualpickup:SetConVar( "vrmod_manualpickups" )				-- Change a ConVar when the box it ticked/unticked
 					manualpickup:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 				
@@ -901,6 +906,24 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			contextmenu_button:SetConVar( "vrmod_enable_contextmenu_button" )				-- Change a ConVar when the box it ticked/unticked
 			contextmenu_button:SizeToContents()						-- Make its size the same as the contents
 		--DCheckBoxLabel end
+
+		--DCheckBoxLabel Start
+		local arccwbenchview_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+		arccwbenchview_button:SetPos( 20, 110 )						-- Set the position
+		arccwbenchview_button:SetText("[arccw_dev_benchgun]")					-- Set the text next to the box
+		arccwbenchview_button:SetConVar( "arccw_dev_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+		arccwbenchview_button:SizeToContents()						-- Make its size the same as the contents
+
+		--DCheckBoxLabel Start
+		local arc9benchview_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+		arc9benchview_button:SetPos( 20, 140 )						-- Set the position
+		arc9benchview_button:SetText("[arc9_dev_benchgun]")					-- Set the text next to the box
+		arc9benchview_button:SetConVar( "arc9_dev_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+		arc9benchview_button:SizeToContents()						-- Make its size the same as the contents
+
+
+
+	--DCheckBoxLabel end
 
 
 
