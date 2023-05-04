@@ -1,14 +1,14 @@
 local paths = {}
 
 
-local operation = CreateConVar("vrmod_dev_vrmod_original_folder_file_operation", "0", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons",0,2)
+local operation = CreateConVar("vrmod_dev_vrmod_original_folder_file_operation", "1", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons",0,2)
 
 if operation:GetInt() == 0 then return end
 
 if operation:GetInt() == 1 then
 
     -- ConVarを作成
-    CreateConVar("vrmod_dev_original_excluded_files", "vrmod_sample01.lua,vrmod_sample02.lua", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons")
+    CreateConVar("vrmod_dev_original_excluded_files", "", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons")
 
     -- ConVarの値を取得
     local excludedFilesString = GetConVarString("vrmod_dev_original_excluded_files")
@@ -44,7 +44,7 @@ if operation:GetInt() == 2 then
     local paths = {}
 
     -- ConVarを作成
-    CreateConVar("vrmod_dev_original_included_files", "vrmod_sample01.lua,vrmod_sample02.lua", FCVAR_ARCHIVE, "Included Lua files separated by semicolons")
+    CreateConVar("vrmod_dev_original_included_files", "", FCVAR_ARCHIVE, "Included Lua files separated by semicolons")
 
     -- ConVarの値を取得
     local includedFilesString = GetConVarString("vrmod_dev_original_included_files")
