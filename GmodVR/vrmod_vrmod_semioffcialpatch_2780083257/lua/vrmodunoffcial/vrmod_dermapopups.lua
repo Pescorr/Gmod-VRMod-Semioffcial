@@ -16,7 +16,7 @@ meta.MakePopup = function(...)
 	
 	local panel = args[1]
 	
-	timer.Simple(0.001,function() --wait because makepopup might be called before menu is fully built
+	timer.Simple(0.01,function() --wait because makepopup might be called before menu is fully built
 		if not IsValid(panel) then return end
 	
 		if panel:GetName() == "DMenu" then
@@ -38,7 +38,7 @@ meta.MakePopup = function(...)
 
 		if mode == 1 then
 		--
-		VRUtilMenuOpen("popup_"..popupCount, ScrW(),ScrH(), panel, mode, Vector(20,11,8), Angle(0,-90,50), 0.04, true, function() --forw, left, up
+		VRUtilMenuOpen("popup_"..popupCount, ScrW(),ScrH(), panel, mode, Vector(20,11,8), Angle(0,-90,50), 0.03, true, function() --forw, left, up
 			timer.Simple(0.1,function()
 				if not g_VR.active and IsValid(panel) then
 					panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
@@ -51,7 +51,7 @@ meta.MakePopup = function(...)
 		VRUtilMenuRenderPanel(uid)
 		--
 		elseif mode == 3 then
-		VRUtilMenuOpen("popup_"..popupCount, ScrW(),ScrH(), panel, 3, Vector(30,20,10), Angle(0,-90,90), 0.04, true, function() --forw, left, up
+		VRUtilMenuOpen("popup_"..popupCount, ScrW(),ScrH(), panel, 3, Vector(30,20,10), Angle(0,-90,90), 0.03, true, function() --forw, left, up
 			timer.Simple(0.001,function()
 				if not g_VR.active and IsValid(panel) then
 					panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
@@ -74,6 +74,7 @@ meta.MakePopup = function(...)
 		end)
 		popupCount = popupCount + 1
 		
+		VRUtilMenuRenderPanel(uid)
 
 		end
 	end)
