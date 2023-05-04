@@ -77,7 +77,7 @@ function vre_svmenuOpen()
 
 --button toggle start
 			local button1 = vgui.Create("DButton")
-			button1:SetText("pickup_range:")
+			button1:SetText("pickup_hand_range:")
 			button1:SetSize(120, 60)
 			button1:SetTextColor(Color(255, 255, 255))
 			grid:AddItem(button1)
@@ -85,26 +85,26 @@ function vre_svmenuOpen()
 			--command start
 				if button1on == 0 then
 				   button1on = 1
-					LocalPlayer():ConCommand("vrmod_pickup_range 144")
+					LocalPlayer():ConCommand("vrmod_pickup_range 2.0")
 				elseif button1on == 1 then
 					button1on = 2
-					LocalPlayer():ConCommand("vrmod_pickup_range 216")
+					LocalPlayer():ConCommand("vrmod_pickup_range 5.0")
 
 				elseif button1on == 2 then
 					button1on = 3
-					LocalPlayer():ConCommand("vrmod_pickup_range 512")
+					LocalPlayer():ConCommand("vrmod_pickup_range 10.00")
 				elseif button1on == 3 then
 					button1on = 4
-					LocalPlayer():ConCommand("vrmod_pickup_range 1024")
+					LocalPlayer():ConCommand("vrmod_pickup_range 99.00")
 				else
 					button1on = 0
-					LocalPlayer():ConCommand("vrmod_pickup_range 72")
+					LocalPlayer():ConCommand("vrmod_pickup_range 1.2")
 				end
 			--command end
 			end
 
 			function button1:Paint(w, h)
-				button1:SetText("pickup_range: "..GetConVar("vrmod_pickup_range"):GetFloat())
+				button1:SetText("pickup_hand_range: "..GetConVar("vrmod_pickup_range"):GetFloat())
 				draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[button1on+1])
 			end
 --button toggle end
@@ -121,16 +121,13 @@ function vre_svmenuOpen()
 						if button2on == 0 then
 						   button2on = 1
 							LocalPlayer():ConCommand("vrgrab_maxmass 60")
+							LocalPlayer():ConCommand("vrmod_pickup_weight 60")
 						elseif button2on == 1 then
 							button2on = 2
 							LocalPlayer():ConCommand("vrgrab_maxmass 100")
 							LocalPlayer():ConCommand("vrmod_pickup_weight 100")
 						elseif button2on == 2 then
 							button2on = 3
-							LocalPlayer():ConCommand("vrgrab_maxmass 200")
-							LocalPlayer():ConCommand("vrmod_pickup_weight 200")
-						elseif button2on == 3 then
-							button2on = 4
 							LocalPlayer():ConCommand("vrgrab_maxmass 99999")
 							LocalPlayer():ConCommand("vrmod_pickup_weight 99999")
 						else
@@ -143,7 +140,7 @@ function vre_svmenuOpen()
 
 					function button2:Paint(w, h)
 						button2:SetText("vrmod_pickup_weight \n (server): "..GetConVar("vrmod_pickup_weight"):GetFloat())
-						draw.RoundedBox(8, 0, 0, w, h, BUTTON_5TIER[math.abs(button2on+1)])
+						draw.RoundedBox(8, 0, 0, w, h, BUTTON_4TIER[math.abs(button2on+1)])
 					end
 --button toggle end
 
@@ -260,10 +257,10 @@ end
 			--command start
 				if button7on == 1 then
 					button7on = 0
-					LocalPlayer():ConCommand("vrmod_pickup_retry 0")
+					LocalPlayer():ConCommand("vrmod_pickup_retry 1")
 				else
 					button7on = 1
-					LocalPlayer():ConCommand("vrmod_pickup_retry 1")
+					LocalPlayer():ConCommand("vrmod_pickup_retry 0")
 				end
 			--command end
 			end

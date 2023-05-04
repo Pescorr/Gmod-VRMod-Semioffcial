@@ -38,7 +38,7 @@ if CLIENT then
 
 			vrmod.AddInGameMenuItem("vre gb-radial", 0, 3, function()
 				LocalPlayer():ConCommand("vre_gb-radial")
-			end)
-			
+			end)			
+
 --
 end

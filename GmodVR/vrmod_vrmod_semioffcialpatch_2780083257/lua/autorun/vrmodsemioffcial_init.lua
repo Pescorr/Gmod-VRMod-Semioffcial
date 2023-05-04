@@ -1,10 +1,10 @@
 local paths = {}
 
 -- ConVarを作成
-CreateConVar("vrmod_unofficial_excluded_files", "vrmod_pickup.lua,vrmod_pickup_retry.lua", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons")
+CreateConVar("vrmod_dev_excluded_files", "vrmod_sample01.lua,vrmod_sample02.lua", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons")
 
 -- ConVarの値を取得
-local excludedFilesString = GetConVarString("vrmod_unofficial_excluded_files")
+local excludedFilesString = GetConVarString("vrmod_semioffcial_excluded_files")
 local excludedFiles = {}
 if excludedFilesString ~= "" then
     for file in string.gmatch(excludedFilesString, "([^,]+)") do

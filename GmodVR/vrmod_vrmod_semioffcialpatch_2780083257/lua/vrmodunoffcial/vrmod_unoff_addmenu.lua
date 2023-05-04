@@ -465,7 +465,6 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 						-- If not using convars, you can use this hook + Panel.SetValue()
 						cameraoverride.OnValueChanged = function( self, value )
 							
-						
 						-- Called when the slider value changes
 						end
 			--DNumSlider end
@@ -600,9 +599,9 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DNumSlider Start
 				--vrmod_pickup_weight
 				local pickup_weight= vgui.Create( "DNumSlider", Panel5 )
-					pickup_weight:SetPos( 20, 150 )				-- Set the position (X,Y)
+					pickup_weight:SetPos( 20, 175 )				-- Set the position (X,Y)
 					pickup_weight:SetSize( 370, 25 )			-- Set the size (X,Y)
-					pickup_weight:SetText( "pickup_weight" )	-- Set the text above the slider
+					pickup_weight:SetText( "pickup_weight(serverlimit)" )	-- Set the text above the slider
 					pickup_weight:SetMin( 1 )				 	-- Set the minimum number you can slide to
 					pickup_weight:SetMax( 1000 )				-- Set the maximum number you can slide to
 					pickup_weight:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
@@ -615,17 +614,15 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					end
 			--DNumSlider end
 
-
-				
 			--DNumSlider Start
 				--vr_vrmod_pickup_range
 				local vrmod_pickup_range= vgui.Create( "DNumSlider", Panel5 )
-					vrmod_pickup_range:SetPos( 20, 175 )				-- Set the position (X,Y)
+					vrmod_pickup_range:SetPos( 20, 200 )				-- Set the position (X,Y)
 					vrmod_pickup_range:SetSize( 370, 25 )			-- Set the size (X,Y)
-					vrmod_pickup_range:SetText( "vrmod_pickup_range" )	-- Set the text above the slider
+					vrmod_pickup_range:SetText( "vrmod_pickup_range(serverlimit)" )	-- Set the text above the slider
 					vrmod_pickup_range:SetMin( 1.0 )				 	-- Set the minimum number you can slide to
-					vrmod_pickup_range:SetMax( 999.0 )				-- Set the maximum number you can slide to
-					vrmod_pickup_range:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
+					vrmod_pickup_range:SetMax( 99.0 )				-- Set the maximum number you can slide to
+					vrmod_pickup_range:SetDecimals( 1 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
 					vrmod_pickup_range:SetConVar( "vrmod_pickup_range" )	-- Changes the ConVar when you slide
 
 					-- If not using convars, you can use this hook + Panel.SetValue()
@@ -636,24 +633,22 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DNumSlider end
 
 			--DNumSlider Start
-				--vr_vrmod_pickup_range
-				local vrmod_pickup_retry= vgui.Create( "DNumSlider", Panel5 )
-				vrmod_pickup_retry:SetPos( 20, 200 )				-- Set the position (X,Y)
-					vrmod_pickup_retry:SetSize( 370, 25 )			-- Set the size (X,Y)
-					vrmod_pickup_retry:SetText( "vrmod_pickup_retry" )	-- Set the text above the slider
-					vrmod_pickup_retry:SetMin( 0 )				 	-- Set the minimum number you can slide to
-					vrmod_pickup_retry:SetMax( 2 )				-- Set the maximum number you can slide to
-					vrmod_pickup_retry:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
-					vrmod_pickup_retry:SetConVar( "vrmod_pickup_retry" )	-- Changes the ConVar when you slide
+				--vr_vrmod_pickup_limit
+				local vrmod_pickup_limit= vgui.Create( "DNumSlider", Panel5 )
+					vrmod_pickup_limit:SetPos( 20, 225 )				-- Set the position (X,Y)
+					vrmod_pickup_limit:SetSize( 370, 25 )			-- Set the size (X,Y)
+					vrmod_pickup_limit:SetText( "vrmod_pickup_limit" )	-- Set the text above the slider
+					vrmod_pickup_limit:SetMin( 0 )				 	-- Set the minimum number you can slide to
+					vrmod_pickup_limit:SetMax( 2 )				-- Set the maximum number you can slide to
+					vrmod_pickup_limit:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
+					vrmod_pickup_limit:SetConVar( "vrmod_pickup_limit" )	-- Changes the ConVar when you slide
 
 					-- If not using convars, you can use this hook + Panel.SetValue()
-					vrmod_pickup_retry.OnValueChanged = function( self, value )
+					vrmod_pickup_limit.OnValueChanged = function( self, value )
 
 					-- Called when the slider value changes
 					end
 			--DNumSlider end
-
-				
 
 		-- --Panel5 "TAB5" end
 				

@@ -2,15 +2,17 @@
 g_VR = g_VR or {}
 vrmod = vrmod or {}
 
-scripted_ents.Register({Type = "anim", Base = "vrmod_pickup"}, "vrmod_pickup")
+
+
+scripted_ents.Register({Type = "anim", Base = "vrmod_pickup_retry"}, "vrmod_pickup_retry")
 
 local _, convarValues = vrmod.GetConvars()
 
 vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 0, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 2, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-vrmod.AddCallbackedConvar("vrmod_test_pickup_limit_droptest", nil, 1,  FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 2, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.0,  FCVAR_REPLICATED + FCVAR_ARCHIVE, "",1.0, 999.0, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_test_pickup_limit_droptest", nil, 1,  FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 2, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.0,  FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "",1.0, 999.0, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 
-vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 30,  FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 99999, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 30,  FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 99999, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 
 
 
@@ -18,9 +20,13 @@ vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 30,  FCVAR_REPLICATED + FC
 
 if CLIENT then
 
+	-- local retryonclient = CreateClientConVar("vrmod_pickup_retry_client","0",FCVAR_ARCHIVE)
+	-- local retryonserver = CreateConVar("vrmod_pickup_retry_server","1",FCVAR_REPLICATED + FCVAR_ARCHIVE)
+	-- if !retryonserver:GetBool() and !retryonclient:GetBool() then return end
 
-	function vrmod.Pickup( bLeftHand, bDrop )
-		net.Start("vrmod_pickup")
+	
+	function vrmod.Pickupretry( bLeftHand, bDrop )
+		net.Start("vrmod_pickup_retry")
 		net.WriteBool(bLeftHand)
 		net.WriteBool(bDrop or false)
 		local pose = bLeftHand and g_VR.tracking.pose_lefthand or g_VR.tracking.pose_righthand
@@ -34,7 +40,7 @@ if CLIENT then
 		net.SendToServer()
 	end
 	
-	net.Receive("vrmod_pickup",function(len)
+	net.Receive("vrmod_pickup_retry",function(len)
 		local ply = net.ReadEntity()
 		local ent = net.ReadEntity()
 		local bDrop = net.ReadBool()
@@ -43,7 +49,7 @@ if CLIENT then
 			if IsValid(ent) and ent.RenderOverride == ent.VRPickupRenderOverride then
 				ent.RenderOverride = nil
 			end
-			hook.Call("VRMod_Drop", nil, ply, ent)
+			hook.Call("VRMod_Drop_retry", nil, ply, ent)
 		else
 			local bLeftHand = net.ReadBool()
 			local localPos = net.ReadVector()
@@ -70,19 +76,20 @@ if CLIENT then
 				g_VR[bLeftHand and "heldEntityLeft" or "heldEntityRight"]  = ent
 			end
 			--]]
-			hook.Call("VRMod_Pickup", nil, ply, ent)
+			hook.Call("vrmod_pickup_retry", nil, ply, ent)
 			
 		end
 	end)
 end
-	
 
 if SERVER then
 
 
+	-- local retryonserver = CreateConVar("vrmod_pickup_retry_server","1",FCVAR_REPLICATED + FCVAR_ARCHIVE)
+	-- if !retryonserver:GetBool() then return end
 
 
-	util.AddNetworkString("vrmod_pickup")
+	util.AddNetworkString("vrmod_pickup_retry")
 	
 	local pickupController = nil
 	local pickupList = {}
@@ -112,7 +119,7 @@ if SERVER then
 				end
 			end
 			
-			net.Start("vrmod_pickup")
+			net.Start("vrmod_pickup_retry")
 				net.WriteEntity(t.ply)
 				net.WriteEntity(t.ent)
 				net.WriteBool(true) --drop
@@ -127,10 +134,10 @@ if SERVER then
 				pickupController:StopMotionController()
 				pickupController:Remove()
 				pickupController = nil
-				hook.Remove("Tick","vrmod_pickup")
+				hook.Remove("Tick","vrmod_pickup_retry")
 				--print("removed controller")
 			end
-			hook.Call("VRMod_Drop", nil, t.ply, t.ent)
+			hook.Call("VRMod_Drop_retry", nil, t.ply, t.ent)
 			return
 		end
 	end
@@ -174,11 +181,11 @@ if SERVER then
 			end
 --pescorrzoneend
 			if not WorldToLocal(pickupPoint - v:GetPos(), Angle(), Vector(), v:GetAngles()):WithinAABox(v:OBBMins()*convarValues.vrmod_pickup_range, v:OBBMaxs()*convarValues.vrmod_pickup_range) then continue end
-			if hook.Call("VRMod_Pickup", nil, ply, v) == false then return end
+			if hook.Call("vrmod_pickup_retry", nil, ply, v) == false then return end
 			--
 			if pickupController == nil then
 				--print("created controller")
-				pickupController = ents.Create("vrmod_pickup")
+				pickupController = ents.Create("vrmod_pickup_retry")
 				pickupController.ShadowParams = { 
 					secondstoarrive = 0.0001, --1/cv_tickrate:GetInt()
 					maxangular = 5000,
@@ -201,7 +208,7 @@ if SERVER then
 					phys:ComputeShadowControl(self.ShadowParams)
 				end
 				pickupController:StartMotionController()
-					hook.Add("Tick","vrmod_pickup",function()
+					hook.Add("Tick","vrmod_pickup_retry",function()
 						--drop items that have become immovable or invalid
 						for i = 1,pickupCount do
 							local t = pickupList[i]
@@ -263,7 +270,7 @@ if SERVER then
 				v.vrmod_pickup_info = pickupList[index]
 				v:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR) --don't collide with the player
 				--
-				net.Start("vrmod_pickup")
+				net.Start("vrmod_pickup_retry")
 					net.WriteEntity(ply)
 					net.WriteEntity(v)
 					net.WriteBool(bDrop)
@@ -275,7 +282,7 @@ if SERVER then
 			end
 		end
 	
-		vrmod.NetReceiveLimited("vrmod_pickup",10,400,function(len, ply)
+		vrmod.NetReceiveLimited("vrmod_pickup_retry",10,400,function(len, ply)
 			local bLeftHand = net.ReadBool()
 			local bDrop = net.ReadBool()
 			if not bDrop then
@@ -287,7 +294,7 @@ if SERVER then
 		
 		hook.Add("VRMod_Exit","pickupreset",function(ply,ent)
 		-- pickupCount = 0
-			hook.Call("VRMod_Drop", nil, ply, ent)
+			hook.Call("VRMod_Drop_retry", nil, ply, ent)
 			-- table.remove(g_VR[ply:SteamID()].heldItems)
 			end)
 
