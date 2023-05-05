@@ -1,9 +1,7 @@
 local paths = {}
 
 
-local operation = CreateConVar("vrmod_dev_unoffcial_folder_file_operation", "0", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons",0,2)
-
-if operation:GetInt() == 0 then return end
+local operation = CreateConVar("vrmod_dev_unoffcial_folder_file_operation", "1", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons",1,2)
 
 if operation:GetInt() == 1 then
 
