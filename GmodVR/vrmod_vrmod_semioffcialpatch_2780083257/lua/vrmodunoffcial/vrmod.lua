@@ -349,7 +349,7 @@ if CLIENT then
 		vrmod.StartLocomotion()
 		
 		g_VR.tracking = {
-			hmd = {pos=LocalPlayer():GetPos()+Vector(0,0,characterInfo[steamid].characterEyeHeight),ang=Angle(),vel=Vector(),angvel=Angle()},
+			hmd = {pos=LocalPlayer():GetPos()+Vector(0,0,convarValues.vrmod_characterEyeHeight),ang=Angle(),vel=Vector(),angvel=Angle()},
 			pose_lefthand = {pos=LocalPlayer():GetPos(),ang=Angle(),vel=Vector(),angvel=Angle()},
 			pose_righthand = {pos=LocalPlayer():GetPos(),ang=Angle(),vel=Vector(),angvel=Angle()},
 		}
