@@ -147,7 +147,7 @@ if SERVER then
 		-- ここで、エンティティが拾われるべきかどうかを判断するコードを追加します。
 		-- 拾われるべきでないエンティティの場合は、false を返します。
 		-- 例: エンティティのクラス名が "not_pickable" の場合、false を返す
-		if ent:GetModel() == "models/hunter/plates/plate.mdl" and ent:Getmass() == 20 and ent:GetNoDraw() == true then
+		if ent:GetModel() == "models/hunter/plates/plate.mdl" and ent:Getmass() == 20 then
 			return false
 		end
 		-- 他の条件を追加することができます。
