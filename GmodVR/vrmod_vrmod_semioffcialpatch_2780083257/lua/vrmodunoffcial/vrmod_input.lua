@@ -2,7 +2,7 @@ local cl_bothkey = CreateClientConVar("vrmod_vehicle_bothkeymode","0",true,FCVAR
 local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client","0",true,FCVAR_ARCHIVE)
 local cl_lefthand = CreateClientConVar("vrmod_LeftHand", "0") 
 local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", "0") 
-local retry = CreateClientConVar("vrmod_pickup_retry","1",true,FCVAR_ARCHIVE,"",0,1)
+local retryon = CreateClientConVar("vrmod_pickup_retry","1",true,FCVAR_ARCHIVE,"",0,1)
 
 
 if CLIENT then
