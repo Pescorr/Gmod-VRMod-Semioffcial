@@ -277,7 +277,7 @@ function VREaddvrmenuOpen()
 
 
 
-if not !GetConVar("vrgrab_gravitygloves_minrange") then
+if not !GetConVar("arcticvr_2h_sens") then
 
 	--button toggle start
 
