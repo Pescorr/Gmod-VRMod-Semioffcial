@@ -18,7 +18,6 @@ vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 30,  FCVAR_REPLICATED + FC
 
 if CLIENT then
 
-
 	function vrmod.Pickup( bLeftHand, bDrop )
 		net.Start("vrmod_pickup")
 		net.WriteBool(bLeftHand)
@@ -135,22 +134,6 @@ if SERVER then
 		end
 	end
 	
-	--pes&chatgptstart
-	local function shouldPickUp(ent)
-		-- ここで、エンティティが拾われるべきかどうかを判断するコードを追加します。
-		-- 拾われるべきでないエンティティの場合は、false を返します。
-		-- 例: エンティティのクラス名が "not_pickable" の場合、false を返す
-		if ent:GetModel() == "models/hunter/plates/plate.mdl" and ent:Getmass() == 20 then
-			return false
-		end
-		-- 他の条件を追加することができます。
-		if ent:GetNoDraw() == true then return false end
-		-- 上記の条件に一致しない場合、エンティティは拾われるべきと判断されます。
-		return true
-	end
-
-	--pes&chatgptend
-
 	
 	local function pickup(ply, bLeftHand, handPos, handAng)
 		local steamid = ply:SteamID()
@@ -159,6 +142,24 @@ if SERVER then
 		for k = 1,#entities do local v = entities[k]
 --pescorrzonestart
     -- ここで shouldPickUp 関数を使用して、エンティティが拾われるべきかどうかをチェックします。
+
+	--pes&chatgptstart
+	local function shouldPickUp(v)
+	        local vphys = v:GetPhysicsObject()
+		-- ここで、エンティティが拾われるべきかどうかを判断するコードを追加します。
+		-- 拾われるべきでないエンティティの場合は、false を返します。
+		-- 例: エンティティのクラス名が "not_pickable" の場合、false を返す
+        if v:GetModel() == "models/hunter/plates/plate.mdl" and IsValid(vphys) and vphys:GetMass() == 20 and v:GetNoDraw() == true then
+			return false
+		end
+		-- 他の条件を追加することができます。
+		if v:GetNoDraw() == true then return false end
+		-- 上記の条件に一致しない場合、エンティティは拾われるべきと判断されます。
+		return true
+	end
+	--pes&chatgptend
+
+	
 		if not shouldPickUp(v) then
 			continue
 		end
@@ -256,7 +257,28 @@ if SERVER then
 				else
 					--print("existing pickup")
 				end
+				--ragdollpickup start
+				if v:GetClass() == "prop_ragdoll" then
+					local closestBoneIndex = 0
+					local closestBoneDist = math.huge
+					local numBones = v:GetBoneCount()
+					
+					for i = 0, numBones - 1 do
+						local bonePos = v:GetBonePosition(i)
+						local dist = bonePos:Distance(handPos)
+					
+						if dist < closestBoneDist then
+							closestBoneDist = dist
+							closestBoneIndex = i
+						end
+					end
+					
+					local nearestBonePosition = v:GetBonePosition(closestBoneIndex)
+					local localPos, localAng = WorldToLocal(nearestBonePosition, v:GetAngles(), handPos, handAng)
+				else
 				local localPos, localAng = WorldToLocal(v:GetPos(), v:GetAngles(), handPos, handAng)
+				end					
+				--ragdollpickup end
 				pickupList[index] = {ent = v, phys = v:GetPhysicsObject(), left = bLeftHand, localPos = localPos, localAng = localAng, collisionGroup = (pickupList[index] and pickupList[index].collisionGroup or v:GetCollisionGroup()), steamid = steamid, ply = ply}
 				g_VR[steamid].heldItems = g_VR[steamid].heldItems or {}
 				g_VR[steamid].heldItems[bLeftHand and 1 or 2] = pickupList[index]

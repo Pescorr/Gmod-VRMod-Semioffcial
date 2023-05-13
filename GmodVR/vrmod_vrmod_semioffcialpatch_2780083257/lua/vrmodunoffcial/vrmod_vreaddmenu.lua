@@ -220,8 +220,8 @@ function VREaddvrmenuOpen()
 --2button toggle start
 
 			local button6 = vgui.Create("DButton")
-			button6:SetText("VehicleMode: ")
-			local ccval6 = {"Normal","LFS"}
+			button6:SetText("Vehicle mode\n")
+			local ccval6 = {"[simfphys/HL2Jeep]\nLFS/TANK","simfphys/HL2Jeep\n[LFS/TANK]"}
 			button6:SetSize(120, 60)
 			button6:SetTextColor(Color(255, 255, 255))
 			grid:AddItem(button6)
@@ -240,7 +240,7 @@ function VREaddvrmenuOpen()
 			end
 
 			function button6:Paint(w, h)
-				button6:SetText("VehicleMode: "..ccval6[button6on+1])
+				button6:SetText("Vehicle mode\n"..ccval6[button6on+1])
 				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(button6on -2)])
 			end
 
@@ -360,8 +360,8 @@ end
 if not !GetConVar("vrgrab_range") then
 	--2button toggle start
 				local buttonA = vgui.Create("DButton")
-				local ccvalA = {"OFF", "ON"}
-				buttonA:SetText("original pickup\noverride\nproof")
+				local ccvalA = {"Item/Gun", "Everything"}
+				buttonA:SetText("Pickup Possible\n")
 				buttonA:SetSize(120, 60)
 				buttonA:SetTextColor(Color(255, 255, 255))
 				grid:AddItem(buttonA)
@@ -378,7 +378,7 @@ if not !GetConVar("vrgrab_range") then
 				end
 
 				function buttonA:Paint(w, h)
-					buttonA:SetText("original pickup\noverride\nproof"..ccvalA[buttonAon+1])
+					buttonA:SetText("Pickup Possible\n"..ccvalA[buttonAon+1])
 					draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon -2)])
 				end
 	--2button toggle end
@@ -386,7 +386,7 @@ end
 
 --2button toggle start		
 		local buttonB = vgui.Create("DButton")
-		buttonB:SetText("pickup_disable: ")
+		buttonB:SetText("disable\npickup: ")
 		buttonB:SetSize(120, 60)
 		buttonB:SetTextColor(Color(255, 255, 255))
 		grid:AddItem(buttonB)

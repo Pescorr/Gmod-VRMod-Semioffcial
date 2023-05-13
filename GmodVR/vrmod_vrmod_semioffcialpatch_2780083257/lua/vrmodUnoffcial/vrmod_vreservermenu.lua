@@ -246,31 +246,6 @@ end
 
 
 
---2button toggle start
-			local button7 = vgui.Create("DButton")
-			local ccval7 = {"OFF", "ON"}
-			button7:SetText("original pickup\noverride\nproof")
-			button7:SetSize(120, 60)
-			button7:SetTextColor(Color(255, 255, 255))
-			grid:AddItem(button7)
-			button7.DoClick = function()
-			--command start
-				if button7on == 1 then
-					button7on = 0
-					LocalPlayer():ConCommand("vrmod_pickup_retry 1")
-				else
-					button7on = 1
-					LocalPlayer():ConCommand("vrmod_pickup_retry 0")
-				end
-			--command end
-			end
-
-			function button7:Paint(w, h)
-				button7:SetText("original pickup\noverride\nproof"..ccval7[button7on+1])
-				draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(button7on -2)])
-			end
-
---2button toggle end
 
 if not !GetConVar("arcticvr_gunmelee_client") then
 	--button toggle start

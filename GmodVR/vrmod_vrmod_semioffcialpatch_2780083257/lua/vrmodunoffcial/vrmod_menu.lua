@@ -165,7 +165,8 @@ hook.Add( "PopulateToolMenu", "vrmod_addspawnmenu", function()
 				end
 
 				vrmod_spawnmenu.DoRightClick = function()
-					RunConsoleCommand( "vrmod" )					LocalPlayer():ConCommand("-menu")
+					RunConsoleCommand( "vrmod" )					
+					LocalPlayer():ConCommand("-menu")
 					LocalPlayer():ConCommand("-menu")
 				end
 			--DButton end		

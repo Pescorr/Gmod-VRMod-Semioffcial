@@ -36,11 +36,13 @@ if CLIENT then
 		end
 		
 		if action == "boolean_left_pickup" then
+			if cl_pickupdisable:GetBool() then return end
 			vrmod.Pickup(true, not pressed)
 			return
 		end
 		
 		if action == "boolean_right_pickup" then
+			if cl_pickupdisable:GetBool() then return end
 			vrmod.Pickup(false, not pressed)
 			return
 		end
