@@ -9,10 +9,10 @@ scripted_ents.Register({Type = "anim", Base = "vrmod_pickup_retry"}, "vrmod_pick
 local _, convarValues = vrmod.GetConvars()
 
 vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 0, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 2, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-vrmod.AddCallbackedConvar("vrmod_test_pickup_limit_droptest", nil, 1,  FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 2, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.0,  FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "",1.0, 999.0, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_test_pickup_limit_droptest", nil, 1,  FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 2, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.0,  FCVAR_REPLICATED + FCVAR_ARCHIVE, "",1.0, 999.0, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 
-vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 30,  FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 99999, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 30,  FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 99999, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 
 
 
@@ -20,9 +20,6 @@ vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 30,  FCVAR_REPLICATED + FC
 
 if CLIENT then
 
-	-- local retryonclient = CreateClientConVar("vrmod_pickup_retry_client","0",FCVAR_ARCHIVE)
-	-- local retryonserver = CreateConVar("vrmod_pickup_retry_server","1",FCVAR_REPLICATED + FCVAR_ARCHIVE)
-	-- if !retryonserver:GetBool() and !retryonclient:GetBool() then return end
 
 	
 	function vrmod.Pickupretry( bLeftHand, bDrop )
@@ -49,7 +46,7 @@ if CLIENT then
 			if IsValid(ent) and ent.RenderOverride == ent.VRPickupRenderOverride then
 				ent.RenderOverride = nil
 			end
-			hook.Call("VRMod_Drop_retry", nil, ply, ent)
+			hook.Call("VRMod_Drop", nil, ply, ent)
 		else
 			local bLeftHand = net.ReadBool()
 			local localPos = net.ReadVector()
@@ -82,11 +79,10 @@ if CLIENT then
 	end)
 end
 
+
 if SERVER then
 
 
-	-- local retryonserver = CreateConVar("vrmod_pickup_retry_server","1",FCVAR_REPLICATED + FCVAR_ARCHIVE)
-	-- if !retryonserver:GetBool() then return end
 
 
 	util.AddNetworkString("vrmod_pickup_retry")
@@ -137,17 +133,18 @@ if SERVER then
 				hook.Remove("Tick","vrmod_pickup_retry")
 				--print("removed controller")
 			end
-			hook.Call("VRMod_Drop_retry", nil, t.ply, t.ent)
+			hook.Call("VRMod_Drop", nil, t.ply, t.ent)
 			return
 		end
 	end
 	
 	--pes&chatgptstart
 	local function shouldPickUp(ent)
+		local vphys = ent:GetPhysicsObject()
 		-- ここで、エンティティが拾われるべきかどうかを判断するコードを追加します。
 		-- 拾われるべきでないエンティティの場合は、false を返します。
 		-- 例: エンティティのクラス名が "not_pickable" の場合、false を返す
-		if ent:GetModel() == "models/hunter/plates/plate.mdl" and ent:Getmass() == 20 then
+        if ent:GetModel() == "models/hunter/plates/plate.mdl" and IsValid(vphys) and vphys:GetMass() == 20 and ent:GetNoDraw() == true then
 			return false
 		end
 		-- 他の条件を追加することができます。
@@ -294,7 +291,7 @@ if SERVER then
 		
 		hook.Add("VRMod_Exit","pickupreset",function(ply,ent)
 		-- pickupCount = 0
-			hook.Call("VRMod_Drop_retry", nil, ply, ent)
+			hook.Call("VRMod_Drop", nil, ply, ent)
 			-- table.remove(g_VR[ply:SteamID()].heldItems)
 			end)
 
