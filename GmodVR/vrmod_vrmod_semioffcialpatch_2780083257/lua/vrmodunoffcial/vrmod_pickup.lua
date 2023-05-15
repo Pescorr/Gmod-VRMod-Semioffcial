@@ -257,28 +257,7 @@ if SERVER then
 				else
 					--print("existing pickup")
 				end
-				--ragdollpickup start
-				if v:GetClass() == "prop_ragdoll" then
-					local closestBoneIndex = 0
-					local closestBoneDist = math.huge
-					local numBones = v:GetBoneCount()
-					
-					for i = 0, numBones - 1 do
-						local bonePos = v:GetBonePosition(i)
-						local dist = bonePos:Distance(handPos)
-					
-						if dist < closestBoneDist then
-							closestBoneDist = dist
-							closestBoneIndex = i
-						end
-					end
-					
-					local nearestBonePosition = v:GetBonePosition(closestBoneIndex)
-					local localPos, localAng = WorldToLocal(nearestBonePosition, v:GetAngles(), handPos, handAng)
-				else
 				local localPos, localAng = WorldToLocal(v:GetPos(), v:GetAngles(), handPos, handAng)
-				end					
-				--ragdollpickup end
 				pickupList[index] = {ent = v, phys = v:GetPhysicsObject(), left = bLeftHand, localPos = localPos, localAng = localAng, collisionGroup = (pickupList[index] and pickupList[index].collisionGroup or v:GetCollisionGroup()), steamid = steamid, ply = ply}
 				g_VR[steamid].heldItems = g_VR[steamid].heldItems or {}
 				g_VR[steamid].heldItems[bLeftHand and 1 or 2] = pickupList[index]

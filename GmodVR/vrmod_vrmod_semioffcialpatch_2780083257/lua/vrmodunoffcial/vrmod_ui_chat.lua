@@ -4,6 +4,7 @@ if CLIENT then
 	local chatLog = {}
 	local chatPanel = nil
 	local nametags = false
+	local VRClipboard = CreateClientConVar("vrmod_Clipboard","",false,false,"")
 	
 	hook.Add("VRMod_Start","voicepermissions",function(ply)
 
@@ -182,6 +183,7 @@ if CLIENT then
 							elseif key:GetText() == "Enter" then
 								if nametags then
 								LocalPlayer():ConCommand(""..chatPanel.msgbar:GetText())
+								VRClipboard:SetString(""..chatPanel.msgbar:GetText())
 								SetClipboardText(""..chatPanel.msgbar:GetText())
 								else
 								LocalPlayer():ConCommand("say "..chatPanel.msgbar:GetText())
