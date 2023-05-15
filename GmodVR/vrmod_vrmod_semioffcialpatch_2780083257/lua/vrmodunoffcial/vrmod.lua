@@ -259,6 +259,7 @@ if CLIENT then
 		local displayInfo = VRMOD_GetDisplayInfo(1,10)
 		
 		local rtWidth, rtHeight = displayInfo.RecommendedWidth*2, displayInfo.RecommendedHeight
+		local rtWidthright = rtWidth/2
 		if system.IsLinux() then
 			rtWidth, rtHeight = math.min(4096,pow2ceil(rtWidth)), math.min(4096,pow2ceil(rtHeight)) --todo pow2ceil might not be necessary
 		end
@@ -382,7 +383,7 @@ if CLIENT then
 		
 		g_VR.view = {
 				x = 0, y = 0,
-				w = rtWidth/2, h = rtHeight,
+				w = rtWidthright, h = rtHeight,
 				--aspectratio = aspect,
 				--fov = hfov,
 				drawmonitors = true,
@@ -392,7 +393,7 @@ if CLIENT then
 			}
 		
 		local desktopView = convars.vrmod_desktopview:GetInt()
-		local cropVerticalMargin = (1 - (ScrH()/ScrW() * (rtWidth/2) / rtHeight)) / 2
+		local cropVerticalMargin = (1 - (ScrH()/ScrW() * (rtWidthright) / rtHeight)) / 2
 		local cropHorizontalOffset = (desktopView==3) and 0.5 or 0
 		local mat_rt = CreateMaterial("vrmod_mat_rt"..tostring(SysTime()), "UnlitGeneric",{ ["$basetexture"] = g_VR.rt:GetName() })
 			
@@ -562,7 +563,7 @@ if CLIENT then
 				-- right
 				
 				g_VR.view.origin = g_VR.eyePosRight
-				g_VR.view.x = rtWidth/2
+				g_VR.view.x = rtWidthright
 				g_VR.view.fov = hfovRight
 				g_VR.view.aspectratio = aspectRight
 				hook.Call("VRMod_PreRenderRight")

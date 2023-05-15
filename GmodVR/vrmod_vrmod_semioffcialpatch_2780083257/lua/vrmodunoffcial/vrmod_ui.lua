@@ -12,6 +12,8 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 1,nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1,nil, "", 0, 4, tonumber)
 
+	local VRClipboard = CreateClientConVar("vrmod_Clipboard","",false,false,"")
+
 
 	
 	local rt_beam = GetRenderTarget("vrmod_rt_beam",64,64,false)
@@ -210,6 +212,18 @@ if CLIENT then
 			gui.EnableScreenClicker(false)
 		end
 	end
+
+
+	function ReloadKeyPressed()
+		local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
+		-- マウスカーソル下にあるパネルを取得する
+		local panel = vgui.GetHoveredPanel()
+		-- パネルがDTextEntryであるかどうかを確認する
+		if IsValid(panel)  then
+		-- テキストボックスにConVarの文字列を設定する
+			panel:SetValue(VRClipboard)
+		end
+	end
 	
 	hook.Add("VRMod_Input","ui",function(action, pressed)
 		if g_VR.menuFocus and action == "boolean_primaryfire" then
@@ -234,14 +248,15 @@ if CLIENT then
 			-- VRUtilMenuRenderPanel(g_VR.menuFocus)
 		-- end
 		
-		-- if g_VR.menuFocus and action == "boolean_sprint" then
-			-- if pressed then
-				-- gui.InternalMousePressed(MOUSE_MIDDLE)
-			-- else
-				-- gui.InternalMouseReleased(MOUSE_MIDDLE)
-			-- end
-			-- VRUtilMenuRenderPanel(g_VR.menuFocus)
-		-- end
+		if g_VR.menuFocus and action == "boolean_reload" then
+			if pressed then
+				-- キー入力イベントをフックする
+				ReloadKeyPressed()	
+			else
+				ReloadKeyPressed()	
+			end
+			VRUtilMenuRenderPanel(g_VR.menuFocus)
+		end
 
 		if g_VR.menuFocus and action == "boolean_back" then
 			if pressed then
