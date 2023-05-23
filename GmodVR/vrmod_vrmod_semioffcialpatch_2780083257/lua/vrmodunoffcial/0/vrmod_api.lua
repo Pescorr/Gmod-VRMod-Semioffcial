@@ -446,7 +446,7 @@ if CLIENT then
 		locomotionPanel:Add(DComboBox)
 		DComboBox:Dock( TOP )
 		DComboBox:DockMargin( 70, 0, 0, 5 )
-		DComboBox:SetValue("none")
+		DComboBox:SetValue("!ERROR!(Click me to select another item)")
 		for i = 1,#g_VR.locomotionOptions do
 			DComboBox:AddChoice( g_VR.locomotionOptions[i].name )
 		end

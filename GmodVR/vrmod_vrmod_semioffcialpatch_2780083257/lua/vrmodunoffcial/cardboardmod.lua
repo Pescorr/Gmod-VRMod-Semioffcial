@@ -2,6 +2,9 @@ if SERVER then return end
 
 CreateClientConVar("cardboardmod_scale", "39.37008", true, false)
 CreateClientConVar("cardboardmod_sensitivity", "0.01", true, false)
+local vrScrH = CreateClientConVar("vrmod_ScrH",ScrH(),true,FCVAR_ARCHIVE)
+local vrScrW = CreateClientConVar("vrmod_ScrW",ScrW(),true,FCVAR_ARCHIVE)
+
 
 local ogMcore, ogBorder, ogVMFOV
 
@@ -111,7 +114,7 @@ concommand.Add( "cardboardmod_start", function( ply, cmd, args )
 		end
 	end)
 	
-	vgui.GetWorldPanel():SetSize(ScrW(),ScrH())
+	vgui.GetWorldPanel():SetSize(vrScrW:GetInt(),vrScrH:GetInt())
 	--local panels = vgui.GetWorldPanel():GetChildren()
 	--panels[#panels+1] = GetHUDPanel()
 	--for k,v in pairs(panels) do
@@ -131,10 +134,10 @@ concommand.Add( "cardboardmod_start", function( ply, cmd, args )
 			surface.SetMaterial(mat_hud)
 			local tmp = render.GetToneMappingScaleLinear()
 			render.SetToneMappingScaleLinear(Vector(0.8,0.8,0.8))
-			surface.DrawTexturedRectUV(0,0,ScrW(),ScrH(),0,0,ScrW()/rtWidth,ScrH()/rtHeight)
+			surface.DrawTexturedRectUV(0,0,vrScrW:GetInt(),vrScrH:GetInt(),0,0,vrScrW:GetInt()/rtWidth,vrScrH:GetInt()/rtHeight)
 			render.SetToneMappingScaleLinear(tmp)
 			--surface.SetDrawColor(255,0,0,255)
-			--surface.DrawOutlinedRect(0,0,ScrW(),ScrH())
+			--surface.DrawOutlinedRect(0,0,vrScrW:GetInt(),vrScrH:GetInt())
 		cam.End3D2D()
 		cam.IgnoreZ(false)
 		
@@ -170,7 +173,7 @@ concommand.Add( "cardboardmod_start", function( ply, cmd, args )
 		cam.Start2D()
 		render.OverrideAlphaWriteEnable(true,true)
 		render.Clear(0,0,0,0,true,true)
-		render.RenderHUD(0,0,ScrW(),ScrH())
+		render.RenderHUD(0,0,vrScrW:GetInt(),vrScrH:GetInt())
 		for k,v in pairs(panels) do
 			if IsValid(v) and v:IsVisible() then
 				v:PaintManual()
@@ -206,7 +209,7 @@ concommand.Add( "cardboardmod_exit", function( ply, cmd, args )
 		RunConsoleCommand("spawnmenu_border", ogBorder)
 	end
 	RunConsoleCommand("viewmodel_fov", ogVMFOV)
-	vgui.GetWorldPanel():SetSize(ScrW()(),ScrH())
+	vgui.GetWorldPanel():SetSize(vrScrW:GetInt(),vrScrH:GetInt())
 end )
 		
 	

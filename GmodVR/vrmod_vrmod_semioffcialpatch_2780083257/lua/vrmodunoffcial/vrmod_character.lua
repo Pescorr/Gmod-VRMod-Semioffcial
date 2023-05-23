@@ -4,11 +4,14 @@
 
 if CLIENT then
 
+
+
+	
 	g_VR = g_VR or {}
 	g_VR.characterYaw = 0
 	local convars,convarValues = vrmod.GetConvars()
-	local cv_animation = CreateClientConVar("vrmod_animation_Enable", "1", FCVAR_ARCHIVE)
-
+	local cv_animation = CreateClientConVar("vrmod_animation_Enable", "1",true,FCVAR_ARCHIVE)
+	local charactereyelogic = CreateClientConVar("vrmod_characterlogic_alt","0",true,FCVAR_ARCHIVE)
 
 
 	
@@ -466,17 +469,20 @@ if CLIENT then
 		if eyes then 
 			eyes.Pos = eyes.Pos - cm:GetPos() 
 		end
-		--if eyes and eyes.Pos.z > 10 then --assume eye pos is valid if its above ground
-		--	characterInfo[steamid].characterEyeHeight = eyes.Pos.z
-		--	characterInfo[steamid].characterHeadToHmdDist = eyes.Pos.x * 2
-		--else --otherwise set some ballparks
-		--	headPos = headPos - cm:GetPos()
-		--	characterInfo[steamid].characterEyeHeight = headPos.z
-		--	characterInfo[steamid].characterHeadToHmdDist = 7
-		--end
-		characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
-		characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
-		
+
+		if charactereyelogic:GetBool() then
+			if eyes and eyes.Pos.z > 10 then --assume eye pos is valid if its above ground
+				characterInfo[steamid].characterEyeHeight = eyes.Pos.z
+				characterInfo[steamid].characterHeadToHmdDist = eyes.Pos.x * 2
+			else  --otherwise set some ballparks
+				headPos = headPos - cm:GetPos()
+				characterInfo[steamid].characterEyeHeight = headPos.z
+				characterInfo[steamid].characterHeadToHmdDist = 7
+			end
+		else
+			characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
+			characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
+		end
 		characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
 		
 		cm:Remove()

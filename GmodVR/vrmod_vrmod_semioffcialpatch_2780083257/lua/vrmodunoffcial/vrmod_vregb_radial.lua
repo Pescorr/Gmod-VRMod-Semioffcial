@@ -16,7 +16,6 @@ function VREgb_radialOpen()
 	if open then return end
     open = true
 
-
     local vregb_radialPanel = vgui.Create( "DPanel" )
     vregb_radialPanel:SetPos( 0, 0 )
     vregb_radialPanel:SetSize( ScrW(), ScrH() )
