@@ -2,6 +2,8 @@ g_VR = g_VR or {}
 
 local convars, convarValues = vrmod.GetConvars()
 
+
+
 vrmod.AddCallbackedConvar("vrmod_configversion", nil, "5")
 
 if convars.vrmod_configversion:GetString() ~= convars.vrmod_configversion:GetDefault() then
@@ -15,6 +17,10 @@ end
 
 
 if CLIENT then
+
+	local errorout = CreateClientConVar("vrmod_error_check_method","0",true)
+	local vrScrH = CreateClientConVar("vrmod_ScrH",ScrH(),true,FCVAR_ARCHIVE)
+	local vrScrW = CreateClientConVar("vrmod_ScrW",ScrW(),true,FCVAR_ARCHIVE)
 
 	g_VR.scale = 0
 	g_VR.origin = Vector(0,0,0)
@@ -33,7 +39,7 @@ if CLIENT then
 	g_VR.errorText = ""
 	
 	--todo move some of these to the files where they belong
-	vrmod.AddCallbackedConvar("vrmod_althead", nil, "0")
+	vrmod.AddCallbackedConvar("vrmod_althead", nil, "1")
 	vrmod.AddCallbackedConvar("vrmod_autostart", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_scale", nil, "38.7")
 	vrmod.AddCallbackedConvar("vrmod_heightmenu", nil, "1")
@@ -41,7 +47,7 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_desktopview", nil, "3")
 	vrmod.AddCallbackedConvar("vrmod_useworldmodels", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_laserpointer", nil, "0")
-	vrmod.AddCallbackedConvar("vrmod_znear", nil, "1.0")
+	vrmod.AddCallbackedConvar("vrmod_znear", nil, "6.0")
 	vrmod.AddCallbackedConvar("vrmod_characterEyeHeight", nil, "66.8", nil, "", nil, nil, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_characterHeadToHmdDist", nil, "6.3", nil, "", nil, nil, tonumber)--cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_oldcharacteryaw", nil, "0")
@@ -249,7 +255,10 @@ if CLIENT then
 			return
 		end
 		
-		-- VRMOD_Shutdown() --in case we're retrying after an error and shutdown wasn't called
+		if errorout:GetBool() then
+			VRMOD_Shutdown() --in case we're retrying after an error and shutdown wasn't called
+		end
+
 		
 		if VRMOD_Init() == false then
 			print("vr init failed")
@@ -393,7 +402,7 @@ if CLIENT then
 			}
 		
 		local desktopView = convars.vrmod_desktopview:GetInt()
-		local cropVerticalMargin = (1 - (ScrH()/ScrW() * (rtWidthright) / rtHeight)) / 2
+		local cropVerticalMargin = (1 - (vrScrH:GetInt()/vrScrW:GetInt() * (rtWidthright) / rtHeight)) / 2
 		local cropHorizontalOffset = (desktopView==3) and 0.5 or 0
 		local mat_rt = CreateMaterial("vrmod_mat_rt"..tostring(SysTime()), "UnlitGeneric",{ ["$basetexture"] = g_VR.rt:GetName() })
 			

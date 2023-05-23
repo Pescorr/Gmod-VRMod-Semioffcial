@@ -4,6 +4,9 @@ if CLIENT then
 	local _, convarValues = vrmod.AddCallbackedConvar("vrmod_use_sranipal", nil, "0", nil, nil, nil, nil, tobool)
 	local origMouthMove = nil
 	local flexSetups = {}
+	local vrScrH = CreateClientConVar("vrmod_ScrH",ScrH(),true,FCVAR_ARCHIVE)
+	local vrScrW = CreateClientConVar("vrmod_ScrW",ScrW(),true,FCVAR_ARCHIVE)
+
 	
 	
 	net.Receive( "vrmod_flexsetup", function( len, ply )
@@ -147,9 +150,9 @@ if CLIENT then
 		vrmod.AddInGameMenuItem("Flexbinder", 0, 1, function()
 			
 			local ang = Angle(0,g_VR.tracking.hmd.ang.yaw-90,45)
-			local pos, ang = WorldToLocal( g_VR.tracking.hmd.pos + Vector(0,0,-20) + Angle(0,g_VR.tracking.hmd.ang.yaw,0):Forward()*30 + ang:Forward()*ScrW()*-0.02 + ang:Right()*ScrH()*-0.02, ang, g_VR.origin, g_VR.originAngle)
+			local pos, ang = WorldToLocal( g_VR.tracking.hmd.pos + Vector(0,0,-20) + Angle(0,g_VR.tracking.hmd.ang.yaw,0):Forward()*30 + ang:Forward()*vrScrW:GetInt()*-0.02 + ang:Right()*vrScrH:GetInt()*-0.02, ang, g_VR.origin, g_VR.originAngle)
 
-			VRUtilMenuOpen("flexbinder", ScrW(), ScrH(), nil, 4, pos, ang, 0.04, true, function()
+			VRUtilMenuOpen("flexbinder", vrScrW:GetInt(), vrScrH:GetInt(), nil, 4, pos, ang, 0.04, true, function()
 				hook.Remove("PreRender","flexbinder")
 			end)
 			
@@ -330,10 +333,10 @@ if CLIENT then
 				surface.SetTextColor( 255, 255, 255 )
 				--background
 				surface.SetDrawColor( 0, 0, 0, 230 )
-				surface.DrawRect( 0, 0, ScrW(), ScrH() )
+				surface.DrawRect( 0, 0, vrScrW:GetInt(), vrScrH:GetInt() )
 				--left scroll panel
 				local contentHeight = #inputs*18
-				local panelHeight = ScrH()-45
+				local panelHeight = vrScrH:GetInt()-45
 				local maxScrollAmount = contentHeight-panelHeight
 				leftScrollAmount = math.Clamp(leftScrollAmount,0,maxScrollAmount)
 				surface.SetDrawColor( 128, 128, 128, 255 )
@@ -432,8 +435,8 @@ if CLIENT then
 				--top bar
 				render.OverrideBlend(true,BLEND_ZERO,BLEND_ZERO,BLENDFUNC_ADD, BLEND_ONE, BLEND_ZERO, BLENDFUNC_ADD)
 				surface.SetDrawColor( 0, 0, 0, 230 )
-				surface.DrawRect(0,0,ScrW(),40)
-				surface.DrawRect(0,ScrH()-5,ScrW(),5)
+				surface.DrawRect(0,0,vrScrW:GetInt(),40)
+				surface.DrawRect(0,vrScrH:GetInt()-5,vrScrW:GetInt(),5)
 				render.OverrideBlend(false)
 				surface.SetDrawColor( 255, 255, 255, 255 )
 				surface.DrawOutlinedRect( 1000, 5, 30, 30 )

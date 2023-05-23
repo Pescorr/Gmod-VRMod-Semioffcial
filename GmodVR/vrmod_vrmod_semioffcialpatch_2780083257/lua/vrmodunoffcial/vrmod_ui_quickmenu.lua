@@ -4,7 +4,7 @@ local open = false
 
 function g_VR.MenuOpen()
 	local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1") 
-	local shutdownbutton = CreateClientConVar("vrmod_shutdownmenu","0")
+	local shutdownbutton = CreateClientConVar("vrmod_shutdownmenu","1")
 
 	if hook.Call("VRMod_OpenQuickMenu") == false then return end
 

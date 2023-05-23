@@ -260,18 +260,18 @@ if CLIENT then
 
 		if g_VR.menuFocus and action == "boolean_back" then
 			if pressed then
-				gui.InternalMouseWheeled(-1)
+				gui.InternalMouseWheeled(-2)
 			else
-				gui.InternalMouseWheeled(-1)
+				gui.InternalMouseWheeled(-2)
 			end
 			VRUtilMenuRenderPanel(g_VR.menuFocus)
 		end
 
 		if g_VR.menuFocus and action == "boolean_forword" then
 			if pressed then
-				gui.InternalMouseWheeled(1)
+				gui.InternalMouseWheeled(2)
 			else
-				gui.InternalMouseWheeled(1)
+				gui.InternalMouseWheeled(2)
 			end
 			VRUtilMenuRenderPanel(g_VR.menuFocus)
 		end

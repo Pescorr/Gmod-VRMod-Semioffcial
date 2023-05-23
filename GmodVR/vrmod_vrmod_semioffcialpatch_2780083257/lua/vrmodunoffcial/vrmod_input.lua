@@ -3,6 +3,8 @@ local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client","0",true,
 local cl_lefthand = CreateClientConVar("vrmod_LeftHand", "0") 
 local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", "0") 
 local retryon = CreateClientConVar("vrmod_pickup_retry","1",true,FCVAR_ARCHIVE,"",0,1)
+local keyboardtest = CreateClientConVar("vrmod_test_keydown","0",true,FCVAR_ARCHIVE,"",0,1)
+
 
 
 if CLIENT then
@@ -141,6 +143,7 @@ if CLIENT then
 				
 		if action == "boolean_forword" then
 			LocalPlayer():ConCommand(pressed and "+forward" or "-forward")
+			
 			return
 		end
 		
@@ -237,4 +240,116 @@ if CLIENT then
 	
 	
 	end)
+
+	if keyboardtest:GetBool() then
+
+		hook.Add("VRMod_Input","vrutil_hook_keyboardinput",function( action, pressed )
+		
+			if (action == "boolean_primaryfire" or action == "boolean_turret") and not g_VR.menuFocus then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_ATTACK)
+				return
+				end
+			end
+			
+			if action == "boolean_secondaryfire" then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_ATTACK2)
+					return
+				end
+			end
+					
+			if action == "boolean_use" or action == "boolean_exit" then
+				if pressed then
+					cmd:SetButtons(KEY_E)
+					return
+				end
+			end
+					
+			if action == "boolean_flashlight" then
+				if pressed then
+					cmd:SetButtons(KEY_F)
+					return
+				end
+			end
+			
+			if action == "boolean_reload" then
+				if pressed then
+					cmd:SetButtons(KEY_R)
+				return
+				end
+			end
+			
+			if action == "boolean_undo" then
+				if pressed then
+					cmd:SetButtons(KEY_Z)
+					return
+				end
+			end
+
+					
+			if action == "boolean_forword" then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_FORWARD)
+					return
+				end
+			end
+			
+			if action == "boolean_back" then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_BACK)
+					return
+				end
+			end
+
+			if action == "boolean_left" then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_LEFT)
+					return
+				end
+			end
+
+			if action == "boolean_right" then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_RIGHT)
+					return
+				end
+			end
+
+
+				
+			if action == "boolean_walkkey" then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_WALK)
+					return
+				end
+			end
+
+			if action == "boolean_menucontext" then
+				if pressed then
+					cmd:SetButtons(KEY_C)
+					return
+				end
+			end
+			
+			if (action == "boolean_left_primaryfire") and not g_VR.menuFocus and cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_ATTACK)
+					return
+				end
+			end
+
+			if (action == "boolean_left_secondaryfire") and not g_VR.menuFocus and cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then
+				if pressed then
+					cmd:SetButtons(cmd:GetButtons(), IN_ATTACK2)
+					return
+				end
+			end
+
+		
+		
+		end)
+	end
+
+
 end
