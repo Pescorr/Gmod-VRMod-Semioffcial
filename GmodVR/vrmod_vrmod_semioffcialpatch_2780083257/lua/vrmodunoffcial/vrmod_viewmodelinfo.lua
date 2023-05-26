@@ -53,6 +53,159 @@ if CLIENT then
 	}
 
 
+	--metroid vol 1
+
+		g_VR.viewModelInfo.drc_powerbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_plasmabeammp3 = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_plasmabeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_phazonbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+
+		g_VR.viewModelInfo.drc_novabeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_lightbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_icebeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_hyperbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_darkbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_beanbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_annihilatorbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_wavebeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_supermissile = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_shrapnelbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+	--
+	--metroid vol 2
+
+		g_VR.viewModelInfo.drc_commando_assaultcannon = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_fed_flamethrower = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_fed_missilelauncher = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+		
+		g_VR.viewModelInfo.drc_fed_rfaw_ped = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_fed_rfaw2 = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_fed_rfaw3 = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_pirate_gauntlet = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_pirate_gauntlet_commander = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_pirate_gauntlet_soldier = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_quantum_assaultcannon = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+	--
+
+
 	g_VR.swepOriginalFovs = g_VR.swepOriginalFovs or {}
 	g_VR.lastUpdatedWeapon = ""
 

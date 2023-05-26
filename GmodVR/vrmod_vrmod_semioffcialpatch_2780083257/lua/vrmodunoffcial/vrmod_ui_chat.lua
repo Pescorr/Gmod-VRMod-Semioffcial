@@ -152,7 +152,7 @@ if CLIENT then
 						surface.DrawOutlinedRect(0,0,w,h)
 					end
 					local lowerCase = "1234567890\1\nqwertyuiop\nasdfghjkl\2\n\3zxcvbnm*.\3\n "
-					local upperCase = "!\"#$%&+=?-\1\nQWERTYUIOP\nASDFGHJKL\2\n\3ZXCVBNM_:\3\n "
+					local upperCase = "!\"#$/&+=?-\1\nQWERTYUIOP\nASDFGHJKL\2\n\3ZXCVBNM_:\3\n "
 					local selectedCase = lowerCase
 					local keys = {}
 					local function updateKeyboard()

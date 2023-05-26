@@ -1,6 +1,7 @@
 --******************************************************************************************************************************
 local cv_allowtp = CreateConVar("vrmod_allow_teleport", "1", FCVAR_REPLICATED)
 local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client","1",FCVAR_ARCHIVE)
+local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly","0",false,FCVAR_ARCHIVE)
 
 if SERVER then 
 	util.AddNetworkString("vrmod_teleport")
@@ -100,7 +101,6 @@ local function start()
 	end)
 	
 	hook.Add("PreRender","vrmod_locomotion",function()
-
 		if not g_VR.threePoints then return end
 		if ply:InVehicle() then
 			local v = ply:GetVehicle()
@@ -171,10 +171,17 @@ local function start()
 		cmd:SetViewAngles(viewAngles)
 		--noclip behaviour
 		if moveType == MOVETYPE_NOCLIP then
+			if cl_analogmoveonly:GetBool() then
+				LocalPlayer():ConCommand("vrmod_test_analogmoveonly 1")
+			end
 			cmd:SetForwardMove( math.abs(g_VR.input.vector2_walkdirection.y) > 0.5 and g_VR.input.vector2_walkdirection.y or 0 )
 			cmd:SetSideMove( math.abs(g_VR.input.vector2_walkdirection.x) > 0.5 and g_VR.input.vector2_walkdirection.x or 0 )
 			originVelocity = ply:GetVelocity()
 			return
+		else
+			if cl_analogmoveonly:GetBool() then
+				LocalPlayer():ConCommand("vrmod_test_analogmoveonly 0")
+			end
 		end
 		--
 		local joystickVec = LocalToWorld(Vector(g_VR.input.vector2_walkdirection.y * math.abs(g_VR.input.vector2_walkdirection.y), (-g_VR.input.vector2_walkdirection.x) * math.abs(g_VR.input.vector2_walkdirection.x), 0)*ply:GetMaxSpeed()*0.9, Angle(0,0,0), Vector(0,0,0), Angle(0, convarValues.controllerOriented and g_VR.tracking.pose_lefthand.ang.yaw or g_VR.tracking.hmd.ang.yaw, 0))
@@ -192,7 +199,6 @@ local function start()
 			cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_turbo and IN_SPEED or 0, g_VR.input.boolean_handbrake and IN_JUMP or 0) )
 			return
 		end
-
 
 
 	end)
@@ -220,8 +226,8 @@ local function stop()
 	--
 	hook.Remove("VRMod_PreRender","teleport")
 	if IsValid(tpBeamEnt) then tpBeamEnt:Remove() end
-	vrmod.RemoveInGameMenuItem("Reset Vehicle View")
 	vrmod.RemoveInGameMenuItem("Map Browser")
+	vrmod.RemoveInGameMenuItem("Reset Vehicle View")
 
 end
 
