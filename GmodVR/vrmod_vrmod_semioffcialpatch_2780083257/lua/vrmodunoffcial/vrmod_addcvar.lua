@@ -239,6 +239,30 @@ if CLIENT then
 		end	
 	end)
 
+	concommand.Add("vrmod_character_auto", function( ply, cmd, args)
+		local steamid = ply:SteamID()
+		local eyes = ply:GetAttachment(ply:LookupAttachment("eyes"))
+		local feet = ply:GetPos()
+			if eyes then
+				local eyeHeight = eyes.Pos.z - feet.z
+				local crouchHeight = eyeHeight /2
+				print("Eye height for " .. steamid .. " is: " .. eyeHeight)
+				
+				-- Store the eye height for later use
+				characterInfo = characterInfo or {}
+				characterInfo[steamid] = characterInfo[steamid] or {}
+				local eyeconvar = GetConVar("vrmod_characterEyeHeight")
+				eyeconvar:SetFloat(eyeHeight + 6)
+				local crouchconvar = GetConVar("vrmod_crouchthreshold")
+				crouchconvar:SetFloat(crouchHeight + 6)
+				local HeadToHmdDist = GetConVar("vrmod_characterHeadToHmdDist")
+				HeadToHmdDist:SetFloat(eyeHeight / 9.5)
+
+
+
+			end
+	end)
+
 
 	concommand.Add( "vrmod_togglelaserpointer", function( ply, cmd, args )
 		if not GetConVar("vrmod_laserpointer"):GetBool() then
