@@ -368,14 +368,29 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				--character_restart
 				local character_restart = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
 				character_restart:SetText( "characterHeadToHmdDist_apply \n (VRMod Restart)" )					-- Set the text on the button
-				character_restart:SetPos( 20, 130 )					-- Set the position on the frame
-				character_restart:SetSize( 330, 30 )					-- Set the size
+				character_restart:SetPos( 190, 130 )					-- Set the position on the frame
+				character_restart:SetSize( 160, 30 )					-- Set the size
 				character_restart.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
 					RunConsoleCommand( "vrmod_character_restart" )			-- Run the console command "say hi" when you click it ( command, args )
 				end
 
 				character_restart.DoRightClick = function()
+					RunConsoleCommand( "vrmod_character_restart" )			-- Run the console command "say hi" when you click it ( command, args )
+				end
+			--DButton end
 
+						--DButton Start
+				--character_auto
+				local character_auto = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
+				character_auto:SetText( "character_auto" )					-- Set the text on the button
+				character_auto:SetPos( 20, 130 )					-- Set the position on the frame
+				character_auto:SetSize( 160, 30 )					-- Set the size
+				character_auto.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
+					RunConsoleCommand( "vrmod_character_auto" )			-- Run the console command "say hi" when you click it ( command, args )
+				end
+
+				character_auto.DoRightClick = function()
+					RunConsoleCommand( "vrmod_character_auto" )			-- Run the console command "say hi" when you click it ( command, args )
 				end
 			--DButton end
 
@@ -444,9 +459,8 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				character_reset.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
 					RunConsoleCommand( "vrmod_character_reset" )			-- Run the console command "say hi" when you click it ( command, args )
 				end
-
 				character_reset.DoRightClick = function()
-
+					RunConsoleCommand( "vrmod_characterEyeHeight_auto" )			-- Run the console command "say hi" when you click it ( command, args )
 				end
 			--DButton end
 

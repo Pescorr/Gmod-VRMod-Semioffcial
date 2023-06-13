@@ -622,6 +622,8 @@ if CLIENT then
 	
 	-------------------------------------------------------------
 
+
+
 	function g_VR.StartCharacterSystem(ply)
 		local steamid = ply:SteamID()
 		if not g_VR.net[steamid] or CharacterInit(ply) == false then return end
