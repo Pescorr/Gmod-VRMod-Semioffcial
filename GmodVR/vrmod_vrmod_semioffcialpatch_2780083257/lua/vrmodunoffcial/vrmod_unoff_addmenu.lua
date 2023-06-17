@@ -213,36 +213,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			sheet:AddSheet( "Character", Panel2, "icon16/user_edit.png" )
 			Panel2.Paint = function( self, w, h ) draw.RoundedBox( 4, 0, 0, w, h, Color( 0, 0, 0, self:GetAlpha() ) ) end 
 					
-			-- --DCheckBoxLabel Start
-				-- local heightmenu_toggle = Panel2:Add( "DCheckBoxLabel" ) -- Create the checkbox
-					-- heightmenu_toggle:SetPos( 20, 25 )						-- Set the position
-					-- heightmenu_toggle:SetText("Show height adjustment menu")					-- Set the text next to the box
-					-- heightmenu_toggle:SetConVar( "vrmod_heightmenu" )				-- Change a ConVar when the box it ticked/unticked
-					-- heightmenu_toggle:SizeToContents()						-- Make its size the same as the contents
-			-- --DCheckBoxLabel end
-
-
-								
-			-- --DNumSlider Start
-				-- --scale
-				-- local scale= vgui.Create( "DNumSlider", Panel2 )
-					-- scale:SetPos( 20, 0 )				-- Set the position (X,Y)
-					-- scale:SetSize( 370, 25 )			-- Set the size (X,Y)
-					-- scale:SetText( "scale" )	-- Set the text above the slider
-					-- scale:SetMin( 1.00 )				 	-- Set the minimum number you can slide to
-					-- scale:SetMax( 60.00 )				-- Set the maximum number you can slide to
-					-- scale:SetDecimals( 2 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
-					-- scale:SetConVar( "vrmod_scale" )	-- Changes the ConVar when you slide
-					
-					-- -- If not using convars, you can use this hook + Panel.SetValue()
-					-- scale.OnValueChanged = function( self, value )
-					-- -- RunConsoleCommand( "vrmod_scale_apply" )
-					
-						-- -- Called when the slider value changes
-
-					-- end
-			-- --DNumSlider end
-				
+						
 								
 			--DNumSlider Start
 				--scale
@@ -322,29 +293,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					end
 			--DNumSlider end				
 				
-				
-			-- --DButton Start
-				-- --character_apply
-				-- local character_apply = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
-																  
-															   
-				-- character_apply:SetText( "characterEyeHeight_set" )					-- Set the text on the button
-				-- character_apply:SetPos( 20, 90 )					-- Set the position on the frame
-				-- character_apply:SetSize( 370, 25 )					-- Set the size
-				-- character_apply.DoClick = function()	
-				-- -- A custom function run when clicked ( note the . instead of : )
-					-- RunConsoleCommand( "vrmod_character_apply" )
-
-
-															 
-				-- end
-						
-
-				-- character_apply.DoRightClick = function()
-					-- RunConsoleCommand( "vrmod_character_apply" )
-				-- end
-			-- --DButton end
-				
+								
 				
 			--DNumSlider Start
 				--characterHeadToHmdDist
@@ -412,13 +361,13 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					animation_Enable:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
-			--DCheckBoxLabel Start
-				local vrmod_characterlogic_alt = Panel2:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				vrmod_characterlogic_alt:SetPos( 20, 220 )						-- Set the position
-				vrmod_characterlogic_alt:SetText("Character_logic_alt (Client)")					-- Set the text next to the box
-				vrmod_characterlogic_alt:SetConVar( "vrmod_characterlogic_alt" )				-- Change a ConVar when the box it ticked/unticked
-				vrmod_characterlogic_alt:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
+			-- --DCheckBoxLabel Start
+			-- 	local vrmod_characterlogic_alt = Panel2:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			-- 	vrmod_characterlogic_alt:SetPos( 20, 220 )						-- Set the position
+			-- 	vrmod_characterlogic_alt:SetText("Character_logic_alt (Client)")					-- Set the text next to the box
+			-- 	vrmod_characterlogic_alt:SetConVar( "vrmod_characterlogic_alt" )				-- Change a ConVar when the box it ticked/unticked
+			-- 	vrmod_characterlogic_alt:SizeToContents()						-- Make its size the same as the contents
+			-- --DCheckBoxLabel end
 
 				
 
@@ -452,15 +401,18 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				
 			--DButton Start
 				--character_restart
-				local character_reset = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
-				character_reset:SetText( "vrmod_character_reset" )					-- Set the text on the button
-				character_reset:SetPos( 20, 310 )					-- Set the position on the frame
-				character_reset:SetSize( 330, 30 )					-- Set the size
-				character_reset.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
-					RunConsoleCommand( "vrmod_character_reset" )			-- Run the console command "say hi" when you click it ( command, args )
-				end
-				character_reset.DoRightClick = function()
-					RunConsoleCommand( "vrmod_characterEyeHeight_auto" )			-- Run the console command "say hi" when you click it ( command, args )
+				local ToggleMirror = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
+				ToggleMirror:SetText( "Toggle Mirror" )					-- Set the text on the button
+				ToggleMirror:SetPos( 20, 310 )					-- Set the position on the frame
+				ToggleMirror:SetSize( 330, 30 )					-- Set the size
+				ToggleMirror.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
+					if GetConVar("vrmod_heightmenu"):GetBool() then
+						VRUtilMenuClose("heightmenu")
+						convars.vrmod_heightmenu:SetBool(false) 
+					else					
+						VRUtilOpenHeightMenu()
+						convars.vrmod_heightmenu:SetBool(true)
+					end
 				end
 			--DButton end
 

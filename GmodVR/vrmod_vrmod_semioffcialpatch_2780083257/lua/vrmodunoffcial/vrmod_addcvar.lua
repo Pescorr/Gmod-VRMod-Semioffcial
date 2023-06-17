@@ -108,6 +108,7 @@ if CLIENT then
 	end)
 			
 	concommand.Add( "vrmod_character_restart", function( ply, cmd, args )
+		if not g_VR.active then return end
 		LocalPlayer():ConCommand("vrmod_exit")
 		AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
 		include("vrmodunoffcial/vrmod_character.lua")
@@ -217,8 +218,8 @@ if CLIENT then
 			print("mat_specular 0")
 		-- LocalPlayer():ConCommand("fps_max 90")
 			-- print("fps_max 90")
-		LocalPlayer():ConCommand("mat_queue_mode -1")
-				print("mat_queue_mode -1")
+		LocalPlayer():ConCommand("mat_queue_mode 2")
+				print("mat_queue_mode 2")
 		LocalPlayer():ConCommand("cl_threaded_bone_setup 1")
 				print("cl_threaded_bone_setup 1")
 		LocalPlayer():ConCommand("cl_threaded_client_leaf_system 1")
@@ -233,6 +234,18 @@ if CLIENT then
 				print("r_queued_ropes 1")
 		LocalPlayer():ConCommand("studio_queue_mode 1")
 				print("studio_queue_mode 1")
+		LocalPlayer():ConCommand("cl_forcepreload 1")
+			print("cl_forcepreload 1")
+		LocalPlayer():ConCommand("sv_forcepreload 1")
+		print("sv_forcepreload 1")
+			LocalPlayer():ConCommand("mat_alphacoverage 0")
+			print("mat_alphacoverage 0")
+		LocalPlayer():ConCommand("r_projectedtexture_filter 0")
+			print("r_projectedtexture_filter 0")
+		LocalPlayer():ConCommand("mat_vsync 1")
+			print("mat_vsync 1")
+		LocalPlayer():ConCommand("fov_desired 90")
+			print("fov_desired 90")
 
 		if g_VR.active == true then
 			LocalPlayer():ConCommand("vrmod_restart")
@@ -252,13 +265,13 @@ if CLIENT then
 				characterInfo = characterInfo or {}
 				characterInfo[steamid] = characterInfo[steamid] or {}
 				local eyeconvar = GetConVar("vrmod_characterEyeHeight")
-				eyeconvar:SetFloat(eyeHeight + 6)
+				eyeconvar:SetFloat(eyeHeight + 3)
 				local crouchconvar = GetConVar("vrmod_crouchthreshold")
-				crouchconvar:SetFloat(crouchHeight + 6)
+				crouchconvar:SetFloat(crouchHeight + 3)
 				local HeadToHmdDist = GetConVar("vrmod_characterHeadToHmdDist")
-				HeadToHmdDist:SetFloat(eyeHeight / 9.5)
+				HeadToHmdDist:SetFloat(eyeHeight / 5 - 6.3)
 
-
+				-- convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z-convarValues.vrmod_seatedoffset-g_VR.origin.z)) 
 
 			end
 	end)

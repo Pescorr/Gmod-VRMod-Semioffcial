@@ -81,61 +81,14 @@ function VRUtilOpenHeightMenu()
 
 	
 	local buttons, renderControls
-	buttons = {
-		{x=250,y=0,w=50,h=50,text="X",font="Trebuchet24",text_x=25,text_y=15,enabled=true,fn=function()
-			VRUtilMenuClose("heightmenu")
-			convars.vrmod_heightmenu:SetBool(false) 
-		end},
-		{x=250,y=200,w=50,h=50,text="+",font="Trebuchet24",text_x=25,text_y=15,enabled=not convarValues.vrmod_seated,fn=function()
-			g_VR.scale = g_VR.scale + 0.5
-			convars.vrmod_scale:SetFloat(g_VR.scale)
-		end},
-		{x=250,y=255,w=50,h=50,text="Auto\nScale",font="Trebuchet24",text_x=25,text_y=0,enabled=not convarValues.vrmod_seated,fn=function()
-			g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z-g_VR.origin.z)/g_VR.scale)
-			convars.vrmod_scale:SetFloat(g_VR.scale)
-		end},
-		{x=250,y=310,w=50,h=50,text="-",font="Trebuchet24",text_x=25,text_y=15,enabled=not convarValues.vrmod_seated,fn=function()
-			g_VR.scale = g_VR.scale - 0.5
-			convars.vrmod_scale:SetFloat(g_VR.scale)
-		end},
-		{x=0,y=200,w=50,h=50,text=convarValues.vrmod_seated and "Disable\nSeated\nOffset" or "Enable\nSeated\nOffset",font="Trebuchet18",text_x=25,text_y=-2,enabled=true,fn=function()
-			buttons[5].text = (not convarValues.vrmod_seated) and "Disable\nSeated\nOffset" or "Enable\nSeated\nOffset"
-			buttons[2].enabled = convarValues.vrmod_seated
-			buttons[3].enabled = convarValues.vrmod_seated
-			buttons[4].enabled = convarValues.vrmod_seated
-			buttons[6].enabled = not convarValues.vrmod_seated
-			convars.vrmod_seated:SetBool(not convarValues.vrmod_seated)
-			renderControls()
-		end},
-		{x=0,y=255,w=50,h=50,text="Auto\nOffset",font="Trebuchet18",text_x=25,text_y=5,enabled=convarValues.vrmod_seated,fn=function() 
-			convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z-convarValues.vrmod_seatedoffset-g_VR.origin.z)) 
-		end},
-	}
 	
 	renderControls = function()
 		VRUtilMenuRenderStart("heightmenu")
-		surface.SetDrawColor(0,0,0,255)
-		draw.DrawText( "note: you must disable seated mode\nand stand up irl when adjusting scale", "Trebuchet18", 3, -2, Color( 0, 0, 0, 255 ), TEXT_ALIGN_LEFT)
-		for k,v in ipairs(buttons) do
-			surface.SetDrawColor(0,0,0,v.enabled and 255 or 128)
-			surface.DrawRect(v.x,v.y,v.w,v.h)
-			draw.DrawText( v.text, v.font, v.x+v.text_x, v.y+v.text_y, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
-		end
 		VRUtilMenuRenderEnd()
 	end
 	
 	renderControls()
 	
-	hook.Add("VRMod_Input","vrmodheightmenuinput",function(action, pressed)
-		if g_VR.menuFocus == "heightmenu" and action == "boolean_primaryfire" and pressed then
-			for k,v in ipairs(buttons) do
-				if v.enabled and g_VR.menuCursorX > v.x and g_VR.menuCursorX < v.x+v.w and g_VR.menuCursorY > v.y and g_VR.menuCursorY < v.y+v.h then
-					v.fn()
-				end
-			end
-		end
-	end)
-
 end
 
 hook.Add("VRMod_Start","vrmod_OpenHeightMenuOnStartup",function(ply)
