@@ -184,6 +184,18 @@ if CLIENT then
 
 	end)
 
+
+	concommand.Add( "vrmod_scale_auto", function( ply, cmd, args )
+
+		g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z-g_VR.origin.z)/g_VR.scale)
+		convars.vrmod_scale:SetFloat(g_VR.scale)
+	end)
+
+	concommand.Add( "vrmod_seatedoffset_auto", function( ply, cmd, args )
+		convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z-convarValues.vrmod_seatedoffset-g_VR.origin.z)) 
+	end)
+
+
 	
 	concommand.Add( "vrmod_gmod_optimization", function( ply, cmd, args )
 		LocalPlayer():ConCommand("gmod_mcore_test 0")

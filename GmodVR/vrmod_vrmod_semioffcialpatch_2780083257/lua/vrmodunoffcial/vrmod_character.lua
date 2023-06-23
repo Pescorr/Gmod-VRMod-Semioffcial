@@ -470,15 +470,7 @@ if CLIENT then
 			eyes.Pos = eyes.Pos - cm:GetPos() 
 		end
 
-
-		if LocalPlayer() then
-			if eyes and eyes.Pos.z > 10 then --assume eye pos is valid if its above ground
-				characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
-				characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist	
-			end
-			characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z	
-			cm:Remove()
-		else
+		if charactereyelogic:GetBool() then
 			if eyes and eyes.Pos.z > 10 then --assume eye pos is valid if its above ground
 				characterInfo[steamid].characterEyeHeight = eyes.Pos.z
 				characterInfo[steamid].characterHeadToHmdDist = eyes.Pos.x * 2
@@ -487,9 +479,13 @@ if CLIENT then
 				characterInfo[steamid].characterEyeHeight = headPos.z
 				characterInfo[steamid].characterHeadToHmdDist = 7
 			end
-			characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z	
-			cm:Remove()
+		else
+			characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
+			characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
 		end
+		characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
+		
+		cm:Remove()
 		
 	end
 	
@@ -625,8 +621,6 @@ if CLIENT then
 	end
 	
 	-------------------------------------------------------------
-
-
 
 	function g_VR.StartCharacterSystem(ply)
 		local steamid = ply:SteamID()

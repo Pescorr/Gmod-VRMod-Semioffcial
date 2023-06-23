@@ -316,7 +316,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DButton Start
 				--character_restart
 				local character_restart = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
-				character_restart:SetText( "characterHeadToHmdDist_apply \n (VRMod Restart)" )					-- Set the text on the button
+				character_restart:SetText( "Apply \n (VRMod Restart)" )					-- Set the text on the button
 				character_restart:SetPos( 190, 130 )					-- Set the position on the frame
 				character_restart:SetSize( 160, 30 )					-- Set the size
 				character_restart.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
@@ -331,15 +331,21 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 						--DButton Start
 				--character_auto
 				local character_auto = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
-				character_auto:SetText( "character_auto" )					-- Set the text on the button
+				character_auto:SetText( "AutoAdjest \n (VRMod Restart)" )					-- Set the text on the button
 				character_auto:SetPos( 20, 130 )					-- Set the position on the frame
 				character_auto:SetSize( 160, 30 )					-- Set the size
 				character_auto.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
-					RunConsoleCommand( "vrmod_character_auto" )			-- Run the console command "say hi" when you click it ( command, args )
+					RunConsoleCommand( "vrmod_character_auto" )			-- Run the console command "say hi" when you click it ( command, args )							
+					timer.Simple(1, function()
+						RunConsoleCommand( "vrmod_scale_auto" )			-- Run the console command "say hi" when you click it ( command, args )					
+					end)
+					timer.Simple(1, function()
+						RunConsoleCommand( "vrmod_character_restart" )			-- Run the console command "say hi" when you click it ( command, args )
+					end)
 				end
 
 				character_auto.DoRightClick = function()
-					RunConsoleCommand( "vrmod_character_auto" )			-- Run the console command "say hi" when you click it ( command, args )
+					RunConsoleCommand( "vrmod_character_auto" )			-- Run the console command "say hi" when you click it ( command, args )							
 				end
 			--DButton end
 
@@ -361,13 +367,13 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					animation_Enable:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
-			-- --DCheckBoxLabel Start
-			-- 	local vrmod_characterlogic_alt = Panel2:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			-- 	vrmod_characterlogic_alt:SetPos( 20, 220 )						-- Set the position
-			-- 	vrmod_characterlogic_alt:SetText("Character_logic_alt (Client)")					-- Set the text next to the box
-			-- 	vrmod_characterlogic_alt:SetConVar( "vrmod_characterlogic_alt" )				-- Change a ConVar when the box it ticked/unticked
-			-- 	vrmod_characterlogic_alt:SizeToContents()						-- Make its size the same as the contents
-			-- --DCheckBoxLabel end
+			--DCheckBoxLabel Start
+				local vrmod_characterlogic_alt = Panel2:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_characterlogic_alt:SetPos( 20, 220 )						-- Set the position
+				vrmod_characterlogic_alt:SetText("Character_logic_alt (Client)")					-- Set the text next to the box
+				vrmod_characterlogic_alt:SetConVar( "vrmod_characterlogic_alt" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_characterlogic_alt:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
 
 				
 
@@ -404,7 +410,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				local ToggleMirror = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
 				ToggleMirror:SetText( "Toggle Mirror" )					-- Set the text on the button
 				ToggleMirror:SetPos( 20, 310 )					-- Set the position on the frame
-				ToggleMirror:SetSize( 330, 30 )					-- Set the size
+				ToggleMirror:SetSize( 160, 30 )					-- Set the size
 				ToggleMirror.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
 					if GetConVar("vrmod_heightmenu"):GetBool() then
 						VRUtilMenuClose("heightmenu")
