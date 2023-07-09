@@ -96,12 +96,12 @@ if SERVER then
 			local t = pickupList[i]
 			if t.steamid ~= steamid or t.left ~= bLeftHand then continue end
 			local phys = t.phys
---peszone
+					--peszone
 					if not t or not t.ent then
 									drop(t.steamid, t.left)
 					break
 					end
---peszone end
+			--peszone end
 			if IsValid(phys) and IsValid(t.ent) then
 				t.ent:SetCollisionGroup(t.collisionGroup)
 				pickupController:RemoveFromMotionController(phys)
@@ -161,8 +161,8 @@ if SERVER then
 		local pickupPoint = LocalToWorld(Vector(3, bLeftHand and -1.5 or 1.5,0), Angle(), handPos, handAng)
 		local entities = ents.FindInSphere(pickupPoint,100)
 		for k = 1,#entities do local v = entities[k]
---pescorrzonestart
-    -- ここで shouldPickUp 関数を使用して、エンティティが拾われるべきかどうかをチェックします。
+	--pescorrzonestart
+		-- ここで shouldPickUp 関数を使用して、エンティティが拾われるべきかどうかをチェックします。
 		if not shouldPickUp(v) then
 			continue
 		end
@@ -176,7 +176,7 @@ if SERVER then
 			if convarValues.vrmod_pickup_limit == 0 then
 				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or v == ply or ply:InVehicle() or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight then continue end
 			end
---pescorrzoneend
+			--pescorrzoneend
 			if not WorldToLocal(pickupPoint - v:GetPos(), Angle(), Vector(), v:GetAngles()):WithinAABox(v:OBBMins()*convarValues.vrmod_pickup_range, v:OBBMaxs()*convarValues.vrmod_pickup_range) then continue end
 			if hook.Call("vrmod_pickup_retry", nil, ply, v) == false then return end
 			--
@@ -295,11 +295,11 @@ if SERVER then
 			-- table.remove(g_VR[ply:SteamID()].heldItems)
 			end)
 
-	--block the gmod default pickup for vr players
+			--block the gmod default pickup for vr players
 			hook.Add("AllowPlayerPickup","vrmod",function(ply)
 				if g_VR[ply:SteamID()] ~= nil then
 					return false
 				end
 			end)
 	
-	end
+end

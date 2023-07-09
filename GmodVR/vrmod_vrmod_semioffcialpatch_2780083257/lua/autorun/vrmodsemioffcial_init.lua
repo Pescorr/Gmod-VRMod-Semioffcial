@@ -3,6 +3,7 @@ local paths = {}
 
 local operation = CreateConVar("vrmod_dev_unoffcial_folder_file_operation", "1", FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons",1,2)
 
+
 if operation:GetInt() == 1 then
 
     -- ConVarを作成

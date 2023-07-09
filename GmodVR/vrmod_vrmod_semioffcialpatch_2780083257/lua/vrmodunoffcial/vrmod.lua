@@ -18,9 +18,10 @@ end
 
 if CLIENT then
 
-	local errorout = CreateClientConVar("vrmod_error_check_method","0",true)
+	local errorout = CreateClientConVar("vrmod_error_check_method","1",true)
 	local vrScrH = CreateClientConVar("vrmod_ScrH",ScrH(),true,FCVAR_ARCHIVE)
 	local vrScrW = CreateClientConVar("vrmod_ScrW",ScrW(),true,FCVAR_ARCHIVE)
+	local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun","1",true,FCVAR_ARCHIVE)
 
 	g_VR.scale = 0
 	g_VR.origin = Vector(0,0,0)
@@ -346,6 +347,12 @@ if CLIENT then
 		overrideConvar("lfs_hipster", "0")
 		overrideConvar("playerscaling_clientspeed", "0")
 		overrideConvar("playerscaling_clientjump", "0")
+
+		if autoarcbench:GetBool() then
+			overrideConvar("arccw_dev_benchgun", "1")
+			overrideConvar("arc9_dev_benchgun", "1")		
+		end
+
 
 		--overrideConvar("pac_suppress_frames", "0")
 		--overrideConvar("pac_override_fov", "1")
@@ -679,6 +686,11 @@ if CLIENT then
 		VRUtilNetworkCleanup()
 		
 		vrmod.StopLocomotion()
+
+		if autoarcbench:GetBool() then
+			overrideConvar("arccw_dev_benchgun", "0")
+			overrideConvar("arc9_dev_benchgun", "0")		
+		end
 		
 		if IsValid(g_VR.viewModel) and g_VR.viewModel:GetClass() == "class C_BaseFlex" then
 			g_VR.viewModel:Remove()
@@ -714,7 +726,9 @@ if CLIENT then
 		VRMOD_Shutdown()
 		
 		g_VR.active = false
-		
+
+	
+	
 		
 	end
 	

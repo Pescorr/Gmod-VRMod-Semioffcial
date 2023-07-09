@@ -818,6 +818,13 @@ g_VR.bindings_touch = [[
                },
                {
                   "inputs" : [
+                     [ "/user/hand/left/input/joystick", "click" ],
+                     [ "/user/hand/right/input/joystick", "click" ]
+                  ],
+                  "output" : "/actions/main/in/boolean_flashlight"
+               },
+               {
+                  "inputs" : [
                      [ "/user/hand/left/input/y", "click" ],
                      [ "/user/hand/left/input/x", "click" ]
                   ],
@@ -1011,7 +1018,7 @@ g_VR.bindings_touch = [[
                {
                   "inputs" : {
                      "click" : {
-                        "output" : "/actions/main/in/boolean_reload"
+                        "output" : "/actions/main/in/boolean_use"
                      }
                   },
                   "mode" : "button",

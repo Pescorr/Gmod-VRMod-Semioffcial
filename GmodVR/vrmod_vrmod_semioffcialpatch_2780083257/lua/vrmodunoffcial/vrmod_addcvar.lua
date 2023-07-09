@@ -22,38 +22,38 @@ if CLIENT then
 	-- }
 
 
--- concommand.Add("vrmod_print_righthand_pos", function(ply)
--- print(g_VR.tracking.pose_righthand.pos)
--- end)
+	-- concommand.Add("vrmod_print_righthand_pos", function(ply)
+	-- print(g_VR.tracking.pose_righthand.pos)
+	-- end)
 
--- concommand.Add("vrmod_print_righthand_pos_x", function(ply)
--- print(g_VR.tracking.pose_righthand.pos.x)
--- end)
+	-- concommand.Add("vrmod_print_righthand_pos_x", function(ply)
+	-- print(g_VR.tracking.pose_righthand.pos.x)
+	-- end)
 
 
--- concommand.Add("vrmod_print_righthand_pos_y", function(ply)
--- print(g_VR.tracking.pose_righthand.pos.y)
--- end)
+	-- concommand.Add("vrmod_print_righthand_pos_y", function(ply)
+	-- print(g_VR.tracking.pose_righthand.pos.y)
+	-- end)
 
--- concommand.Add("vrmod_print_righthand_pos_z", function(ply)
--- print(g_VR.tracking.pose_righthand.pos.z)
--- end)
+	-- concommand.Add("vrmod_print_righthand_pos_z", function(ply)
+	-- print(g_VR.tracking.pose_righthand.pos.z)
+	-- end)
 
--- concommand.Add("vrmod_print_righthand_ang", function(ply)
--- print(g_VR.tracking.pose_righthand.ang)
--- end)
+	-- concommand.Add("vrmod_print_righthand_ang", function(ply)
+	-- print(g_VR.tracking.pose_righthand.ang)
+	-- end)
 
--- concommand.Add("vrmod_print_righthand_ang_x", function(ply)
--- print(g_VR.tracking.pose_righthand.ang.x)
--- end)
+	-- concommand.Add("vrmod_print_righthand_ang_x", function(ply)
+	-- print(g_VR.tracking.pose_righthand.ang.x)
+	-- end)
 
--- concommand.Add("vrmod_print_righthand_ang_y", function(ply)
--- print(g_VR.tracking.pose_righthand.ang.y)
--- end)
+	-- concommand.Add("vrmod_print_righthand_ang_y", function(ply)
+	-- print(g_VR.tracking.pose_righthand.ang.y)
+	-- end)
 
--- concommand.Add("vrmod_print_righthand_ang_z", function(ply)
--- print(g_VR.tracking.pose_righthand.ang.z)
--- end)
+	-- concommand.Add("vrmod_print_righthand_ang_z", function(ply)
+	-- print(g_VR.tracking.pose_righthand.ang.z)
+	-- end)
 
 
 	concommand.Add( "vrmod_keymode_restore", function( ply, cmd, args )
