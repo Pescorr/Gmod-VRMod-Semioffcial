@@ -5,6 +5,8 @@ local convars, convarValues = vrmod.GetConvars()
 
 hook.Add("VRMod_Menu","addsettings",function(frame)
 
+	
+
 	--Settings02 Start
 		--add VRMod_Menu Settings02 propertysheet start
 		local sheet = vgui.Create( "DPropertySheet", frame.DPropertySheet )
@@ -419,6 +421,21 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 						VRUtilOpenHeightMenu()
 						convars.vrmod_heightmenu:SetBool(true)
 					end
+				end
+			--DButton end
+
+			--DButton Start
+				--character_restart
+				local character_reset = vgui.Create( "DButton", Panel2 ) -- Create the button and parent it to the frame
+				character_reset:SetText( "vrmod_character_reset" )					-- Set the text on the button
+				character_reset:SetPos( 190, 310 )					-- Set the position on the frame
+				character_reset:SetSize( 160, 30 )					-- Set the size
+				character_reset.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
+					RunConsoleCommand( "vrmod_character_reset" )			-- Run the console command "say hi" when you click it ( command, args )
+				end
+
+				character_reset.DoRightClick = function()
+
 				end
 			--DButton end
 
@@ -881,6 +898,24 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			arc9benchview_button:SetConVar( "arc9_dev_benchgun" )				-- Change a ConVar when the box it ticked/unticked
 			arc9benchview_button:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
+
+			--DCheckBoxLabel Start
+			local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			autoarcbench_button:SetPos( 20, 170 )						-- Set the position
+			autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
+			autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+			autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+			--DCheckBoxLabel Start
+			local cl_drawhud = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			cl_drawhud:SetPos( 20, 210 )						-- Set the position
+			cl_drawhud:SetText("[cl_drawhud]")					-- Set the text next to the box
+			cl_drawhud:SetConVar( "cl_drawhud" )				-- Change a ConVar when the box it ticked/unticked
+			cl_drawhud:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+
 
 		-- Panel8 "TAB8" End
 
