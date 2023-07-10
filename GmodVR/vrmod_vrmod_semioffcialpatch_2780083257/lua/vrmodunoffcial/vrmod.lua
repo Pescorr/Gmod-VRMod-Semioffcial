@@ -23,6 +23,9 @@ if CLIENT then
 	local vrScrW = CreateClientConVar("vrmod_ScrW",ScrW(),true,FCVAR_ARCHIVE)
 	local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun","1",true,FCVAR_ARCHIVE)
 
+
+	
+
 	g_VR.scale = 0
 	g_VR.origin = Vector(0,0,0)
 	g_VR.originAngle = Angle(0,0,0)
