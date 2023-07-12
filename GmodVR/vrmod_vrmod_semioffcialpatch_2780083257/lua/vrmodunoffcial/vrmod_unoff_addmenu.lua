@@ -696,18 +696,18 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 
 
 			--DNumSlider Start
-				--gmod_mcore_test
-				local gmod_mcore_test= vgui.Create( "DNumSlider", Panel6 )
-					gmod_mcore_test:SetPos( 20, 80 )				-- Set the position (X,Y)
-					gmod_mcore_test:SetSize( 370, 120 )			-- Set the size (X,Y)
-					gmod_mcore_test:SetText( "[multi core test]\n(Blindness Warning!!!)\nSetting to [1] or [2] will\nenable the multi-core \nand increase FPS\nbut it will also make your right eye\nblink more intensely, which\nwill hurt your eyes.\n[0] is recommended." )	-- Set the text above the slider
-					gmod_mcore_test:SetMin( -1 )				 	-- Set the minimum number you can slide to
-					gmod_mcore_test:SetMax( 2 )				-- Set the maximum number you can slide to
-					gmod_mcore_test:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
-					gmod_mcore_test:SetConVar( "gmod_mcore_test" )	-- Changes the ConVar when you slide
+				--mat_queue_mode
+				local mat_queue_mode= vgui.Create( "DNumSlider", Panel6 )
+					mat_queue_mode:SetPos( 20, 80 )				-- Set the position (X,Y)
+					mat_queue_mode:SetSize( 370, 120 )			-- Set the size (X,Y)
+					mat_queue_mode:SetText( "[mat_queue_mode]\n(Blindness Warning!!!)\nSetting to [1] or [2] will\nenable the multi-core \nand increase FPS\nbut it will also make your right eye\nblink more intensely, which\nwill hurt your eyes.\n[0] is recommended." )	-- Set the text above the slider
+					mat_queue_mode:SetMin( -1 )				 	-- Set the minimum number you can slide to
+					mat_queue_mode:SetMax( 2 )				-- Set the maximum number you can slide to
+					mat_queue_mode:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
+					mat_queue_mode:SetConVar( "mat_queue_mode" )	-- Changes the ConVar when you slide
 
 					-- If not using convars, you can use this hook + Panel.SetValue()
-					gmod_mcore_test.OnValueChanged = function( self, value )
+					mat_queue_mode.OnValueChanged = function( self, value )
 
 					-- Called when the slider value changes
 					end

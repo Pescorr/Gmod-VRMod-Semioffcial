@@ -81,7 +81,7 @@ if SERVER then
 	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",FCVAR_ARCHIVE)
 	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",FCVAR_ARCHIVE)
 	return
-	end
+end
 
 
 local convars, convarValues = vrmod.AddCallbackedConvar("vrmod_controlleroriented", "controllerOriented", "0", nil, nil, nil, nil, tobool)
