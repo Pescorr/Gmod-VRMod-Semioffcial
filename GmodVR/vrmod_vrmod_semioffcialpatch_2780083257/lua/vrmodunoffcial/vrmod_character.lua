@@ -13,7 +13,6 @@ if CLIENT then
 	local cv_animation = CreateClientConVar("vrmod_animation_Enable", "1",true,FCVAR_ARCHIVE)
 	local charactereyelogic = CreateClientConVar("vrmod_characterlogic_alt","0",true,FCVAR_ARCHIVE)
 
-
 	
 	
 	g_VR.defaultOpenHandAngles = {
@@ -470,21 +469,23 @@ if CLIENT then
 			eyes.Pos = eyes.Pos - cm:GetPos() 
 		end
 
-		if charactereyelogic:GetBool() then
-			if eyes and eyes.Pos.z > 10 then --assume eye pos is valid if its above ground
+		if not ply == LocalPlayer() then --"自分以外のVRModユーザー行うように変更"
+			if eyes and eyes.Pos.z > 10 then 
 				characterInfo[steamid].characterEyeHeight = eyes.Pos.z
 				characterInfo[steamid].characterHeadToHmdDist = eyes.Pos.x * 2
-			else  --otherwise set some ballparks
+			else
 				headPos = headPos - cm:GetPos()
 				characterInfo[steamid].characterEyeHeight = headPos.z
 				characterInfo[steamid].characterHeadToHmdDist = 7
 			end
-		else
+		else  --"VRmodを使用する自分自身に適用するように変更"
 			characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
 			characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
+			local seatset = convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z-convarValues.vrmod_seatedoffset-g_VR.origin.z)
+			LocalPlayer():ConCommand("vrmod_seatedoffset".." "..seatset)
 		end
 		characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
-		
+				
 		cm:Remove()
 		
 	end
