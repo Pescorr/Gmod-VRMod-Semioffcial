@@ -677,18 +677,18 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 
 								
 			--DNumSlider Start
-				--vr_r_mapextents
-				local r_mapextents= vgui.Create( "DNumSlider", Panel6 )
-					r_mapextents:SetPos( 20, 50 )				-- Set the position (X,Y)
-					r_mapextents:SetSize( 370, 25 )			-- Set the size (X,Y)
-					r_mapextents:SetText( "[Visible range of map] \n (sv_cheats 1 is required)" )	-- Set the text above the slider
-					r_mapextents:SetMin( 1000 )				 	-- Set the minimum number you can slide to
-					r_mapextents:SetMax( 16384 )				-- Set the maximum number you can slide to
-					r_mapextents:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
-					r_mapextents:SetConVar( "r_mapextents" )	-- Changes the ConVar when you slide
+				--vr_r_farz
+				local r_farz= vgui.Create( "DNumSlider", Panel6 )
+					r_farz:SetPos( 20, 50 )				-- Set the position (X,Y)
+					r_farz:SetSize( 370, 25 )			-- Set the size (X,Y)
+					r_farz:SetText( "[Visible range of map] \n (sv_cheats 1 is required)" )	-- Set the text above the slider
+					r_farz:SetMin( 1000 )				 	-- Set the minimum number you can slide to
+					r_farz:SetMax( 16384 )				-- Set the maximum number you can slide to
+					r_farz:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
+					r_farz:SetConVar( "r_farz" )	-- Changes the ConVar when you slide
 
 					-- If not using convars, you can use this hook + Panel.SetValue()
-					r_mapextents.OnValueChanged = function( self, value )
+					r_farz.OnValueChanged = function( self, value )
 
 					-- Called when the slider value changes
 					end

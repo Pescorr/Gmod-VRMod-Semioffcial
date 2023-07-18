@@ -145,36 +145,12 @@ if CLIENT then
 	end)
 	
 	
-	-- concommand.Add( "vrmod_character_reset", function( ply, cmd, args )
-	-- 	LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
-	-- 		print("vrmod_characterEyeHeight 66.8")
-	-- 	LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
-	-- 		print("vrmod_characterHeadToHmdDist 6.3")
-	-- 	LocalPlayer():ConCommand("vrmod_scale 38.7")
-	-- 		print("vrmod_scale 38.7")
-	-- 	LocalPlayer():ConCommand("vrmod_crouchthreshold 40.0")
-	-- 		print("vrmod_crouchthreshold 40.0")
-
-	-- end)
-
-
-	-- concommand.Add( "vrmod_character_heightadjestmode", function( ply, cmd, args )
-		-- LocalPlayer():ConCommand("vrmod_characterEyeHeight 25.0")
-			-- print("vrmod_characterEyeHeight 25.0")
-		-- LocalPlayer():ConCommand("vrmod_scale 38.7")
-			-- print("vrmod_scale 38.7")
-		-- LocalPlayer():ConCommand("vrmod_seatedoffset 1.00")
-			-- print("vrmod_seatedoffset 1.00")
-		-- LocalPlayer():ConCommand("vrmod_seated 1")
-			-- print("vrmod_seated 1")
-	-- end)
 
 	
 	concommand.Add( "vrmod_lfsmode", function( ply, cmd, args )
 				LocalPlayer():ConCommand("vrmod_vehicle_reticlemode 1")
 				LocalPlayer():ConCommand("lfs_hipster 0")
 				LocalPlayer():ConCommand("weaponseats_enablecrosshair 0")
-
 
 	end)
 
@@ -198,89 +174,72 @@ if CLIENT then
 
 	
 	concommand.Add( "vrmod_gmod_optimization", function( ply, cmd, args )
-		-- LocalPlayer():ConCommand("mat_antialias 0")
-		-- 	print("mat_antialias 0")
-		-- LocalPlayer():ConCommand("mat_alphacoverage 0")
-		-- 	print("mat_alphacoverage 0")
-		-- LocalPlayer():ConCommand("mat_motion_blur_enabled 0")
-		-- 	print("mat_motion_blur_enabled 0")
-		-- LocalPlayer():ConCommand("r_WaterDrawReflection 0")
-		-- 	print("r_WaterDrawReflection 0")
-		-- LocalPlayer():ConCommand("r_WaterDrawRefraction 0")
-		-- 	print("r_WaterDrawRefraction 0")
-		-- LocalPlayer():ConCommand("r_waterforceexpensive 0")
-		-- 	print("r_waterforceexpensive 0")
-		-- LocalPlayer():ConCommand("r_waterforcereflectentities 0")
-		-- 	print("r_waterforcereflectentities 0")
-		-- LocalPlayer():ConCommand("engine_no_focus_sleep 0")
-		-- 	print("engine_no_focus_sleep 0")
-		-- LocalPlayer():ConCommand("fov_desired 90")
-		-- 	print("fov_desired 90")
-		-- LocalPlayer():ConCommand("r_mapextents 5000")
-		-- 	print("r_mapextents 5000")
-		-- LocalPlayer():ConCommand("mat_specular 0")
-		-- 	print("mat_specular 0")
-		-- LocalPlayer():ConCommand("fps_max 60")
-		-- 	print("fps_max 60")
-		-- LocalPlayer():ConCommand("mat_queue_mode 1")
-		-- 		print("mat_queumate_mode 1")
-		-- LocalPlayer():ConCommand("cl_threaded_bone_setup 1")
-		-- 		print("cl_threaded_bone_setup 1")
-		-- LocalPlayer():ConCommand("cl_threaded_client_leaf_system 1")
-		-- 		print("cl_threaded_client_leaf_system 1")
-		-- LocalPlayer():ConCommand("r_threaded_client_shadow_manager 1")
-		-- 		print("r_threaded_client_shadow_manager 1")
-		-- LocalPlayer():ConCommand("r_threaded_particles 1")
-		-- 		print("r_threaded_particles 1")
-		-- LocalPlayer():ConCommand("r_threaded_renderables 1")
-		-- 		print("r_threaded_renderables 1")
-		-- LocalPlayer():ConCommand("r_queued_ropes 1")
-		-- 		print("r_queued_ropes 1")
-		-- LocalPlayer():ConCommand("studio_queue_mode 1")
-		-- 		print("studio_queue_mode 1")
-		-- LocalPlayer():ConCommand("cl_forcepreload 1")
-		-- 	print("cl_forcepreload 1")
-		-- LocalPlayer():ConCommand("sv_forcepreload 1")
-		-- print("sv_forcepreload 1")
-		-- LocalPlayer():ConCommand("mat_alphacoverage 0")
-		-- 	print("mat_alphacoverage 0")
-		-- LocalPlayer():ConCommand("r_projectedtexture_filter 0")
-		-- 	print("r_projectedtexture_filter 0")
-		-- LocalPlayer():ConCommand("mat_vsync 1")
-		-- 	print("mat_vsync 1")
-		-- LocalPlayer():ConCommand("fov_desired 90")
-		-- 	print("fov_desired 90")
+		-- Gmodのluaコード
+		local function setConvars()
+			local optimizeconvar = {
+				{"mat_motion_blur_enabled", "0"},
+				{"r_WaterDrawReflection", "0"},
+				{"r_WaterDrawRefraction", "0"},
+				{"r_waterforceexpensive", "0"},
+				{"r_waterforcereflectentities", "0"},
+				{"engine_no_focus_sleep", "0"},
+				{"fov_desired", "90"},
+				{"r_mapextents", "5000"},
+				{"mat_specular", "0"},
+				{"fps_max", "60"},
+				{"mat_queue_mode", "1"},
+				{"cl_threaded_bone_setup", "1"},
+				{"cl_threaded_client_leaf_system", "1"},
+				{"r_threaded_client_shadow_manager", "1"},
+				{"r_threaded_particles", "1"},
+				{"r_threaded_renderables", "1"},
+				{"r_queued_ropes", "1"},
+				{"studio_queue_mode", "1"},
+				{"cl_forcepreload", "1"},
+				{"sv_forcepreload", "1"},
+				{"mat_alphacoverage", "0"},
+				{"r_projectedtexture_filter", "0"},
+				{"cl_detaildist", "500"},
+				{"cl_detailfade", "400.000000"},
+				{"cl_drawownshadow", "0"},
+				{"mat_bumpmap", "1"},
+				{"mat_colorcorrection", "0"},
+				{"mat_compressedtextures", "1"},
+				{"mat_dynamic_tonemapping", "0"},
+				{"mat_filterlightmaps", "0"},
+				{"mat_filtertextures", "1"},
+				{"mat_mipmaptextures", "1"},
+				{"mat_parallaxmap", "0"},
+				{"mat_showlowresimage", "0"},
+				{"mat_use_compressed_hdr_textures", "1"},
+				{"r_3dsky", "1"},
+				{"r_ambientboost", "0"},
+				{"r_decals", "60.00"},
+				{"r_drawdecals", "0"},
+				{"r_drawdetailprops", "1"},
+				{"r_drawparticles", "1"},
+				{"r_farz", "16384"},
+				{"r_maxdlights", "0.00"},
+				{"r_radiosity", "2"},
+				{"r_shadow_allowbelow", "0"},
+				{"r_shadow_allowdynamic", "0"},
+				{"r_shadow_lightpos_lerptime", "60.00"},
+				{"r_shadowfromanyworldlight", "0"},
+				{"r_shadowmaxrendered", "0.00"},
+				{"r_shadowrendertotexture", "0"},
+				{"viewmodel_fov", "90.00"}
+			}
 
+			for _, optimizeconvar in ipairs(optimizeconvar) do
+				local name, value = unpack(optimizeconvar)
+				LocalPlayer():ConCommand(name .. " " .. value)
+				if CLIENT then
+					print(name .. " " .. value)
+				end
+			end
+		end
 
-			RunConsoleCommand("cl_detaildist", "500")
-			RunConsoleCommand("cl_detailfade", "400.000000")
-			RunConsoleCommand("cl_drawownshadow", "0")
-			RunConsoleCommand("mat_bumpmap", "1")
-			RunConsoleCommand("mat_colorcorrection", "0")
-			RunConsoleCommand("mat_compressedtextures", "1")
-			RunConsoleCommand("mat_dynamic_tonemapping", "0")
-			RunConsoleCommand("mat_filterlightmaps", "0")
-			RunConsoleCommand("mat_filtertextures", "1")
-			RunConsoleCommand("mat_mipmaptextures", "1")
-			RunConsoleCommand("mat_parallaxmap", "0")
-			RunConsoleCommand("mat_showlowresimage", "0")
-			RunConsoleCommand("mat_use_compressed_hdr_textures", "1")
-			RunConsoleCommand("r_3dsky", "1")
-			RunConsoleCommand("r_ambientboost", "0")
-			RunConsoleCommand("r_decals", "60.00")
-			RunConsoleCommand("r_drawdecals", "0")
-			RunConsoleCommand("r_drawdetailprops", "1")
-			RunConsoleCommand("r_drawparticles", "1")
-			RunConsoleCommand("r_farz", "20000")
-			RunConsoleCommand("r_maxdlights", "0.00")
-			RunConsoleCommand("r_radiosity", "2")
-			RunConsoleCommand("r_shadow_allowbelow", "0")
-			RunConsoleCommand("r_shadow_allowdynamic", "0")
-			RunConsoleCommand("r_shadow_lightpos_lerptime", "60.00")
-			RunConsoleCommand("r_shadowfromanyworldlight", "0")
-			RunConsoleCommand("r_shadowmaxrendered", "0.00")
-			RunConsoleCommand("r_shadowrendertotexture", "0")
-			RunConsoleCommand("viewmodel_fov", "90.00")
+		setConvars()
 
 		if g_VR.active == true then
 			LocalPlayer():ConCommand("vrmod_restart")
