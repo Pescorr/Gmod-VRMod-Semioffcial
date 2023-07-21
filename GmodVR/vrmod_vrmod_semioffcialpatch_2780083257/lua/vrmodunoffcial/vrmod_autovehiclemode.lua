@@ -19,26 +19,4 @@ hook.Add("Think", "CheckPlayerInVehicle", function()
 
     end
 
-
---鏡を表示したときにメニュー
-
-
-
-
---newpickup 自動設定
-
---key 配置 ボタン押してガイド
-
---起動時に自動最適化
-
---キャラ変更時自動charaadjest
-
---モジュールへのリンク
-
---オリジナルとの競合検出
-
---
-
-
-
 end)

@@ -335,6 +335,9 @@ if CLIENT then
 		g_VR.origin = LocalPlayer():GetPos()
 		
 		--
+
+
+
 		g_VR.scale = convars.vrmod_scale:GetFloat()
 		
 		
