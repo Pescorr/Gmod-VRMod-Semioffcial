@@ -8,6 +8,7 @@ surface.CreateFont( "vrmod_Trebuchet24", {
 
 local menumcore = CreateClientConVar("vrmod_open_menu_automcore","1",true,FCVAR_ARCHIVE)
 local contexticon = CreateClientConVar("vrmod_enable_contextmenu_button","1",true,FCVAR_ARCHIVE)
+local menugravset = CreateClientConVar("vrmod_open_menu_grav","1",true,FCVAR_ARCHIVE)
 
 
 local frame = nil
@@ -17,6 +18,10 @@ local function OpenMenu()
 
 	if menumcore:GetBool() then
 		LocalPlayer():ConCommand("gmod_mcore_test 0")
+	end
+
+	if menugravset:GetBool() then
+		LocalPlayer():ConCommand("vrmod_dev_vrgrab")
 	end
 
 

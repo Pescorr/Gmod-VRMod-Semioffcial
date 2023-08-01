@@ -303,7 +303,7 @@ local function options( panel )
 end
 
 timer.Simple(0,function()
-	vrmod.AddLocomotionOption("HMD", start, stop, options)
+	vrmod.AddLocomotionOption("2-HMD", start, stop, options)
 	vrmod.AddInGameMenuItem("Toggle Noclip", 2, 1, function()
 		LocalPlayer():ConCommand("noclip")
 	end)

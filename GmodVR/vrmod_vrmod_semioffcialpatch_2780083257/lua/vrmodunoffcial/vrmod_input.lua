@@ -3,8 +3,9 @@ local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client","0",true,
 local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly","0",false,FCVAR_ARCHIVE)
 local cl_lefthand = CreateClientConVar("vrmod_LeftHand", "0") 
 local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", "0") 
-local retryon = CreateClientConVar("vrmod_pickup_retry","1",true,FCVAR_ARCHIVE,"",0,1)
+local retryoff = CreateClientConVar("vrmod_pickup_retry","1",true,FCVAR_ARCHIVE,"",0,1)
 local keyboardtest = CreateClientConVar("vrmod_test_keydown","0",true,FCVAR_ARCHIVE,"",0,1)
+local hudmenubutton = CreateClientConVar("vrmod_hud_onlymenubutton","0",true,FCVAR_ARCHIVE,"",0,1)
 
 
 
@@ -102,10 +103,16 @@ if CLIENT then
 		if action == "boolean_spawnmenu" then
 			if pressed then
 				g_VR.MenuOpen()
+				if hudmenubutton:GetBool() then
+					LocalPlayer():ConCommand("cl_drawhud 1")
+				end
 			else
 				g_VR.MenuClose()
-			end
+				if hudmenubutton:GetBool() then
+					LocalPlayer():ConCommand("cl_drawhud 0")
+				end
 			return
+			end
 		end
 		
 		for i = 1,#g_VR.CustomActions do

@@ -20,3 +20,21 @@ hook.Add("Think", "CheckPlayerInVehicle", function()
     end
 
 end)
+
+-- hook.Add("Think","Checkdermablur",function()
+
+--     hook.Add("HUDPaint", "OverrideBlur", function()
+--         -- 何もしない
+--     end)
+
+--     local panel = vgui.GetControlTable("DFrame") -- または適切なDermaコントロール
+--     panel.Paint = function(self, w, h)
+--         -- 何もしないか、異なる背景を描画
+--     end
+
+--     hook.Add("RenderScreenspaceEffects", "OverridePostProcess", function()
+--         DrawSharpen(0, 0) -- すべてのぼかし効果を取り除く
+--     end)
+
+
+-- end)

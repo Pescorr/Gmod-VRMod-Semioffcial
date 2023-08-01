@@ -171,6 +171,11 @@ if CLIENT then
 		convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z-convarValues.vrmod_seatedoffset-g_VR.origin.z)) 
 	end)
 
+	concommand.Add( "vrmod_dev_vrgrab", function( ply, cmd, args )
+		LocalPlayer():ConCommand("vrgrab_range 0")
+		LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 0")
+		LocalPlayer():ConCommand("vrgrab_gravitygloves 1")
+	end)
 
 	
 	concommand.Add( "vrmod_gmod_optimization", function( ply, cmd, args )
@@ -185,7 +190,6 @@ if CLIENT then
 				{"engine_no_focus_sleep", "0"},
 				{"fov_desired", "90"},
 				{"r_mapextents", "5000"},
-				{"mat_specular", "0"},
 				{"fps_max", "60"},
 				{"mat_queue_mode", "1"},
 				{"cl_threaded_bone_setup", "1"},
@@ -197,10 +201,9 @@ if CLIENT then
 				{"studio_queue_mode", "1"},
 				{"cl_forcepreload", "1"},
 				{"sv_forcepreload", "1"},
-				{"mat_alphacoverage", "0"},
 				{"r_projectedtexture_filter", "0"},
 				{"cl_detaildist", "500"},
-				{"cl_detailfade", "400.000000"},
+				{"cl_detailfade", "400"},
 				{"cl_drawownshadow", "0"},
 				{"mat_bumpmap", "1"},
 				{"mat_colorcorrection", "0"},
@@ -218,12 +221,26 @@ if CLIENT then
 				{"r_drawdecals", "0"},
 				{"r_drawdetailprops", "1"},
 				{"r_drawparticles", "1"},
-				{"r_farz", "16384"},
-				{"r_maxdlights", "0.00"},
+				{"r_farz", "12000"},
 				{"r_radiosity", "2"},
+				{"r_shadow_lightpos_lerptime", "60.00"},
+				{"mat_antialias", "0"},
+				{"cl_ejectbrass", "0"},
+				{"g_ragdoll_maxcount", "0"},
+				{"gmod_physiterations", "1"},
+				{"mat_aaquality", "0"},
+				{"r_drawflecks", "0"},
+				{"r_drawrain", "0"},
+				{"r_drawropes", "0"},
+				{"r_drawskybox", "1"},
+				{"r_drawsprites", "1"},
+				{"r_DrawDisp", "1"},
+				{"r_drawstaticprops", "1"},
+				{"mat_alphacoverage", "0"},
+				{"mat_specular", "0"},
+				{"r_maxdlights", "0.00"},
 				{"r_shadow_allowbelow", "0"},
 				{"r_shadow_allowdynamic", "0"},
-				{"r_shadow_lightpos_lerptime", "60.00"},
 				{"r_shadowfromanyworldlight", "0"},
 				{"r_shadowmaxrendered", "0.00"},
 				{"r_shadowrendertotexture", "0"},

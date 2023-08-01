@@ -29,25 +29,32 @@ if CLIENT then
 	local prevFocusPanel = nil
 	
 	function VRUtilMenuRenderPanel(uid)
-		timer.Simple(0.1,function()
-			if menus[uid] == nil or menus[uid].panel == nil or not menus[uid].panel:IsValid() then return end
-			render.PushRenderTarget(menus[uid].rt)
-			cam.Start2D()
-			render.ClearDepth()
-			render.Clear(0,0,0,0)
+		if !menus[uid] or !menus[uid].panel or !menus[uid].panel:IsValid() then return end
+
+		render.PushRenderTarget(menus[uid].rt)
+
+		cam.Start2D()
+			render.Clear(0,0,0,0,true,true)
+
+			local oldclip = DisableClipping(false)
+			render.SetWriteDepthToDestAlpha(false)
+
 			menus[uid].panel:PaintManual()
-			cam.End2D()
-			render.PopRenderTarget()
-		end)
+
+			render.SetWriteDepthToDestAlpha(true)
+			DisableClipping(oldclip)
+		cam.End2D()
+
+		render.PopRenderTarget()
 	end
-	
+
 	function VRUtilMenuRenderStart(uid)
 		render.PushRenderTarget(menus[uid].rt)
 		cam.Start2D()
-		render.ClearDepth()
-		render.Clear(0,0,0,0)
+		render.Clear(0,0,0,0,true,true)
+		render.SetWriteDepthToDestAlpha(false)
 	end
-	
+
 	function VRUtilMenuRenderEnd()
 		cam.End2D()
 		render.PopRenderTarget()
@@ -59,7 +66,7 @@ if CLIENT then
 	
 	function VRUtilRenderMenuSystem()
 		if menusExist == false then return end
-		render.DepthRange(0,0.001)
+
 		g_VR.menuFocus = false
 		local menuFocusDist = 99999
 		local menuFocusPanel = nil
@@ -84,14 +91,19 @@ if CLIENT then
 			elseif v.attachment == 4 then
 				pos, ang = LocalToWorld(pos, ang, g_VR.origin, g_VR.originAngle)
 			end
+
+			cam.IgnoreZ(true)
 			cam.Start3D2D( pos, ang, v.scale )
 				surface.SetDrawColor(255,255,255,255)
 				surface.SetMaterial(v.mat)
 				surface.DrawTexturedRect(0,0,v.width,v.height)
+
 				--debug outline
 				--surface.SetDrawColor(255,0,0,255)
 				--surface.DrawOutlinedRect(0,0,v.width,v.height)
 			cam.End3D2D()
+			cam.IgnoreZ(false)
+
 			if v.cursorEnabled then
 				local cursorX, cursorY = -1,-1
 				local cursorWorldPos = Vector(0,0,0)
@@ -133,7 +145,7 @@ if CLIENT then
 		end
 		if g_VR.menuFocus then
 			render.SetMaterial(mat_beam)
-			render.DrawBeam(g_VR.tracking.pose_righthand.pos, menuFocusCursorWorldPos, 0.1, 0, 0, Color(255,255,255,255))
+			render.DrawBeam(g_VR.tracking.pose_righthand.pos, menuFocusCursorWorldPos, 0.1, 0, 1, Color(0,0,255))
 			input.SetCursorPos(g_VR.menuCursorX,g_VR.menuCursorY)
 		-- realtime ui start
 				if convarValues.vrmod_ui_realtime == 1 then
@@ -205,7 +217,7 @@ if CLIENT then
 				menus[k] = nil
 			end
 		end
-		if table.Count(menus) == 0 then
+		if table.IsEmpty(menus) then
 			hook.Remove( "PostDrawTranslucentRenderables", "vrutil_hook_drawmenus")
 			g_VR.menuFocus = false
 			menusExist = false
