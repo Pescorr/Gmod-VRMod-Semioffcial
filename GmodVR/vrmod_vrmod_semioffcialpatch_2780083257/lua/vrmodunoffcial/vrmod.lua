@@ -265,7 +265,7 @@ if CLIENT then
 
 		
 		if VRMOD_Init() == false then
-			print("vr init failed")
+			print("vr module load failed! Please Try again...")
 			return
 		end
 		
@@ -356,7 +356,8 @@ if CLIENT then
 
 		if autoarcbench:GetBool() then
 			overrideConvar("arccw_dev_benchgun", "1")
-			overrideConvar("arc9_dev_benchgun", "1")		
+			overrideConvar("arc9_dev_benchgun", "1")
+			overrideConvar("arc9_tpik", "0")
 		end
 
 
@@ -465,9 +466,7 @@ if CLIENT then
 				-- cam.End2D()
 				-- return true
 			-- end
-			
-			--update clientside local player net frame
-			
+						
 				--lefthandmode start		
 			if uselefthand:GetBool() then
 				if lefthandmode:GetBool() then
@@ -525,32 +524,33 @@ if CLIENT then
 			--lefthandmode end
 			else
 			--righthand start
-			
-				local netFrame = VRUtilNetUpdateLocalPly()
-				--update viewmodel position
-				if g_VR.currentvmi then
-					local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos,g_VR.currentvmi.offsetAng,g_VR.tracking.pose_righthand.pos,g_VR.tracking.pose_righthand.ang)
-					g_VR.viewModelPos = pos
-					g_VR.viewModelAng = ang
-				end
-				if IsValid(g_VR.viewModel) then
-					if not g_VR.usingWorldModels then
-						g_VR.viewModel:SetPos(g_VR.viewModelPos)
-						g_VR.viewModel:SetAngles(g_VR.viewModelAng)
-						g_VR.viewModel:SetupBones()
-						--override hand pose in net frame
-						if netFrame then
-							local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
-							if b then
-								local mtx = g_VR.viewModel:GetBoneMatrix(b)
-								netFrame.righthandPos = mtx:GetTranslation()
-								netFrame.righthandAng = mtx:GetAngles() - Angle(0,0,180)
-							end
+
+			--update clientside local player net frame	
+			local netFrame = VRUtilNetUpdateLocalPly()
+			--update viewmodel position
+			if g_VR.currentvmi then
+				local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos,g_VR.currentvmi.offsetAng,g_VR.tracking.pose_righthand.pos,g_VR.tracking.pose_righthand.ang)
+				g_VR.viewModelPos = pos
+				g_VR.viewModelAng = ang
+			end
+			if IsValid(g_VR.viewModel) then
+				if not g_VR.usingWorldModels then
+					g_VR.viewModel:SetPos(g_VR.viewModelPos)
+					g_VR.viewModel:SetAngles(g_VR.viewModelAng)
+					g_VR.viewModel:SetupBones()
+					--override hand pose in net frame
+					if netFrame then
+						local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
+						if b then
+							local mtx = g_VR.viewModel:GetBoneMatrix(b)
+							netFrame.righthandPos = mtx:GetTranslation()
+							netFrame.righthandAng = mtx:GetAngles() - Angle(0,0,180)
 						end
 					end
-					 g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 				end
+					g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 			end
+		end
 
 			
 			--set view according to viewentity

@@ -482,10 +482,9 @@ if CLIENT then
 			characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
 			characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
 			local seatset = convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z-convarValues.vrmod_seatedoffset-g_VR.origin.z)
-			LocalPlayer():ConCommand("vrmod_seatedoffset".." "..seatset)
 		end
 		characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
-				
+		LocalPlayer():ConCommand("vrmod_seatedoffset_auto")		
 		cm:Remove()
 		
 	end

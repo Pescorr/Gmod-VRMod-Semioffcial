@@ -886,61 +886,60 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				contextmenu_button:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
-			--DCheckBoxLabel Start
-				local arccwbenchview_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				arccwbenchview_button:SetPos( 20, 110 )						-- Set the position
-				arccwbenchview_button:SetText("[arccw_dev_benchgun]")					-- Set the text next to the box
-				arccwbenchview_button:SetConVar( "arccw_dev_benchgun" )				-- Change a ConVar when the box it ticked/unticked
-				arccwbenchview_button:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
+		--DCheckBoxLabel Start
+			local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			autoarcbench_button:SetPos( 20, 110 )						-- Set the position
+			autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
+			autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+			autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
+		--DCheckBoxLabel end
 
-			--DCheckBoxLabel Start
-				local arc9benchview_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				arc9benchview_button:SetPos( 20, 140 )						-- Set the position
-				arc9benchview_button:SetText("[arc9_dev_benchgun]")					-- Set the text next to the box
-				arc9benchview_button:SetConVar( "arc9_dev_benchgun" )				-- Change a ConVar when the box it ticked/unticked
-				arc9benchview_button:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
 
-			--DCheckBoxLabel Start
-				local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				autoarcbench_button:SetPos( 20, 170 )						-- Set the position
-				autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
-				autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
-				autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
 
-			--DCheckBoxLabel Start
-				local cl_drawhud = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				cl_drawhud:SetPos( 20, 200 )						-- Set the position
-				cl_drawhud:SetText("[cl_drawhud]")					-- Set the text next to the box
-				cl_drawhud:SetConVar( "cl_drawhud" )				-- Change a ConVar when the box it ticked/unticked
-				cl_drawhud:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
+
+
+
 
 			--DCheckBoxLabel Start
 				local vrgrab_gravitygloves = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				vrgrab_gravitygloves:SetPos( 20, 230 )						-- Set the position
-				vrgrab_gravitygloves:SetText("[vrgrab_gravitygloves]")					-- Set the text next to the box
-				vrgrab_gravitygloves:SetConVar( "vrgrab_gravitygloves" )				-- Change a ConVar when the box it ticked/unticked
+				vrgrab_gravitygloves:SetPos( 20, 140 )						-- Set the position
+				vrgrab_gravitygloves:SetText("[vrmod_open_menu_grav]")					-- Set the text next to the box
+				vrgrab_gravitygloves:SetConVar( "vrmod_open_menu_grav" )				-- Change a ConVar when the box it ticked/unticked
 				vrgrab_gravitygloves:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
 			--DCheckBoxLabel Start
-				local vrgrab_gravitygloves_minrange = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				vrgrab_gravitygloves_minrange:SetPos( 20, 260 )						-- Set the position
-				vrgrab_gravitygloves_minrange:SetText("[vrgrab_gravitygloves_minrange]")					-- Set the text next to the box
-				vrgrab_gravitygloves_minrange:SetConVar( "vrgrab_gravitygloves_minrange" )				-- Change a ConVar when the box it ticked/unticked
-				vrgrab_gravitygloves_minrange:SizeToContents()						-- Make its size the same as the contents
+				local vrmod_hud_onlymenubutton = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_hud_onlymenubutton:SetPos( 20, 170 )						-- Set the position
+				vrmod_hud_onlymenubutton:SetText("[vrmod_hud_onlymenubutton]")					-- Set the text next to the box
+				vrmod_hud_onlymenubutton:SetConVar( "vrmod_hud_onlymenubutton" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_hud_onlymenubutton:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
-			--DCheckBoxLabel Start
-				local vrgrab_range = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				vrgrab_range:SetPos( 20, 290 )						-- Set the position
-				vrgrab_range:SetText("[vrgrab_range]")					-- Set the text next to the box
-				vrgrab_range:SetConVar( "vrgrab_range" )				-- Change a ConVar when the box it ticked/unticked
-				vrgrab_range:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
+			-- --DCheckBoxLabel Start
+			-- 	local arccwbenchview_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			-- 	arccwbenchview_button:SetPos( 20, 170 )						-- Set the position
+			-- 	arccwbenchview_button:SetText("[arccw_dev_benchgun]")					-- Set the text next to the box
+			-- 	arccwbenchview_button:SetConVar( "arccw_dev_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+			-- 	arccwbenchview_button:SizeToContents()						-- Make its size the same as the contents
+			-- --DCheckBoxLabel end
+
+
+			-- --DCheckBoxLabel Start
+			-- 	local vrgrab_gravitygloves_minrange = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			-- 	vrgrab_gravitygloves_minrange:SetPos( 20, 260 )						-- Set the position
+			-- 	vrgrab_gravitygloves_minrange:SetText("[vrgrab_gravitygloves_minrange]")					-- Set the text next to the box
+			-- 	vrgrab_gravitygloves_minrange:SetConVar( "vrgrab_gravitygloves_minrange" )				-- Change a ConVar when the box it ticked/unticked
+			-- 	vrgrab_gravitygloves_minrange:SizeToContents()						-- Make its size the same as the contents
+			-- --DCheckBoxLabel end
+
+			-- --DCheckBoxLabel Start
+			-- 	local vrgrab_range = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			-- 	vrgrab_range:SetPos( 20, 290 )						-- Set the position
+			-- 	vrgrab_range:SetText("[vrgrab_range]")					-- Set the text next to the box
+			-- 	vrgrab_range:SetConVar( "vrgrab_range" )				-- Change a ConVar when the box it ticked/unticked
+			-- 	vrgrab_range:SizeToContents()						-- Make its size the same as the contents
+			-- --DCheckBoxLabel end
 
 
 		-- Panel8 "TAB8" End	
