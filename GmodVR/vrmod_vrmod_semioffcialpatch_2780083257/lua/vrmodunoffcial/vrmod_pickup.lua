@@ -92,12 +92,12 @@ if SERVER then
 			local t = pickupList[i]
 			if t.steamid ~= steamid or t.left ~= bLeftHand then continue end
 			local phys = t.phys
---peszone
+					--peszone
 					if not t or not t.ent then
 									drop(t.steamid, t.left)
 					break
 					end
---peszone end
+			--peszone end
 			if IsValid(phys) and IsValid(t.ent) then
 				t.ent:SetCollisionGroup(t.collisionGroup)
 				pickupController:RemoveFromMotionController(phys)
@@ -134,37 +134,38 @@ if SERVER then
 		end
 	end
 	
+	--pes&chatgptstart
+	local function shouldPickUp(ent)
+		local vphys = ent:GetPhysicsObject()
+		-- ここで、エンティティが拾われるべきかどうかを判断するコードを追加します。
+		-- 拾われるべきでないエンティティの場合は、false を返します。
+		-- 例: エンティティのクラス名が "not_pickable" の場合、false を返す
+        if ent:GetModel() == "models/hunter/plates/plate.mdl" and IsValid(vphys) and vphys:GetMass() == 20 and ent:GetNoDraw() == true then
+			return false
+		end
+		-- 他の条件を追加することができます。
+		if ent:GetNoDraw() == true then return false end
+		-- 上記の条件に一致しない場合、エンティティは拾われるべきと判断されます。
+		return true
+	end
+
+	--pes&chatgptend
+
 	
 	local function pickup(ply, bLeftHand, handPos, handAng)
 		local steamid = ply:SteamID()
 		local pickupPoint = LocalToWorld(Vector(3, bLeftHand and -1.5 or 1.5,0), Angle(), handPos, handAng)
 		local entities = ents.FindInSphere(pickupPoint,100)
 		for k = 1,#entities do local v = entities[k]
---pescorrzonestart
-    -- ここで shouldPickUp 関数を使用して、エンティティが拾われるべきかどうかをチェックします。
-
-	--pes&chatgptstart
-	local function shouldPickUp(v)
-	        local vphys = v:GetPhysicsObject()
-		-- ここで、エンティティが拾われるべきかどうかを判断するコードを追加します。
-		-- 拾われるべきでないエンティティの場合は、false を返します。
-		-- 例: エンティティのクラス名が "not_pickable" の場合、false を返す
-        if v:GetModel() == "models/hunter/plates/plate.mdl" and IsValid(vphys) and vphys:GetMass() == 20 and v:GetNoDraw() == true then
-			return false
-		end
-		-- 他の条件を追加することができます。
-		if v:GetNoDraw() == true then return false end
-		-- 上記の条件に一致しない場合、エンティティは拾われるべきと判断されます。
-		return true
-	end
-	--pes&chatgptend
-
-	
+	--pescorrzonestart
+		-- ここで shouldPickUp 関数を使用して、エンティティが拾われるべきかどうかをチェックします。
 		if not shouldPickUp(v) then
 			continue
 		end
 
-			if convarValues.vrmod_pickup_limit == 2 then return end
+		if convarValues.vrmod_pickup_limit == 2 then 
+			return 
+		end
 
 
 			if convarValues.vrmod_pickup_limit == 1 then
@@ -173,7 +174,7 @@ if SERVER then
 			if convarValues.vrmod_pickup_limit == 0 then
 				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or v == ply or ply:InVehicle() or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight then continue end
 			end
---pescorrzoneend
+			--pescorrzoneend
 			if not WorldToLocal(pickupPoint - v:GetPos(), Angle(), Vector(), v:GetAngles()):WithinAABox(v:OBBMins()*convarValues.vrmod_pickup_range, v:OBBMaxs()*convarValues.vrmod_pickup_range) then continue end
 			if hook.Call("VRMod_Pickup", nil, ply, v) == false then return end
 			--
@@ -292,11 +293,11 @@ if SERVER then
 			-- table.remove(g_VR[ply:SteamID()].heldItems)
 			end)
 
-	--block the gmod default pickup for vr players
+			--block the gmod default pickup for vr players
 			hook.Add("AllowPlayerPickup","vrmod",function(ply)
 				if g_VR[ply:SteamID()] ~= nil then
 					return false
 				end
 			end)
 	
-	end
+end
