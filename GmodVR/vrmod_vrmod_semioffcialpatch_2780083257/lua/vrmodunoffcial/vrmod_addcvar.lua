@@ -151,7 +151,6 @@ if CLIENT then
 				LocalPlayer():ConCommand("vrmod_vehicle_reticlemode 1")
 				LocalPlayer():ConCommand("lfs_hipster 0")
 				LocalPlayer():ConCommand("weaponseats_enablecrosshair 0")
-
 	end)
 
 	concommand.Add( "vrmod_simfmode", function( ply, cmd, args )
@@ -162,7 +161,6 @@ if CLIENT then
 
 
 	concommand.Add( "vrmod_scale_auto", function( ply, cmd, args )
-
 		g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z-g_VR.origin.z)/g_VR.scale)
 		convars.vrmod_scale:SetFloat(g_VR.scale)
 	end)
@@ -175,6 +173,26 @@ if CLIENT then
 		LocalPlayer():ConCommand("vrgrab_range 0")
 		LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 0")
 		LocalPlayer():ConCommand("vrgrab_gravitygloves 1")
+	end)
+
+
+	concommand.Add( "vrmod_Scr_Auto", function( ply, cmd, args )
+
+		local function ScrAuto()
+			local Scrset = {
+				{"vrmod_ScrH", ScrH()},
+				{"vrmod_ScrW", ScrW()},
+				{"vrmod_ScrH_hud", ScrH()},
+				{"vrmod_ScrW_hud", ScrW()}
+			}
+
+			for _, Scrset in ipairs(Scrset) do
+				local name, value = unpack(Scrset)
+				LocalPlayer():ConCommand(name .. " " .. value)
+			end
+		end
+
+		ScrAuto()
 	end)
 
 	
@@ -237,7 +255,7 @@ if CLIENT then
 				{"r_DrawDisp", "1"},
 				{"r_drawstaticprops", "1"},
 				{"mat_alphacoverage", "0"},
-				{"mat_specular", "0"},
+				-- {"mat_specular", "0"},
 				{"r_maxdlights", "0.00"},
 				{"r_shadow_allowbelow", "0"},
 				{"r_shadow_allowdynamic", "0"},

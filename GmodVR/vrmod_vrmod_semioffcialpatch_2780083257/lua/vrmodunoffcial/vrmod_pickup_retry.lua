@@ -78,7 +78,7 @@ if CLIENT then
 		end
 	end)
 end
-
+	
 
 if SERVER then
 
@@ -167,7 +167,9 @@ if SERVER then
 			continue
 		end
 
-			if convarValues.vrmod_pickup_limit == 2 then return end
+		if convarValues.vrmod_pickup_limit == 2 then 
+			return 
+		end
 
 
 			if convarValues.vrmod_pickup_limit == 1 then

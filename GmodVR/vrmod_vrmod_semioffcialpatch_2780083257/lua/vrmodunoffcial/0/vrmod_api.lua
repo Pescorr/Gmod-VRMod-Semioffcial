@@ -37,21 +37,21 @@ if CLIENT then
 	
 	function vrmod.GetStartupError()
 		local error = nil
-		if g_VR.moduleVersion == 0 then
-			if not file.Exists("lua/bin/gmcl_vrmod_win32.dll","GAME") then
-				error = "Module not installed. Read the workshop description for instructions.\n"
-			else
-				error = "Failed to load module\n"
-			end
-		-- elseif g_VR.moduleVersion < requiredModuleVersion then
-		-- 	error = "Module update required.\nRun the module installer to update.\nIf you don't have the installer anymore you can re-download it from the workshop description.\n\nInstalled: v"..g_VR.moduleVersion.."\nRequired: v"..requiredModuleVersion
-		-- elseif g_VR.active then
-		-- 	error = "Already running"
-		-- elseif g_VR.moduleVersion > latestModuleVersion then
-		-- 	error = "Unknown module version\n\nInstalled: v"..g_VR.moduleVersion.."\nRequired: v"..requiredModuleVersion.."\n\nMake sure the addon is up to date.\nAddon version: "..addonVersion
-		elseif VRMOD_IsHMDPresent and not VRMOD_IsHMDPresent() then
-			error = "VR headset not detected\n"
-		end
+		-- if g_VR.moduleVersion == 0 then
+		-- 	if not file.Exists("lua/bin/gmcl_vrmod_win32.dll","GAME") then
+		-- 		error = "Module not installed. Read the workshop description for instructions.\n"
+		-- 	else
+		-- 		error = "Failed to load module\n"
+		-- 	end4
+		-- -- elseif g_VR.moduleVersion < requiredModuleVersion then
+		-- -- 	error = "Module update required.\nRun the module installer to update.\nIf you don't have the installer anymore you can re-download it from the workshop description.\n\nInstalled: v"..g_VR.moduleVersion.."\nRequired: v"..requiredModuleVersion
+		-- -- elseif g_VR.active then
+		-- -- 	error = "Already running"
+		-- -- elseif g_VR.moduleVersion > latestModuleVersion then
+		-- -- 	error = "Unknown module version\n\nInstalled: v"..g_VR.moduleVersion.."\nRequired: v"..requiredModuleVersion.."\n\nMake sure the addon is up to date.\nAddon version: "..addonVersion
+		-- elseif VRMOD_IsHMDPresent and not VRMOD_IsHMDPresent() then
+		-- 	error = "VR headset not detected\n"
+		-- end
 		return error
 	end
 	

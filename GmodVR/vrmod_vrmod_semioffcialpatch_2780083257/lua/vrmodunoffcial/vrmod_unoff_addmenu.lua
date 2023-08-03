@@ -288,8 +288,8 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					crouchthreshold:SetPos( 20, 80 )				-- Set the position (X,Y)
 					crouchthreshold:SetSize( 370, 25 )			-- Set the size (X,Y)
 					crouchthreshold:SetText( "crouchthreshold" )	-- Set the text above the slider
-					crouchthreshold:SetMin( 1.0 )				 	-- Set the minimum number you can slide to
-					crouchthreshold:SetMax( 66.8 )				-- Set the maximum number you can slide to
+					crouchthreshold:SetMin( 10.0 )				 	-- Set the minimum number you can slide to
+					crouchthreshold:SetMax( 100.0 )				-- Set the maximum number you can slide to
 					crouchthreshold:SetDecimals( 1 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
 					crouchthreshold:SetConVar( "vrmod_crouchthreshold" )	-- Changes the ConVar when you slide
 
@@ -865,8 +865,8 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DCheckBoxLabel Start
 				local menu_automcore = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
 				menu_automcore:SetPos( 20, 10 )						-- Set the position
-				menu_automcore:SetText("[VRMenu Auto Set mcore_0]")					-- Set the text next to the box
-				menu_automcore:SetConVar( "vrmod_open_menu_automcore" )				-- Change a ConVar when the box it ticked/unticked
+				menu_automcore:SetText("[VRMenu Auto Set matqueue 1]")					-- Set the text next to the box
+				menu_automcore:SetConVar( "vrmod_open_menu_auto_matqueue" )				-- Change a ConVar when the box it ticked/unticked
 				menu_automcore:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
@@ -900,29 +900,29 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 
 
 
-			--DCheckBoxLabel Start
-				local vrgrab_gravitygloves = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				vrgrab_gravitygloves:SetPos( 20, 140 )						-- Set the position
-				vrgrab_gravitygloves:SetText("[vrmod_open_menu_grav]")					-- Set the text next to the box
-				vrgrab_gravitygloves:SetConVar( "vrmod_open_menu_grav" )				-- Change a ConVar when the box it ticked/unticked
-				vrgrab_gravitygloves:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
+			-- --DCheckBoxLabel Start
+			-- 	local vrgrab_gravitygloves = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			-- 	vrgrab_gravitygloves:SetPos( 20, 140 )						-- Set the position
+			-- 	vrgrab_gravitygloves:SetText("[open_menu_grav]")					-- Set the text next to the box
+			-- 	vrgrab_gravitygloves:SetConVar( "vrmod_open_menu_grav" )				-- Change a ConVar when the box it ticked/unticked
+			-- 	vrgrab_gravitygloves:SizeToContents()						-- Make its size the same as the contents
+			-- --DCheckBoxLabel end
 
 			--DCheckBoxLabel Start
 				local vrmod_hud_onlymenubutton = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
 				vrmod_hud_onlymenubutton:SetPos( 20, 170 )						-- Set the position
-				vrmod_hud_onlymenubutton:SetText("[vrmod_hud_onlymenubutton]")					-- Set the text next to the box
+				vrmod_hud_onlymenubutton:SetText("[Hud_Active_onlymenubutton]")					-- Set the text next to the box
 				vrmod_hud_onlymenubutton:SetConVar( "vrmod_hud_onlymenubutton" )				-- Change a ConVar when the box it ticked/unticked
 				vrmod_hud_onlymenubutton:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
-			-- --DCheckBoxLabel Start
-			-- 	local arccwbenchview_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			-- 	arccwbenchview_button:SetPos( 20, 170 )						-- Set the position
-			-- 	arccwbenchview_button:SetText("[arccw_dev_benchgun]")					-- Set the text next to the box
-			-- 	arccwbenchview_button:SetConVar( "arccw_dev_benchgun" )				-- Change a ConVar when the box it ticked/unticked
-			-- 	arccwbenchview_button:SizeToContents()						-- Make its size the same as the contents
-			-- --DCheckBoxLabel end
+			--DCheckBoxLabel Start
+				local cl_drawhud = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				cl_drawhud:SetPos( 20, 200 )						-- Set the position
+				cl_drawhud:SetText("[cl_drawhud]")					-- Set the text next to the box
+				cl_drawhud:SetConVar( "cl_drawhud" )				-- Change a ConVar when the box it ticked/unticked
+				cl_drawhud:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
 
 
 			-- --DCheckBoxLabel Start
@@ -1023,6 +1023,35 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				-- Called when the slider value changes
 				end
 			--DNumSlider end
+
+
+			--DNumSlider Start
+			--vrmod_ScrW_hud
+			local vrmod_ScrW_hud = vgui.Create( "DNumSlider", Panel9 )
+			vrmod_ScrW_hud:SetPos( 20, 80 )				-- Set the position (X,Y)
+			vrmod_ScrW_hud:SetSize( 330, 25 )			-- Set the size (X,Y)
+			vrmod_ScrW_hud:SetText( "[VR_HUD Weight]" )	-- Set the text above the slider
+			vrmod_ScrW_hud:SetMin( 640 )				 	-- Set the minimum number you can slide to
+			vrmod_ScrW_hud:SetMax( ScrW() )				-- Set the maximum number you can slide to
+			vrmod_ScrW_hud:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
+			vrmod_ScrW_hud:SetConVar( "vrmod_ScrW_hud" )	-- Changes the ConVar when you slide
+
+				-- If not using convars, you can use this hook + Panel.SetValue()
+				vrmod_ScrW_hud.OnValueChanged = function( self, value )
+
+				-- Called when the slider value changes
+				end
+			--DNumSlider end
+
+		--DCheckBoxLabel Start
+			local vrmod_scr_alwaysautosetting = Panel9:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			vrmod_scr_alwaysautosetting:SetPos( 20, 140 )						-- Set the position
+			vrmod_scr_alwaysautosetting:SetText("[Automatic resolution set]")					-- Set the text next to the box
+			vrmod_scr_alwaysautosetting:SetConVar( "vrmod_scr_alwaysautosetting" )				-- Change a ConVar when the box it ticked/unticked
+			vrmod_scr_alwaysautosetting:SizeToContents()						-- Make its size the same as the contents
+		--DCheckBoxLabel end
+
+
 
 			--DLabel&DTextEntry Start
 			local FlohandmodelL = Panel9:Add( "DLabel" )

@@ -1060,6 +1060,7 @@ g_VR.bindings_touch = [[
       "interaction_profile" : "",
       "name" : "GmodVR-SemiOffcial-Keybind-V5.0",
       "options" : {
+         "simulated_controller_type" : "oculus_touch"
       },
       "simulated_actions" : []
    }
