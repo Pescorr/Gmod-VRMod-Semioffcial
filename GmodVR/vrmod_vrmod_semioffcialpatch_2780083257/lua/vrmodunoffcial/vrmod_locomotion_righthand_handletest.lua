@@ -304,9 +304,9 @@ end
 
 timer.Simple(0,function()
 	vrmod.AddLocomotionOption("1-Righthand", start, stop, options)
-	vrmod.AddInGameMenuItem("Toggle Noclip", 2, 1, function()
-		LocalPlayer():ConCommand("noclip")
-	end)
+	-- vrmod.AddInGameMenuItem("Toggle Noclip", 2, 1, function()
+		-- LocalPlayer():ConCommand("noclip")
+	-- end)
 end)
 
 

@@ -28,7 +28,7 @@ meta.MakePopup = function(...)
 	timer.Simple(0.01,function() --wait because makepopup might be called before menu is fully built
 		if not IsValid(panel) then return end
 	
-		if panel:GetName() == "DMenu" then
+		if panel:GetName() == "DMenu"  then
 			--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 			panel = panel:GetChildren()[1]
 			panel.Paint = function(self,w,h) surface.SetDrawColor(255,255,255,255) surface.DrawRect( 0, 0, w, h ) end
