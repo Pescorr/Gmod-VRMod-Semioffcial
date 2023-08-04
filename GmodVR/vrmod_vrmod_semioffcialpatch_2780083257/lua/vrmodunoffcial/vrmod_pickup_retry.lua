@@ -168,7 +168,7 @@ if SERVER then
 		end
 
 		if convarValues.vrmod_pickup_limit == 2 then 
-			return 
+			if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or v == ply or ply:InVehicle() or v:GetMoveType() != MOVETYPE_VPHYSICS or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight then continue end
 		end
 
 

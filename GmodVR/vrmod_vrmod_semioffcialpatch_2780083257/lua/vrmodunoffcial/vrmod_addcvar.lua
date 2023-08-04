@@ -55,6 +55,15 @@ if CLIENT then
 	-- print(g_VR.tracking.pose_righthand.ang.z)
 	-- end)
 
+    concommand.Add( "vgui_clear", function()
+        for _, v in pairs(vgui.GetWorldPanel():GetChildren()) do
+            v:Remove()
+        end 
+
+        RunConsoleCommand("spawnmenu_reload") -- It even removes spawnmenu, so we need to reload it
+
+    end)
+	
 
 	concommand.Add( "vrmod_keymode_restore", function( ply, cmd, args )
 		bothmode = 0
@@ -227,7 +236,7 @@ if CLIENT then
 				{"mat_colorcorrection", "0"},
 				{"mat_compressedtextures", "1"},
 				{"mat_dynamic_tonemapping", "0"},
-				{"mat_filterlightmaps", "0"},
+				-- {"mat_filterlightmaps", "0"},
 				{"mat_filtertextures", "1"},
 				{"mat_mipmaptextures", "1"},
 				{"mat_parallaxmap", "0"},
@@ -241,8 +250,8 @@ if CLIENT then
 				{"r_drawparticles", "1"},
 				{"r_farz", "12000"},
 				{"r_radiosity", "2"},
-				{"r_shadow_lightpos_lerptime", "60.00"},
-				{"mat_antialias", "0"},
+				-- {"r_shadow_lightpos_lerptime", "60.00"},
+				-- {"mat_antialias", "0"},
 				{"cl_ejectbrass", "0"},
 				{"g_ragdoll_maxcount", "0"},
 				{"gmod_physiterations", "1"},
@@ -255,7 +264,7 @@ if CLIENT then
 				{"r_DrawDisp", "1"},
 				{"r_drawstaticprops", "1"},
 				{"mat_alphacoverage", "0"},
-				-- {"mat_specular", "0"},
+				{"mat_specular", "0"},
 				{"r_maxdlights", "0.00"},
 				{"r_shadow_allowbelow", "0"},
 				{"r_shadow_allowdynamic", "0"},
