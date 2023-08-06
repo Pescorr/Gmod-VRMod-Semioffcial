@@ -5,10 +5,6 @@ local convars, convarValues = vrmod.GetConvars()
 
 hook.Add("VRMod_Menu","addsettings",function(frame)
 
-	local vrgrab1 = CreateClientConVar("vrgrab_gravitygloves", "1",true,FCVAR_ARCHIVE)
-	local vrgrab2 = CreateClientConVar("vrgrab_gravitygloves_minrange","0",true,FCVAR_ARCHIVE)
-	local vrgrab3 = CreateClientConVar("vrgrab_range","0",true,FCVAR_ARCHIVE)
-
 
 	--Settings02 Start
 		--add VRMod_Menu Settings02 propertysheet start
@@ -267,11 +263,11 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DNumSlider Start
 				--characterEyeHeight
 				local characterEyeHeight= vgui.Create( "DNumSlider", Panel2 )
-					characterEyeHeight:SetPos( 20, 100 )				-- Set the position (X,Y)
+					characterEyeHeight:SetPos( 20, 60 )				-- Set the position (X,Y)
 					characterEyeHeight:SetSize( 370, 25 )			-- Set the size (X,Y)
 					characterEyeHeight:SetText( "characterEyeHeight" )	-- Set the text above the slider
-					characterEyeHeight:SetMin( 25.0 )				 	-- Set the minimum number you can slide to
-					characterEyeHeight:SetMax( 66.8 )				-- Set the maximum number you can slide to
+					characterEyeHeight:SetMin( 10.0 )				 	-- Set the minimum number you can slide to
+					characterEyeHeight:SetMax( 100.8 )				-- Set the maximum number you can slide to
 					characterEyeHeight:SetDecimals( 1 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
 					characterEyeHeight:SetConVar( "vrmod_characterEyeHeight" )	-- Changes the ConVar when you slide
 
@@ -372,13 +368,13 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					animation_Enable:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
-			--DCheckBoxLabel Start
-				local vrmod_characterlogic_alt = Panel2:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				vrmod_characterlogic_alt:SetPos( 20, 220 )						-- Set the position
-				vrmod_characterlogic_alt:SetText("Character_logic_alt (Client)")					-- Set the text next to the box
-				vrmod_characterlogic_alt:SetConVar( "vrmod_characterlogic_alt" )				-- Change a ConVar when the box it ticked/unticked
-				vrmod_characterlogic_alt:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
+			-- --DCheckBoxLabel Start
+			-- 	local vrmod_characterlogic_alt = Panel2:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			-- 	vrmod_characterlogic_alt:SetPos( 20, 220 )						-- Set the position
+			-- 	vrmod_characterlogic_alt:SetText("Character_logic_alt (Client)")					-- Set the text next to the box
+			-- 	vrmod_characterlogic_alt:SetConVar( "vrmod_characterlogic_alt" )				-- Change a ConVar when the box it ticked/unticked
+			-- 	vrmod_characterlogic_alt:SizeToContents()						-- Make its size the same as the contents
+			-- --DCheckBoxLabel end
 
 				
 
@@ -895,34 +891,13 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 		--DCheckBoxLabel end
 
 
-
-
-
-
-
 			-- --DCheckBoxLabel Start
-			-- 	local vrgrab_gravitygloves = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			-- 	vrgrab_gravitygloves:SetPos( 20, 140 )						-- Set the position
-			-- 	vrgrab_gravitygloves:SetText("[open_menu_grav]")					-- Set the text next to the box
-			-- 	vrgrab_gravitygloves:SetConVar( "vrmod_open_menu_grav" )				-- Change a ConVar when the box it ticked/unticked
-			-- 	vrgrab_gravitygloves:SizeToContents()						-- Make its size the same as the contents
+			-- 	local cl_drawhud = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			-- 	cl_drawhud:SetPos( 20, 200 )						-- Set the position
+			-- 	cl_drawhud:SetText("[cl_drawhud]")					-- Set the text next to the box
+			-- 	cl_drawhud:SetConVar( "cl_drawhud" )				-- Change a ConVar when the box it ticked/unticked
+			-- 	cl_drawhud:SizeToContents()						-- Make its size the same as the contents
 			-- --DCheckBoxLabel end
-
-			--DCheckBoxLabel Start
-				local vrmod_hud_onlymenubutton = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				vrmod_hud_onlymenubutton:SetPos( 20, 170 )						-- Set the position
-				vrmod_hud_onlymenubutton:SetText("[Hud_Active_onlymenubutton]")					-- Set the text next to the box
-				vrmod_hud_onlymenubutton:SetConVar( "vrmod_hud_onlymenubutton" )				-- Change a ConVar when the box it ticked/unticked
-				vrmod_hud_onlymenubutton:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
-
-			--DCheckBoxLabel Start
-				local cl_drawhud = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				cl_drawhud:SetPos( 20, 200 )						-- Set the position
-				cl_drawhud:SetText("[cl_drawhud]")					-- Set the text next to the box
-				cl_drawhud:SetConVar( "cl_drawhud" )				-- Change a ConVar when the box it ticked/unticked
-				cl_drawhud:SizeToContents()						-- Make its size the same as the contents
-			--DCheckBoxLabel end
 
 
 			-- --DCheckBoxLabel Start
