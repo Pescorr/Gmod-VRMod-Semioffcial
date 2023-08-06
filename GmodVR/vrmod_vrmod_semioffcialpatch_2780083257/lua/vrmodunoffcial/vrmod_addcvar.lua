@@ -179,7 +179,8 @@ if CLIENT then
 	end)
 
 	concommand.Add( "vrmod_dev_vrgrab", function( ply, cmd, args )
-		LocalPlayer():ConCommand("vrgrab_range 0")
+		LocalPlayer():ConCommand("vrmod_pickup_limit 3")
+		LocalPlayer():ConCommand("vrgrab_range 128")
 		LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 0")
 		LocalPlayer():ConCommand("vrgrab_gravitygloves 1")
 	end)
@@ -251,7 +252,7 @@ if CLIENT then
 				{"r_farz", "12000"},
 				{"r_radiosity", "2"},
 				-- {"r_shadow_lightpos_lerptime", "60.00"},
-				-- {"mat_antialias", "0"},
+				{"mat_antialias", "0"},
 				{"cl_ejectbrass", "0"},
 				{"g_ragdoll_maxcount", "0"},
 				{"gmod_physiterations", "1"},

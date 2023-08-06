@@ -5,7 +5,6 @@ local cl_lefthand = CreateClientConVar("vrmod_LeftHand", "0")
 local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", "0")
 local retryoff = CreateClientConVar("vrmod_pickup_retry", "1", true, FCVAR_ARCHIVE, "", 0, 1)
 local keyboardtest = CreateClientConVar("vrmod_test_keydown", "0", true, FCVAR_ARCHIVE, "", 0, 1)
-local hudmenubutton = CreateClientConVar("vrmod_hud_onlymenubutton", "0", true, FCVAR_ARCHIVE, "", 0, 1)
 if CLIENT then
 	hook.Add(
 		"VRMod_EnterVehicle",
@@ -119,19 +118,13 @@ if CLIENT then
 			if action == "boolean_spawnmenu" then
 				if pressed then
 					g_VR.MenuOpen()
-					if hudmenubutton:GetBool() then
-						LocalPlayer():ConCommand("cl_drawhud 1")
-					end
+					
 				else
 					g_VR.MenuClose()
-					if hudmenubutton:GetBool() then
-						LocalPlayer():ConCommand("cl_drawhud 0")
-					end
-
-					return
+				return
 				end
 			end
-
+	
 			for i = 1, #g_VR.CustomActions do
 				if action == g_VR.CustomActions[i][1] then
 					local commands = string.Explode(";", g_VR.CustomActions[i][pressed and 2 or 3], false)
@@ -156,7 +149,7 @@ if CLIENT then
 
 			if action == "boolean_left_pickup" then
 				if cl_pickupdisable:GetBool() then return end
-				if retryon:GetBool() then return end
+				if retryoff:GetBool() then return end
 				vrmod.Pickupretry(true, not pressed)
 
 				return
@@ -164,7 +157,7 @@ if CLIENT then
 
 			if action == "boolean_right_pickup" then
 				if cl_pickupdisable:GetBool() then return end
-				if retryon:GetBool() then return end
+				if retryoff:GetBool() then return end
 				vrmod.Pickupretry(false, not pressed)
 
 				return
