@@ -267,7 +267,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DNumSlider Start
 				--characterEyeHeight
 				local characterEyeHeight= vgui.Create( "DNumSlider", Panel2 )
-					characterEyeHeight:SetPos( 20, 60 )				-- Set the position (X,Y)
+					characterEyeHeight:SetPos( 20, 100 )				-- Set the position (X,Y)
 					characterEyeHeight:SetSize( 370, 25 )			-- Set the size (X,Y)
 					characterEyeHeight:SetText( "characterEyeHeight" )	-- Set the text above the slider
 					characterEyeHeight:SetMin( 25.0 )				 	-- Set the minimum number you can slide to
