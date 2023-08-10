@@ -8,9 +8,13 @@ surface.CreateFont(
 	}
 )
 
-local menumcore = CreateClientConVar("vrmod_open_menu_auto_matqueue", "1", true, FCVAR_ARCHIVE)
 local contexticon = CreateClientConVar("vrmod_enable_contextmenu_button", "1", true, FCVAR_ARCHIVE)
+local menumcore = CreateClientConVar("vrmod_auto_matqueue", "1", true, FCVAR_ARCHIVE)
 local autoscrsetting = CreateClientConVar("vrmod_scr_alwaysautosetting", "1", true, FCVAR_ARCHIVE)
+local autooptimize = CreateClientConVar("vrmod_gmod_optimization_auto", "0", true, FCVAR_ARCHIVE)
+local vrgrabopt = CreateClientConVar("vrmod_vrgrab_mode", "1", true, FCVAR_ARCHIVE)
+
+
 local frame = nil
 local function OpenMenu()
 	if menumcore:GetBool() then
@@ -19,6 +23,14 @@ local function OpenMenu()
 
 	if autoscrsetting:GetBool() then
 		LocalPlayer():ConCommand("vrmod_Scr_Auto")
+	end
+
+	if autooptimize:GetBool() then
+		LocalPlayer():ConCommand("vrmod_gmod_optimization")
+	end
+
+	if not !GetConVar("vrgrab_range") and vrgrabopt:GetBool() then
+		LocalPlayer():ConCommand("vrmod_dev_vrgrab")
 	end
 
 	if IsValid(frame) then return frame end

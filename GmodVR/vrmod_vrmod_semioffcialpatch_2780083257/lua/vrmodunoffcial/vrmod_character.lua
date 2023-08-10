@@ -425,7 +425,6 @@ if CLIENT then
 		end
 
 		characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
-		LocalPlayer():ConCommand("vrmod_seatedoffset_auto")
 		cm:Remove()
 	end
 

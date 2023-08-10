@@ -1,10 +1,8 @@
 local cl_bothkey = CreateClientConVar("vrmod_vehicle_bothkeymode", "0", true, FCVAR_ARCHIVE)
 local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client", "0", true, FCVAR_ARCHIVE)
-local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly", "0", false, FCVAR_ARCHIVE)
 local cl_lefthand = CreateClientConVar("vrmod_LeftHand", "0")
 local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", "0")
 local retryoff = CreateClientConVar("vrmod_pickup_retry", "1", true, FCVAR_ARCHIVE, "", 0, 1)
-local keyboardtest = CreateClientConVar("vrmod_test_keydown", "0", true, FCVAR_ARCHIVE, "", 0, 1)
 if CLIENT then
 	hook.Add(
 		"VRMod_EnterVehicle",
@@ -43,9 +41,35 @@ if CLIENT then
 				return
 			end
 
+			if action == "boolean_forword" then
+				LocalPlayer():ConCommand(pressed and "+forward" or "-forward")
+
+				return
+			end
+
+			if action == "boolean_back" then
+				LocalPlayer():ConCommand(pressed and "+back" or "-back")
+
+				return
+			end
+
+			if action == "boolean_left" then
+				LocalPlayer():ConCommand(pressed and "+moveleft" or "-moveleft")
+
+				return
+			end
+
+			if action == "boolean_right" then
+				LocalPlayer():ConCommand(pressed and "+moveright" or "-moveright")
+
+				return
+			end
+
 			if action == "boolean_left_pickup" then
 				if cl_pickupdisable:GetBool() then return end
 				vrmod.Pickup(true, not pressed)
+				if retryoff:GetBool() then return end
+				vrmod.Pickupretry(true, not pressed)
 
 				return
 			end
@@ -53,8 +77,18 @@ if CLIENT then
 			if action == "boolean_right_pickup" then
 				if cl_pickupdisable:GetBool() then return end
 				vrmod.Pickup(false, not pressed)
+				if retryoff:GetBool() then return end
+				vrmod.Pickupretry(false, not pressed)
 
 				return
+			end
+
+			if action == "boolean_lefthandmode" then
+				LocalPlayer():ConCommand("vrmod_lefthand 1")
+			end
+
+			if action == "boolean_righthandmode" then
+				LocalPlayer():ConCommand("vrmod_lefthand 0")
 			end
 
 			if action == "boolean_use" or action == "boolean_exit" then
@@ -118,75 +152,15 @@ if CLIENT then
 			if action == "boolean_spawnmenu" then
 				if pressed then
 					g_VR.MenuOpen()
-					
 				else
 					g_VR.MenuClose()
-				return
 				end
-			end
-	
-			for i = 1, #g_VR.CustomActions do
-				if action == g_VR.CustomActions[i][1] then
-					local commands = string.Explode(";", g_VR.CustomActions[i][pressed and 2 or 3], false)
-					for j = 1, #commands do
-						local args = string.Explode(" ", commands[j], false)
-						RunConsoleCommand(args[1], unpack(args, 2))
-					end
-				end
-			end
-		end
-	)
 
-	hook.Add(
-		"VRMod_Input",
-		"vrutil_hook_addinput",
-		function(action, pressed)
+				return
+			end
+
 			if action == "boolean_chat" then
 				LocalPlayer():ConCommand(pressed and "+zoom" or "-zoom")
-
-				return
-			end
-
-			if action == "boolean_left_pickup" then
-				if cl_pickupdisable:GetBool() then return end
-				if retryoff:GetBool() then return end
-				vrmod.Pickupretry(true, not pressed)
-
-				return
-			end
-
-			if action == "boolean_right_pickup" then
-				if cl_pickupdisable:GetBool() then return end
-				if retryoff:GetBool() then return end
-				vrmod.Pickupretry(false, not pressed)
-
-				return
-			end
-
-			if action == "boolean_forword" then
-				if cl_analogmoveonly:GetBool() then return end
-				LocalPlayer():ConCommand(pressed and "+forward" or "-forward")
-
-				return
-			end
-
-			if action == "boolean_back" then
-				if cl_analogmoveonly:GetBool() then return end
-				LocalPlayer():ConCommand(pressed and "+back" or "-back")
-
-				return
-			end
-
-			if action == "boolean_left" then
-				if cl_analogmoveonly:GetBool() then return end
-				LocalPlayer():ConCommand(pressed and "+moveleft" or "-moveleft")
-
-				return
-			end
-
-			if action == "boolean_right" then
-				if cl_analogmoveonly:GetBool() then return end
-				LocalPlayer():ConCommand(pressed and "+moveright" or "-moveright")
 
 				return
 			end
@@ -263,133 +237,15 @@ if CLIENT then
 				return
 			end
 
-			if action == "boolean_lefthandmode" then
-				LocalPlayer():ConCommand("vrmod_lefthand 1")
-			end
-
-			if action == "boolean_righthandmode" then
-				LocalPlayer():ConCommand("vrmod_lefthand 0")
+			for i = 1, #g_VR.CustomActions do
+				if action == g_VR.CustomActions[i][1] then
+					local commands = string.Explode(";", g_VR.CustomActions[i][pressed and 2 or 3], false)
+					for j = 1, #commands do
+						local args = string.Explode(" ", commands[j], false)
+						RunConsoleCommand(args[1], unpack(args, 2))
+					end
+				end
 			end
 		end
 	)
-
-	if keyboardtest:GetBool() then
-		hook.Add(
-			"VRMod_Input",
-			"vrutil_hook_keyboardinput",
-			function(action, pressed)
-				if (action == "boolean_primaryfire" or action == "boolean_turret") and not g_VR.menuFocus then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_ATTACK)
-
-						return
-					end
-				end
-
-				if action == "boolean_secondaryfire" then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_ATTACK2)
-
-						return
-					end
-				end
-
-				if action == "boolean_use" or action == "boolean_exit" then
-					if pressed then
-						cmd:SetButtons(KEY_E)
-
-						return
-					end
-				end
-
-				if action == "boolean_flashlight" then
-					if pressed then
-						cmd:SetButtons(KEY_F)
-
-						return
-					end
-				end
-
-				if action == "boolean_reload" then
-					if pressed then
-						cmd:SetButtons(KEY_R)
-
-						return
-					end
-				end
-
-				if action == "boolean_undo" then
-					if pressed then
-						cmd:SetButtons(KEY_Z)
-
-						return
-					end
-				end
-
-				if action == "boolean_forword" then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_FORWARD)
-
-						return
-					end
-				end
-
-				if action == "boolean_back" then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_BACK)
-
-						return
-					end
-				end
-
-				if action == "boolean_left" then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_LEFT)
-
-						return
-					end
-				end
-
-				if action == "boolean_right" then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_RIGHT)
-
-						return
-					end
-				end
-
-				if action == "boolean_walkkey" then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_WALK)
-
-						return
-					end
-				end
-
-				if action == "boolean_menucontext" then
-					if pressed then
-						cmd:SetButtons(KEY_C)
-
-						return
-					end
-				end
-
-				if (action == "boolean_left_primaryfire") and not g_VR.menuFocus and cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_ATTACK)
-
-						return
-					end
-				end
-
-				if (action == "boolean_left_secondaryfire") and not g_VR.menuFocus and cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then
-					if pressed then
-						cmd:SetButtons(cmd:GetButtons(), IN_ATTACK2)
-
-						return
-					end
-				end
-			end
-		)
-	end
 end

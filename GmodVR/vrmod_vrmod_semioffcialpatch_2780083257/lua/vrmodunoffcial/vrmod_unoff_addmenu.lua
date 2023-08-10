@@ -648,6 +648,15 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					end
 			--DNumSlider end
 
+			--DCheckBoxLabel Start
+				local vrmod_dev_vrgrab = Panel5:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_dev_vrgrab:SetPos( 20, 275 )						-- Set the position
+				vrmod_dev_vrgrab:SetText("[VRGRAB_MODE]\nWheatley'sVRGravity Gloves\nAutomatically changes\nsettings to work with this mod.")					-- Set the text next to the box
+				vrmod_dev_vrgrab:SetConVar( "vrmod_vrgrab_mode" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_dev_vrgrab:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+
 		-- --Panel5 "TAB5" end
 				
 		--Panel6 "TAB6" Start
@@ -711,8 +720,8 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 
 			--DNumSlider Start
 				--fps_max
-				local fps_max= vgui.Create( "DNumSlider", Panel6 )
-					fps_max:SetPos( 20, 200 )				-- Set the position (X,Y)
+				local fps_max = vgui.Create( "DNumSlider", Panel6 )
+					fps_max:SetPos( 20, 190 )				-- Set the position (X,Y)
 					fps_max:SetSize( 370, 110 )			-- Set the size (X,Y)
 					fps_max:SetText( "[fps_max]\nIf fps is reduced when the multi core test is set to [1]\n the blinking will be reduced.\nIf the fps does not change from 45\nthe fps may be limited by the\nSSW function of hmd." )	-- Set the text above the slider
 					fps_max:SetMin( 15 )				 	-- Set the minimum number you can slide to
@@ -732,7 +741,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				--gmod_optimization
 				local gmod_optimization = vgui.Create( "DButton", Panel6 ) -- Create the button and parent it to the frame
 				gmod_optimization:SetText( "vrmod_gmod_optimization" )					-- Set the text on the button
-				gmod_optimization:SetPos( 20, 310 )					-- Set the position on the frame
+				gmod_optimization:SetPos( 20, 315 )					-- Set the position on the frame
 				gmod_optimization:SetSize( 330, 30 )					-- Set the size
 				gmod_optimization.DoClick = function()				-- A custom function run when clicked ( note the . instead of : )
 					RunConsoleCommand( "vrmod_gmod_optimization" )			-- Run the console command "say hi" when you click it ( command, args )
@@ -741,7 +750,16 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				gmod_optimization.DoRightClick = function()
 					RunConsoleCommand( "vrmod_gmod_optimization" )
 				end
-			--DButton end		
+			--DButton end
+			
+			--DCheckBoxLabel Start
+				local vrmod_open_menu_auto_optimization = Panel6:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_open_menu_auto_optimization:SetPos( 20, 290 )						-- Set the position
+				vrmod_open_menu_auto_optimization:SetText("[Automatic Optimization]")					-- Set the text next to the box
+				vrmod_open_menu_auto_optimization:SetConVar( "vrmod_open_menu_auto_optimization" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_open_menu_auto_optimization:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
 		--Panel6 "TAB6" end
 				
 		--Panel7 "TAB7" Start
@@ -999,32 +1017,14 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				end
 			--DNumSlider end
 
-
-			--DNumSlider Start
-			--vrmod_ScrW_hud
-			local vrmod_ScrW_hud = vgui.Create( "DNumSlider", Panel9 )
-			vrmod_ScrW_hud:SetPos( 20, 80 )				-- Set the position (X,Y)
-			vrmod_ScrW_hud:SetSize( 330, 25 )			-- Set the size (X,Y)
-			vrmod_ScrW_hud:SetText( "[VR_HUD Weight]" )	-- Set the text above the slider
-			vrmod_ScrW_hud:SetMin( 640 )				 	-- Set the minimum number you can slide to
-			vrmod_ScrW_hud:SetMax( ScrW() )				-- Set the maximum number you can slide to
-			vrmod_ScrW_hud:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
-			vrmod_ScrW_hud:SetConVar( "vrmod_ScrW_hud" )	-- Changes the ConVar when you slide
-
-				-- If not using convars, you can use this hook + Panel.SetValue()
-				vrmod_ScrW_hud.OnValueChanged = function( self, value )
-
-				-- Called when the slider value changes
-				end
-			--DNumSlider end
-
 		--DCheckBoxLabel Start
 			local vrmod_scr_alwaysautosetting = Panel9:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			vrmod_scr_alwaysautosetting:SetPos( 20, 140 )						-- Set the position
+			vrmod_scr_alwaysautosetting:SetPos( 20, 120 )						-- Set the position
 			vrmod_scr_alwaysautosetting:SetText("[Automatic resolution set]")					-- Set the text next to the box
 			vrmod_scr_alwaysautosetting:SetConVar( "vrmod_scr_alwaysautosetting" )				-- Change a ConVar when the box it ticked/unticked
 			vrmod_scr_alwaysautosetting:SizeToContents()						-- Make its size the same as the contents
 		--DCheckBoxLabel end
+
 
 
 
