@@ -179,10 +179,23 @@ if CLIENT then
 	end)
 
 	concommand.Add( "vrmod_dev_vrgrab", function( ply, cmd, args )
-		LocalPlayer():ConCommand("vrmod_pickup_limit 3")
-		LocalPlayer():ConCommand("vrgrab_range 128")
-		LocalPlayer():ConCommand("vrgrab_gravitygloves_minrange 0")
-		LocalPlayer():ConCommand("vrgrab_gravitygloves 1")
+		local function SetVrCommands()
+			local maxmass = GetConVar("vrmod_pickup_weight")
+			local commands = {
+				{"vrmod_pickup_limit", "3"},
+				{"vrmod_pickup_range", "1.5"},
+				{"vrgrab_range", "72"},
+				{"vrgrab_gravitygloves_minrange", "0"},
+				{"vrgrab_gravitygloves", "1"},
+				{"vrgrab_maxmass", maxmass:GetInt()}
+			}
+			for _, cmd in ipairs(commands) do
+				local name, value = unpack(cmd)
+				LocalPlayer():ConCommand(name .. " " .. value)
+			end
+		end
+		SetVrCommands()
+
 	end)
 
 
@@ -252,7 +265,7 @@ if CLIENT then
 				{"r_farz", "12000"},
 				{"r_radiosity", "2"},
 				-- {"r_shadow_lightpos_lerptime", "60.00"},
-				{"mat_antialias", "0"},
+				--{"mat_antialias", "0"},
 				{"cl_ejectbrass", "0"},
 				{"g_ragdoll_maxcount", "0"},
 				{"gmod_physiterations", "1"},
@@ -286,9 +299,9 @@ if CLIENT then
 
 		setConvars()
 
-		if g_VR.active == true then
-			LocalPlayer():ConCommand("vrmod_restart")
-		end	
+		-- if g_VR.active == true then
+		-- 	LocalPlayer():ConCommand("vrmod_restart")
+		-- end	
 	end)
 
 	concommand.Add("vrmod_character_auto", function( ply, cmd, args)

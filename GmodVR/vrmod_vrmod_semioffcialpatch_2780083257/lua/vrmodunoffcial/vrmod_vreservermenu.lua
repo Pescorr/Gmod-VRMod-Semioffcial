@@ -122,7 +122,7 @@ function vre_svmenuOpen()
 	end
 
 	--button toggle end
-	if not not GetConVar("vrgrab_range") then
+	if not !GetConVar("vrgrab_range") then
 		--button toggle start
 		local button4 = vgui.Create("DButton")
 		button4:SetText("vrgrab_pickup_range:")
@@ -157,7 +157,7 @@ function vre_svmenuOpen()
 		--button toggle end
 	end
 
-	if not not GetConVar("vrgrab_gravitygloves") then
+	if not !GetConVar("vrgrab_gravitygloves") then
 		--2button toggle start
 		local button5 = vgui.Create("DButton")
 		button5:SetText("vrgrab_gravitygloves: ")
@@ -183,7 +183,7 @@ function vre_svmenuOpen()
 		--2button toggle end
 	end
 
-	if not not GetConVar("vrgrab_gravitygloves_minrange") then
+	if not !GetConVar("vrgrab_gravitygloves_minrange") then
 		--button toggle start
 		local button6 = vgui.Create("DButton")
 		button6:SetText("gravitygloves\nminrange:")
@@ -218,7 +218,7 @@ function vre_svmenuOpen()
 		--button toggle end
 	end
 
-	if not not GetConVar("arcticvr_gunmelee_client") then
+	if not !GetConVar("arcticvr_gunmelee_client") then
 		--button toggle start
 		local button8 = vgui.Create("DButton")
 		button8:SetText("ArcVR_melee:")

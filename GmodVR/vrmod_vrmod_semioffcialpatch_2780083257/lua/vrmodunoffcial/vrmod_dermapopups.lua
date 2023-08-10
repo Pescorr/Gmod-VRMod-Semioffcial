@@ -18,7 +18,7 @@ meta.MakePopup = function(...)
 	table.insert(allPopups, uid)
 	--wait because makepopup might be called before menu is fully built
 	timer.Simple(
-		0.01,
+		0.1,
 		function()
 			if not IsValid(panel) then return end
 			if panel:GetName() == "DMenu" then
@@ -54,7 +54,7 @@ meta.MakePopup = function(...)
 					true,
 					function()
 						timer.Simple(
-							0.01,
+							0.1,
 							function()
 								if not g_VR.active and IsValid(panel) then
 									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
@@ -90,7 +90,7 @@ meta.MakePopup = function(...)
 					true,
 					function()
 						timer.Simple(
-							0.01,
+							0.1,
 							function()
 								if not g_VR.active and IsValid(panel) then
 									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
@@ -125,7 +125,7 @@ meta.MakePopup = function(...)
 					true,
 					function()
 						timer.Simple(
-							0.01,
+							0.1,
 							function()
 								if not g_VR.active and IsValid(panel) then
 									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
