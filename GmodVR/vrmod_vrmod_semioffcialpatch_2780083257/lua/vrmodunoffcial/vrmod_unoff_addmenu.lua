@@ -756,7 +756,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				local vrmod_open_menu_auto_optimization = Panel6:Add( "DCheckBoxLabel" ) -- Create the checkbox
 				vrmod_open_menu_auto_optimization:SetPos( 20, 290 )						-- Set the position
 				vrmod_open_menu_auto_optimization:SetText("[Automatic Optimization]")					-- Set the text next to the box
-				vrmod_open_menu_auto_optimization:SetConVar( "vrmod_open_menu_auto_optimization" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_open_menu_auto_optimization:SetConVar( "vrmod_gmod_optimization_auto" )				-- Change a ConVar when the box it ticked/unticked
 				vrmod_open_menu_auto_optimization:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 

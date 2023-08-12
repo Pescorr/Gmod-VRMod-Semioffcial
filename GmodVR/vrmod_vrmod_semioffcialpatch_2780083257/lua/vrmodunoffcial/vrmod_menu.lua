@@ -29,7 +29,7 @@ local function OpenMenu()
 		LocalPlayer():ConCommand("vrmod_gmod_optimization")
 	end
 
-	if not !GetConVar("vrgrab_range") and vrgrabopt:GetBool() then
+	if vrgrabopt:GetBool() then
 		LocalPlayer():ConCommand("vrmod_dev_vrgrab")
 	end
 
