@@ -55,7 +55,7 @@ if CLIENT then
 	-- print(g_VR.tracking.pose_righthand.ang.z)
 	-- end)
 
-    concommand.Add( "vgui_clear", function()
+    concommand.Add( "vrmod_vgui_reset", function()
         for _, v in pairs(vgui.GetWorldPanel():GetChildren()) do
             v:Remove()
         end 

@@ -3,6 +3,8 @@ local open = false
 function g_VR.MenuOpen()
 	local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1")
 	local shutdownbutton = CreateClientConVar("vrmod_shutdownmenu", "1")
+	local vguireset = CreateClientConVar("vrmod_vgui_reset_menu", "1")
+
 	if hook.Call("VRMod_OpenQuickMenu") == false then return end
 	if open then return end
 	open = true
@@ -75,6 +77,20 @@ function g_VR.MenuOpen()
 	else
 		vrmod.RemoveInGameMenuItem("VR EXIT")
 	end
+
+	if vguireset:GetBool() then
+		vrmod.AddInGameMenuItem(
+			"UI RESET",
+			3,
+			2,
+			function()
+				LocalPlayer():ConCommand("vrmod_vgui_reset")
+			end
+		)
+	else
+		vrmod.RemoveInGameMenuItem("UI RESET")
+	end
+
 
 	--add button end
 	if mode == 1 then
