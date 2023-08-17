@@ -12,6 +12,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 		frame.DPropertySheet:AddSheet( "Settings02", sheet )
 		sheet:Dock( FILL )
 		--add VRMod_Menu Settings02 propertysheet end
+
 		--Panel1 "TAB1" Start
 			local Panel1 = vgui.Create( "DPanel", sheet )
 			Panel1.Paint = function( self, w, h ) draw.RoundedBox( 4, 0, 0, w, h, Color( 0, 0, 0, self:GetAlpha() ) ) end 
@@ -440,18 +441,13 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 
 				
 		--Panel2 "TAB2" end
-
-
-
 			
-			
-			
-			
+		--Panel3 "TAB3" Start
+	
 			local Panel3 = vgui.Create( "DPanel", sheet )
 			sheet:AddSheet( "Client02", Panel3, "icon16/palette.png" )
 			Panel3.Paint = function( self, w, h ) draw.RoundedBox( 4, 0, 0, w, h, Color( 0, 0, 0, self:GetAlpha() ) ) end 
 
-		--Panel3 "TAB3" Start
 
 			--DNumSlider Start
 					--cameraoverride
@@ -489,23 +485,81 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				local vrmod_mapbrowser = Panel3:Add( "DCheckBoxLabel" ) -- Create the checkbox
 					vrmod_mapbrowser:SetPos( 20, 250 )						-- Set the position
 					vrmod_mapbrowser:SetText("[quickmenu_mapbrowser_enable]\nON = Show the Map Browser button in the Quick Menu\nOFF = Do not display the map browser button")					-- Set the text next to the box
-					vrmod_mapbrowser:SetConVar( "vrmod_mapbrowser_enable" )				-- Change a ConVar when the box it ticked/unticked
+					vrmod_mapbrowser:SetConVar( "vrmod_quickmenu_mapprowser" )				-- Change a ConVar when the box it ticked/unticked
 					vrmod_mapbrowser:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
 
 			--DCheckBoxLabel Start
-				local vrmod_shutdownmenu = Panel3:Add( "DCheckBoxLabel" ) -- Create the checkbox
-				vrmod_shutdownmenu:SetPos( 20, 300 )						-- Set the position
-				vrmod_shutdownmenu:SetText("[quickmenu VR EXIT button]\nON = Show the [VR EXIT] button in the Quick Menu\nOFF = Do not the [VR EXIT] in the Quick Menu")					-- Set the text next to the box
-				vrmod_shutdownmenu:SetConVar( "vrmod_shutdownmenu" )				-- Change a ConVar when the box it ticked/unticked
-				vrmod_shutdownmenu:SizeToContents()						-- Make its size the same as the contents
+				local vrmod_quickmenu_exit = Panel3:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_quickmenu_exit:SetPos( 20, 300 )						-- Set the position
+				vrmod_quickmenu_exit:SetText("[quickmenu VR EXIT button]\nON = Show the [VR EXIT] button in the Quick Menu\nOFF = Do not the [VR EXIT] in the Quick Menu")					-- Set the text next to the box
+				vrmod_quickmenu_exit:SetConVar( "vrmod_quickmenu_exit" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_quickmenu_exit:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
 
 
 			
 		--Panel3 "TAB3" end
+
+		--Panel4 "TAB4" Start
+	
+			local Panel4 = vgui.Create( "DPanel", sheet )
+			sheet:AddSheet( "Quickmenu", Panel4, "icon16/palette.png" )
+			Panel4.Paint = function( self, w, h ) draw.RoundedBox( 4, 0, 0, w, h, Color( 0, 0, 0, self:GetAlpha() ) ) end 
+
+
+			--DCheckBoxLabel Start
+				local vrmod_quickmenu_VRE_addmenu = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
+						vrmod_quickmenu_VRE_addmenu:SetPos( 20, 110 )						-- Set the position
+						vrmod_quickmenu_VRE_addmenu:SetText("[vrmod_quickmenu_VRE_addmenu]")
+						vrmod_quickmenu_VRE_addmenu:SetConVar( "vrmod_quickmenu_VRE_addmenu" )				-- Change a ConVar when the box it ticked/unticked
+						vrmod_quickmenu_VRE_addmenu:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+			--DCheckBoxLabel Start
+				local vrmod_quickmenu_radial = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_quickmenu_radial:SetPos( 20, 140 )						-- Set the position
+				vrmod_quickmenu_radial:SetText("[vrmod_quickmenu_radial]")
+				vrmod_quickmenu_radial:SetConVar( "vrmod_quickmenu_radial" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_quickmenu_radial:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+			--DCheckBoxLabel Start
+			local vrmod_quickmenu_seatedbutton = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_quickmenu_seatedbutton:SetPos( 20, 170 )						-- Set the position
+				vrmod_quickmenu_seatedbutton:SetText("[vrmod_quickmenu_seatedbutton]")
+				vrmod_quickmenu_seatedbutton:SetConVar( "vrmod_quickmenu_seatedbutton" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_quickmenu_seatedbutton:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+			--DCheckBoxLabel Start
+			local vrmod_quickmenu_exit = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_quickmenu_exit:SetPos( 20, 20 )						-- Set the position
+				vrmod_quickmenu_exit:SetText("[vrmod_quickmenu_exit]")
+				vrmod_quickmenu_exit:SetConVar( "vrmod_quickmenu_exit" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_quickmenu_exit:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+			--DCheckBoxLabel Start
+			local vrmod_quickmenu_mapprowser = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_quickmenu_mapprowser:SetPos( 20, 50 )						-- Set the position
+				vrmod_quickmenu_mapprowser:SetText("[vrmod_quickmenu_mapprowser]")
+				vrmod_quickmenu_mapprowser:SetConVar( "vrmod_quickmenu_mapprowser" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_quickmenu_mapprowser:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+			--DCheckBoxLabel Start
+			local vrmod_quickmenu_vgui_reset = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_quickmenu_vgui_reset:SetPos( 20, 80 )						-- Set the position
+				vrmod_quickmenu_vgui_reset:SetText("[vrmod_quickmenu_vgui_reset]")
+				vrmod_quickmenu_vgui_reset:SetConVar( "vrmod_quickmenu_vgui_reset" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_quickmenu_vgui_reset:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
+
+		
+		--Panel4 "TAB4" end
 
 			
 		--Panel5 "TAB5" Start
@@ -657,7 +711,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 			--DCheckBoxLabel end
 
 
-		-- --Panel5 "TAB5" end
+		--Panel5 "TAB5" end
 				
 		--Panel6 "TAB6" Start
 			local Panel6 = vgui.Create( "DPanel", sheet )
@@ -900,13 +954,13 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				contextmenu_button:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
-		--DCheckBoxLabel Start
-			local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			autoarcbench_button:SetPos( 20, 110 )						-- Set the position
-			autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
-			autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
-			autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
+			--DCheckBoxLabel Start
+				local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				autoarcbench_button:SetPos( 20, 110 )						-- Set the position
+				autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
+				autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+				autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
 
 
 			-- --DCheckBoxLabel Start
@@ -1017,13 +1071,13 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				end
 			--DNumSlider end
 
-		--DCheckBoxLabel Start
-			local vrmod_scr_alwaysautosetting = Panel9:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			vrmod_scr_alwaysautosetting:SetPos( 20, 120 )						-- Set the position
-			vrmod_scr_alwaysautosetting:SetText("[Automatic resolution set]")					-- Set the text next to the box
-			vrmod_scr_alwaysautosetting:SetConVar( "vrmod_scr_alwaysautosetting" )				-- Change a ConVar when the box it ticked/unticked
-			vrmod_scr_alwaysautosetting:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
+			--DCheckBoxLabel Start
+				local vrmod_scr_alwaysautosetting = Panel9:Add( "DCheckBoxLabel" ) -- Create the checkbox
+				vrmod_scr_alwaysautosetting:SetPos( 20, 120 )						-- Set the position
+				vrmod_scr_alwaysautosetting:SetText("[Automatic resolution set]")					-- Set the text next to the box
+				vrmod_scr_alwaysautosetting:SetConVar( "vrmod_scr_alwaysautosetting" )				-- Change a ConVar when the box it ticked/unticked
+				vrmod_scr_alwaysautosetting:SizeToContents()						-- Make its size the same as the contents
+			--DCheckBoxLabel end
 
 
 
@@ -1067,8 +1121,6 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 
 
 		-- Panel9 "TAB9" End
-
-
 				
 	--Settings02 end
 	

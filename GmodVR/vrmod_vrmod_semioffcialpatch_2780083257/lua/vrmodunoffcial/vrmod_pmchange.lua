@@ -21,7 +21,7 @@ if cv_usepmchg:GetBool() then
 			end
 		)
 	elseif SERVER then
-		if cv_allowpmchg:GetBool() then
+		if cv_usepmchg:GetBool() then
 			util.AddNetworkString("vrmod_pmchange")
 			hook.Add(
 				"InitPostEntity",

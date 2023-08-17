@@ -5,7 +5,7 @@ vrmod.AddInGameMenuItem(
 	0,
 	function()
 		if not IsValid(g_SpawnMenu) then return end
-		g_SpawnMenu:Open()
+		LocalPlayer():ConCommand("+menu")
 		hook.Add(
 			"VRMod_OpenQuickMenu",
 			"close_spawnmenu",
@@ -25,7 +25,7 @@ vrmod.AddInGameMenuItem(
 	0,
 	function()
 		if not IsValid(g_ContextMenu) then return end
-		g_ContextMenu:Open()
+		LocalPlayer():ConCommand("+menu_context")
 		hook.Add(
 			"VRMod_OpenQuickMenu",
 			"closecontextmenu",

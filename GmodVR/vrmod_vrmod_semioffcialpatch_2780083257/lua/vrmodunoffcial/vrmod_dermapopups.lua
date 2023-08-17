@@ -18,7 +18,7 @@ meta.MakePopup = function(...)
 	table.insert(allPopups, uid)
 	--wait because makepopup might be called before menu is fully built
 	timer.Simple(
-		0.1,
+		0.05,
 		function()
 			if not IsValid(panel) then return end
 			if panel:GetName() == "DMenu" then
