@@ -184,9 +184,7 @@ if CLIENT then
 			local commands = {
 				{"vrmod_pickup_limit", "3"},
 				{"vrmod_pickup_range", "1.5"},
-				{"vrmod_pickup_retry", "1"},
-				{"vrmod_test_pickup_limit_droptest", "0"},
-				{"vrgrab_range", "0"},
+				{"vrgrab_range", "72"},
 				{"vrgrab_gravitygloves_minrange", "0"},
 				{"vrgrab_gravitygloves", "1"},
 				{"vrgrab_maxmass", maxmass:GetInt()}
@@ -287,7 +285,6 @@ if CLIENT then
 				{"r_shadowfromanyworldlight", "0"},
 				{"r_shadowmaxrendered", "0.00"},
 				{"r_shadowrendertotexture", "0"},
-				{"SyntHud_max_ap", "0"},
 				{"viewmodel_fov", "90.00"}
 			}
 
