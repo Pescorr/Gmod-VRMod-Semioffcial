@@ -1,202 +1,214 @@
 if CLIENT then
+
 	g_VR = g_VR or {}
 	g_VR.viewModelInfo = g_VR.viewModelInfo or {}
-	g_VR.viewModelInfo.autoOffsetAddPos = Vector(1, 0.2, 0)
+	
+	g_VR.viewModelInfo.autoOffsetAddPos = Vector(1,0.2, 0)
+	
 	g_VR.currentvmi = nil
+	
 	g_VR.viewModelInfo.gmod_tool = {
 		--modelOverride = "models/weapons/w_toolgun.mdl",
 		offsetPos = Vector(-12, 6.5, 7), --forw, left, up
 		offsetAng = Angle(0, 0, 0),
 	}
-
+	
 	g_VR.viewModelInfo.weapon_physgun = {
 		offsetPos = Vector(-24.5, 13.4, 14.5),
 		offsetAng = Angle(0, 0, 0),
 	}
-
+	
 	g_VR.viewModelInfo.weapon_physcannon = {
 		offsetPos = Vector(-24.5, 13.4, 14.5),
 		offsetAng = Angle(0, 0, 0),
 	}
-
+	
+	
 	g_VR.viewModelInfo.weapon_shotgun = {
 		offsetPos = Vector(-14.5, 10, 8.5),
 		offsetAng = Angle(0, 0, 0),
 	}
-
+	
 	g_VR.viewModelInfo.weapon_rpg = {
 		offsetPos = Vector(-27.5, 19, 10.5),
 		offsetAng = Angle(0, 0, 0),
 	}
-
+	
 	g_VR.viewModelInfo.weapon_crossbow = {
 		offsetPos = Vector(-14.5, 10, 8.5),
 		offsetAng = Angle(0, 0, 0),
 	}
-
+	
 	g_VR.viewModelInfo.weapon_medkit = {
-		offsetPos = Vector(-23, 10, 5),
+		offsetPos = Vector(-23,10,5),
 		offsetAng = Angle(0, 0, 0),
 	}
-
+	
 	g_VR.viewModelInfo.weapon_crowbar = {
 		wrongMuzzleAng = true --lol
 	}
-
+	
 	g_VR.viewModelInfo.weapon_stunstick = {
 		wrongMuzzleAng = true
 	}
 
+
 	--metroid vol 1
-	g_VR.viewModelInfo.drc_powerbeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
 
-	g_VR.viewModelInfo.drc_plasmabeammp3 = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_powerbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_plasmabeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_plasmabeammp3 = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_phazonbeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_plasmabeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_novabeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_phazonbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_lightbeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
 
-	g_VR.viewModelInfo.drc_icebeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_novabeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_hyperbeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_lightbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_darkbeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_icebeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_beanbeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_hyperbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_annihilatorbeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_darkbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_wavebeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_beanbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_supermissile = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_annihilatorbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_shrapnelbeam = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_wavebeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_supermissile = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+
+		g_VR.viewModelInfo.drc_shrapnelbeam = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
 	--
 	--metroid vol 2
-	g_VR.viewModelInfo.drc_commando_assaultcannon = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
 
-	g_VR.viewModelInfo.drc_fed_flamethrower = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_commando_assaultcannon = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_fed_missilelauncher = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_fed_flamethrower = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_fed_rfaw_ped = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_fed_missilelauncher = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
+		
+		g_VR.viewModelInfo.drc_fed_rfaw_ped = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_fed_rfaw2 = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_fed_rfaw2 = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_fed_rfaw3 = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_fed_rfaw3 = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_pirate_gauntlet = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_pirate_gauntlet = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_pirate_gauntlet_commander = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_pirate_gauntlet_commander = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_pirate_gauntlet_soldier = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_pirate_gauntlet_soldier = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
-	g_VR.viewModelInfo.drc_quantum_assaultcannon = {
-		--modelOverride = "models/weapons/w_toolgun.mdl",
-		offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
-		offsetAng = Angle(0, 0, 0),
-	}
+		g_VR.viewModelInfo.drc_quantum_assaultcannon = {
+			--modelOverride = "models/weapons/w_toolgun.mdl",
+			offsetPos = Vector(-14.5, 10, 8.5), --forw, left, up
+			offsetAng = Angle(0, 0, 0),
+		}
 
 	--
+
+
 	g_VR.swepOriginalFovs = g_VR.swepOriginalFovs or {}
 	g_VR.lastUpdatedWeapon = ""
+
 	local function ResetViewmodelInfo()
 		g_VR.viewModel = nil
 		g_VR.openHandAngles = g_VR.defaultOpenHandAngles
@@ -205,27 +217,27 @@ if CLIENT then
 		g_VR.viewModelMuzzle = nil
 	end
 
-	function vrmod.UpdateViewmodelInfo(wep, force)
-		if not IsValid(wep) then
+	function vrmod.UpdateViewmodelInfo(wep,force)
+		if !IsValid(wep) then
 			ResetViewmodelInfo()
 			g_VR.lastUpdatedWeapon = ""
-
 			return
 		end
 
 		local class = wep:GetClass()
-		if class == g_VR.lastUpdatedWeapon and not force then return end
+		if class == g_VR.lastUpdatedWeapon && !force then return end
+
 		local vm = wep:GetWeaponViewModel()
 		if vm == "" or vm == "models/weapons/c_arms.mdl" then
 			ResetViewmodelInfo()
 			g_VR.lastUpdatedWeapon = class
-
 			return
 		end
 
 		-----------------------
-		-- Drawing with worldmodels
-		--[[if vrmod.GetWeaponDrawMode(wep) == VR_WEPDRAWMODE_VIEWMODEL then
+		
+		// Drawing with worldmodels
+		/*if vrmod.GetWeaponDrawMode(wep) == VR_WEPDRAWMODE_VIEWMODEL then
 			ResetViewmodelInfo()
 
 			vrmod.SetRightHandOpenFingerAngles( g_VR.zeroHandAngles )
@@ -233,33 +245,38 @@ if CLIENT then
 
 			g_VR.viewModel = wep
 			return
-		end]]
+		end*/
+		
 		-------------------------
-		local drawWorld = vrmod.GetWeaponDrawMode(wep) ~= VR_WEPDRAWMODE_VIEWMODEL
-		g_VR.viewModel = not drawWorld and LocalPlayer():GetViewModel() or wep
+		local drawWorld = vrmod.GetWeaponDrawMode(wep) != VR_WEPDRAWMODE_VIEWMODEL
+		g_VR.viewModel = !drawWorld && LocalPlayer():GetViewModel() or wep
+
 		if wep.ViewModelFOV then
-			if not g_VR.swepOriginalFovs[class] then
+			if !g_VR.swepOriginalFovs[class] then
 				g_VR.swepOriginalFovs[class] = wep.ViewModelFOV
 			end
-
 			wep.ViewModelFOV = GetConVar("fov_desired"):GetFloat()
 		end
 
 		local vmi = g_VR.viewModelInfo[class] or {}
 		local model = vmi.modelOverride or g_VR.viewModel:GetModel()
+
 		--create offsets if they don't exist
 		if vmi.offsetPos == nil or vmi.offsetAng == nil then
 			vmi.offsetPos, vmi.offsetAng = Vector(), Angle()
+
 			local cm = ClientsideModel(vm)
 			if IsValid(cm) then
 				cm:SetNoDraw(true)
 				cm:SetupBones()
+
 				local bone = cm:LookupBone("ValveBiped.Bip01_R_Hand")
 				if bone then
 					local boneMat = cm:GetBoneMatrix(bone)
 					local bonePos, boneAng = boneMat:GetTranslation(), boneMat:GetAngles()
-					boneAng:RotateAroundAxis(boneAng:Forward(), 180)
-					vmi.offsetPos, vmi.offsetAng = WorldToLocal(vector_origin, angle_zero, bonePos, boneAng)
+					boneAng:RotateAroundAxis(boneAng:Forward(),180)
+
+					vmi.offsetPos, vmi.offsetAng = WorldToLocal(vector_origin,angle_zero,bonePos,boneAng)
 					vmi.offsetPos = vmi.offsetPos + g_VR.viewModelInfo.autoOffsetAddPos
 				end
 
@@ -268,12 +285,15 @@ if CLIENT then
 		end
 
 		--create finger poses
-		vmi.closedHandAngles = vrmod.GetRightHandFingerAnglesFromModel(model)
-		-- TODO: ArcVR weapons set this manually, but only on deploy so we want to avoid breaking it
-		vrmod.SetRightHandClosedFingerAngles(vmi.closedHandAngles)
-		vrmod.SetRightHandOpenFingerAngles(vmi.closedHandAngles)
+		vmi.closedHandAngles = vrmod.GetRightHandFingerAnglesFromModel( model )
+
+		// TODO: ArcVR weapons set this manually, but only on deploy so we want to avoid breaking it
+		vrmod.SetRightHandClosedFingerAngles( vmi.closedHandAngles )
+		vrmod.SetRightHandOpenFingerAngles( vmi.closedHandAngles )
+
 		g_VR.viewModelInfo[class] = vmi
 		g_VR.currentvmi = vmi
+
 		g_VR.lastUpdatedWeapon = class
 	end
 end

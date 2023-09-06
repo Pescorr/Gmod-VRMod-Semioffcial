@@ -5,23 +5,23 @@ if CLIENT then
 			end
 	end)
 
-	-- --Pickup Convar Start
-	-- hook.Add("VRMod_Input","vre_onlocomotion_action",function( action, pressed )
-			-- if action == "boolean_right_pickup" then
-				-- LocalPlayer():ConCommand(pressed and "vrmod_test_Righthandle 1" or "vrmod_test_Righthandle 0")
-				-- return
-			-- end
-			-- if action == "boolean_left_pickup" then
-				-- LocalPlayer():ConCommand(pressed and "vrmod_test_lefthandle 1" or "vrmod_test_lefthandle 0")
-				-- return
-			-- end
+	--Pickup Convar Start
+	hook.Add("VRMod_Input","vre_onlocomotion_action",function( action, pressed )
+			if action == "boolean_right_pickup" then
+				LocalPlayer():ConCommand(pressed and "vrmod_test_Righthandle 1" or "vrmod_test_Righthandle 0")
+				return
+			end
+			if action == "boolean_left_pickup" then
+				LocalPlayer():ConCommand(pressed and "vrmod_test_lefthandle 1" or "vrmod_test_lefthandle 0")
+				return
+			end
 			
-			-- if action == "boolean_handbrake" then
-				-- LocalPlayer():ConCommand(pressed and "vrmod_test_handbrake 1" or "vrmod_test_handbrake 0")
-				-- return
-			-- end
-	-- end)
-	-- --Pickup Convar End
+			if action == "boolean_handbrake" then
+				LocalPlayer():ConCommand(pressed and "vrmod_test_handbrake 1" or "vrmod_test_handbrake 0")
+				return
+			end
+	end)
+	--Pickup Convar End
 
 
     hook.Add("CreateMove","vre_simfphysfix_remix",function()
@@ -80,6 +80,8 @@ elseif SERVER then
             end
         end
 	end)
+
+
 	
 	-- util.AddNetworkString("vre_drivingaddbutton")
     -- net.Receive( "vre_drivingaddbutton", function( len, ply )
