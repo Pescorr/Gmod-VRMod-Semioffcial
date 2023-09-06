@@ -818,13 +818,6 @@ g_VR.bindings_touch = [[
                },
                {
                   "inputs" : [
-                     [ "/user/hand/left/input/joystick", "click" ],
-                     [ "/user/hand/right/input/joystick", "click" ]
-                  ],
-                  "output" : "/actions/main/in/boolean_flashlight"
-               },
-               {
-                  "inputs" : [
                      [ "/user/hand/left/input/y", "click" ],
                      [ "/user/hand/left/input/x", "click" ]
                   ],
@@ -1018,7 +1011,7 @@ g_VR.bindings_touch = [[
                {
                   "inputs" : {
                      "click" : {
-                        "output" : "/actions/main/in/boolean_use"
+                        "output" : "/actions/main/in/boolean_reload"
                      }
                   },
                   "mode" : "button",
@@ -1060,6 +1053,7 @@ g_VR.bindings_touch = [[
       "interaction_profile" : "",
       "name" : "GmodVR-SemiOffcial-Keybind-V5.0",
       "options" : {
+         "simulated_controller_type" : "oculus_touch"
       },
       "simulated_actions" : []
    }
