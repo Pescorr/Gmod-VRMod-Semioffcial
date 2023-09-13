@@ -36,9 +36,9 @@ if CLIENT then
 		local oldclip = DisableClipping(false)
 		render.SetWriteDepthToDestAlpha(false)
 		menus[uid].panel:PaintManual()
-		render.SetWriteDepthToDestAlpha(true)
+render.SetWriteDepthToDestAlpha(true)
 		DisableClipping(oldclip)
-		cam.End2D()
+				cam.End2D()
 		render.PopRenderTarget()
 	end
 
@@ -86,8 +86,8 @@ if CLIENT then
 				pos, ang = LocalToWorld(pos, ang, g_VR.origin, g_VR.originAngle)
 			end
 
-			cam.IgnoreZ(true)
-			cam.Start3D2D(pos, ang, v.scale)
+cam.IgnoreZ(true)
+						cam.Start3D2D(pos, ang, v.scale)
 			surface.SetDrawColor(255, 255, 255, 255)
 			surface.SetMaterial(v.mat)
 			surface.DrawTexturedRect(0, 0, v.width, v.height)
@@ -95,8 +95,8 @@ if CLIENT then
 			--surface.SetDrawColor(255,0,0,255)
 			--surface.DrawOutlinedRect(0,0,v.width,v.height)
 			cam.End3D2D()
-			cam.IgnoreZ(false)
-			if v.cursorEnabled then
+cam.IgnoreZ(false)
+						if v.cursorEnabled then
 				local cursorX, cursorY = -1, -1
 				local cursorWorldPos = Vector(0, 0, 0)
 				local start = g_VR.tracking.pose_righthand.pos

@@ -1,7 +1,6 @@
 --******************************************************************************************************************************
 local cv_allowtp = CreateConVar("vrmod_allow_teleport", "1", FCVAR_REPLICATED)
 local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client","1",FCVAR_ARCHIVE)
-local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly","0",false,FCVAR_ARCHIVE)
 
 if SERVER then 
 	util.AddNetworkString("vrmod_teleport")
@@ -78,7 +77,11 @@ hook.Add("VRMod_Input","teleport",function( action, pressed )
 end)
 --******************************************************************************************************************************
 
-if SERVER then return end
+if SERVER then 
+	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",FCVAR_ARCHIVE)
+	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",FCVAR_ARCHIVE)
+	return
+	end
 
 
 local convars, convarValues = vrmod.AddCallbackedConvar("vrmod_controlleroriented", "controllerOriented", "0", nil, nil, nil, nil, tobool)
@@ -93,6 +96,9 @@ local upVec = Vector(0,0,1)
 
 local function start()
 	local ply = LocalPlayer()
+	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",FCVAR_ARCHIVE)
+	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",FCVAR_ARCHIVE)
+
 	local followVec = zeroVec
 	local originVehicleLocalPos, originVehicleLocalAng = zeroVec, zeroAng
 	
@@ -101,6 +107,7 @@ local function start()
 	end)
 	
 	hook.Add("PreRender","vrmod_locomotion",function()
+
 		if not g_VR.threePoints then return end
 		if ply:InVehicle() then
 			local v = ply:GetVehicle()
@@ -163,12 +170,15 @@ local function start()
 		if not g_VR.threePoints then return end
 		
 		local moveType = ply:GetMoveType()
+		local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",FCVAR_ARCHIVE)
+		local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",FCVAR_ARCHIVE)
+
 		--vehicle behaviour
 		if ply:InVehicle() and !cv_cargunmode:GetBool() then
 			local rhandreAng = ply:GetVehicle():GetAngles()
 			cmd:SetForwardMove((g_VR.input.vector1_forward-g_VR.input.vector1_reverse)*400)
 			cmd:SetSideMove(g_VR.input.vector2_steer.x*400)
-if cv_righthandle:GetBool() then
+			if cv_righthandle:GetBool() then
 				cmd:SetSideMove(g_VR.tracking.pose_righthand.ang.z*5)
 			end
 			if cv_lefthandle:GetBool() then
@@ -179,29 +189,21 @@ if cv_righthandle:GetBool() then
 			cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_turbo and IN_SPEED or 0, g_VR.input.boolean_handbrake and IN_JUMP or 0) )
 			return
 		end
-
 		if jumpduck:GetBool() then
-		cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP + IN_DUCK or 0,  g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < ( g_VR.origin.z + convarValues.crouchThreshold )) and IN_DUCK or 0 ) )
+			cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP + IN_DUCK or 0,  g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < ( g_VR.origin.z + convarValues.crouchThreshold )) and IN_DUCK or 0 ) )			
 		else
 			cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP  or 0,  g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < ( g_VR.origin.z + convarValues.crouchThreshold )) and IN_DUCK or 0 ) )
 		end
 		--set view angles to viewmodel muzzle angles for engine weapon support, note: movement is relative to view angles
-		local viewAngles = g_VR.currentvmi and g_VR.currentvmi.wrongMuzzleAng and g_VR.tracking.pose_righthand.ang or g_VR.viewModelMuzzle and g_VR.viewModelMuzzle.Ang or g_VR.tracking.pose_righthand.ang 
+		local viewAngles = g_VR.currentvmi and g_VR.currentvmi.wrongMuzzleAng and g_VR.tracking.pose_righthand.ang or g_VR.viewModelMuzzle and g_VR.viewModelMuzzle.Ang or g_VR.tracking.hmd.ang
 		viewAngles = viewAngles:Forward():Angle()
 		cmd:SetViewAngles(viewAngles)
 		--noclip behaviour
 		if moveType == MOVETYPE_NOCLIP then
-			if cl_analogmoveonly:GetBool() then
-				LocalPlayer():ConCommand("vrmod_test_analogmoveonly 1")
-			end
 			cmd:SetForwardMove( math.abs(g_VR.input.vector2_walkdirection.y) > 0.5 and g_VR.input.vector2_walkdirection.y or 0 )
 			cmd:SetSideMove( math.abs(g_VR.input.vector2_walkdirection.x) > 0.5 and g_VR.input.vector2_walkdirection.x or 0 )
 			originVelocity = ply:GetVelocity()
 			return
-		else
-			if cl_analogmoveonly:GetBool() then
-				LocalPlayer():ConCommand("vrmod_test_analogmoveonly 0")
-			end
 		end
 		--
 		local joystickVec = LocalToWorld(Vector(g_VR.input.vector2_walkdirection.y * math.abs(g_VR.input.vector2_walkdirection.y), (-g_VR.input.vector2_walkdirection.x) * math.abs(g_VR.input.vector2_walkdirection.x), 0)*ply:GetMaxSpeed()*0.9, Angle(0,0,0), Vector(0,0,0), Angle(0, convarValues.controllerOriented and g_VR.tracking.pose_lefthand.ang.yaw or g_VR.tracking.hmd.ang.yaw, 0))
@@ -214,11 +216,18 @@ if cv_righthandle:GetBool() then
 			local rhandreAng = ply:GetVehicle():GetAngles()
 			cmd:SetForwardMove((g_VR.input.vector1_forward-g_VR.input.vector1_reverse)*400)
 			cmd:SetSideMove(g_VR.input.vector2_steer.x*400)
+			if cv_righthandle:GetBool() then
+				cmd:SetSideMove(g_VR.tracking.pose_righthand.ang.z*5)
+			end
+			if cv_lefthandle:GetBool() then
+				cmd:SetSideMove(g_VR.tracking.pose_lefthand.ang.z*5)
+			end
 			local _,relativeAng = WorldToLocal(Vector(0,0,0),g_VR.tracking.pose_righthand.ang,Vector(0,0,0),rhandreAng)
 			cmd:SetViewAngles(relativeAng) --turret aiming
 			cmd:SetButtons( bit.bor(cmd:GetButtons(), g_VR.input.boolean_turbo and IN_SPEED or 0, g_VR.input.boolean_handbrake and IN_JUMP or 0) )
 			return
 		end
+
 
 
 	end)
@@ -245,6 +254,8 @@ local function stop()
 	hook.Remove("PreRender","vrmod_locomotion")
 	--
 	hook.Remove("VRMod_PreRender","teleport")
+	hook.Remove("VRMod_Input","vrmod_locomotion_action")
+
 	if IsValid(tpBeamEnt) then tpBeamEnt:Remove() end
 	vrmod.RemoveInGameMenuItem("Map Browser")
 	vrmod.RemoveInGameMenuItem("Reset Vehicle View")
@@ -292,10 +303,10 @@ local function options( panel )
 end
 
 timer.Simple(0,function()
-	vrmod.AddLocomotionOption("RightHand", start, stop, options)
-	-- vrmod.AddInGameMenuItem("Toggle Noclip", 2, 1, function()
-		-- LocalPlayer():ConCommand("noclip")
-	-- end)
+	vrmod.AddLocomotionOption("□default(carhandletest)", start, stop, options)
+	vrmod.AddInGameMenuItem("Toggle Noclip", 2, 1, function()
+		LocalPlayer():ConCommand("noclip")
+	end)
 end)
 
 

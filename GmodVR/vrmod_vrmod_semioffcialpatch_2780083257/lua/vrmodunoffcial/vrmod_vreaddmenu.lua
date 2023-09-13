@@ -1,16 +1,16 @@
 if SERVER then return end
 local open = false
 local button1on = 0
-local button2on = 0
-local button3on = 0
-local button4on = 0
+local button2on = GetConVar("vrmod_attach_popup"):GetInt() or 0
+local button3on = GetConVar("vrmod_attach_quickmenu"):GetInt() or 0
+local button4on = GetConVar("vrmod_allow_teleport_client"):GetInt() or 0
 local button5on = 0
-local button6on = 0
-local button7on = 0
-local button8on = 0
+local button6on = GetConVar("vrmod_vehicle_reticlemode"):GetInt() or 0
+local button7on = GetConVar("vrmod_laserpointer"):GetInt() or 0
+local button8on = GetConVar("arcticvr_2h_sens"):GetInt() or 0
 local button9on = 0
-local buttonAon = 0
-local buttonBon = 0
+local buttonAon = GetConVar("vrmod_pickup_retry"):GetInt() or 0
+local buttonBon = GetConVar("vr_pickup_disable_client"):GetInt() or 0
 local buttonCon = 0
 local buttonDon = 0
 local BUTTON_2TIER = {Color(80, 0, 51), Color(51, 120, 51)}
@@ -297,7 +297,7 @@ function VREaddvrmenuOpen()
 		--button toggle end
 	end
 
-	if not not GetConVar("vrgrab_range") then
+	-- if not not GetConVar("vrgrab_range") then
 		--2button toggle start
 		local buttonA = vgui.Create("DButton")
 		local ccvalA = {"Item/Gun", "Everything"}
@@ -309,12 +309,18 @@ function VREaddvrmenuOpen()
 			--command start
 			if buttonAon == 1 then
 				buttonAon = 0
-				LocalPlayer():ConCommand("vrmod_pickup_retry 1")
+				LocalPlayer():ConCommand("vrmod_pickup_retry 0")
+				AddCSLuaFile("vrmodunoffcial/vrmod_graboverride.lua")
+				include("autorun/vrmod_graboverride.lua")
+
 			else
 				buttonAon = 1
-				LocalPlayer():ConCommand("vrmod_pickup_retry 0")
-			end
-		end
+				LocalPlayer():ConCommand("vrmod_pickup_retry 1")
+
+				AddCSLuaFile("vrmodunoffcial/vrmod_pickup_retry.lua")
+
+							end
+		-- end
 
 		--command end
 		function buttonA:Paint(w, h)
