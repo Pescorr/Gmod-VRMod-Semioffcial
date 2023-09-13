@@ -136,7 +136,7 @@ local function init()
 					end
 				end
 				if not updates then
-					hook.Remove("Tick","arc_pickup_compat")
+					hook.Remove("Tick", "arc_pickup_compat")
 					--print("position update hook removed")
 				end
 			end)

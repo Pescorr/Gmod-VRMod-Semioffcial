@@ -904,6 +904,22 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
+		--DCheckBoxLabel Start
+			local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			autoarcbench_button:SetPos( 20, 110 )						-- Set the position
+			autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
+			autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+			autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
+		--DCheckBoxLabel end
+
+		--DCheckBoxLabel Start
+			local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			autoarcbench_button:SetPos( 20, 110 )						-- Set the position
+			autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
+			autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+			autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
+		--DCheckBoxLabel end
+
 
 			-- --DCheckBoxLabel Start
 			-- 	local cl_drawhud = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox

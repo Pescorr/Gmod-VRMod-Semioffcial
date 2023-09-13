@@ -13,6 +13,9 @@ local menumcore = CreateClientConVar("vrmod_auto_matqueue", "1", true, FCVAR_ARC
 local autoscrsetting = CreateClientConVar("vrmod_scr_alwaysautosetting", "1", true, FCVAR_ARCHIVE)
 local autooptimize = CreateClientConVar("vrmod_gmod_optimization_auto", "0", true, FCVAR_ARCHIVE)
 local vrgrabopt = CreateClientConVar("vrmod_vrgrab_mode", "1", true, FCVAR_ARCHIVE)
+local vrautobenchgun = CreateClientConVar("vrmod_auto_arc_benchgun", "1", true, FCVAR_ARCHIVE)
+
+
 
 
 local frame = nil
@@ -20,6 +23,18 @@ local function OpenMenu()
 	if menumcore:GetBool() then
 		LocalPlayer():ConCommand("mat_queue_mode 1")
 	end
+
+	if vrautobenchgun:GetBool() then
+		LocalPlayer():ConCommand("arc9_dev_benchgun 1")
+		LocalPlayer():ConCommand("arccw_dev_benchgun 1")
+		LocalPlayer():ConCommand("arc9_tpik 1")
+	else
+		LocalPlayer():ConCommand("arc9_dev_benchgun 0")
+		LocalPlayer():ConCommand("arccw_dev_benchgun 0")
+		LocalPlayer():ConCommand("arc9_tpik 0")
+	
+	end
+
 
 	if autoscrsetting:GetBool() then
 		LocalPlayer():ConCommand("vrmod_Scr_Auto")
@@ -33,6 +48,7 @@ local function OpenMenu()
 		LocalPlayer():ConCommand("vrmod_dev_vrgrab")
 	end
 
+	
 	if IsValid(frame) then return frame end
 	frame = vgui.Create("DFrame")
 	frame:SetSize(400, 485)

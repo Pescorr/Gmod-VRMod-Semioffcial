@@ -13,12 +13,12 @@ meta.MakePopup = function(...)
 	orig(unpack(args))
 	if not g_VR.threePoints then return end
 	local panel = args[1]
-	local uid = "popup_" .. popupCount
+local uid = "popup_" .. popupCount
 	-- Add the new popup to the list
 	table.insert(allPopups, uid)
-	--wait because makepopup might be called before menu is fully built
+		--wait because makepopup might be called before menu is fully built
 	timer.Simple(
-		0.05,
+		0.1,
 		function()
 			if not IsValid(panel) then return end
 			if panel:GetName() == "DMenu" then
@@ -63,14 +63,14 @@ meta.MakePopup = function(...)
 						)
 
 						popupCount = popupCount - 1
-						-- Remove the popup from the list when it closes
+-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
 								break
 							end
 						end
-					end
+											end
 				)
 
 				popupCount = popupCount + 1
@@ -99,14 +99,14 @@ meta.MakePopup = function(...)
 						)
 
 						popupCount = popupCount - 1
-						-- Remove the popup from the list when it closes
+-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
 								break
 							end
 						end
-					end
+											end
 				)
 
 				popupCount = popupCount + 1
@@ -134,14 +134,14 @@ meta.MakePopup = function(...)
 						)
 
 						popupCount = popupCount - 1
-						-- Remove the popup from the list when it closes
+-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
 								break
 							end
 						end
-					end
+											end
 				)
 
 				popupCount = popupCount + 1
