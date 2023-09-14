@@ -904,21 +904,21 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
 
-		--DCheckBoxLabel Start
-			local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			autoarcbench_button:SetPos( 20, 110 )						-- Set the position
-			autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
-			autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
-			autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
+		-- --DCheckBoxLabel Start
+		-- 	local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+		-- 	autoarcbench_button:SetPos( 20, 130 )						-- Set the position
+		-- 	autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
+		-- 	autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+		-- 	autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
+		-- --DCheckBoxLabel end
 
-		--DCheckBoxLabel Start
-			local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			autoarcbench_button:SetPos( 20, 110 )						-- Set the position
-			autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
-			autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
-			autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
+		-- --DCheckBoxLabel Start
+		-- 	local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+		-- 	autoarcbench_button:SetPos( 20, 150 )						-- Set the position
+		-- 	autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]")					-- Set the text next to the box
+		-- 	autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
+		-- 	autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
+		-- --DCheckBoxLabel end
 
 
 			-- --DCheckBoxLabel Start
@@ -1080,63 +1080,6 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 
 		-- Panel9 "TAB9" End
 
-		--Panel4 "TAB4" Start
-	
-		local Panel4 = vgui.Create( "DPanel", sheet )
-		sheet:AddSheet( "Quickmenu", Panel4, "icon16/palette.png" )
-		Panel4.Paint = function( self, w, h ) draw.RoundedBox( 4, 0, 0, w, h, Color( 0, 0, 0, self:GetAlpha() ) ) end 
-
-
-		--DCheckBoxLabel Start
-			local vrmod_quickmenu_VRE_addmenu = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
-					vrmod_quickmenu_VRE_addmenu:SetPos( 20, 110 )						-- Set the position
-					vrmod_quickmenu_VRE_addmenu:SetText("[vrmod_quickmenu_VRE_addmenu]")
-					vrmod_quickmenu_VRE_addmenu:SetConVar( "vrmod_quickmenu_VRE_addmenu" )				-- Change a ConVar when the box it ticked/unticked
-					vrmod_quickmenu_VRE_addmenu:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-		--DCheckBoxLabel Start
-			local vrmod_quickmenu_radial = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			vrmod_quickmenu_radial:SetPos( 20, 140 )						-- Set the position
-			vrmod_quickmenu_radial:SetText("[vrmod_quickmenu_radial]")
-			vrmod_quickmenu_radial:SetConVar( "vrmod_quickmenu_radial" )				-- Change a ConVar when the box it ticked/unticked
-			vrmod_quickmenu_radial:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-		--DCheckBoxLabel Start
-		local vrmod_quickmenu_seatedbutton = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			vrmod_quickmenu_seatedbutton:SetPos( 20, 170 )						-- Set the position
-			vrmod_quickmenu_seatedbutton:SetText("[vrmod_quickmenu_seatedbutton]")
-			vrmod_quickmenu_seatedbutton:SetConVar( "vrmod_quickmenu_seatedbutton" )				-- Change a ConVar when the box it ticked/unticked
-			vrmod_quickmenu_seatedbutton:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-		--DCheckBoxLabel Start
-		local vrmod_quickmenu_exit = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			vrmod_quickmenu_exit:SetPos( 20, 20 )						-- Set the position
-			vrmod_quickmenu_exit:SetText("[vrmod_quickmenu_exit]")
-			vrmod_quickmenu_exit:SetConVar( "vrmod_quickmenu_exit" )				-- Change a ConVar when the box it ticked/unticked
-			vrmod_quickmenu_exit:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-		--DCheckBoxLabel Start
-		local vrmod_quickmenu_mapprowser = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			vrmod_quickmenu_mapprowser:SetPos( 20, 50 )						-- Set the position
-			vrmod_quickmenu_mapprowser:SetText("[vrmod_quickmenu_mapprowser]")
-			vrmod_quickmenu_mapprowser:SetConVar( "vrmod_quickmenu_mapprowser" )				-- Change a ConVar when the box it ticked/unticked
-			vrmod_quickmenu_mapprowser:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-		--DCheckBoxLabel Start
-		local vrmod_quickmenu_vgui_reset = Panel4:Add( "DCheckBoxLabel" ) -- Create the checkbox
-			vrmod_quickmenu_vgui_reset:SetPos( 20, 80 )						-- Set the position
-			vrmod_quickmenu_vgui_reset:SetText("[vrmod_quickmenu_vgui_reset]")
-			vrmod_quickmenu_vgui_reset:SetConVar( "vrmod_quickmenu_vgui_reset" )				-- Change a ConVar when the box it ticked/unticked
-			vrmod_quickmenu_vgui_reset:SizeToContents()						-- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-	
-	--Panel4 "TAB4" end
 
 				
 	--Settings02 end
