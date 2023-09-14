@@ -1,10 +1,9 @@
 local cl_bothkey = CreateClientConVar("vrmod_vehicle_bothkeymode", "0", true, FCVAR_ARCHIVE)
 local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client", "0", true, FCVAR_ARCHIVE)
-local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly", "0", false, FCVAR_ARCHIVE)
 local cl_lefthand = CreateClientConVar("vrmod_LeftHand", "0")
 local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", "0")
 local retryoff = CreateClientConVar("vrmod_pickup_retry", "1", true, FCVAR_ARCHIVE, "", 0, 1)
-if CLIENT then
+if SERVER then return end
 	local ply = LocalPlayer()
 	hook.Add(
 		"VRMod_EnterVehicle",
@@ -43,10 +42,34 @@ if CLIENT then
 				return
 			end
 
+			if action == "boolean_forword" then
+				LocalPlayer():ConCommand(pressed and "+forward" or "-forward")
+
+				return
+			end
+
+			if action == "boolean_back" then
+				LocalPlayer():ConCommand(pressed and "+back" or "-back")
+
+				return
+			end
+
+			if action == "boolean_left" then
+				LocalPlayer():ConCommand(pressed and "+moveleft" or "-moveleft")
+
+				return
+			end
+
+			if action == "boolean_right" then
+				LocalPlayer():ConCommand(pressed and "+moveright" or "-moveright")
+
+				return
+			end
+
 			if action == "boolean_left_pickup" then
 				if cl_pickupdisable:GetBool() then return end
 				vrmod.Pickup(true, not pressed)
-if retryoff:GetBool() then return end
+				if retryoff:GetBool() then return end
 				vrmod.Pickupretry(true, not pressed)
 
 				return
@@ -55,10 +78,18 @@ if retryoff:GetBool() then return end
 			if action == "boolean_right_pickup" then
 				if cl_pickupdisable:GetBool() then return end
 				vrmod.Pickup(false, not pressed)
-if retryoff:GetBool() then return end
+				if retryoff:GetBool() then return end
 				vrmod.Pickupretry(false, not pressed)
 
 				return
+			end
+
+			if action == "boolean_lefthandmode" then
+				LocalPlayer():ConCommand("vrmod_lefthand 1")
+			end
+
+			if action == "boolean_righthandmode" then
+				LocalPlayer():ConCommand("vrmod_lefthand 0")
 			end
 
 			if action == "boolean_use" or action == "boolean_exit" then
@@ -129,68 +160,8 @@ if retryoff:GetBool() then return end
 				return
 			end
 
-			for i = 1, #g_VR.CustomActions do
-				if action == g_VR.CustomActions[i][1] then
-					local commands = string.Explode(";", g_VR.CustomActions[i][pressed and 2 or 3], false)
-					for j = 1, #commands do
-						local args = string.Explode(" ", commands[j], false)
-						RunConsoleCommand(args[1], unpack(args, 2))
-					end
-				end
-			end
-		end
-	)
-
-	hook.Add(
-		"VRMod_Input",
-		"vrutil_hook_addinput",
-		function(action, pressed)
 			if action == "boolean_chat" then
 				LocalPlayer():ConCommand(pressed and "+zoom" or "-zoom")
-
-				return
-			end
-
-			-- if action == "boolean_left_pickup" then
-			-- 	if cl_pickupdisable:GetBool() then return end
-			-- 	if not retryoff:GetBool() then return end
-			-- 	vrmod.Pickupretry(true, not pressed)
-
-			-- 	return
-			-- end
-
-			-- if action == "boolean_right_pickup" then
-			-- 	if cl_pickupdisable:GetBool() then return end
-			-- 	if not retryoff:GetBool() then return end
-			-- 	vrmod.Pickupretry(false, not pressed)
-
-			-- 	return
-			-- end
-
-			if action == "boolean_forword" then
-				if cl_analogmoveonly:GetBool() then return end
-				LocalPlayer():ConCommand(pressed and "+forward" or "-forward")
-
-				return
-			end
-
-			if action == "boolean_back" then
-				if cl_analogmoveonly:GetBool() then return end
-				LocalPlayer():ConCommand(pressed and "+back" or "-back")
-
-				return
-			end
-
-			if action == "boolean_left" then
-				if cl_analogmoveonly:GetBool() then return end
-				LocalPlayer():ConCommand(pressed and "+moveleft" or "-moveleft")
-
-				return
-			end
-
-			if action == "boolean_right" then
-				if cl_analogmoveonly:GetBool() then return end
-				LocalPlayer():ConCommand(pressed and "+moveright" or "-moveright")
 
 				return
 			end
@@ -267,13 +238,14 @@ if retryoff:GetBool() then return end
 				return
 			end
 
-			if action == "boolean_lefthandmode" then
-				LocalPlayer():ConCommand("vrmod_lefthand 1")
-			end
-
-			if action == "boolean_righthandmode" then
-				LocalPlayer():ConCommand("vrmod_lefthand 0")
+			for i = 1, #g_VR.CustomActions do
+				if action == g_VR.CustomActions[i][1] then
+					local commands = string.Explode(";", g_VR.CustomActions[i][pressed and 2 or 3], false)
+					for j = 1, #commands do
+						local args = string.Explode(" ", commands[j], false)
+						RunConsoleCommand(args[1], unpack(args, 2))
+					end
+				end
 			end
 		end
 	)
-	end

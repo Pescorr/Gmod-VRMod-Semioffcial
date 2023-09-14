@@ -197,7 +197,7 @@ if CLIENT then
 		function(ply, cmd, args)
 			local function SetVrCommands()
 				local maxmass = GetConVar("vrmod_pickup_weight")
-				local commands = {{"vrmod_pickup_range", "1.5"}, {"vrgrab_range", "480"}, {"vrgrab_gravitygloves_minrange", "0"}, {"vrgrab_gravitygloves", "1"}, {"vrgrab_maxmass", maxmass:GetInt()}}
+				local commands = {{"vrmod_pickup_range", "1.5"}, {"vrgrab_range", "240"}, {"vrgrab_gravitygloves_minrange", "0"}, {"vrgrab_gravitygloves", "1"}, {"vrgrab_maxmass", maxmass:GetInt()}}
 				for _, cmd in ipairs(commands) do
 					local name, value = unpack(cmd)
 					LocalPlayer():ConCommand(name .. " " .. value)

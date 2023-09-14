@@ -297,7 +297,7 @@ function VREaddvrmenuOpen()
 		--button toggle end
 	end
 
-	-- if not not GetConVar("vrgrab_range") then
+	if not not GetConVar("vrgrab_range") then
 		--2button toggle start
 		local buttonA = vgui.Create("DButton")
 		local ccvalA = {"Item/Gun", "Everything"}
@@ -309,18 +309,12 @@ function VREaddvrmenuOpen()
 			--command start
 			if buttonAon == 1 then
 				buttonAon = 0
-				LocalPlayer():ConCommand("vrmod_pickup_retry 0")
-				AddCSLuaFile("vrmodunoffcial/vrmod_graboverride.lua")
-				include("autorun/vrmod_graboverride.lua")
-
+				LocalPlayer():ConCommand("vrmod_pickup_retry 1")
 			else
 				buttonAon = 1
-				LocalPlayer():ConCommand("vrmod_pickup_retry 1")
-
-				AddCSLuaFile("vrmodunoffcial/vrmod_pickup_retry.lua")
-
+				LocalPlayer():ConCommand("vrmod_pickup_retry 0")
 							end
-		-- end
+		end
 
 		--command end
 		function buttonA:Paint(w, h)
