@@ -614,7 +614,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 					vrmod_pickup_range:SetPos( 20, 200 )				-- Set the position (X,Y)
 					vrmod_pickup_range:SetSize( 370, 25 )			-- Set the size (X,Y)
 					vrmod_pickup_range:SetText( "vrmod_pickup_range(serverlimit)" )	-- Set the text above the slider
-					vrmod_pickup_range:SetMin( 1.0 )				 	-- Set the minimum number you can slide to
+					vrmod_pickup_range:SetMin( 0.0 )				 	-- Set the minimum number you can slide to
 					vrmod_pickup_range:SetMax( 99.0 )				-- Set the maximum number you can slide to
 					vrmod_pickup_range:SetDecimals( 1 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
 					vrmod_pickup_range:SetConVar( "vrmod_pickup_range" )	-- Changes the ConVar when you slide

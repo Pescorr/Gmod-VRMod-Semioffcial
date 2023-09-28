@@ -204,6 +204,11 @@ if CLIENT then
 		}
 
 	--
+	g_VR.viewModelInfo.weapon_mp_powersuit = {
+		--modelOverride = "models/weapons/w_toolgun.mdl",
+		offsetPos = Vector(-14.5, 6, 8.5), --forw, left, up
+		offsetAng = Angle(0, 0, 0),
+	}
 
 
 	g_VR.swepOriginalFovs = g_VR.swepOriginalFovs or {}

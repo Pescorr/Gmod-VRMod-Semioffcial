@@ -92,6 +92,12 @@ if SERVER then return end
 				LocalPlayer():ConCommand("vrmod_lefthand 0")
 			end
 
+			if action == "boolean_foregrip" then
+				LocalPlayer():ConCommand(pressed and "vrmod_leftgripmode 1" or "vrmod_leftgripmode 0")
+				return
+			end
+
+
 			if action == "boolean_use" or action == "boolean_exit" then
 				if pressed then
 					LocalPlayer():ConCommand("+use")

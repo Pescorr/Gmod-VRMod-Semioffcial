@@ -10,7 +10,7 @@ scripted_ents.Register(
 local _, convarValues = vrmod.GetConvars()
 vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 0, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 2, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_test_pickup_limit_droptest", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 2, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.0, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 1.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.0, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 30, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 99999, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 		if CLIENT then
 			function vrmod.Pickupretry(bLeftHand, bDrop)

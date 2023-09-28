@@ -535,6 +535,7 @@ if CLIENT then
 		local pos1, ang1
 		local uselefthand = CreateClientConVar("vrmod_LeftHand", "0", FCVAR_ARCHIVE)
 		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", "0", FCVAR_ARCHIVE)
+		local leftgripmode = CreateClientConVar("vrmod_leftgripmode", "1", FCVAR_ARCHIVE)
 		hook.Add(
 			"RenderScene",
 			"vrutil_hook_renderscene",
@@ -564,82 +565,16 @@ if CLIENT then
 					hook.Call("VRMod_Input", nil, k, v)
 				end
 
-				--
-				-- if not system.HasFocus() or #g_VR.errorText > 0 then
-				-- render.Clear(0,0,0,255,true,true)
-				-- cam.Start2D()
-				-- local text = not system.HasFocus() and "Please focus the game window" or g_VR.errorText
-				-- draw.DrawText( text, "DermaLarge", ScrW() / 2, ScrH() / 2, Color( 255,255,255, 255 ), TEXT_ALIGN_CENTER )
-				-- cam.End2D()
-				-- return true
-				-- end
-				--update clientside local player net frame
-				--lefthandmode start		
-				if uselefthand:GetBool() then
-					if lefthandmode:GetBool() then
-						local netFrame = VRUtilNetUpdateLocalPly()
-						--update viewmodel position
-						if g_VR.currentvmi then
-							local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
-							g_VR.viewModelPos = pos
-							g_VR.viewModelAng = ang
-						end
-
-						if IsValid(g_VR.viewModel) then
-							if not g_VR.usingWorldModels then
-								g_VR.viewModel:SetPos(g_VR.viewModelPos)
-								g_VR.viewModel:SetAngles(g_VR.viewModelAng)
-								g_VR.viewModel:SetupBones()
-								--override hand pose in net frame
-								if netFrame then
-									local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
-									if b then
-										local mtx = g_VR.viewModel:GetBoneMatrix(b)
-										netFrame.lefthandPos = mtx:GetTranslation()
-										netFrame.lefthandAng = mtx:GetAngles() - Angle(0, 0, 180)
-									end
-								end
-							end
-
-							g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
-						end
-					else
-						local netFrame = VRUtilNetUpdateLocalPly()
-						--update viewmodel position
-						if g_VR.currentvmi then
-							local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
-							g_VR.viewModelPos = pos
-							g_VR.viewModelAng = ang
-						end
-
-						if IsValid(g_VR.viewModel) then
-							if not g_VR.usingWorldModels then
-								g_VR.viewModel:SetPos(g_VR.viewModelPos)
-								g_VR.viewModel:SetAngles(g_VR.viewModelAng)
-								g_VR.viewModel:SetupBones()
-								--override hand pose in net frame
-								if netFrame then
-									local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
-									if b then
-										local mtx = g_VR.viewModel:GetBoneMatrix(b)
-										netFrame.lefthandPos = mtx:GetTranslation()
-										netFrame.lefthandAng = mtx:GetAngles() - Angle(0, 0, 0)
-									end
-								end
-							end
-
-							g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
-						end
-					end
-					--lefthandmode end
-				else
-					--righthand start
+				--lefthand&foregrip start
+				--gripmode start
+				if leftgripmode:GetBool() then
 					local netFrame = VRUtilNetUpdateLocalPly()
 					--update viewmodel position
 					if g_VR.currentvmi then
-						local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_righthand.ang)
+						local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_lefthand.ang)
+						local posl, angl = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
 						g_VR.viewModelPos = pos
-						g_VR.viewModelAng = ang
+						g_VR.viewModelAng = angl
 					end
 
 					if IsValid(g_VR.viewModel) then
@@ -655,12 +590,114 @@ if CLIENT then
 									netFrame.righthandPos = mtx:GetTranslation()
 									netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
 								end
+
+								local c = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
+								if c then
+									local mtxl = g_VR.viewModel:GetBoneMatrix(c)
+									netFrame.lefthandPos = mtxl:GetTranslation()
+									netFrame.lefthandAng = mtxl:GetAngles() - Angle(0, 0, 0)
+								end
 							end
 						end
 
 						g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 					end
+					--gripmode end
+				else
+					--lefthandmode start
+					if uselefthand:GetBool() then
+						if lefthandmode:GetBool() then
+							--lefthand-Type2(RhandSimurate) Start
+							local netFrame = VRUtilNetUpdateLocalPly()
+							--update viewmodel position
+							if g_VR.currentvmi then
+								local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
+								g_VR.viewModelPos = pos
+								g_VR.viewModelAng = ang
+							end
+
+							if IsValid(g_VR.viewModel) then
+								if not g_VR.usingWorldModels then
+									g_VR.viewModel:SetPos(g_VR.viewModelPos)
+									g_VR.viewModel:SetAngles(g_VR.viewModelAng)
+									g_VR.viewModel:SetupBones()
+									--override hand pose in net frame
+									if netFrame then
+										local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
+										if b then
+											local mtx = g_VR.viewModel:GetBoneMatrix(b)
+											netFrame.lefthandPos = mtx:GetTranslation()
+											netFrame.lefthandAng = mtx:GetAngles() - Angle(0, 0, 180)
+										end
+									end
+								end
+
+								g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+							end
+							--lefthand-Type2(RhandSimurate) end
+						else
+							--lefthand-type1(Bip01_L_hand Posirion) start						
+							local netFrame = VRUtilNetUpdateLocalPly()
+							--update viewmodel position
+							if g_VR.currentvmi then
+								local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
+								g_VR.viewModelPos = pos
+								g_VR.viewModelAng = ang
+							end
+
+							if IsValid(g_VR.viewModel) then
+								if not g_VR.usingWorldModels then
+									g_VR.viewModel:SetPos(g_VR.viewModelPos)
+									g_VR.viewModel:SetAngles(g_VR.viewModelAng)
+									g_VR.viewModel:SetupBones()
+									--override hand pose in net frame
+									if netFrame then
+										local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
+										if b then
+											local mtx = g_VR.viewModel:GetBoneMatrix(b)
+											netFrame.lefthandPos = mtx:GetTranslation()
+											netFrame.lefthandAng = mtx:GetAngles() - Angle(0, 0, 0)
+										end
+									end
+								end
+
+								g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+							end
+							--lefthand-type1(Bip01_L_hand Posirion) end
+						end
+						--lefthandmode end
+					else
+						--righthand start
+						local netFrame = VRUtilNetUpdateLocalPly()
+						--update viewmodel position
+						if g_VR.currentvmi then
+							local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_righthand.ang)
+							g_VR.viewModelPos = pos
+							g_VR.viewModelAng = ang
+						end
+
+						if IsValid(g_VR.viewModel) then
+							if not g_VR.usingWorldModels then
+								g_VR.viewModel:SetPos(g_VR.viewModelPos)
+								g_VR.viewModel:SetAngles(g_VR.viewModelAng)
+								g_VR.viewModel:SetupBones()
+								--override hand pose in net frame
+								if netFrame then
+									local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
+									if b then
+										local mtx = g_VR.viewModel:GetBoneMatrix(b)
+										netFrame.righthandPos = mtx:GetTranslation()
+										netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
+									end
+								end
+							end
+
+							g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+						end
+					end
+					--righthand end
 				end
+				--lefthand&foregrip end
 
 				--set view according to viewentity
 				local viewEnt = localply:GetViewEntity()
