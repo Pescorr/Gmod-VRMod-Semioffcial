@@ -16,10 +16,10 @@ if CLIENT then
 				return
 			end
 			
-			if action == "boolean_handbrake" then
-				LocalPlayer():ConCommand(pressed and "vrmod_test_handbrake 1" or "vrmod_test_handbrake 0")
-				return
-			end
+			-- if action == "boolean_handbrake" then
+			-- 	LocalPlayer():ConCommand(pressed and "vrmod_test_handbrake 1" or "vrmod_test_handbrake 0")
+			-- 	return
+			-- end
 	end)
 	--Pickup Convar End
 

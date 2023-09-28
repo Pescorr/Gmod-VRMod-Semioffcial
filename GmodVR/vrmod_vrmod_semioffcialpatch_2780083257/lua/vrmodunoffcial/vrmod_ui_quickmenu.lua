@@ -50,6 +50,9 @@ function g_VR.MenuOpen()
 	local pos, ang = WorldToLocal(g_VR.tracking.pose_righthand.pos + g_VR.tracking.pose_righthand.ang:Forward() * 9 + tmp:Right() * -7.68 + tmp:Forward() * -6.45, tmp, g_VR.origin, g_VR.originAngle)
 	--uid, width, height, panel, attachment, pos, ang, scale, cursorEnabled, closeFunc
 	local mode = convarValues.vrmod_attach_quickmenu
+
+	vrmod.RemoveInGameMenuItem("ArcCW Customize")
+
 	--add button start
 	if vr_mapbrowser_enable:GetBool() then
 		vrmod.AddInGameMenuItem(
@@ -90,7 +93,6 @@ function g_VR.MenuOpen()
 		vrmod.RemoveInGameMenuItem("UI RESET")
 	end
 
-	vrmod.RemoveInGameMenuItem("ArcCW Customize")
 
 	--add button end
 	if mode == 1 then
