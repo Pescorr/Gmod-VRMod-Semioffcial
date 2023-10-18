@@ -1,9 +1,13 @@
-if SERVER then return end
+ if SERVER then return end
 local open = false
+local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1")
+local shutdownbutton = CreateClientConVar("vrmod_quickmenu_exit", "1")
+local vguireset = CreateClientConVar("vrmod_vgui_reset_menu", "1")
+
 function g_VR.MenuOpen()
-	local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1")
-	local shutdownbutton = CreateClientConVar("vrmod_shutdownmenu", "1")
-	local vguireset = CreateClientConVar("vrmod_vgui_reset_menu", "1")
+	-- local vr_mapbrowser_enable = CreateClientConVar("vrmod_mapbrowser_enable", "1")
+	-- local shutdownbutton = CreateClientConVar("vrmod_quickmenu_exit", "1")
+	-- local vguireset = CreateClientConVar("vrmod_vgui_reset_menu", "1")
 	if hook.Call("VRMod_OpenQuickMenu") == false then return end
 	if open then return end
 	open = true
@@ -51,7 +55,7 @@ function g_VR.MenuOpen()
 	--uid, width, height, panel, attachment, pos, ang, scale, cursorEnabled, closeFunc
 	local mode = convarValues.vrmod_attach_quickmenu
 
-	vrmod.RemoveInGameMenuItem("ArcCW Customize")
+	-- vrmod.RemoveInGameMenuItem("ArcCW Customize")
 
 	--add button start
 	if vr_mapbrowser_enable:GetBool() then
@@ -83,8 +87,8 @@ function g_VR.MenuOpen()
 	if vguireset:GetBool() then
 		vrmod.AddInGameMenuItem(
 			"UI RESET",
-			3,
-			3,
+			0,
+			0,
 			function()
 				LocalPlayer():ConCommand("vrmod_vgui_reset")
 			end
@@ -123,7 +127,7 @@ function g_VR.MenuOpen()
 			512,
 			nil,
 			3,
-			Vector(35, 20, 10),
+			Vector(35, 20, 0),
 			Angle(0, -90, 90),
 			0.03,
 			true,
@@ -136,8 +140,8 @@ function g_VR.MenuOpen()
 			end
 		)
 	elseif mode == 4 then
-		local newpos = pos
-		local newang = ang
+		local newpos = pos+Vector(0,0,10)
+		local newang = ang+Angle(0,0,50)
 		--forw, left, up
 		VRUtilMenuOpen(
 			"miscmenu",

@@ -5,6 +5,7 @@ if CLIENT then
 	local chatPanel = nil
 	local nametags = false
 	local VRClipboard = CreateClientConVar("vrmod_Clipboard","",false,false,"")
+	local chatmodeenable = CreateClientConVar("vrmod_quickmenu_chat_enable",1,true,FCVAR_ARCHIVE,"",0,1)
 	
 	hook.Add("VRMod_Start","voicepermissions",function(ply)
 
@@ -261,9 +262,12 @@ if CLIENT then
 		addChatMessage( chatLog[#chatLog] )
 	end
 	
-	vrmod.AddInGameMenuItem("Chat", 1, 0, function()
-		ToggleChat()
-	end)
-
+	if chatmodeenable:GetBool() then
+		vrmod.AddInGameMenuItem("Chat", 1, 0, function()
+			ToggleChat()
+		end)
+	else
+		vrmod.RemoveInGameMenuItem("Chat")
+	end
 	
 end
