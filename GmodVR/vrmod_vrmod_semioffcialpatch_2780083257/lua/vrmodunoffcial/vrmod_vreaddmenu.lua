@@ -300,7 +300,7 @@ function VREaddvrmenuOpen()
 	if not not GetConVar("vrgrab_range") then
 		--2button toggle start
 		local buttonA = vgui.Create("DButton")
-		local ccvalA = {"Item/Gun", "Everything"}
+		local ccvalA = {"Everything", "Item/Gun"}
 		buttonA:SetText("Pickup Possible\n")
 		buttonA:SetSize(120, 60)
 		buttonA:SetTextColor(Color(255, 255, 255))
@@ -310,9 +310,11 @@ function VREaddvrmenuOpen()
 			if buttonAon == 1 then
 				buttonAon = 0
 				LocalPlayer():ConCommand("vrmod_pickup_retry 1")
+				LocalPlayer():ConCommand("vrmod_pickup_range 1.5")
 			else
 				buttonAon = 1
 				LocalPlayer():ConCommand("vrmod_pickup_retry 0")
+				LocalPlayer():ConCommand("vrmod_pickup_range 0.0")
 							end
 		end
 

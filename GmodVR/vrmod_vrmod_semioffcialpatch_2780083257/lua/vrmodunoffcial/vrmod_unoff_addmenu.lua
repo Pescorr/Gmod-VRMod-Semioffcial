@@ -744,7 +744,7 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				end
 
 				gmod_optimization.DoRightClick = function()
-					RunConsoleCommand( "vrmod_gmod_optimization" )
+					RunConsoleCommand( "vrmod_gmod_optimization_02" )
 				end
 			--DButton end
 			
@@ -903,6 +903,25 @@ hook.Add("VRMod_Menu","addsettings",function(frame)
 				autoarcbench_button:SetConVar( "vrmod_auto_arc_benchgun" )				-- Change a ConVar when the box it ticked/unticked
 				autoarcbench_button:SizeToContents()						-- Make its size the same as the contents
 			--DCheckBoxLabel end
+
+			--DNumSlider Start
+			--fov_desired
+				local fov_desired= vgui.Create( "DNumSlider", Panel8 )
+				fov_desired:SetPos( 20, 140 )				-- Set the position (X,Y)
+				fov_desired:SetSize( 370, 120 )			-- Set the size (X,Y)
+				fov_desired:SetText( "[fov_desired]" )	-- Set the text above the slider
+				fov_desired:SetMin( 72 )				 	-- Set the minimum number you can slide to
+				fov_desired:SetMax( 100 )				-- Set the maximum number you can slide to
+				fov_desired:SetDecimals( 0 )				-- Decimal places - zero for whole number (set 2 -> 0.00)
+				fov_desired:SetConVar( "fov_desired" )	-- Changes the ConVar when you slide
+
+					-- If not using convars, you can use this hook + Panel.SetValue()
+					fov_desired.OnValueChanged = function( self, value )
+
+					-- Called when the slider value changes
+					end
+			--DNumSlider end
+
 
 		-- --DCheckBoxLabel Start
 		-- 	local autoarcbench_button = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox

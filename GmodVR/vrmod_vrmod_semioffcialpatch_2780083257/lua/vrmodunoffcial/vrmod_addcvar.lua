@@ -47,6 +47,9 @@ if CLIENT then
 			end
 
 			RunConsoleCommand("spawnmenu_reload") -- It even removes spawnmenu, so we need to reload it
+			RunConsoleCommand("+menu") -- It even removes spawnmenu, so we need to reload it
+			RunConsoleCommand("-menu") -- It even removes spawnmenu, so we need to reload it
+
 		end
 	)
 
@@ -197,11 +200,11 @@ if CLIENT then
 		function(ply, cmd, args)
 			local function SetVrCommands()
 				local maxmass = GetConVar("vrmod_pickup_weight")
-				local commands = {{"vrmod_pickup_range", "1.5"}, {"vrgrab_range", "240"}, {"vrgrab_gravitygloves_minrange", "0"}, {"vrgrab_gravitygloves", "1"}, {"vrgrab_maxmass", maxmass:GetInt()}}
+				local commands = {{"vrmod_pickup_range", "0"},{"vrmod_pickup_retry", "0"}, {"vrgrab_range", "240"}, {"vrgrab_gravitygloves_minrange", "0"}, {"vrgrab_gravitygloves", "0"}, {"vrgrab_maxmass", maxmass:GetInt()}}
 				for _, cmd in ipairs(commands) do
 					local name, value = unpack(cmd)
-					LocalPlayer():ConCommand("vrgrab_rehook_pickup")
-					LocalPlayer():ConCommand("vrgrab_rehook_arcticvr")
+					-- LocalPlayer():ConCommand("vrgrab_rehook_pickup")
+					-- LocalPlayer():ConCommand("vrgrab_rehook_arcticvr")
 		
 					LocalPlayer():ConCommand(name .. " " .. value)
 				end
@@ -231,7 +234,7 @@ if CLIENT then
 		function(ply, cmd, args)
 			-- Gmodのluaコード
 			local function setConvars()
-				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_mapextents", "5000"}, {"fps_max", "60"}, {"mat_queue_mode", "1"}, {"cl_threaded_bone_setup", "1"}, {"cl_threaded_client_leaf_system", "1"}, {"r_threaded_client_shadow_manager", "1"}, {"r_threaded_particles", "1"}, {"r_threaded_renderables", "1"}, {"r_queued_ropes", "1"}, {"studio_queue_mode", "1"}, {"cl_forcepreload", "1"}, {"sv_forcepreload", "1"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"cl_drawownshadow", "0"}, {"mat_bumpmap", "1"}, {"mat_colorcorrection", "0"}, {"mat_compressedtextures", "1"}, {"mat_dynamic_tonemapping", "0"}, {"mat_filtertextures", "1"}, {"mat_mipmaptextures", "1"}, {"mat_parallaxmap", "0"}, {"mat_showlowresimage", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_3dsky", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawdecals", "0"}, {"r_drawdetailprops", "1"}, {"r_drawparticles", "1"}, {"r_farz", "12000"}, {"r_radiosity", "2"}, {"cl_ejectbrass", "0"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"mat_aaquality", "0"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawskybox", "1"}, {"r_drawsprites", "1"}, {"r_DrawDisp", "1"}, {"r_drawstaticprops", "1"}, {"mat_alphacoverage", "0"}, {"mat_specular", "0"}, {"r_maxdlights", "0.00"}, {"r_shadow_allowbelow", "0"}, {"r_shadow_allowdynamic", "0"}, {"r_shadowfromanyworldlight", "0"}, {"r_shadowmaxrendered", "0.00"}, {"r_shadowrendertotexture", "0"}, {"SyntHud_max_ap", "0"}} -- {"mat_filterlightmaps", "0"}, -- {"r_shadow_lightpos_lerptime", "60.00"}, --{"mat_antialias", "0"},
+				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"},  {"fps_max", "60"}, {"SyntHud_max_ap", "0"}}--, {"cl_threaded_bone_setup", "1"}, {"cl_threaded_client_leaf_system", "1"}, {"r_threaded_client_shadow_manager", "1"}, {"r_threaded_particles", "1"}, {"r_threaded_renderables", "1"}, {"r_queued_ropes", "1"}, {"studio_queue_mode", "1"}, {"cl_forcepreload", "1"}, {"sv_forcepreload", "1"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"cl_drawownshadow", "0"}, {"mat_bumpmap", "1"}, {"mat_colorcorrection", "0"}, {"mat_compressedtextures", "1"}, {"mat_dynamic_tonemapping", "0"}, {"mat_filtertextures", "1"}, {"mat_mipmaptextures", "1"}, {"mat_parallaxmap", "0"}, {"mat_showlowresimage", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_3dsky", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawdecals", "0"}, {"r_drawdetailprops", "1"}, {"r_drawparticles", "1"}, {"r_farz", "12000"}, {"r_radiosity", "2"}, {"cl_ejectbrass", "0"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"mat_aaquality", "0"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawskybox", "1"}, {"r_drawsprites", "1"}, {"r_DrawDisp", "1"}, {"r_drawstaticprops", "1"}, {"mat_alphacoverage", "0"}, {"mat_specular", "0"}, {"r_maxdlights", "0.00"}, {"r_shadow_allowbelow", "0"}, {"r_shadow_allowdynamic", "0"}, {"r_shadowfromanyworldlight", "0"}, {"r_shadowmaxrendered", "0.00"}, {"r_shadowrendertotexture", "0"}, {"SyntHud_max_ap", "0"}} -- {"mat_filterlightmaps", "0"}, -- {"r_shadow_lightpos_lerptime", "60.00"}, --{"mat_antialias", "0"},
 				for _, optimizeconvar in ipairs(optimizeconvar) do
 					local name, value = unpack(optimizeconvar)
 					LocalPlayer():ConCommand(name .. " " .. value)
@@ -244,6 +247,26 @@ if CLIENT then
 			setConvars()
 		end
 	)
+
+	concommand.Add(
+		"vrmod_gmod_optimization_02",
+		function(ply, cmd, args)
+			-- Gmodのluaコード
+			local function setConvars()
+				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_mapextents", "5000"}, {"fps_max", "60"}, {"mat_queue_mode", "1"}, {"cl_threaded_bone_setup", "1"}, {"cl_threaded_client_leaf_system", "1"}, {"r_threaded_client_shadow_manager", "1"}, {"r_threaded_particles", "1"}, {"r_threaded_renderables", "1"}, {"r_queued_ropes", "1"}, {"studio_queue_mode", "1"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"cl_drawownshadow", "0"}, {"mat_bumpmap", "1"}, {"mat_colorcorrection", "0"}, {"mat_compressedtextures", "1"}, {"mat_dynamic_tonemapping", "0"}, {"mat_filtertextures", "1"}, {"mat_mipmaptextures", "1"}, {"mat_parallaxmap", "0"}, {"mat_showlowresimage", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_3dsky", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawdecals", "0"}, {"r_drawdetailprops", "1"}, {"r_drawparticles", "1"}, {"r_farz", "12000"}, {"r_radiosity", "2"}, {"cl_ejectbrass", "0"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"mat_aaquality", "0"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawskybox", "1"}, {"r_drawsprites", "1"}, {"r_DrawDisp", "1"}, {"r_drawstaticprops", "1"}, {"mat_alphacoverage", "0"}, {"mat_specular", "0"}, {"r_maxdlights", "0.00"}, {"r_shadow_allowbelow", "0"}, {"r_shadow_allowdynamic", "0"}, {"r_shadowfromanyworldlight", "0"}, {"r_shadowmaxrendered", "0.00"}, {"r_shadowrendertotexture", "0"}, {"SyntHud_max_ap", "0"}} -- {"mat_filterlightmaps", "0"}, -- {"r_shadow_lightpos_lerptime", "60.00"}, --{"mat_antialias", "0"},
+				for _, optimizeconvar in ipairs(optimizeconvar) do
+					local name, value = unpack(optimizeconvar)
+					LocalPlayer():ConCommand(name .. " " .. value)
+					if CLIENT then
+						print(name .. " " .. value)
+					end
+				end
+			end
+
+			setConvars()
+		end
+	)
+
 
 	-- if g_VR.active == true then
 	-- 	LocalPlayer():ConCommand("vrmod_restart")
@@ -297,5 +320,24 @@ if CLIENT then
 			end
 		end
 	)
+
+	hook.Add(
+		"CreateMove",
+		"vrmod_startup_loadcustomactions",
+		function()
+			hook.Remove("CreateMove", "vrmod_startup_loadcustomactions")
+			timer.Simple(
+				1,
+				function()
+					VRUtilLoadCustomActions()
+
+					print("VRUtilLoadCustomActions")
+
+						end
+
+			)
+		end
+	)
+
 	--
 end
