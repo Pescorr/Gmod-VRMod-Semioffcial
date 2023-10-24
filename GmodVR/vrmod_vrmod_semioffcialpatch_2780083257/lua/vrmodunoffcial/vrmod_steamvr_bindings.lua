@@ -239,11 +239,6 @@ g_VR.action_manifest = [[
 			"name": "/actions/main/in/boolean_righthandmode",
 			"type": "boolean"
 		},
-		{
-			"name": "/actions/main/in/boolean_foregrip",
-			"type": "boolean"
-		},
-
 		
 
 		{

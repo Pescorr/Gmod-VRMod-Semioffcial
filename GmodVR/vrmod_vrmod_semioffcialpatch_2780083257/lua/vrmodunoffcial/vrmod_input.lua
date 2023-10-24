@@ -2,10 +2,9 @@ local cl_bothkey = CreateClientConVar("vrmod_vehicle_bothkeymode", "0", true, FC
 local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client", "0", true, FCVAR_ARCHIVE)
 local cl_lefthand = CreateClientConVar("vrmod_LeftHand", "0")
 local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", "0")
-local retryoff = CreateClientConVar("vrmod_pickup_retry", "1", true, FCVAR_ARCHIVE, "", 0, 1)
 if SERVER then return end
 	local ply = LocalPlayer()
-	hook.Add(
+		hook.Add(
 		"VRMod_EnterVehicle",
 		"vrmod_switchactionset",
 		function()
@@ -69,18 +68,12 @@ if SERVER then return end
 			if action == "boolean_left_pickup" then
 				if cl_pickupdisable:GetBool() then return end
 				vrmod.Pickup(true, not pressed)
-				if retryoff:GetBool() then return end
-				vrmod.Pickupretry(true, not pressed)
-
 				return
 			end
 
 			if action == "boolean_right_pickup" then
 				if cl_pickupdisable:GetBool() then return end
 				vrmod.Pickup(false, not pressed)
-				if retryoff:GetBool() then return end
-				vrmod.Pickupretry(false, not pressed)
-
 				return
 			end
 
@@ -92,10 +85,10 @@ if SERVER then return end
 				LocalPlayer():ConCommand("vrmod_lefthand 0")
 			end
 
-			if action == "boolean_foregrip" then
-									LocalPlayer():ConCommand(pressed and "vrmod_leftgripmode 1" or "vrmod_leftgripmode 0")
-				return
-			end
+			-- if action == "boolean_foregrip" then
+			-- LocalPlayer():ConCommand(pressed and "vrmod_leftgripmode 1" or "vrmod_leftgripmode 0")
+			-- 	return
+			-- end
 
 
 

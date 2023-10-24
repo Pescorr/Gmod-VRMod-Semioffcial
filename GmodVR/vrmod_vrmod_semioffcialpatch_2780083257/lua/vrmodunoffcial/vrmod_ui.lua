@@ -10,6 +10,7 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_attach_quickmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1, nil, "", 0, 4, tonumber)
+	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, nil, "", 0, 1, tonumber)
 	local VRClipboard = CreateClientConVar("vrmod_Clipboard", "", false, false, "")
 	local rt_beam = GetRenderTarget("vrmod_rt_beam", 64, 64, false)
 	local mat_beam = CreateMaterial(
