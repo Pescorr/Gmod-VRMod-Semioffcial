@@ -9,7 +9,7 @@ local button6on = GetConVar("vrmod_vehicle_reticlemode"):GetInt() or 0
 local button7on = GetConVar("vrmod_laserpointer"):GetInt() or 0
 local button8on = GetConVar("arcticvr_2h_sens"):GetInt() or 0
 local button9on = 0
-local buttonAon = GetConVar("vrmod_pickup_retry"):GetInt() or 0
+local buttonAon = 0
 local buttonBon = GetConVar("vr_pickup_disable_client"):GetInt() or 0
 local buttonCon = 0
 local buttonDon = 0
@@ -297,11 +297,10 @@ function VREaddvrmenuOpen()
 		--button toggle end
 	end
 
-	if not not GetConVar("vrgrab_range") then
 		--2button toggle start
 		local buttonA = vgui.Create("DButton")
-		local ccvalA = {"Everything", "Item/Gun"}
-		buttonA:SetText("Pickup Possible\n")
+		local ccvalA = {"Type1", "Type2"}
+		buttonA:SetText("Pickup Mode\n")
 		buttonA:SetSize(120, 60)
 		buttonA:SetTextColor(Color(255, 255, 255))
 		grid:AddItem(buttonA)
@@ -310,12 +309,10 @@ function VREaddvrmenuOpen()
 			if buttonAon == 1 then
 				buttonAon = 0
 				LocalPlayer():ConCommand("vrmod_pickup_retry 1")
-				LocalPlayer():ConCommand("vrmod_pickup_range 1.5")
 			else
 				buttonAon = 1
 				LocalPlayer():ConCommand("vrmod_pickup_retry 0")
-				LocalPlayer():ConCommand("vrmod_pickup_range 0.0")
-							end
+			end
 		end
 
 		--command end
@@ -324,7 +321,6 @@ function VREaddvrmenuOpen()
 			draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon - 2)])
 		end
 		--2button toggle end
-	end
 
 	--2button toggle start		
 	local buttonB = vgui.Create("DButton")

@@ -12,14 +12,18 @@ local contexticon = CreateClientConVar("vrmod_enable_contextmenu_button", "1", t
 local menumcore = CreateClientConVar("vrmod_auto_matqueue", "1", true, FCVAR_ARCHIVE)
 local autoscrsetting = CreateClientConVar("vrmod_scr_alwaysautosetting", "1", true, FCVAR_ARCHIVE)
 local autooptimize = CreateClientConVar("vrmod_gmod_optimization_auto", "0", true, FCVAR_ARCHIVE)
-local vrgrabopt = CreateClientConVar("vrmod_vrgrab_mode", "1", true, FCVAR_ARCHIVE)
 local vrautobenchgun = CreateClientConVar("vrmod_auto_arc_benchgun", "1", true, FCVAR_ARCHIVE)
-
+-- local vrautogunsetting = CreateClientConVar("vrmod_auto_normalgunsetting", "1", true, FCVAR_ARCHIVE)
 
 
 
 local frame = nil
 local function OpenMenu()
+
+	-- if vrautogunsetting:GetBool() then
+	-- 	LocalPlayer():ConCommand("vrmod_normalgunsetting")	
+	-- end
+
 	if menumcore:GetBool() then
 		LocalPlayer():ConCommand("mat_queue_mode 1")
 	end
@@ -27,7 +31,7 @@ local function OpenMenu()
 	if vrautobenchgun:GetBool() and  g_VR.active then
 		LocalPlayer():ConCommand("arc9_dev_benchgun 1")
 		LocalPlayer():ConCommand("arccw_dev_benchgun 1")
-		LocalPlayer():ConCommand("arc9_tpik 0")
+		LocalPlayer():ConCommand("arc9_tpik 0")	
 	else
 		LocalPlayer():ConCommand("arc9_dev_benchgun 0")
 		LocalPlayer():ConCommand("arccw_dev_benchgun 0")
@@ -44,9 +48,6 @@ local function OpenMenu()
 		LocalPlayer():ConCommand("vrmod_gmod_optimization")
 	end
 
-	if vrgrabopt:GetBool() then
-		LocalPlayer():ConCommand("vrmod_dev_vrgrab")
-	end
 
 	
 	if IsValid(frame) then return frame end
