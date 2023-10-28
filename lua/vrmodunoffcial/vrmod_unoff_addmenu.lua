@@ -502,7 +502,7 @@ hook.Add(
 		pickup_weight:SetSize(370, 25) -- Set the size (X,Y)
 		pickup_weight:SetText("pickup_weight(serverlimit)") -- Set the text above the slider
 		pickup_weight:SetMin(1) -- Set the minimum number you can slide to
-		pickup_weight:SetMax(1000) -- Set the maximum number you can slide to
+		pickup_weight:SetMax(99999) -- Set the maximum number you can slide to
 		pickup_weight:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		pickup_weight:SetConVar("vrmod_pickup_weight") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()

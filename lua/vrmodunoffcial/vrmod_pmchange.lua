@@ -6,48 +6,40 @@
 	and player:GetModel() will always return the old model no matter how many times you change pm
 
 --]]
-local cv_usepmchg = CreateClientConVar("vrmod_pmchange","0",FCVAR_ARCHIVE)
-
-if cv_usepmchg:GetBool() then
-
+local cv_allowpmchg = CreateClientConVar("vrmod_pmchange", "0", FCVAR_ARCHIVE)
 if CLIENT then
-
-
-
-	
-		net.Receive("vrmod_pmchange",function()
-			local ply = player.GetBySteamID(net.ReadString())
-			local model = net.ReadString()
-			if ply then
-				ply.vrmod_pm = model
-				--print("model change",ply,model)
-			end
-		end)
-		
-
-elseif SERVER then
-
 	if cv_allowpmchg:GetBool() then
-
-		util.AddNetworkString("vrmod_pmchange")
-
-		hook.Add("InitPostEntity","vrmod_pmchange",function()
-		
-			local og = getmetatable(Entity(0)).SetModel
-			
-			getmetatable(Entity(0)).SetModel = function(...)
-				local args = {...}
-				og(unpack(args))
-				if args[1]:IsPlayer() then
-					net.Start("vrmod_pmchange")
-					net.WriteString(args[1]:SteamID())
-					net.WriteString(args[2])
-					net.Broadcast()
+		net.Receive(
+			"vrmod_pmchange",
+			function()
+				local ply = player.GetBySteamID(net.ReadString())
+				local model = net.ReadString()
+				if ply then
+					ply.vrmod_pm = model
+					--print("model change",ply,model)
 				end
 			end
-		
-		end)
+		)
+	elseif SERVER then
+		if cv_allowpmchg:GetBool() then
+			util.AddNetworkString("vrmod_pmchange")
+			hook.Add(
+				"InitPostEntity",
+				"vrmod_pmchange",
+				function()
+					local og = getmetatable(Entity(0)).SetModel
+					getmetatable(Entity(0)).SetModel = function(...)
+						local args = {...}
+						og(unpack(args))
+						if args[1]:IsPlayer() then
+							net.Start("vrmod_pmchange")
+							net.WriteString(args[1]:SteamID())
+							net.WriteString(args[2])
+							net.Broadcast()
+						end
+					end
+				end
+			)
+		end
 	end
-
-end
 end
