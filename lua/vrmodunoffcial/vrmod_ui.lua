@@ -229,19 +229,19 @@ cam.IgnoreZ(false)
 			hook.Remove("PostDrawTranslucentRenderables", "vrutil_hook_drawmenus")
 			g_VR.menuFocus = false
 			menusExist = false
-			gui.EnableScreenClicker(false)
+		gui.EnableScreenClicker(false)
 		end
 	end
 
 	function ReloadKeyPressed()
-		local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
-		-- マウスカーソル下にあるパネルを取得する
-		local panel = vgui.GetHoveredPanel()
-		-- パネルがDTextEntryであるかどうかを確認する
-		if IsValid(panel) then
-			-- テキストボックスにConVarの文字列を設定する
-			panel:SetValue(VRClipboard)
-		end
+	-- local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
+	-- -- マウスカーソル下にあるパネルを取得する
+	-- local panel = vgui.GetHoveredPanel()
+	-- -- パネルがDTextEntryであるかどうかを確認する
+	-- if IsValid(panel) then
+	-- -- テキストボックスにConVarの文字列を設定する
+	-- panel:SetString (VRClipboard)
+	-- end
 	end
 
 	hook.Add(
@@ -272,14 +272,14 @@ cam.IgnoreZ(false)
 			-- VRUtilMenuRenderPanel(g_VR.menuFocus)
 			-- end
 			if g_VR.menuFocus and action == "boolean_reload" then
-				if pressed then
-					-- キー入力イベントをフックする
-					ReloadKeyPressed()
-				else
-					ReloadKeyPressed()
-				end
+			if pressed then
+			-- キー入力イベントをフックする
+			ReloadKeyPressed()
+			else
+			ReloadKeyPressed()
+			end
 
-				VRUtilMenuRenderPanel(g_VR.menuFocus)
+			VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 
 			if g_VR.menuFocus and action == "boolean_back" then
