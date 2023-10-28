@@ -72,7 +72,7 @@ render.SetWriteDepthToDestAlpha(true)
 			if v.panel then
 				if not IsValid(v.panel) or not v.panel:IsVisible() then
 					VRUtilMenuClose(k)
-					continue
+continue
 				end
 			end
 
@@ -93,8 +93,8 @@ cam.IgnoreZ(true)
 			surface.SetMaterial(v.mat)
 			surface.DrawTexturedRect(0, 0, v.width, v.height)
 			--debug outline
-			--surface.SetDrawColor(255,0,0,255)
-			--surface.DrawOutlinedRect(0,0,v.width,v.height)
+			surface.SetDrawColor(255,0,0,255)
+			surface.DrawOutlinedRect(0,0,v.width,v.height)
 			cam.End3D2D()
 cam.IgnoreZ(false)
 						if v.cursorEnabled then
