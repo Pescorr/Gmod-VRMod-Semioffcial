@@ -67,9 +67,8 @@ if CLIENT then
 	end
 	
 	function vrmod.UsingEmptyHands( ply )
-		local emptyhandrepl = CreateConVar("vrmod_emptyhanded_swep","weapon_vrmod_empty",FCVAR_ARCHIVE+FCVAR_REPLICATED)
-		local wep = ply and ply:GetActiveWeapon() or LocalPlayer():GetActiveWeapon()
-		return IsValid(wep) and wep:GetClass() == emptyhandrepl:GetString() or false
+				local wep = ply and ply:GetActiveWeapon() or LocalPlayer():GetActiveWeapon()
+		return IsValid(wep) and wep:GetClass() == "weapon_vrmod_empty" or false
 	end
 	
 	function vrmod.GetHMDPos( ply )
@@ -553,10 +552,8 @@ elseif SERVER then
 	end
 	
 	function vrmod.UsingEmptyHands( ply )
-		local emptyhandrepl = CreateConVar("vrmod_emptyhanded_swep","weapon_vrmod_empty",FCVAR_ARCHIVE+FCVAR_REPLICATED)
-
-		local wep = ply:GetActiveWeapon()
-		return IsValid(wep) and wep:GetClass() == emptyhandrepl:GetString() or false
+				local wep = ply:GetActiveWeapon()
+		return IsValid(wep) and wep:GetClass() == "weapon_vrmod_empty" or false
 	end
 	
 	local function UpdateWorldPoses( ply, playerTable )

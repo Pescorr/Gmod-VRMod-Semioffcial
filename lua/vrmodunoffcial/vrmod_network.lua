@@ -561,9 +561,6 @@ if CLIENT then
 
 elseif SERVER then
 
-local emptyhandrepl = CreateConVar("vrmod_emptyhanded_swep","weapon_vrmod_empty",FCVAR_ARCHIVE+FCVAR_REPLICATED)
-
-
 	util.AddNetworkString("vrutil_net_join")
 	util.AddNetworkString("vrutil_net_exit")
 	util.AddNetworkString("vrutil_net_switchweapon")
@@ -609,8 +606,8 @@ local emptyhandrepl = CreateConVar("vrmod_emptyhanded_swep","weapon_vrmod_empty"
 			dontHideBullets = net.ReadBool(),
 		}
 		
-		ply:Give(emptyhandrepl:GetString())
-		ply:SelectWeapon(emptyhandrepl:GetString())
+		ply:Give("weapon_vrmod_empty")
+		ply:SelectWeapon("weapon_vrmod_empty")
 		
 		--relay join message to everyone except players that aren't fully loaded in yet
 		local omittedPlayers = {}
@@ -678,9 +675,8 @@ local emptyhandrepl = CreateConVar("vrmod_emptyhanded_swep","weapon_vrmod_empty"
 	end)
 	
 	hook.Add("PlayerSpawn","vrutil_hook_playerspawn",function(ply)
-		local emptyhandrepl = CreateConVar("vrmod_emptyhanded_swep","weapon_vrmod_empty",FCVAR_ARCHIVE+FCVAR_REPLICATED)
-		if g_VR[ply:SteamID()] ~= nil then
-			ply:Give(emptyhandrepl:GetString())
+				if g_VR[ply:SteamID()] ~= nil then
+			ply:Give("weapon_vrmod_empty")
 
 			net.Start("vrutil_net_join")
 			net.WriteEntity(ply)
@@ -708,10 +704,9 @@ local emptyhandrepl = CreateConVar("vrmod_emptyhanded_swep","weapon_vrmod_empty"
 	end)
 	
 	hook.Add("PlayerEnteredVehicle","vrutil_hook_playerenteredvehicle",function(ply, veh)
-		local emptyhandrepl = CreateConVar("vrmod_emptyhanded_swep","weapon_vrmod_empty",FCVAR_ARCHIVE+FCVAR_REPLICATED)
-		if g_VR[ply:SteamID()] ~= nil then
-			ply:SelectWeapon(emptyhandrepl:GetString())
-			ply:SetActiveWeapon(ply:GetWeapon(emptyhandrepl:GetString()))
+				if g_VR[ply:SteamID()] ~= nil then
+			ply:SelectWeapon("weapon_vrmod_empty")
+			ply:SetActiveWeapon(ply:GetWeapon("weapon_vrmod_empty"))
 			net.Start("vrutil_net_entervehicle")
 			net.Send(ply)
 			ply:SetAllowWeaponsInVehicle(1)
