@@ -7,7 +7,7 @@ local button4on = GetConVar("vrmod_allow_teleport_client"):GetInt() or 0
 local button5on = 0
 local button6on = GetConVar("vrmod_vehicle_reticlemode"):GetInt() or 0
 local button7on = GetConVar("vrmod_laserpointer"):GetInt() or 0
-local button8on = GetConVar("arcticvr_2h_sens"):GetFloat() or 0
+local button8on = GetConVar("arcticvr_2h_sens"):GetInt() or 0
 local button9on = 0
 local buttonAon = 0
 local buttonBon = GetConVar("vr_pickup_disable_client"):GetInt() or 0
@@ -297,30 +297,30 @@ function VREaddvrmenuOpen()
 		--button toggle end
 	end
 
-		--2button toggle start
-		local buttonA = vgui.Create("DButton")
-		local ccvalA = {"Type1", "Type2"}
-		buttonA:SetText("Pickup Mode\n")
-		buttonA:SetSize(120, 60)
-		buttonA:SetTextColor(Color(255, 255, 255))
-		grid:AddItem(buttonA)
-		buttonA.DoClick = function()
-			--command start
-			if buttonAon == 1 then
-				buttonAon = 0
-				LocalPlayer():ConCommand("vrmod_pickup_retry 1")
-			else
-				buttonAon = 1
-				LocalPlayer():ConCommand("vrmod_pickup_retry 0")
-			end
-		end
+		-- --2button toggle start
+		-- local buttonA = vgui.Create("DButton")
+		-- local ccvalA = {"Type1", "Type2"}
+		-- buttonA:SetText("Pickup Mode\n")
+		-- buttonA:SetSize(120, 60)
+		-- buttonA:SetTextColor(Color(255, 255, 255))
+		-- grid:AddItem(buttonA)
+		-- buttonA.DoClick = function()
+		-- 	--command start
+		-- 	if buttonAon == 1 then
+		-- 		buttonAon = 0
+		-- 		LocalPlayer():ConCommand("vrmod_pickup_retry 1")
+		-- 	else
+		-- 		buttonAon = 1
+		-- 		LocalPlayer():ConCommand("vrmod_pickup_retry 0")
+		-- 	end
+		-- end
 
-		--command end
-		function buttonA:Paint(w, h)
-			buttonA:SetText("Pickup Possible\n" .. ccvalA[buttonAon + 1])
-			draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon - 2)])
-		end
-		--2button toggle end
+		-- --command end
+		-- function buttonA:Paint(w, h)
+		-- 	buttonA:SetText("Pickup Possible\n" .. ccvalA[buttonAon + 1])
+		-- 	draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon - 2)])
+		-- end
+		-- --2button toggle end
 
 	--2button toggle start		
 	local buttonB = vgui.Create("DButton")

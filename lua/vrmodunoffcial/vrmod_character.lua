@@ -422,7 +422,7 @@
 					characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
 					characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
 				end
-				local seatset = convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z)
+				-- local seatset = convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z)
 				characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
 				cm:Remove()
 			end
