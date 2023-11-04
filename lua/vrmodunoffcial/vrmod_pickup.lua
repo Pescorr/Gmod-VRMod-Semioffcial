@@ -76,17 +76,6 @@ if CLIENT then
 		end
 	)
 
-	concommand.Add(
-		"vrmod_pickup_reset",
-		function(ply, cmd, args)
-			-- pickupListを初期化
-			pickupList = {}
-			-- g_VR内の全ユーザーのheldItemsを初期化
-			for steamid, data in pairs(g_VR) do
-				data.heldItems = {}
-			end
-		end
-	)
 elseif SERVER then
 	util.AddNetworkString("vrmod_pickup")
 	local pickupController = nil
@@ -274,6 +263,7 @@ elseif SERVER then
 				pickupController:AddToMotionController(v:GetPhysicsObject())
 				v:PhysWake()
 			else
+				--print("existing pickup")
 			end
 
 			--print("existing pickup")
