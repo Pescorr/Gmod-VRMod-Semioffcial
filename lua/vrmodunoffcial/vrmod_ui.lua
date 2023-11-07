@@ -11,7 +11,7 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, nil, "", 0, 1, tonumber)
-	local VRClipboard = CreateClientConVar("vrmod_Clipboard", "", false, false, "")
+	local uioutline = CreateClientConVar("vrmod_ui_outline",1,true,FCVAR_ARCHIVE,nil,0,1)
 	local rt_beam = GetRenderTarget("vrmod_rt_beam", 64, 64, false)
 	local mat_beam = CreateMaterial(
 		"vrmod_mat_beam",
@@ -93,8 +93,10 @@ cam.IgnoreZ(true)
 			surface.SetMaterial(v.mat)
 			surface.DrawTexturedRect(0, 0, v.width, v.height)
 			--debug outline
-			surface.SetDrawColor(255,0,0,255)
-			surface.DrawOutlinedRect(0,0,v.width,v.height)
+			if uioutline:GetBool() then
+				surface.SetDrawColor(255,0,0,255)
+				surface.DrawOutlinedRect(0,0,v.width,v.height)
+			end
 			cam.End3D2D()
 cam.IgnoreZ(false)
 						if v.cursorEnabled then

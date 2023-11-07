@@ -2,8 +2,8 @@ if SERVER then return end
 
 local hands
 
-CreateClientConVar("vrmod_floatinghands_material", "models/dog/eyeglass",FCVAR_ARCHIVE)
-CreateClientConVar("vrmod_floatinghands_model", "models/player/vr_hands.mdl",FCVAR_ARCHIVE)
+CreateClientConVar("vrmod_floatinghands_material", "models/dog/eyeglass",true,FCVAR_ARCHIVE)
+CreateClientConVar("vrmod_floatinghands_model", "models/player/vr_hands.mdl",true,FCVAR_ARCHIVE)
 
 local convars = vrmod.GetConvars()
 

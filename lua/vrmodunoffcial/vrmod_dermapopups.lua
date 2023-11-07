@@ -13,10 +13,10 @@ meta.MakePopup = function(...)
 	orig(unpack(args))
 	if not g_VR.threePoints then return end
 	local panel = args[1]
-local uid = "popup_" .. popupCount
+	local uid = "popup_" .. popupCount
 	-- Add the new popup to the list
 	table.insert(allPopups, uid)
-		--wait because makepopup might be called before menu is fully built
+	--wait because makepopup might be called before menu is fully built
 	timer.Simple(
 		0.1,
 		function()
@@ -24,10 +24,25 @@ local uid = "popup_" .. popupCount
 			if panel:GetName() == "DMenu" then
 				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
+								panel.Paint = function(self, w, h)
+					surface.SetDrawColor(255, 255, 255, 114)
+					surface.DrawRect(0, 0, w, h)
+									popupCount = popupCount + 1
+
+				end
+				
+
+			end
+			
+
+			if panel:GetName() == "DHTML" then
+				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
+				panel = panel:GetChildren()[1]
 				panel.Paint = function(self, w, h)
-					surface.SetDrawColor(255, 255, 255, 255)
+					surface.SetDrawColor(255, 255, 255, 115)
 					surface.DrawRect(0, 0, w, h)
 				end
+				popupCount = popupCount + 1
 			end
 
 			if popupCount == 0 then
@@ -58,19 +73,21 @@ local uid = "popup_" .. popupCount
 							function()
 								if not g_VR.active and IsValid(panel) then
 									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
+									panel:RequestFocus()
+
 								end
 							end
 						)
 
 						popupCount = popupCount - 1
--- Remove the popup from the list when it closes
+						-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
 								break
 							end
 						end
-											end
+					end
 				)
 
 				popupCount = popupCount + 1
@@ -99,14 +116,14 @@ local uid = "popup_" .. popupCount
 						)
 
 						popupCount = popupCount - 1
--- Remove the popup from the list when it closes
+						-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
 								break
 							end
 						end
-											end
+					end
 				)
 
 				popupCount = popupCount + 1
@@ -134,14 +151,14 @@ local uid = "popup_" .. popupCount
 						)
 
 						popupCount = popupCount - 1
--- Remove the popup from the list when it closes
+						-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
 								break
 							end
 						end
-											end
+					end
 				)
 
 				popupCount = popupCount + 1
