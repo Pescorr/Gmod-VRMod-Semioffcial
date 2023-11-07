@@ -562,7 +562,7 @@ hook.Add(
 		r_farz:SetPos(20, 50) -- Set the position (X,Y)
 		r_farz:SetSize(370, 25) -- Set the size (X,Y)
 		r_farz:SetText("[Visible range of map] \n (sv_cheats 1 is required)") -- Set the text above the slider
-		r_farz:SetMin(1000) -- Set the minimum number you can slide to
+		r_farz:SetMin(-1) -- Set the minimum number you can slide to
 		r_farz:SetMax(16384) -- Set the maximum number you can slide to
 		r_farz:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		r_farz:SetConVar("r_farz") -- Changes the ConVar when you slide
@@ -739,17 +739,17 @@ hook.Add(
 		autoarcbench_button:SetConVar("vrmod_auto_arc_benchgun") -- Change a ConVar when the box it ticked/unticked
 		autoarcbench_button:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-		-- --DCheckBoxLabel Start
-		-- 	local vrmod_auto_normalgunsetting = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
-		-- 	vrmod_auto_normalgunsetting:SetPos( 20, 140 )						-- Set the position
-		-- 	vrmod_auto_normalgunsetting:SetText("[vrmod_auto_normalgunsetting]")					-- Set the text next to the box
-		-- 	vrmod_auto_normalgunsetting:SetConVar( "vrmod_auto_normalgunsetting" )				-- Change a ConVar when the box it ticked/unticked
-		-- 	vrmod_auto_normalgunsetting:SizeToContents()						-- Make its size the same as the contents
-		-- --DCheckBoxLabel end
+		--DCheckBoxLabel Start
+			local vrmod_ui_outline = Panel8:Add( "DCheckBoxLabel" ) -- Create the checkbox
+			vrmod_ui_outline:SetPos( 20, 140 )						-- Set the position
+			vrmod_ui_outline:SetText("[vrmod_ui_outline]")					-- Set the text next to the box
+			vrmod_ui_outline:SetConVar( "vrmod_ui_outline" )				-- Change a ConVar when the box it ticked/unticked
+			vrmod_ui_outline:SizeToContents()						-- Make its size the same as the contents
+		--DCheckBoxLabel end
 		--DNumSlider Start
 		--fov_desired
 		local fov_desired = vgui.Create("DNumSlider", Panel8)
-		fov_desired:SetPos(20, 140) -- Set the position (X,Y)
+		fov_desired:SetPos(20, 170) -- Set the position (X,Y)
 		fov_desired:SetSize(370, 120) -- Set the size (X,Y)
 		fov_desired:SetText("[fov_desired]") -- Set the text above the slider
 		fov_desired:SetMin(72) -- Set the minimum number you can slide to
