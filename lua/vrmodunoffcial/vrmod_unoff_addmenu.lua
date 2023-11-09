@@ -98,6 +98,111 @@ hook.Add(
 		--DCheckBoxLabel end
 		--Panel6 "TAB6" end
 
+	-- Panel02 "TAB02" Start
+
+	local Panel02 = vgui.Create("DPanel", sheet)
+	sheet:AddSheet("GamePlay", Panel02, "icon16/joystick.png")
+	Panel02.Paint = function(self, w, h)
+		draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+	end
+
+		--DCheckBoxLabel Start
+		local autojumpduck = Panel02:Add("DCheckBoxLabel") -- Create the checkbox
+		autojumpduck:SetPos(20, 10) -- Set the position
+		autojumpduck:SetText("[Jumpkey Auto Duck]\nON => Jumpkey = IN_DUCK + IN_JUMP\nOFF => Jumpkey = IN_JUMP") -- Set the text next to the box
+		autojumpduck:SetConVar("vrmod_autojumpduck") -- Change a ConVar when the box it ticked/unticked
+		autojumpduck:SizeToContents() -- Make its size the same as the contents
+		--DCheckBoxLabel end
+
+		--DCheckBoxLabel Start
+		local allow_teleport_client = Panel02:Add("DCheckBoxLabel") -- Create the checkbox
+		allow_teleport_client:SetPos(20, 60) -- Set the position
+		allow_teleport_client:SetText("allow_teleport_client") -- Set the text next to the box
+		allow_teleport_client:SetConVar("vrmod_allow_teleport_client") -- Change a ConVar when the box it ticked/unticked
+		allow_teleport_client:SizeToContents() -- Make its size the same as the contents
+		--DCheckBoxLabel end
+
+		--DNumSlider Start
+		--flashlight_attachment
+		local flashlight_attachment = vgui.Create("DNumSlider", Panel02)
+		flashlight_attachment:SetPos(20, 90) -- Set the position (X,Y)
+		flashlight_attachment:SetSize(330, 25) -- Set the size (X,Y)
+		flashlight_attachment:SetText("[flashlight_attachment]") -- Set the text above the slider
+		flashlight_attachment:SetMin(0) -- Set the minimum number you can slide to
+		flashlight_attachment:SetMax(2) -- Set the maximum number you can slide to
+		flashlight_attachment:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
+		flashlight_attachment:SetConVar("vrmod_flashlight_attachment") -- Changes the ConVar when you slide
+		-- If not using convars, you can use this hook + Panel.SetValue()
+		flashlight_attachment.OnValueChanged = function(self, value) end -- Called when the slider value changes
+		--DNumSlider end
+
+			--DButton Start
+			--character_restart
+			local togglelaserpointer = vgui.Create("DButton", Panel02) -- Create the button and parent it to the frame
+			togglelaserpointer:SetText("togglelaserpointer") -- Set the text on the button
+			togglelaserpointer:SetPos(20, 130) -- Set the position on the frame
+			togglelaserpointer:SetSize(160, 30) -- Set the size
+			-- A custom function run when clicked ( note the . instead of : )
+			togglelaserpointer.DoClick = function()
+				RunConsoleCommand("vrmod_togglelaserpointer") -- Run the console command "say hi" when you click it ( command, args )
+			end
+	
+			togglelaserpointer.DoRightClick = function() end
+			--DButton end
+
+		--DCheckBoxLabel Start
+		local pickup_disable_client = Panel02:Add("DCheckBoxLabel") -- Create the checkbox
+		pickup_disable_client:SetPos(20, 175) -- Set the position
+		pickup_disable_client:SetText("VR Disable Pickup(Client)") -- Set the text next to the box
+		pickup_disable_client:SetConVar("vr_pickup_disable_client") -- Change a ConVar when the box it ticked/unticked
+		pickup_disable_client:SizeToContents() -- Make its size the same as the contents
+		--DCheckBoxLabel end
+
+		--DNumSlider Start
+		--vrmod_pickup_weight
+		local pickup_weight = vgui.Create("DNumSlider", Panel02)
+		pickup_weight:SetPos(20, 200) -- Set the position (X,Y)
+		pickup_weight:SetSize(370, 25) -- Set the size (X,Y)
+		pickup_weight:SetText("pickup_weight(server)") -- Set the text above the slider
+		pickup_weight:SetMin(1) -- Set the minimum number you can slide to
+		pickup_weight:SetMax(99999) -- Set the maximum number you can slide to
+		pickup_weight:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
+		pickup_weight:SetConVar("vrmod_pickup_weight") -- Changes the ConVar when you slide
+		-- If not using convars, you can use this hook + Panel.SetValue()
+		pickup_weight.OnValueChanged = function(self, value) end -- Called when the slider value changes
+		--DNumSlider end
+		--DNumSlider Start
+		--vr_vrmod_pickup_range
+		local vrmod_pickup_range = vgui.Create("DNumSlider", Panel02)
+		vrmod_pickup_range:SetPos(20, 225) -- Set the position (X,Y)
+		vrmod_pickup_range:SetSize(370, 25) -- Set the size (X,Y)
+		vrmod_pickup_range:SetText("pickup_range(server)") -- Set the text above the slider
+		vrmod_pickup_range:SetMin(0.0) -- Set the minimum number you can slide to
+		vrmod_pickup_range:SetMax(99.0) -- Set the maximum number you can slide to
+		vrmod_pickup_range:SetDecimals(1) -- Decimal places - zero for whole number (set 2 -> 0.00)
+		vrmod_pickup_range:SetConVar("vrmod_pickup_range") -- Changes the ConVar when you slide
+		-- If not using convars, you can use this hook + Panel.SetValue()
+		vrmod_pickup_range.OnValueChanged = function(self, value) end -- Called when the slider value changes
+		--DNumSlider end
+		--DNumSlider Start
+		--vr_vrmod_pickup_limit
+		local vrmod_pickup_limit = vgui.Create("DNumSlider", Panel02)
+		vrmod_pickup_limit:SetPos(20, 250) -- Set the position (X,Y)
+		vrmod_pickup_limit:SetSize(370, 25) -- Set the size (X,Y)
+		vrmod_pickup_limit:SetText("pickup_limit(server)") -- Set the text above the slider
+		vrmod_pickup_limit:SetMin(0) -- Set the minimum number you can slide to
+		vrmod_pickup_limit:SetMax(2) -- Set the maximum number you can slide to
+		vrmod_pickup_limit:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
+		vrmod_pickup_limit:SetConVar("vrmod_pickup_limit") -- Changes the ConVar when you slide
+		-- If not using convars, you can use this hook + Panel.SetValue()
+		vrmod_pickup_limit.OnValueChanged = function(self, value) end -- Called when the slider value changes
+		--DNumSlider end
+
+
+
+	-- Panel02 "TAB02" End
+
+
 
 		--Panel1 "TAB1" Start
 		local Panel1 = vgui.Create("DPanel", sheet)
@@ -294,113 +399,10 @@ hook.Add(
 
 	-- Panel02 "TAB02" End
 
-	-- Panel02 "TAB02" Start
-
-	local Panel02 = vgui.Create("DPanel", sheet)
-	sheet:AddSheet("GamePlay", Panel02, "icon16/joystick.png")
-	Panel02.Paint = function(self, w, h)
-		draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
-	end
-
-		--DCheckBoxLabel Start
-		local autojumpduck = Panel02:Add("DCheckBoxLabel") -- Create the checkbox
-		autojumpduck:SetPos(20, 10) -- Set the position
-		autojumpduck:SetText("[Jumpkey Auto Duck]\nON => Jumpkey = IN_DUCK + IN_JUMP\nOFF => Jumpkey = IN_JUMP") -- Set the text next to the box
-		autojumpduck:SetConVar("vrmod_autojumpduck") -- Change a ConVar when the box it ticked/unticked
-		autojumpduck:SizeToContents() -- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-		--DCheckBoxLabel Start
-		local allow_teleport_client = Panel02:Add("DCheckBoxLabel") -- Create the checkbox
-		allow_teleport_client:SetPos(20, 60) -- Set the position
-		allow_teleport_client:SetText("allow_teleport_client") -- Set the text next to the box
-		allow_teleport_client:SetConVar("vrmod_allow_teleport_client") -- Change a ConVar when the box it ticked/unticked
-		allow_teleport_client:SizeToContents() -- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-		--DNumSlider Start
-		--flashlight_attachment
-		local flashlight_attachment = vgui.Create("DNumSlider", Panel02)
-		flashlight_attachment:SetPos(20, 90) -- Set the position (X,Y)
-		flashlight_attachment:SetSize(330, 25) -- Set the size (X,Y)
-		flashlight_attachment:SetText("[flashlight_attachment]") -- Set the text above the slider
-		flashlight_attachment:SetMin(0) -- Set the minimum number you can slide to
-		flashlight_attachment:SetMax(2) -- Set the maximum number you can slide to
-		flashlight_attachment:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
-		flashlight_attachment:SetConVar("vrmod_flashlight_attachment") -- Changes the ConVar when you slide
-		-- If not using convars, you can use this hook + Panel.SetValue()
-		flashlight_attachment.OnValueChanged = function(self, value) end -- Called when the slider value changes
-		--DNumSlider end
-
-			--DButton Start
-			--character_restart
-			local togglelaserpointer = vgui.Create("DButton", Panel02) -- Create the button and parent it to the frame
-			togglelaserpointer:SetText("togglelaserpointer") -- Set the text on the button
-			togglelaserpointer:SetPos(20, 130) -- Set the position on the frame
-			togglelaserpointer:SetSize(160, 30) -- Set the size
-			-- A custom function run when clicked ( note the . instead of : )
-			togglelaserpointer.DoClick = function()
-				RunConsoleCommand("vrmod_togglelaserpointer") -- Run the console command "say hi" when you click it ( command, args )
-			end
-	
-			togglelaserpointer.DoRightClick = function() end
-			--DButton end
-
-		--DCheckBoxLabel Start
-		local pickup_disable_client = Panel02:Add("DCheckBoxLabel") -- Create the checkbox
-		pickup_disable_client:SetPos(20, 175) -- Set the position
-		pickup_disable_client:SetText("VR Disable Pickup(Client)") -- Set the text next to the box
-		pickup_disable_client:SetConVar("vr_pickup_disable_client") -- Change a ConVar when the box it ticked/unticked
-		pickup_disable_client:SizeToContents() -- Make its size the same as the contents
-		--DCheckBoxLabel end
-
-		--DNumSlider Start
-		--vrmod_pickup_weight
-		local pickup_weight = vgui.Create("DNumSlider", Panel02)
-		pickup_weight:SetPos(20, 200) -- Set the position (X,Y)
-		pickup_weight:SetSize(370, 25) -- Set the size (X,Y)
-		pickup_weight:SetText("pickup_weight(server)") -- Set the text above the slider
-		pickup_weight:SetMin(1) -- Set the minimum number you can slide to
-		pickup_weight:SetMax(99999) -- Set the maximum number you can slide to
-		pickup_weight:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
-		pickup_weight:SetConVar("vrmod_pickup_weight") -- Changes the ConVar when you slide
-		-- If not using convars, you can use this hook + Panel.SetValue()
-		pickup_weight.OnValueChanged = function(self, value) end -- Called when the slider value changes
-		--DNumSlider end
-		--DNumSlider Start
-		--vr_vrmod_pickup_range
-		local vrmod_pickup_range = vgui.Create("DNumSlider", Panel02)
-		vrmod_pickup_range:SetPos(20, 225) -- Set the position (X,Y)
-		vrmod_pickup_range:SetSize(370, 25) -- Set the size (X,Y)
-		vrmod_pickup_range:SetText("pickup_range(server)") -- Set the text above the slider
-		vrmod_pickup_range:SetMin(0.0) -- Set the minimum number you can slide to
-		vrmod_pickup_range:SetMax(99.0) -- Set the maximum number you can slide to
-		vrmod_pickup_range:SetDecimals(1) -- Decimal places - zero for whole number (set 2 -> 0.00)
-		vrmod_pickup_range:SetConVar("vrmod_pickup_range") -- Changes the ConVar when you slide
-		-- If not using convars, you can use this hook + Panel.SetValue()
-		vrmod_pickup_range.OnValueChanged = function(self, value) end -- Called when the slider value changes
-		--DNumSlider end
-		--DNumSlider Start
-		--vr_vrmod_pickup_limit
-		local vrmod_pickup_limit = vgui.Create("DNumSlider", Panel02)
-		vrmod_pickup_limit:SetPos(20, 250) -- Set the position (X,Y)
-		vrmod_pickup_limit:SetSize(370, 25) -- Set the size (X,Y)
-		vrmod_pickup_limit:SetText("pickup_limit(server)") -- Set the text above the slider
-		vrmod_pickup_limit:SetMin(0) -- Set the minimum number you can slide to
-		vrmod_pickup_limit:SetMax(2) -- Set the maximum number you can slide to
-		vrmod_pickup_limit:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
-		vrmod_pickup_limit:SetConVar("vrmod_pickup_limit") -- Changes the ConVar when you slide
-		-- If not using convars, you can use this hook + Panel.SetValue()
-		vrmod_pickup_limit.OnValueChanged = function(self, value) end -- Called when the slider value changes
-		--DNumSlider end
 
 
 
-	-- Panel02 "TAB02" End
-
-
-
-		--Panel3 "TAB3" Start
+	--Panel3 "TAB3" Start
 		local Panel3 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Character", Panel3, "icon16/user_edit.png")
 		Panel3.Paint = function(self, w, h)
@@ -795,8 +797,8 @@ hook.Add(
 
 			--fov_desired
 			local fov_desired = vgui.Create("DNumSlider", Panel7)
-			fov_desired:SetPos(20, 170) -- Set the position (X,Y)
-			fov_desired:SetSize(370, 280) -- Set the size (X,Y)
+			fov_desired:SetPos(20, 300) -- Set the position (X,Y)
+			fov_desired:SetSize(370, 50) -- Set the size (X,Y)
 			fov_desired:SetText("[fov_desired]") -- Set the text above the slider
 			fov_desired:SetMin(72) -- Set the minimum number you can slide to
 			fov_desired:SetMax(100) -- Set the maximum number you can slide to
