@@ -9,7 +9,6 @@ surface.CreateFont(
 )
 
 local contexticon = CreateClientConVar("vrmod_enable_contextmenu_button", "1", true, FCVAR_ARCHIVE)
-local menumcore = CreateClientConVar("vrmod_auto_matqueue", "1", true, FCVAR_ARCHIVE)
 local autoscrsetting = CreateClientConVar("vrmod_scr_alwaysautosetting", "1", true, FCVAR_ARCHIVE)
 local autooptimize = CreateClientConVar("vrmod_gmod_optimization_auto", "0", true, FCVAR_ARCHIVE)
 local vrautobenchgun = CreateClientConVar("vrmod_auto_arc_benchgun", "1", true, FCVAR_ARCHIVE)
@@ -24,9 +23,6 @@ local function OpenMenu()
 	-- 	LocalPlayer():ConCommand("vrmod_normalgunsetting")	
 	-- end
 
-	if menumcore:GetBool() then
-		LocalPlayer():ConCommand("mat_queue_mode 1")
-	end
 
 	if vrautobenchgun:GetBool() and  g_VR.active then
 		LocalPlayer():ConCommand("arc9_dev_benchgun 1")
