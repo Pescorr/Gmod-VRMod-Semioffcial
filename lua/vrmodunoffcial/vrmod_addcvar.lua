@@ -3,42 +3,7 @@ if CLIENT then
 	local drivingmode = 0
 	local bothmode = 0
 	local ply = LocalPlayer()
-	-- local hands = {
-	-- {
-	-- poseName = "pose_lefthand",
-	-- overrideFunc = vrmod.SetLeftHandPose,
-	-- getFunc = vrmod.GetLeftHandPose
-	-- },
-	-- {
-	-- poseName = "pose_righthand",
-	-- overrideFunc = vrmod.SetRightHandPose,
-	-- getFunc = vrmod.GetRightHandPose,
-	-- },
-	-- }
-	-- concommand.Add("vrmod_print_righthand_pos", function(ply)
-	-- print(g_VR.tracking.pose_righthand.pos)
-	-- end)
-	-- concommand.Add("vrmod_print_righthand_pos_x", function(ply)
-	-- print(g_VR.tracking.pose_righthand.pos.x)
-	-- end)
-	-- concommand.Add("vrmod_print_righthand_pos_y", function(ply)
-	-- print(g_VR.tracking.pose_righthand.pos.y)
-	-- end)
-	-- concommand.Add("vrmod_print_righthand_pos_z", function(ply)
-	-- print(g_VR.tracking.pose_righthand.pos.z)
-	-- end)
-	-- concommand.Add("vrmod_print_righthand_ang", function(ply)
-	-- print(g_VR.tracking.pose_righthand.ang)
-	-- end)
-	-- concommand.Add("vrmod_print_righthand_ang_x", function(ply)
-	-- print(g_VR.tracking.pose_righthand.ang.x)
-	-- end)
-	-- concommand.Add("vrmod_print_righthand_ang_y", function(ply)
-	-- print(g_VR.tracking.pose_righthand.ang.y)
-	-- end)
-	-- concommand.Add("vrmod_print_righthand_ang_z", function(ply)
-	-- print(g_VR.tracking.pose_righthand.ang.z)
-	-- end)
+	
 	concommand.Add(
 		"vrmod_vgui_reset",
 		function()
@@ -118,6 +83,8 @@ if CLIENT then
 			LocalPlayer():ConCommand("vrmod_exit")
 			AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
 			include("vrmodunoffcial/vrmod_character.lua")
+			AddCSLuaFile("vrmodunoffcial/vrmod_character_hands.lua")
+			include("vrmodunoffcial/vrmod_character_hands.lua")
 			LocalPlayer():ConCommand("vrmod_start")
 			g_VR.MenuOpen()
 			g_VR.MenuClose()
@@ -253,7 +220,6 @@ if CLIENT then
 
 			setConvars()
 		end
-		
 	)
 
 	concommand.Add(
@@ -261,7 +227,7 @@ if CLIENT then
 		function(ply, cmd, args)
 			-- Gmodのluaコード
 			local function setConvars()
-				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_antialias", "0"},{"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"fps_max", "60"}, {"r_mapextents", "5000"}, {"mat_queue_mode", "1"}, {"studio_queue_mode", "1"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"cl_drawownshadow", "0"}, {"mat_bumpmap", "0"}, {"mat_colorcorrection", "0"}, {"mat_compressedtextures", "1"}, {"mat_dynamic_tonemapping", "0"}, {"mat_filtertextures", "0"}, {"mat_mipmaptextures", "0"}, {"mat_parallaxmap", "0"}, {"mat_showlowresimage", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawdecals", "0"}, {"r_drawdetailprops", "1"}, {"r_drawparticles", "1"}, {"r_radiosity", "2"}, {"cl_ejectbrass", "0"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"mat_aaquality", "0"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawsprites", "1"}, {"r_DrawDisp", "1"}, {"r_drawstaticprops", "1"}, {"mat_alphacoverage", "0"}, {"r_farz", "8000"}, {"mat_specular", "0"}, {"r_maxdlights", "0.00"}, {"r_shadow_allowbelow", "0"}, {"r_shadow_allowdynamic", "0"}, {"r_shadowfromanyworldlight", "0"}, {"r_shadowmaxrendered", "0.00"}, {"r_shadowrendertotexture", "0"}, {"SyntHud_max_ap", "0"}} -- {"mat_filterlightmaps", "0"}, -- {"r_shadow_lightpos_lerptime", "60.00"}, --
+				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_antialias", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"fps_max", "60"}, {"r_mapextents", "5000"}, {"mat_queue_mode", "1"}, {"studio_queue_mode", "1"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"cl_drawownshadow", "0"}, {"mat_bumpmap", "0"}, {"mat_colorcorrection", "0"}, {"mat_compressedtextures", "1"}, {"mat_dynamic_tonemapping", "0"}, {"mat_filtertextures", "0"}, {"mat_mipmaptextures", "0"}, {"mat_parallaxmap", "0"}, {"mat_showlowresimage", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawdecals", "0"}, {"r_drawdetailprops", "1"}, {"r_drawparticles", "1"}, {"r_radiosity", "2"}, {"cl_ejectbrass", "0"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"mat_aaquality", "0"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawsprites", "1"}, {"r_DrawDisp", "1"}, {"r_drawstaticprops", "1"}, {"mat_alphacoverage", "0"}, {"r_farz", "8000"}, {"mat_specular", "0"}, {"r_maxdlights", "0.00"}, {"r_shadow_allowbelow", "0"}, {"r_shadow_allowdynamic", "0"}, {"r_shadowfromanyworldlight", "0"}, {"r_shadowmaxrendered", "0.00"}, {"r_shadowrendertotexture", "0"}, {"SyntHud_max_ap", "0"}} -- {"mat_filterlightmaps", "0"}, -- {"r_shadow_lightpos_lerptime", "60.00"}, --
 				for _, optimizeconvar in ipairs(optimizeconvar) do
 					local name, value = unpack(optimizeconvar)
 					LocalPlayer():ConCommand(name .. " " .. value)
@@ -328,6 +294,42 @@ if CLIENT then
 		end
 	)
 
+	-- local hands = {
+	-- {
+	-- poseName = "pose_lefthand",
+	-- overrideFunc = vrmod.SetLeftHandPose,
+	-- getFunc = vrmod.GetLeftHandPose
+	-- },
+	-- {
+	-- poseName = "pose_righthand",
+	-- overrideFunc = vrmod.SetRightHandPose,
+	-- getFunc = vrmod.GetRightHandPose,
+	-- },
+	-- }
+	-- concommand.Add("vrmod_print_righthand_pos", function(ply)
+	-- print(g_VR.tracking.pose_righthand.pos)
+	-- end)
+	-- concommand.Add("vrmod_print_righthand_pos_x", function(ply)
+	-- print(g_VR.tracking.pose_righthand.pos.x)
+	-- end)
+	-- concommand.Add("vrmod_print_righthand_pos_y", function(ply)
+	-- print(g_VR.tracking.pose_righthand.pos.y)
+	-- end)
+	-- concommand.Add("vrmod_print_righthand_pos_z", function(ply)
+	-- print(g_VR.tracking.pose_righthand.pos.z)
+	-- end)
+	-- concommand.Add("vrmod_print_righthand_ang", function(ply)
+	-- print(g_VR.tracking.pose_righthand.ang)
+	-- end)
+	-- concommand.Add("vrmod_print_righthand_ang_x", function(ply)
+	-- print(g_VR.tracking.pose_righthand.ang.x)
+	-- end)
+	-- concommand.Add("vrmod_print_righthand_ang_y", function(ply)
+	-- print(g_VR.tracking.pose_righthand.ang.y)
+	-- end)
+	-- concommand.Add("vrmod_print_righthand_ang_z", function(ply)
+	-- print(g_VR.tracking.pose_righthand.ang.z)
+	-- end)
 	hook.Add(
 		"CreateMove",
 		"vrmod_startup_loadcustomactions",
