@@ -816,6 +816,13 @@ g_VR.bindings_touch = [[
                   "output" : "/actions/main/in/boolean_chat"
                },
                {
+                 "inputs" : [
+                    [ "/user/hand/left/input/joystick", "click" ],
+                    [ "/user/hand/right/input/joystick", "click" ]
+                 ],
+                 "output" : "/actions/main/in/boolean_flashlight"
+              },
+               {
                   "inputs" : [
                      [ "/user/hand/left/input/y", "click" ],
                      [ "/user/hand/left/input/x", "click" ]
@@ -828,6 +835,21 @@ g_VR.bindings_touch = [[
                      [ "/user/hand/right/input/a", "click" ]
                   ],
                   "output" : "/actions/main/in/boolean_use"
+               },
+              {
+                 "inputs" : [
+                    [ "/user/hand/left/input/x", "single" ],
+                    [ "/user/hand/left/input/y", "single" ]
+                 ],
+                 "output" : "/actions/main/in/boolean_menucontext"
+              },
+              {
+                 "inputs" : [
+                    [ "/user/hand/left/input/trigger", "single" ],
+                    [ "/user/hand/left/input/grip", "single" ],
+                    [ "/user/hand/right/input/a", "single" ]
+                 ],
+                 "output" : "/actions/main/in/boolean_foregrip"
                }
             ],
             "sources" : [
@@ -1010,22 +1032,13 @@ g_VR.bindings_touch = [[
                {
                   "inputs" : {
                      "click" : {
-                        "output" : "/actions/main/in/boolean_reload"
+                        "output" : "/actions/main/in/boolean_use"
                      }
                   },
                   "mode" : "button",
                   "path" : "/user/hand/left/input/x"
                },
-               {
-                  "inputs" : {
-                     "click" : {
-                        "output" : "/actions/main/in/boolean_teleport"
-                     }
-                  },
-                  "mode" : "button",
-                  "path" : "/user/hand/left/input/joystick"
-               },
-               {
+                            {
                   "inputs" : {
                      "click" : {
                         "output" : "/actions/main/in/boolean_spawnmenu"
@@ -1042,21 +1055,33 @@ g_VR.bindings_touch = [[
                   },
                   "mode" : "button",
                   "path" : "/user/hand/left/input/y"
+              },
+              {
+                 "inputs" : {
+                    "center" : {
+                       "output" : "/actions/main/in/boolean_teleport"
+                    }
+                 },
+                 "mode" : "dpad",
+                 "parameters" : {
+                    "sub_mode" : "click"
+                 },
+                 "path" : "/user/hand/right/input/joystick"
                }
             ]
          }
       },
       "category" : "steamvr_input",
       "controller_type" : "oculus_touch",
-      "description" : "The initial key bindings were difficult to use, so they were rebound with reference to various VR games. Gun functions are grouped together in the right hand, and menu activation is grouped in the left hand.\nUSE A+B or X+Y",
+      "description" : "[Y] WEAPON MENU + QUICK Menu \n[X]USE\n--\n[L Stick] Move\n[L Stick PUSH] Jump\n--\n[R Stick PUSH] Sprint\n[R Stick Left Right] Turn\n[R Stick Down] Walk\n[R Stick Up] Sprint\n--\n[R Trigger] Primary Fire / Accel\n[A]RELOAD / HandBrake\n[B]SecondaryFire / Turbo\n[L Trigger] (Left_Primary_fire) / Brake\n--\n[L Grip] Lefthand Pickup\n[R Grip] Righthand Pickup\n--\n[R Stick PUSH] + [L Stick PUSH] Flashlight\n[R Stick PUSH] + [L Stick PUSH] (Chatbutton)",
       "interaction_profile" : "",
-      "name" : "GmodVR-SemiOffcial-Keybind-V5.0",
+      "name" : "Gmod-SemiOffcialVersionKeyConfig(Ver6.0)",
       "options" : {
          "simulated_controller_type" : "oculus_touch"
       },
       "simulated_actions" : []
    }
-    
+      
 ]]
 
 --##############################################################################
