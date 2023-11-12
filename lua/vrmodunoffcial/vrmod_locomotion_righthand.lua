@@ -1,6 +1,6 @@
 --******************************************************************************************************************************
-local cv_allowtp = CreateConVar("vrmod_allow_teleport", "1", FCVAR_REPLICATED)
-local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client","0",FCVAR_ARCHIVE)
+local cv_allowtp = CreateClientConVar("vrmod_allow_teleport", "1",true, FCVAR_REPLICATED)
+local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client","0",true,FCVAR_ARCHIVE)
 local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly","0",false,FCVAR_ARCHIVE)
 
 if SERVER then 

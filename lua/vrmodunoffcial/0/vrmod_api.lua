@@ -8,7 +8,7 @@ vrmod = vrmod or {}
 local convars, convarValues = {}, {}
 function vrmod.AddCallbackedConvar(cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc)
 	valueName, flags, conversionFunc = (valueName or cvarName), (flags or FCVAR_ARCHIVE), (conversionFunc or function(val) return val end)
-	local cv = CreateConVar(cvarName, defaultValue, flags, helptext, min, max)
+	local cv = CreateClientConVar(cvarName, defaultValue, true, flags, helptext, min, max)
 	convars[cvarName], convarValues[valueName] = cv, conversionFunc(cv:GetString())
 	cvars.AddChangeCallback(cvarName, function(cv_name, val_old, val_new)
 		convarValues[valueName] = conversionFunc(val_new)

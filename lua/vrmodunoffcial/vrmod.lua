@@ -831,5 +831,5 @@ if CLIENT then
 		end
 	)
 elseif SERVER then
-	CreateConVar("vrmod_version", vrmod.GetVersion(), FCVAR_NOTIFY)
+	CreateClientConVar("vrmod_version", vrmod.GetVersion(),false, FCVAR_NOTIFY)
 end
