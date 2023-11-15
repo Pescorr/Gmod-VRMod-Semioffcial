@@ -11,8 +11,8 @@ if CLIENT then
 
 
 	end)
-	
-	local function toggleNametags()
+
+			local function toggleNametags()
 		nametags = not nametags
 		if nametags then
 			hook.Add( "PostDrawOpaqueRenderables", "vrutil_hook_nametags", function( depth, sky )
@@ -194,7 +194,7 @@ if CLIENT then
 								selectedCase = (selectedCase == lowerCase) and upperCase or lowerCase
 								updateKeyboard()
 							else
-								chatPanel.msgbar:SetText(chatPanel.msgbar:GetText()..key:GetText())
+																chatPanel.msgbar:SetText(chatPanel.msgbar:GetText()..key:GetText())
 							end
 							chatPanel.msgbar:SetCaretPos(99999)
 							VRUtilMenuRenderPanel("chat")

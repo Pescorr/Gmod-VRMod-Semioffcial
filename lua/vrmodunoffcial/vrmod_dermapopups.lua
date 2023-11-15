@@ -25,21 +25,9 @@ meta.MakePopup = function(...)
 				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
 				panel.Paint = function(self, w, h)
-					surface.SetDrawColor(255, 255, 255, 114)
+					surface.SetDrawColor(255, 255, 255, 255)
 					surface.DrawRect(0, 0, w, h)
 				end
-				popupCount = popupCount + 1
-			end
-
-			if panel:GetName() == "DHTML" then
-				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
-				panel = panel:GetChildren()[1]
-				panel.Paint = function(self, w, h)
-					surface.SetDrawColor(255, 255, 255, 115)
-					surface.DrawRect(0, 0, w, h)
-				end
-
-				popupCount = popupCount + 1
 			end
 
 			if popupCount == 0 then
@@ -70,8 +58,7 @@ meta.MakePopup = function(...)
 							function()
 								if not g_VR.active and IsValid(panel) then
 									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
-									panel:RequestFocus()
-								end
+																	end
 							end
 						)
 
@@ -163,6 +150,7 @@ meta.MakePopup = function(...)
 		end
 	)
 end
+
 
 -- Render all popups every frame
 hook.Add(
