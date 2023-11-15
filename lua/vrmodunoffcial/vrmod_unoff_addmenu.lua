@@ -687,7 +687,7 @@ hook.Add(
 		net_delay:SetSize(370, 25) -- Set the size (X,Y)
 		net_delay:SetText("net_delay") -- Set the text above the slider
 		net_delay:SetMin(0.000) -- Set the minimum number you can slide to
-		net_delay:SetMax(1.000) -- Set the maximum number you can slide to
+		net_delay:SetMax(1000.000) -- Set the maximum number you can slide to
 		net_delay:SetDecimals(3) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		net_delay:SetConVar("vrmod_net_delay") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()
@@ -699,8 +699,8 @@ hook.Add(
 		net_delaymax:SetPos(20, 50) -- Set the position (X,Y)
 		net_delaymax:SetSize(370, 25) -- Set the size (X,Y)
 		net_delaymax:SetText("net_delaymax") -- Set the text above the slider
-		net_delaymax:SetMin(1.00) -- Set the minimum number you can slide to
-		net_delaymax:SetMax(100.00) -- Set the maximum number you can slide to
+		net_delaymax:SetMin(0.00) -- Set the minimum number you can slide to
+		net_delaymax:SetMax(1000.00) -- Set the maximum number you can slide to
 		net_delaymax:SetDecimals(3) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		net_delaymax:SetConVar("vrmod_net_delaymax") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()
@@ -712,8 +712,8 @@ hook.Add(
 		net_storedframes:SetPos(20, 75) -- Set the position (X,Y)
 		net_storedframes:SetSize(370, 25) -- Set the size (X,Y)
 		net_storedframes:SetText("net_storedframes") -- Set the text above the slider
-		net_storedframes:SetMin(1.00) -- Set the minimum number you can slide to
-		net_storedframes:SetMax(25.00) -- Set the maximum number you can slide to
+		net_storedframes:SetMin(0.00) -- Set the minimum number you can slide to
+		net_storedframes:SetMax(1000.00) -- Set the maximum number you can slide to
 		net_storedframes:SetDecimals(3) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		net_storedframes:SetConVar("vrmod_net_storedframes") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()
@@ -725,8 +725,8 @@ hook.Add(
 		net_tickrate:SetPos(20, 100) -- Set the position (X,Y)
 		net_tickrate:SetSize(370, 25) -- Set the size (X,Y)
 		net_tickrate:SetText("net_tickrate") -- Set the text above the slider
-		net_tickrate:SetMin(1.00) -- Set the minimum number you can slide to
-		net_tickrate:SetMax(100.00) -- Set the maximum number you can slide to
+		net_tickrate:SetMin(0.00) -- Set the minimum number you can slide to
+		net_tickrate:SetMax(1000.00) -- Set the maximum number you can slide to
 		net_tickrate:SetDecimals(3) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		net_tickrate:SetConVar("vrmod_net_tickrate") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()

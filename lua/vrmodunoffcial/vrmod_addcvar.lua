@@ -3,17 +3,38 @@ if CLIENT then
 	local drivingmode = 0
 	local bothmode = 0
 	local ply = LocalPlayer()
-	
-	concommand.Add(
-		"vrmod_vgui_reset",
-		function()
-			for _, v in pairs(vgui.GetWorldPanel():GetChildren()) do
-				v:Remove()
-			end
+	-- concommand.Add(
+	-- 	"vrmod_vgui_reset",
+	-- 	function()
+	-- 		for _, v in pairs(vgui.GetWorldPanel():GetChildren()) do
+	-- 			local vvvtitle = vgui.GetWorldPanel():GetChildren():GetCaretPos()
+	-- 			print(vvvtitle)
+	-- 		end
 
-			RunConsoleCommand("spawnmenu_reload") -- It even removes spawnmenu, so we need to reload it
-		end
-	)
+	-- 		RunConsoleCommand("spawnmenu_reload") -- It even removes spawnmenu, so we need to reload it
+	-- 	end
+	-- )
+
+	-- -- RunConsoleCommand("spawnmenu_reload") -- It even removes spawnmenu, so we need to reload it
+	-- -- ConVarを作成
+	-- CreateClientConVar("vgui_nameprinter", "0", false, FCVAR_ARCHIVE, "Prints names of open VGUI elements")
+	-- -- ConCommandを作成し、ConVarがアクティブ化されたときに機能するようにする
+	-- concommand.Add(
+	-- 	"vgui_nameprinter_acti",
+	-- 	function()
+	-- 		local convarValue = GetConVar("vgui_nameprinter"):GetInt()
+	-- 		if convarValue ~= 0 then
+	-- 			-- VGUI要素のリストを取得
+	-- 			local vguiElements = vgui.GetWorldPanel():GetChildren()
+	-- 			-- 各VGUI要素の名前とクラスを出力
+	-- 			for _, element in ipairs(vguiElements) do
+	-- 				local name = element:GetName()
+	-- 				local class = element:GetClassName()
+	-- 				print("VGUI Element Name: " .. name .. ", Class: " .. class)
+	-- 			end
+	-- 		end
+	-- 	end
+	-- )
 
 	concommand.Add(
 		"vrmod_keymode_restore",

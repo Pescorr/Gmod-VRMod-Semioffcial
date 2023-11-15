@@ -418,11 +418,11 @@ if CLIENT then
 			--"自分以外のVRModユーザー行うように変更"
 			if eyes and eyes.Pos.z > 10 then
 				characterInfo[steamid].characterEyeHeight = eyes.Pos.z
-				characterInfo[steamid].characterHeadToHmdDist = (eyes.Pos.z / 5 - 6.3)
+				characterInfo[steamid].characterHeadToHmdDist = 2
 			else
 				headPos = headPos - cm:GetPos()
 				characterInfo[steamid].characterEyeHeight = headPos.z
-				characterInfo[steamid].characterHeadToHmdDist = (headPos.z / 5 - 6.3)
+				characterInfo[steamid].characterHeadToHmdDist = 2
 			end
 
 			characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
