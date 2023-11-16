@@ -136,7 +136,7 @@ if CLIENT then
 	g_VR.net = {
 	--[[
 	
-		"steamid" = {
+		"SteamID64" = {
 			
 			frames = {
 				1 = {
@@ -306,7 +306,7 @@ if CLIENT then
 		local lerpDelay = convarValues.vrmod_net_delay
 		local lerpDelayMax = convarValues.vrmod_net_delaymax
 		for k,v in pairs(g_VR.net) do
-			local ply = player.GetBySteamID(k)
+			local ply = player.GetBySteamID64(k)
 			if #v.frames < 2 or not ply then --len check discards the localplayer, ply might be invalid for a few frames before exit msg upon disconnect
 				continue
 			end
@@ -383,7 +383,7 @@ if CLIENT then
 	end
 	
 	function VRUtilNetUpdateLocalPly()
-		local tab = g_VR.net[LocalPlayer():SteamID()]
+		local tab = g_VR.net[LocalPlayer():SteamID64()]
 		if g_VR.threePoints and tab then
 			tab.lerpedFrame = buildClientFrame()
 			return tab.lerpedFrame
@@ -399,7 +399,7 @@ if CLIENT then
 	net.Receive("vrutil_net_tick",function(len)
 		local ply = net.ReadEntity()
 		if not IsValid(ply) then return end
-		local tab = g_VR.net[ply:SteamID()]
+		local tab = g_VR.net[ply:SteamID64()]
 		if not tab then return end
 		tab.debugTickCount = tab.debugTickCount+1
 		local frame = netReadFrame()
@@ -419,7 +419,7 @@ if CLIENT then
 	net.Receive("vrutil_net_join",function(len)
 		local ply = net.ReadEntity()
 		if not IsValid(ply) then return end --todo fix this properly lol
-		g_VR.net[ply:SteamID()] = {
+		g_VR.net[ply:SteamID64()] = {
 			characterAltHead = net.ReadBool(),
 			dontHideBullets = net.ReadBool(),
 			frames = {},
@@ -437,12 +437,12 @@ if CLIENT then
 	local swepOriginalFovs = {}
 	
 	net.Receive("vrutil_net_exit",function(len)
-		local steamid = net.ReadString()
+		local SteamID64 = net.ReadString()
 		if game.SinglePlayer() then
-			steamid = LocalPlayer():SteamID()
+			SteamID64 = LocalPlayer():SteamID64()
 		end
-		local ply = player.GetBySteamID(steamid)
-		g_VR.net[steamid] = nil
+		local ply = player.GetBySteamID64(SteamID64)
+		g_VR.net[SteamID64] = nil
 		if table.Count(g_VR.net) == 0 then
 			hook.Remove("PreRender","vrutil_hook_netlerp")
 		end
@@ -455,7 +455,7 @@ if CLIENT then
 			end
 			swepOriginalFovs = {}
 		end
-		hook.Run( "VRMod_Exit", ply, steamid )
+		hook.Run( "VRMod_Exit", ply, SteamID64 )
 	end)
 	
 	net.Receive("vrutil_net_switchweapon",function(len)
@@ -571,12 +571,12 @@ elseif SERVER then
 	
 	vrmod.NetReceiveLimited("vrutil_net_tick", convarValues.vrmod_net_tickrate + 5,1200,function(len, ply)
 		--print("sv received net_tick, len: "..len)
-		if g_VR[ply:SteamID()] == nil then
+		if g_VR[ply:SteamID64()] == nil then
 			return
 		end
 		local viewHackPos = net.ReadVector()
 		local frame = netReadFrame()
-		g_VR[ply:SteamID()].latestFrame = frame
+		g_VR[ply:SteamID64()].latestFrame = frame
 		if not viewHackPos:IsZero() and util.IsInWorld(viewHackPos) then
 			ply.viewOffset = viewHackPos-ply:EyePos()+ply.viewOffset
 			ply:SetCurrentViewOffset(ply.viewOffset)
@@ -593,14 +593,14 @@ elseif SERVER then
 	end)
 	
 	vrmod.NetReceiveLimited("vrutil_net_join",5,2,function(len, ply)
-		if g_VR[ply:SteamID()] ~= nil then 
+		if g_VR[ply:SteamID64()] ~= nil then 
 			return 
 		end
 		ply:DrawShadow(false)
 		ply.originalViewOffset = ply:GetViewOffset()
 		ply.viewOffset = Vector(0,0,0)
 		--add gt entry
-		g_VR[ply:SteamID()] = {
+		g_VR[ply:SteamID64()] = {
 			--store join values so we can re-send joins to players that connect later
 			characterAltHead = net.ReadBool(),
 			dontHideBullets = net.ReadBool(),
@@ -618,24 +618,24 @@ elseif SERVER then
 		end
 		net.Start("vrutil_net_join")
 		net.WriteEntity(ply)
-		net.WriteBool(g_VR[ply:SteamID()].characterAltHead)
-		net.WriteBool(g_VR[ply:SteamID()].dontHideBullets)
+		net.WriteBool(g_VR[ply:SteamID64()].characterAltHead)
+		net.WriteBool(g_VR[ply:SteamID64()].dontHideBullets)
 		net.SendOmit( omittedPlayers )
 		
 		hook.Run( "VRMod_Start", ply )
 	end)
 	
-	local function net_exit(steamid)
-		if g_VR[steamid] ~= nil then
-			g_VR[steamid] = nil
-			local ply = player.GetBySteamID(steamid)
+	local function net_exit(SteamID64)
+		if g_VR[SteamID64] ~= nil then
+			g_VR[SteamID64] = nil
+			local ply = player.GetBySteamID64(SteamID64)
 			ply:SetCurrentViewOffset(ply.originalViewOffset)
 			ply:SetViewOffset(ply.originalViewOffset)
 			-- ply:StripWeapon("weapon_vrmod_empty")
 			
 			--relay exit message to everyone
 			net.Start("vrutil_net_exit")
-			net.WriteString(steamid)
+			net.WriteString(SteamID64)
 			net.Broadcast()
 			
 			hook.Run( "VRMod_Exit", ply )
@@ -643,17 +643,17 @@ elseif SERVER then
 	end
 	
 	vrmod.NetReceiveLimited("vrutil_net_exit",5,0,function(len, ply)
-		net_exit(ply:SteamID())
+		net_exit(ply:SteamID64())
 	end)
 	
 	hook.Add("PlayerDisconnected","vrutil_hook_playerdisconnected",function(ply)
-		net_exit(ply:SteamID())
+		net_exit(ply:SteamID64())
 	end)
 	
 	vrmod.NetReceiveLimited("vrutil_net_requestvrplayers",5,0,function(len, ply)
 		ply.hasRequestedVRPlayers = true
 		for k,v in pairs(g_VR) do
-			local vrPly = player.GetBySteamID(k)
+			local vrPly = player.GetBySteamID64(k)
 			if IsValid(vrPly) then
 				net.Start("vrutil_net_join")
 				net.WriteEntity(vrPly)
@@ -661,33 +661,33 @@ elseif SERVER then
 				net.WriteBool(g_VR[k].dontHideBullets)
 				net.Send(ply)
 			else
-				print("VRMod: Invalid SteamID \""..k.."\" found in player table")
+				print("VRMod: Invalid SteamID64 \""..k.."\" found in player table")
 			end
 		end
 	end)
 	
 	hook.Add("PlayerDeath","vrutil_hook_playerdeath",function(ply, inflictor, attacker)
-		if g_VR[ply:SteamID()] ~= nil then
+		if g_VR[ply:SteamID64()] ~= nil then
 			net.Start("vrutil_net_exit")
-			net.WriteString(ply:SteamID())
+			net.WriteString(ply:SteamID64())
 			net.Broadcast()
 		end
 	end)
 	
 	hook.Add("PlayerSpawn","vrutil_hook_playerspawn",function(ply)
-				if g_VR[ply:SteamID()] ~= nil then
+				if g_VR[ply:SteamID64()] ~= nil then
 			ply:Give("weapon_vrmod_empty")
 
 			net.Start("vrutil_net_join")
 			net.WriteEntity(ply)
-			net.WriteBool(g_VR[ply:SteamID()].characterAltHead)
-			net.WriteBool(g_VR[ply:SteamID()].dontHideBullets)
+			net.WriteBool(g_VR[ply:SteamID64()].characterAltHead)
+			net.WriteBool(g_VR[ply:SteamID64()].dontHideBullets)
 			net.Broadcast()
 		end
 	end)
 	
 	hook.Add("PlayerSwitchWeapon","vrutil_hook_playerswitchweapon",function(ply, old, new)
-		if g_VR[ply:SteamID()] ~= nil then
+		if g_VR[ply:SteamID64()] ~= nil then
 			net.Start("vrutil_net_switchweapon")
 			if IsValid(new) then
 				net.WriteString(new:GetClass())
@@ -704,7 +704,7 @@ elseif SERVER then
 	end)
 	
 	hook.Add("PlayerEnteredVehicle","vrutil_hook_playerenteredvehicle",function(ply, veh)
-				if g_VR[ply:SteamID()] ~= nil then
+				if g_VR[ply:SteamID64()] ~= nil then
 			ply:SelectWeapon("weapon_vrmod_empty")
 			ply:SetActiveWeapon(ply:GetWeapon("weapon_vrmod_empty"))
 			net.Start("vrutil_net_entervehicle")
@@ -714,7 +714,7 @@ elseif SERVER then
 	end)
 	
 	hook.Add("PlayerLeaveVehicle","vrutil_hook_playerleavevehicle",function(ply, veh)
-		if g_VR[ply:SteamID()] ~= nil then
+		if g_VR[ply:SteamID64()] ~= nil then
 			net.Start("vrutil_net_exitvehicle")
 			net.Send(ply)
 		end

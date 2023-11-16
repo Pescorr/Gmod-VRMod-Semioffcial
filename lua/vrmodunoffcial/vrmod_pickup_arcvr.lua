@@ -20,16 +20,16 @@ local function init()
 				local leftHand = net.ReadBool()
 				local localPos = net.ReadVector()
 				local localAng = net.ReadAngle()
-				local steamid = ply:SteamID()
-				if g_VR.net[steamid] == nil then return end
+				local SteamID64 = ply:SteamID64()
+				if g_VR.net[SteamID64] == nil then return end
 				--
 				ent.RenderOverride = function()
-					if g_VR.net[steamid] == nil then return end
+					if g_VR.net[SteamID64] == nil then return end
 					local wpos, wang
 					if leftHand then
-						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[steamid].lerpedFrame.lefthandPos, g_VR.net[steamid].lerpedFrame.lefthandAng)
+						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID64].lerpedFrame.lefthandPos, g_VR.net[SteamID64].lerpedFrame.lefthandAng)
 					else
-						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[steamid].lerpedFrame.righthandPos, g_VR.net[steamid].lerpedFrame.righthandAng)
+						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID64].lerpedFrame.righthandPos, g_VR.net[SteamID64].lerpedFrame.righthandAng)
 					end
 
 					ent:SetPos(wpos)
@@ -89,7 +89,7 @@ local function init()
 		util.AddNetworkString("vrutil_net_pickup")
 		util.AddNetworkString("vrutil_net_drop")
 		local function drop(ply, leftHand, handPos, handAng)
-			for k, v in pairs(g_VR[ply:SteamID()].heldItems) do
+			for k, v in pairs(g_VR[ply:SteamID64()].heldItems) do
 				if v.left == leftHand then
 					if IsValid(v.ent) and IsValid(v.ent:GetPhysicsObject()) and v.ent:GetPhysicsObject():IsMoveable() then
 						local vel = v.ent:GetVelocity()
@@ -112,7 +112,7 @@ local function init()
 					net.WriteEntity(v.ent)
 					net.Broadcast()
 					hook.Call("VRMod_Drop", nil, ply, v.ent)
-					table.remove(g_VR[ply:SteamID()].heldItems, k)
+					table.remove(g_VR[ply:SteamID64()].heldItems, k)
 				end
 			end
 		end
@@ -130,7 +130,7 @@ local function init()
 					function()
 						local updates = false
 						for k2, v2 in pairs(g_VR) do
-							local ply = player.GetBySteamID(k2)
+							local ply = player.GetBySteamID64(k2)
 							if not IsValid(ply) then continue end
 							local frame = v2.latestFrame
 							for k, v in pairs(v2.heldItems) do
@@ -175,7 +175,7 @@ local function init()
 			"VRMod_Start",
 			"arc_pickup_compat",
 			function(ply)
-				g_VR[ply:SteamID()].heldItems = {}
+				g_VR[ply:SteamID64()].heldItems = {}
 			end
 		)
 	end
