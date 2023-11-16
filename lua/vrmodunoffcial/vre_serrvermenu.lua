@@ -466,7 +466,7 @@ if not !GetConVar("arcticvr_gunmelee_client") then
 end
 
 	concommand.Add( "vre_svmenu", function( ply, cmd, args )
-		if g_VR.net[ply:SteamID64()] then
+		if g_VR.net[ply:SteamID()] then
 			VREMenuClose()
 			vre_svmenuToggle()
 		end

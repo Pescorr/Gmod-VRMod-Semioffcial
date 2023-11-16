@@ -37,7 +37,7 @@ if CLIENT then
 		for i = 0, ply:GetFlexNum()-1 do
 			ply:SetFlexWeight(i,0)
 		end
-		flexSetups[ply:SteamID64()] = ply.vrmod_flexsetup
+		flexSetups[ply:SteamID()] = ply.vrmod_flexsetup
 		hook.Add("UpdateAnimation","vrmod_sranipal",function(ply)
 			local setup = ply.vrmod_flexsetup
 			if setup then
@@ -467,9 +467,9 @@ if CLIENT then
 	
 	end)
 
-	hook.Add("VRMod_Exit","sranipal",function(ply,SteamID)
+	hook.Add("VRMod_Exit","sranipal",function(ply,steamid)
 		ply.vrmod_flexsetup = nil
-		flexSetups[SteamID] = nil
+		flexSetups[steamid] = nil
 		local found = false
 		for k,v in pairs(flexSetups) do
 			found = found or v.lip

@@ -41,7 +41,7 @@ if CLIENT then
 		end
 	end)
 	
-	hook.Add("VRMod_Exit","flashlight",function(ply, SteamID)
+	hook.Add("VRMod_Exit","flashlight",function(ply, steamid)
 		if ply == LocalPlayer() and flashlight then
 			hook.Remove("VRMod_PreRender","flashlight")
 			flashlight:Remove()
@@ -55,7 +55,7 @@ elseif SERVER then
 	local skip = false
 	hook.Add("PlayerSwitchFlashlight","vrmod_flashlight",function(ply, enabled)
 		if skip then return end
-		if g_VR[ply:SteamID64()] then
+		if g_VR[ply:SteamID()] then
 			skip = true
 			local res = hook.Run("PlayerSwitchFlashlight",ply,enabled)
 			skip = false

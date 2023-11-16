@@ -6,9 +6,9 @@ if SERVER then
 	
 	net.Receive( "vrmod_fbt_cal", function( len, ply )
 		local requestedPly = net.ReadBool() and net.ReadEntity() or nil
-		local SteamID = requestedPly and requestedply:SteamID64() or ply:SteamID64()
-		local cd = caldata[SteamID] or {}
-		caldata[SteamID] = cd
+		local steamid = requestedPly and requestedPly:SteamID() or ply:SteamID()
+		local cd = caldata[steamid] or {}
+		caldata[steamid] = cd
 		if not requestedPly then
 			for i = 0,3 do
 				cd[i*2+1] = net.ReadVector()
@@ -52,9 +52,9 @@ local zeroVec, zeroAng = Vector(), Angle()
 
 
 local function Init( ply )
-	local SteamID = ply:SteamID64()
-	local info = characterInfo[SteamID] or {}
-	characterInfo[SteamID] = info
+	local steamid = ply:SteamID()
+	local info = characterInfo[steamid] or {}
+	characterInfo[steamid] = info
 	local pmname = ply.vrmod_pm or ply:GetModel()
 	if info.modelName == pmname then return end
 	
@@ -130,7 +130,7 @@ local function Init( ply )
 		if v == -1 and k ~= "leftWrist" and k ~= "rightWrist" and k ~= "leftUlna" and k ~= "rightUlna" then
 			g_VR.errorText = (ply == LocalPlayer()) and "Missing bone: "..k or g_VR.errorText
 			tmpPlayerModel:Remove()
-			characterInfo[SteamID] = nil
+			characterInfo[steamid] = nil
 			print("VRMod: FBT Init failed")
 			return false
 		end
@@ -223,9 +223,9 @@ local function GetSpineBend( tab, val )
 end
 
 local function CalculateBonePositions( ply )
-	local SteamID = ply:SteamID64()
-	local info = characterInfo[SteamID]
-	local frame = g_VR.net[SteamID].lerpedFrame
+	local steamid = ply:SteamID()
+	local info = characterInfo[steamid]
+	local frame = g_VR.net[steamid].lerpedFrame
 	if info.frameNumber == FrameNumber() or not frame then return end
 	info.frameNumber = FrameNumber()
 	
@@ -276,7 +276,7 @@ local function CalculateBonePositions( ply )
 	_,boneinfo[boneids.head].overrideAng = LocalToWorld( zeroVec, Angle(-80,0,90), zeroVec, headTargetAng )
 		
 	--set finger offset angles
-	local frame = g_VR.net[SteamID].lerpedFrame
+	local frame = g_VR.net[steamid].lerpedFrame
 	for k,v in pairs(fingerboneids) do
 		if not boneinfo[v] then continue end
 		boneinfo[v].offsetAng = LerpAngle(frame["finger"..math.floor((k-1)/3+1)], g_VR.openHandAngles[k], g_VR.closedHandAngles[k])
@@ -471,7 +471,7 @@ local function Calibrate()
 	hook.Add("VRMod_Input","fbt_test_input",function( action, pressed )
 		if action == "boolean_reload" and pressed then
 			if Init( ply ) == false then return end
-			local boneids = characterInfo[ply:SteamID64()].boneids
+			local boneids = characterInfo[ply:SteamID()].boneids
 			calibrationModel:SetupBones()
 			net.Start( "vrmod_fbt_cal" )
 			net.WriteBool(false)
@@ -510,11 +510,11 @@ local function Calibrate()
 end
 
 local function Start( ply )
-	if not g_VR.net[ply:SteamID64()] or Init( ply ) == false then return end
+	if not g_VR.net[ply:SteamID()] or Init( ply ) == false then return end
 	for k,v in pairs(ply:GetCallbacks("BuildBonePositions")) do
 		ply:RemoveCallback("BuildBonePositions", k)
 	end
-	local info = characterInfo[ply:SteamID64()]
+	local info = characterInfo[ply:SteamID()]
 	if not info.headCalibrationPos then
 		print("VRMod: Attempt to start FBT without calibration data, requesting...")
 		net.Start( "vrmod_fbt_cal" )
@@ -544,7 +544,7 @@ end
 
 local function Stop( ply )
 	if not ply then return end
-	local info = characterInfo[ply:SteamID64()]
+	local info = characterInfo[ply:SteamID()]
 	if not info then return end
 	for k,v in pairs(ply:GetCallbacks("BuildBonePositions")) do
 		ply:RemoveCallback("BuildBonePositions", k)
@@ -567,14 +567,14 @@ end)
 
 net.Receive( "vrmod_fbt_cal", function()
 	local ply = net.ReadEntity()
-	local SteamID = ply:SteamID64()
-	local info = characterInfo[SteamID] or {}
-	characterInfo[SteamID] = info
+	local steamid = ply:SteamID()
+	local info = characterInfo[steamid] or {}
+	characterInfo[steamid] = info
 	info.headCalibrationPos, info.headCalibrationAng = net.ReadVector(), net.ReadAngle()
 	info.waistCalibrationPos, info.waistCalibrationAng = net.ReadVector(), net.ReadAngle()
 	info.leftFootCalibrationPos, info.leftFootCalibrationAng = net.ReadVector(), net.ReadAngle()
 	info.rightFootCalibrationPos, info.rightFootCalibrationAng = net.ReadVector(), net.ReadAngle()
-	g_VR.StopCharacterSystem( SteamID )
+	g_VR.StopCharacterSystem( steamid )
 	Start( ply )
 end)
 	
@@ -582,7 +582,7 @@ net.Receive( "vrmod_fbt_toggle", function()
 	local ply = net.ReadEntity()
 	if not IsValid(ply) then return end
 	if net.ReadBool() then
-		g_VR.StopCharacterSystem( ply:SteamID64() )
+		g_VR.StopCharacterSystem( ply:SteamID() )
 		Start( ply )
 	else
 		Stop( ply )
@@ -594,7 +594,7 @@ end)
 	
 --end)
 
-hook.Add("VRMod_Exit","vrmod_fbtstop",function(ply, SteamID)
+hook.Add("VRMod_Exit","vrmod_fbtstop",function(ply, steamid)
 	Stop( ply )
 	if ply == LocalPlayer() then
 		hook.Remove("VRMod_Input","fbt_walk")

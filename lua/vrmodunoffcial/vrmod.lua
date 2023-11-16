@@ -825,7 +825,7 @@ if CLIENT then
 		"ShutDown",
 		"vrutil_hook_shutdown",
 		function()
-			if IsValid(LocalPlayer()) and g_VR.net[LocalPlayer():SteamID64()] then
+			if IsValid(LocalPlayer()) and g_VR.net[LocalPlayer():SteamID()] then
 				VRUtilClientExit()
 			end
 		end

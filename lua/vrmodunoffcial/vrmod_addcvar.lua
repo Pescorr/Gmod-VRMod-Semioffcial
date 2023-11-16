@@ -3,38 +3,17 @@ if CLIENT then
 	local drivingmode = 0
 	local bothmode = 0
 	local ply = LocalPlayer()
-	-- concommand.Add(
-	-- 	"vrmod_vgui_reset",
-	-- 	function()
-	-- 		for _, v in pairs(vgui.GetWorldPanel():GetChildren()) do
-	-- 			local vvvtitle = vgui.GetWorldPanel():GetChildren():GetCaretPos()
-	-- 			print(vvvtitle)
-	-- 		end
+	
+	concommand.Add(
+		"vrmod_vgui_reset",
+		function()
+			for _, v in pairs(vgui.GetWorldPanel():GetChildren()) do
+				v:Remove()
+			end
 
-	-- 		RunConsoleCommand("spawnmenu_reload") -- It even removes spawnmenu, so we need to reload it
-	-- 	end
-	-- )
-
-	-- -- RunConsoleCommand("spawnmenu_reload") -- It even removes spawnmenu, so we need to reload it
-	-- -- ConVarを作成
-	-- CreateClientConVar("vgui_nameprinter", "0", false, FCVAR_ARCHIVE, "Prints names of open VGUI elements")
-	-- -- ConCommandを作成し、ConVarがアクティブ化されたときに機能するようにする
-	-- concommand.Add(
-	-- 	"vgui_nameprinter_acti",
-	-- 	function()
-	-- 		local convarValue = GetConVar("vgui_nameprinter"):GetInt()
-	-- 		if convarValue ~= 0 then
-	-- 			-- VGUI要素のリストを取得
-	-- 			local vguiElements = vgui.GetWorldPanel():GetChildren()
-	-- 			-- 各VGUI要素の名前とクラスを出力
-	-- 			for _, element in ipairs(vguiElements) do
-	-- 				local name = element:GetName()
-	-- 				local class = element:GetClassName()
-	-- 				print("VGUI Element Name: " .. name .. ", Class: " .. class)
-	-- 			end
-	-- 		end
-	-- 	end
-	-- )
+			RunConsoleCommand("spawnmenu_reload") -- It even removes spawnmenu, so we need to reload it
+		end
+	)
 
 	concommand.Add(
 		"vrmod_keymode_restore",
@@ -116,7 +95,7 @@ if CLIENT then
 		"vrmod_character_stop",
 		function(ply, cmd, args)
 			if not IsValid(ply) then return end
-			g_VR.StopCharacterSystem(ply:SteamID64())
+			g_VR.StopCharacterSystem(ply:SteamID())
 		end
 	)
 
@@ -268,16 +247,16 @@ if CLIENT then
 	concommand.Add(
 		"vrmod_character_auto",
 		function(ply, cmd, args)
-			local SteamID = ply:SteamID64()
+			local steamid = ply:SteamID()
 			local eyes = ply:GetAttachment(ply:LookupAttachment("eyes"))
 			local feet = ply:GetPos()
 			if eyes then
 				local eyeHeight = eyes.Pos.z - feet.z
 				local crouchHeight = eyeHeight / 2
-				print("Eye height for " .. SteamID .. " is: " .. eyeHeight)
+				print("Eye height for " .. steamid .. " is: " .. eyeHeight)
 				-- Store the eye height for later use
 				characterInfo = characterInfo or {}
-				characterInfo[SteamID] = characterInfo[SteamID] or {}
+				characterInfo[steamid] = characterInfo[steamid] or {}
 				local eyeconvar = GetConVar("vrmod_characterEyeHeight")
 				eyeconvar:SetFloat(eyeHeight + 3)
 				local crouchconvar = GetConVar("vrmod_crouchthreshold")

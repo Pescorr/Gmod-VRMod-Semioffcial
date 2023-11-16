@@ -471,7 +471,7 @@ end
 concommand.Add(
 	"vre_addvrmenu",
 	function(ply, cmd, args)
-		if g_VR.net[ply:SteamID64()] then
+		if g_VR.net[ply:SteamID()] then
 			VREMenuClose()
 			VREaddvrmenuToggle()
 		end
