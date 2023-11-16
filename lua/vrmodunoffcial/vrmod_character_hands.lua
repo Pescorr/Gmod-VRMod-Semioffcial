@@ -14,7 +14,7 @@ hook.Add("VRMod_Start","vrmod_starthandsonly",function(ply)
 	end)
 	
 	local zeroVec, zeroAng = Vector(), Angle()
-	local steamid = LocalPlayer():SteamID()
+	local SteamID64 = LocalPlayer():SteamID64()
 	
 	hands = ClientsideModel(GetConVar("vrmod_floatinghands_model"):GetString())
 	hands:SetupBones()
@@ -65,7 +65,7 @@ hook.Add("VRMod_Start","vrmod_starthandsonly",function(ply)
 				end)
 				return
 			end
-			local netFrame = g_VR.net[steamid] and g_VR.net[steamid].lerpedFrame
+			local netFrame = g_VR.net[SteamID64] and g_VR.net[SteamID64].lerpedFrame
 			if netFrame then
 				boneinfo[leftHand].overridePos, boneinfo[leftHand].overrideAng = netFrame.lefthandPos, netFrame.lefthandAng
 				boneinfo[rightHand].overridePos, boneinfo[rightHand].overrideAng = netFrame.righthandPos, netFrame.righthandAng + Angle(0,0,180)
@@ -99,7 +99,7 @@ hook.Add("VRMod_Start","vrmod_starthandsonly",function(ply)
 	
 end)
 
-hook.Add("VRMod_Exit","vrmod_stophandsonly",function(ply, steamid)
+hook.Add("VRMod_Exit","vrmod_stophandsonly",function(ply, SteamID64)
 	if IsValid(hands) then
 		hands:Remove()
 		LocalPlayer().RenderOverride = nil

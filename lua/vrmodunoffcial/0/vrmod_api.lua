@@ -63,7 +63,7 @@ if CLIENT then
 	end
 	
 	function vrmod.IsPlayerInVR( ply )
-		return g_VR.net[ply and ply:SteamID() or LocalPlayer():SteamID()] ~= nil
+		return g_VR.net[ply and ply:SteamID64() or LocalPlayer():SteamID64()] ~= nil
 	end
 	
 	function vrmod.UsingEmptyHands( ply )
@@ -72,17 +72,17 @@ if CLIENT then
 	end
 	
 	function vrmod.GetHMDPos( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		return t and t.lerpedFrame and t.lerpedFrame.hmdPos or Vector()
 	end
 	
 	function vrmod.GetHMDAng( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		return t and t.lerpedFrame and t.lerpedFrame.hmdAng or Angle()
 	end
 	
 	function vrmod.GetHMDPose( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		if t and t.lerpedFrame then
 			return t.lerpedFrame.hmdPos, t.lerpedFrame.hmdAng
 		end
@@ -105,17 +105,17 @@ if CLIENT then
 	end
 	
 	function vrmod.GetLeftHandPos( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		return t and t.lerpedFrame and t.lerpedFrame.lefthandPos or Vector()
 	end
 	
 	function vrmod.GetLeftHandAng( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		return t and t.lerpedFrame and t.lerpedFrame.lefthandAng or Angle()
 	end
 	
 	function vrmod.GetLeftHandPose( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		if t and t.lerpedFrame then
 			return t.lerpedFrame.lefthandPos, t.lerpedFrame.lefthandAng
 		end
@@ -138,17 +138,17 @@ if CLIENT then
 	end
 	
 	function vrmod.GetRightHandPos( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		return t and t.lerpedFrame and t.lerpedFrame.righthandPos or Vector()
 	end
 	
 	function vrmod.GetRightHandAng( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		return t and t.lerpedFrame and t.lerpedFrame.righthandAng or Angle()
 	end
 	
 	function vrmod.GetRightHandPose( ply )
-		local t = ply and g_VR.net[ply:SteamID()] or g_VR.net[LocalPlayer():SteamID()]
+		local t = ply and g_VR.net[ply:SteamID64()] or g_VR.net[LocalPlayer():SteamID64()]
 		if t and t.lerpedFrame then
 			return t.lerpedFrame.righthandPos, t.lerpedFrame.righthandAng
 		end
@@ -171,14 +171,14 @@ if CLIENT then
 	end
 	
 	function vrmod.SetLeftHandPose( pos, ang )
-		local t = g_VR.net[LocalPlayer():SteamID()]
+		local t = g_VR.net[LocalPlayer():SteamID64()]
 		if t and t.lerpedFrame then
 			t.lerpedFrame.lefthandPos, t.lerpedFrame.lefthandAng = pos, ang
 		end
 	end
 	
 	function vrmod.SetRightHandPose( pos, ang )
-		local t = g_VR.net[LocalPlayer():SteamID()]
+		local t = g_VR.net[LocalPlayer():SteamID64()]
 		if t and t.lerpedFrame then
 			t.lerpedFrame.righthandPos, t.lerpedFrame.righthandAng = pos, ang
 		end
@@ -540,7 +540,7 @@ elseif SERVER then
 				t.count, t.time = 1, SysTime()
 			end
 			if t.count > maxCountPerSec or len > maxLen then
-				--print("VRMod: netmsg limit exceeded by "..ply:SteamID().." | "..msgName.." | "..t.count.."/"..maxCountPerSec.." msgs/sec | "..len.."/"..maxLen.." bits")
+				--print("VRMod: netmsg limit exceeded by "..ply:SteamID64().." | "..msgName.." | "..t.count.."/"..maxCountPerSec.." msgs/sec | "..len.."/"..maxLen.." bits")
 				return
 			end
 			callback(len,ply)
@@ -548,7 +548,7 @@ elseif SERVER then
 	end
 
 	function vrmod.IsPlayerInVR( ply )
-		return g_VR[ply:SteamID()] ~= nil
+		return g_VR[ply:SteamID64()] ~= nil
 	end
 	
 	function vrmod.UsingEmptyHands( ply )
@@ -570,21 +570,21 @@ elseif SERVER then
 	end
 	
 	function vrmod.GetHMDPos( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then return Vector() end
 		UpdateWorldPoses( ply, playerTable )
 		return playerTable.latestFrameWorld.hmdPos
 	end
 	
 	function vrmod.GetHMDAng( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then return Angle() end
 		UpdateWorldPoses( ply, playerTable )
 		return playerTable.latestFrameWorld.hmdAng
 	end
 	
 	function vrmod.GetHMDPose( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then
 			return Vector(), Angle()
 		end
@@ -593,21 +593,21 @@ elseif SERVER then
 	end
 	
 	function vrmod.GetLeftHandPos( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then return Vector() end
 		UpdateWorldPoses( ply, playerTable )
 		return playerTable.latestFrameWorld.lefthandPos
 	end
 	
 	function vrmod.GetLeftHandAng( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then return Angle() end
 		UpdateWorldPoses( ply, playerTable )
 		return playerTable.latestFrameWorld.lefthandAng
 	end
 	
 	function vrmod.GetLeftHandPose( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then
 			return Vector(), Angle()
 		end
@@ -616,21 +616,21 @@ elseif SERVER then
 	end
 	
 	function vrmod.GetRightHandPos( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then return Vector() end
 		UpdateWorldPoses( ply, playerTable )
 		return playerTable.latestFrameWorld.righthandPos
 	end
 	
 	function vrmod.GetRightHandAng( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then return Angle() end
 		UpdateWorldPoses( ply, playerTable )
 		return playerTable.latestFrameWorld.righthandAng
 	end
 	
 	function vrmod.GetRightHandPose( ply )
-		local playerTable = g_VR[ply:SteamID()]
+		local playerTable = g_VR[ply:SteamID64()]
 		if not (playerTable and playerTable.latestFrame) then
 			return Vector(), Angle()
 		end

@@ -98,7 +98,7 @@ function VREgb_radialOpen()
 	
 end
 concommand.Add( "vre_gb-radial", function( ply, cmd, args )
-    if g_VR.net[ply:SteamID()] then
+    if g_VR.net[ply:SteamID64()] then
         VREgb_radialToggle()
     end
 end)

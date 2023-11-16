@@ -116,7 +116,7 @@ if CLIENT then
 		"vrmod_character_stop",
 		function(ply, cmd, args)
 			if not IsValid(ply) then return end
-			g_VR.StopCharacterSystem(ply:SteamID())
+			g_VR.StopCharacterSystem(ply:SteamID64())
 		end
 	)
 
@@ -268,16 +268,16 @@ if CLIENT then
 	concommand.Add(
 		"vrmod_character_auto",
 		function(ply, cmd, args)
-			local steamid = ply:SteamID()
+			local SteamID64 = ply:SteamID64()
 			local eyes = ply:GetAttachment(ply:LookupAttachment("eyes"))
 			local feet = ply:GetPos()
 			if eyes then
 				local eyeHeight = eyes.Pos.z - feet.z
 				local crouchHeight = eyeHeight / 2
-				print("Eye height for " .. steamid .. " is: " .. eyeHeight)
+				print("Eye height for " .. SteamID64 .. " is: " .. eyeHeight)
 				-- Store the eye height for later use
 				characterInfo = characterInfo or {}
-				characterInfo[steamid] = characterInfo[steamid] or {}
+				characterInfo[SteamID64] = characterInfo[SteamID64] or {}
 				local eyeconvar = GetConVar("vrmod_characterEyeHeight")
 				eyeconvar:SetFloat(eyeHeight + 3)
 				local crouchconvar = GetConVar("vrmod_crouchthreshold")
