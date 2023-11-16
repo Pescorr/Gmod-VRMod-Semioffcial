@@ -6,7 +6,7 @@ local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly","0",fal
 if SERVER then 
 	util.AddNetworkString("vrmod_teleport")
 	vrmod.NetReceiveLimited("vrmod_teleport",10,200,function(len, ply)
-		if cv_allowtp:GetBool() and g_VR[ply:SteamID64()] ~= nil and (hook.Run("PlayerNoClip", ply, true) == true or ULib and ULib.ucl.query( ply, "ulx noclip" ) == true) then
+		if cv_allowtp:GetBool() and g_VR[ply:SteamID()] ~= nil and (hook.Run("PlayerNoClip", ply, true) == true or ULib and ULib.ucl.query( ply, "ulx noclip" ) == true) then
 			ply:SetPos(net.ReadVector())
 		end
 	end)

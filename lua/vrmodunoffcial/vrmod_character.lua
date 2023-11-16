@@ -42,9 +42,9 @@ if CLIENT then
 	end
 
 	local function UpdateIK(ply)
-		local SteamID = ply:SteamID64()
-		local net = g_VR.net[SteamID]
-		local charinfo = characterInfo[SteamID]
+		local steamid = ply:SteamID()
+		local net = g_VR.net[steamid]
+		local charinfo = characterInfo[steamid]
 		local boneinfo = charinfo.boneinfo
 		local bones = charinfo.bones
 		local frame = net.lerpedFrame
@@ -262,36 +262,36 @@ if CLIENT then
 		end
 
 		--calculate target matrices
-		for i = 1, #characterInfo[SteamID].boneorder do
-			local bone = characterInfo[SteamID].boneorder[i]
-			local parent = characterInfo[SteamID].boneinfo[bone].parent
+		for i = 1, #characterInfo[steamid].boneorder do
+			local bone = characterInfo[steamid].boneorder[i]
+			local parent = characterInfo[steamid].boneinfo[bone].parent
 			local wpos, wang
-			if characterInfo[SteamID].boneinfo[bone].name == "ValveBiped.Bip01_L_Clavicle" then
+			if characterInfo[steamid].boneinfo[bone].name == "ValveBiped.Bip01_L_Clavicle" then
 				wpos = L_ClaviclePos
-			elseif characterInfo[SteamID].boneinfo[bone].name == "ValveBiped.Bip01_R_Clavicle" then
+			elseif characterInfo[steamid].boneinfo[bone].name == "ValveBiped.Bip01_R_Clavicle" then
 				wpos = R_ClaviclePos
 			else
-				local parentPos, parentAng = characterInfo[SteamID].boneinfo[parent].pos, characterInfo[SteamID].boneinfo[parent].ang
-				wpos, wang = LocalToWorld(characterInfo[SteamID].boneinfo[bone].relativePos, characterInfo[SteamID].boneinfo[bone].relativeAng + characterInfo[SteamID].boneinfo[bone].offsetAng, parentPos, parentAng)
+				local parentPos, parentAng = characterInfo[steamid].boneinfo[parent].pos, characterInfo[steamid].boneinfo[parent].ang
+				wpos, wang = LocalToWorld(characterInfo[steamid].boneinfo[bone].relativePos, characterInfo[steamid].boneinfo[bone].relativeAng + characterInfo[steamid].boneinfo[bone].offsetAng, parentPos, parentAng)
 			end
 
-			if characterInfo[SteamID].boneinfo[bone].overrideAng ~= nil then
-				wang = characterInfo[SteamID].boneinfo[bone].overrideAng
+			if characterInfo[steamid].boneinfo[bone].overrideAng ~= nil then
+				wang = characterInfo[steamid].boneinfo[bone].overrideAng
 			end
 
 			local mat = Matrix()
 			mat:Translate(wpos)
 			mat:Rotate(wang)
-			characterInfo[SteamID].boneinfo[bone].targetMatrix = mat
-			characterInfo[SteamID].boneinfo[bone].pos = wpos
-			characterInfo[SteamID].boneinfo[bone].ang = wang
+			characterInfo[steamid].boneinfo[bone].targetMatrix = mat
+			characterInfo[steamid].boneinfo[bone].pos = wpos
+			characterInfo[steamid].boneinfo[bone].ang = wang
 		end
 	end
 
 	local function CharacterInit(ply)
-		local SteamID = ply:SteamID64()
+		local steamid = ply:SteamID()
 		local pmname = ply:GetModel() or ply.vrmod_pm 
-		if characterInfo[SteamID] and characterInfo[SteamID].modelName == pmname then return end
+		if characterInfo[steamid] and characterInfo[steamid].modelName == pmname then return end
 		if ply == LocalPlayer() then
 			timer.Create(
 				"vrutil_timer_validatefingertracking",
@@ -316,7 +316,7 @@ if CLIENT then
 			)
 		end
 
-		characterInfo[SteamID] = {
+		characterInfo[steamid] = {
 			preRenderPos = Vector(0, 0, 0),
 			renderPos = Vector(0, 0, 0),
 			characterHeadToHmdDist = 0,
@@ -335,8 +335,8 @@ if CLIENT then
 		cm:SetPos(LocalPlayer():GetPos())
 		cm:SetAngles(Angle(0, 0, 0))
 		cm:SetupBones()
-		RecursiveBoneTable2(cm, cm:LookupBone("ValveBiped.Bip01_L_Clavicle"), characterInfo[SteamID].boneinfo, characterInfo[SteamID].boneorder)
-		RecursiveBoneTable2(cm, cm:LookupBone("ValveBiped.Bip01_R_Clavicle"), characterInfo[SteamID].boneinfo, characterInfo[SteamID].boneorder)
+		RecursiveBoneTable2(cm, cm:LookupBone("ValveBiped.Bip01_L_Clavicle"), characterInfo[steamid].boneinfo, characterInfo[steamid].boneorder)
+		RecursiveBoneTable2(cm, cm:LookupBone("ValveBiped.Bip01_R_Clavicle"), characterInfo[steamid].boneinfo, characterInfo[steamid].boneorder)
 		local boneNames = {
 			b_leftClavicle = "ValveBiped.Bip01_L_Clavicle",
 			b_leftUpperarm = "ValveBiped.Bip01_L_UpperArm",
@@ -361,7 +361,7 @@ if CLIENT then
 		}
 
 		-- b_neck ="ValveBiped.Bip01_Neck1",
-		characterInfo[SteamID].bones = {
+		characterInfo[steamid].bones = {
 			fingers = {cm:LookupBone("ValveBiped.Bip01_L_Finger0") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger01") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger02") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger1") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger11") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger12") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger2") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger21") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger22") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger3") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger31") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger32") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger4") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger41") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger42") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger0") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger01") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger02") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger1") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger11") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger12") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger2") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger21") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger22") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger3") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger31") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger32") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger4") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger41") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger42") or -1,}
 		}
 
@@ -371,36 +371,36 @@ if CLIENT then
 
 		for k, v in pairs(boneNames) do
 			local bone = cm:LookupBone(v) or -1
-			characterInfo[SteamID].bones[k] = bone
+			characterInfo[steamid].bones[k] = bone
 			if bone == -1 and not string.find(k, "Wrist") and not string.find(k, "Ulna") then
 				if ply == LocalPlayer() then
 					g_VR.errorText = "Incompatible player model. Missing bone " .. v
 				end
 
 				cm:Remove()
-				g_VR.StopCharacterSystem(SteamID)
-				print("VRMod: CharacterInit failed for " .. SteamID)
+				g_VR.StopCharacterSystem(steamid)
+				print("VRMod: CharacterInit failed for " .. steamid)
 
 				return false
 			end
 		end
 
-		characterInfo[SteamID].modelName = pmname
-		local claviclePos = cm:GetBonePosition(characterInfo[SteamID].bones.b_leftClavicle)
-		local upperPos = cm:GetBonePosition(characterInfo[SteamID].bones.b_leftUpperarm)
-		local lowerPos = cm:GetBonePosition(characterInfo[SteamID].bones.b_leftForearm)
-		local handPos = cm:GetBonePosition(characterInfo[SteamID].bones.b_leftHand)
-		local thighPos = cm:GetBonePosition(characterInfo[SteamID].bones.b_leftThigh)
-		local calfPos = cm:GetBonePosition(characterInfo[SteamID].bones.b_leftCalf)
-		local footPos = cm:GetBonePosition(characterInfo[SteamID].bones.b_leftFoot)
-		local headPos = cm:GetBonePosition(characterInfo[SteamID].bones.b_head)
-		local spinePos = cm:GetBonePosition(characterInfo[SteamID].bones.b_spine)
-		-- local neckpos = cm:GetBonePosition(characterInfo[SteamID].bones.b_neck)
-		characterInfo[SteamID].clavicleLen = claviclePos:Distance(upperPos)
-		characterInfo[SteamID].upperArmLen = upperPos:Distance(lowerPos)
-		characterInfo[SteamID].lowerArmLen = lowerPos:Distance(handPos)
-		characterInfo[SteamID].upperLegLen = thighPos:Distance(calfPos)
-		characterInfo[SteamID].lowerLegLen = calfPos:Distance(footPos)
+		characterInfo[steamid].modelName = pmname
+		local claviclePos = cm:GetBonePosition(characterInfo[steamid].bones.b_leftClavicle)
+		local upperPos = cm:GetBonePosition(characterInfo[steamid].bones.b_leftUpperarm)
+		local lowerPos = cm:GetBonePosition(characterInfo[steamid].bones.b_leftForearm)
+		local handPos = cm:GetBonePosition(characterInfo[steamid].bones.b_leftHand)
+		local thighPos = cm:GetBonePosition(characterInfo[steamid].bones.b_leftThigh)
+		local calfPos = cm:GetBonePosition(characterInfo[steamid].bones.b_leftCalf)
+		local footPos = cm:GetBonePosition(characterInfo[steamid].bones.b_leftFoot)
+		local headPos = cm:GetBonePosition(characterInfo[steamid].bones.b_head)
+		local spinePos = cm:GetBonePosition(characterInfo[steamid].bones.b_spine)
+		-- local neckpos = cm:GetBonePosition(characterInfo[steamid].bones.b_neck)
+		characterInfo[steamid].clavicleLen = claviclePos:Distance(upperPos)
+		characterInfo[steamid].upperArmLen = upperPos:Distance(lowerPos)
+		characterInfo[steamid].lowerArmLen = lowerPos:Distance(handPos)
+		characterInfo[steamid].upperLegLen = thighPos:Distance(calfPos)
+		characterInfo[steamid].lowerLegLen = calfPos:Distance(footPos)
 		--spineLen is set after eye height
 		--
 		local eyes = cm:GetAttachment(cm:LookupAttachment("eyes"))
@@ -410,22 +410,22 @@ if CLIENT then
 
 		--"VRmodを使用する自分自身に適用するように変更"
 		if ply == LocalPlayer() then
-			characterInfo[SteamID].characterEyeHeight = convarValues.vrmod_characterEyeHeight
-			characterInfo[SteamID].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
-			characterInfo[SteamID].spineLen = (cm:GetPos().z + characterInfo[SteamID].characterEyeHeight) - spinePos.z
+			characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
+			characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
+			characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
 			cm:Remove()
 		else
 			--"自分以外のVRModユーザー行うように変更"
 			if eyes and eyes.Pos.z > 10 then
-				characterInfo[SteamID].characterEyeHeight = eyes.Pos.z
-				characterInfo[SteamID].characterHeadToHmdDist = 2
+				characterInfo[steamid].characterEyeHeight = eyes.Pos.z
+				characterInfo[steamid].characterHeadToHmdDist = (eyes.Pos.z / 5 - 6.3)
 			else
 				headPos = headPos - cm:GetPos()
-				characterInfo[SteamID].characterEyeHeight = headPos.z
-				characterInfo[SteamID].characterHeadToHmdDist = 2
+				characterInfo[steamid].characterEyeHeight = headPos.z
+				characterInfo[steamid].characterHeadToHmdDist = (headPos.z / 5 - 6.3)
 			end
 
-			characterInfo[SteamID].spineLen = (cm:GetPos().z + characterInfo[SteamID].characterEyeHeight) - spinePos.z
+			characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
 			cm:Remove()
 		end
 		-- local seatset = convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z)
@@ -433,19 +433,19 @@ if CLIENT then
 
 	------------------------------------------------------------------------
 	local function BoneCallbackFunc(ply, numbones)
-		local SteamID = ply:SteamID64()
-		if not activePlayers[SteamID] or not g_VR.net[SteamID].lerpedFrame then return end
+		local steamid = ply:SteamID()
+		if not activePlayers[steamid] or not g_VR.net[steamid].lerpedFrame then return end
 		if ply:InVehicle() and ply:GetVehicle():GetClass() ~= "prop_vehicle_prisoner_pod" then return end
-		if ply:GetBoneMatrix(characterInfo[SteamID].bones.b_rightHand) then
-			ply:SetBonePosition(characterInfo[SteamID].bones.b_rightHand, g_VR.net[SteamID].lerpedFrame.righthandPos, g_VR.net[SteamID].lerpedFrame.righthandAng + Angle(0, 0, 180))
+		if ply:GetBoneMatrix(characterInfo[steamid].bones.b_rightHand) then
+			ply:SetBonePosition(characterInfo[steamid].bones.b_rightHand, g_VR.net[steamid].lerpedFrame.righthandPos, g_VR.net[steamid].lerpedFrame.righthandAng + Angle(0, 0, 180))
 		end
 
-		if not g_VR.net[SteamID].characterAltHead then
-			local _, targetAng = LocalToWorld(zeroVec, Angle(-80, 0, 90), zeroVec, g_VR.net[SteamID].lerpedFrame.hmdAng)
-			local mtx = ply:GetBoneMatrix(characterInfo[SteamID].bones.b_head)
+		if not g_VR.net[steamid].characterAltHead then
+			local _, targetAng = LocalToWorld(zeroVec, Angle(-80, 0, 90), zeroVec, g_VR.net[steamid].lerpedFrame.hmdAng)
+			local mtx = ply:GetBoneMatrix(characterInfo[steamid].bones.b_head)
 			if mtx then
 				mtx:SetAngles(targetAng)
-				ply:SetBoneMatrix(characterInfo[SteamID].bones.b_head, mtx)
+				ply:SetBoneMatrix(characterInfo[steamid].bones.b_head, mtx)
 			end
 		end
 	end
@@ -485,22 +485,22 @@ if CLIENT then
 	local prevFrameNumber = 0
 	local updatedPlayers = {}
 	local function PrePlayerDrawFunc(ply)
-		local SteamID = ply:SteamID64()
-		if not activePlayers[SteamID] or not g_VR.net[SteamID].lerpedFrame then return end
+		local steamid = ply:SteamID()
+		if not activePlayers[steamid] or not g_VR.net[steamid].lerpedFrame then return end
 		--hide head in first person
 		if ply == LocalPlayer() then
 			local ep = EyePos()
 			local hide = (ep == g_VR.eyePosLeft or ep == g_VR.eyePosRight) and ply:GetViewEntity() == ply
-			ply:ManipulateBoneScale(characterInfo[SteamID].bones.b_head, hide and zeroVec or Vector(1, 1, 1))
-			-- ply:ManipulateBonePosition(characterInfo[SteamID].bones.b_neck, hide and zerovec or Vector(-128, 128, 0))
+			ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, hide and zeroVec or Vector(1, 1, 1))
+			-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_neck, hide and zerovec or Vector(-128, 128, 0))
 		end
 
-		characterInfo[SteamID].preRenderPos = ply:GetPos()
+		characterInfo[steamid].preRenderPos = ply:GetPos()
 		if not ply:InVehicle() then
-			characterInfo[SteamID].renderPos = g_VR.net[SteamID].lerpedFrame.hmdPos + up:Cross(g_VR.net[SteamID].lerpedFrame.hmdAng:Right()) * -characterInfo[SteamID].characterHeadToHmdDist + Angle(0, g_VR.net[SteamID].lerpedFrame.characterYaw, 0):Forward() * -characterInfo[SteamID].horizontalCrouchOffset * 0.8
-			characterInfo[SteamID].renderPos.z = ply:GetPos().z - characterInfo[SteamID].verticalCrouchOffset
-			ply:SetPos(characterInfo[SteamID].renderPos)
-			ply:SetRenderAngles(Angle(0, g_VR.net[SteamID].lerpedFrame.characterYaw, 0))
+			characterInfo[steamid].renderPos = g_VR.net[steamid].lerpedFrame.hmdPos + up:Cross(g_VR.net[steamid].lerpedFrame.hmdAng:Right()) * -characterInfo[steamid].characterHeadToHmdDist + Angle(0, g_VR.net[steamid].lerpedFrame.characterYaw, 0):Forward() * -characterInfo[steamid].horizontalCrouchOffset * 0.8
+			characterInfo[steamid].renderPos.z = ply:GetPos().z - characterInfo[steamid].verticalCrouchOffset
+			ply:SetPos(characterInfo[steamid].renderPos)
+			ply:SetRenderAngles(Angle(0, g_VR.net[steamid].lerpedFrame.characterYaw, 0))
 		end
 
 		ply:SetupBones()
@@ -510,33 +510,33 @@ if CLIENT then
 			updatedPlayers = {}
 		end
 
-		if not updatedPlayers[SteamID] then
+		if not updatedPlayers[steamid] then
 			UpdateIK(ply)
-			updatedPlayers[SteamID] = 1
+			updatedPlayers[steamid] = 1
 		end
 
 		--
 		if ply:InVehicle() and ply:GetVehicle():GetClass() ~= "prop_vehicle_prisoner_pod" then return end
 		--manipulate arms
-		for i = 1, #characterInfo[SteamID].boneorder do
-			local bone = characterInfo[SteamID].boneorder[i]
+		for i = 1, #characterInfo[steamid].boneorder do
+			local bone = characterInfo[steamid].boneorder[i]
 			--prevent unwritable bone errors (usually happens when someone opens pac editor while in vr and pac stuff in general)
 			if ply:GetBoneMatrix(bone) then
-				ply:SetBoneMatrix(bone, characterInfo[SteamID].boneinfo[bone].targetMatrix)
+				ply:SetBoneMatrix(bone, characterInfo[steamid].boneinfo[bone].targetMatrix)
 			end
 		end
 	end
 
 	-------------------------------------------------------------
 	local function PostPlayerDrawFunc(ply)
-		local SteamID = ply:SteamID64()
-		if not activePlayers[SteamID] or not g_VR.net[SteamID].lerpedFrame or ply:InVehicle() then return end
-		ply:SetPos(characterInfo[SteamID].preRenderPos)
+		local steamid = ply:SteamID()
+		if not activePlayers[steamid] or not g_VR.net[steamid].lerpedFrame or ply:InVehicle() then return end
+		ply:SetPos(characterInfo[steamid].preRenderPos)
 	end
 
 	-------------------------------------------------------------
 	local function CalcMainActivityFunc(ply, vel)
-		if not activePlayers[ply:SteamID64()] or ply:InVehicle() then return end
+		if not activePlayers[ply:SteamID()] or ply:InVehicle() then return end
 		local act = ACT_HL2MP_IDLE
 		if cv_animation:GetBool() then
 			if ply.m_bJumping then
@@ -559,15 +559,15 @@ if CLIENT then
 
 	-------------------------------------------------------------
 	local function DoAnimationEventFunc(ply, evt, data)
-		if not activePlayers[ply:SteamID64()] or ply:InVehicle() then return end
+		if not activePlayers[ply:SteamID()] or ply:InVehicle() then return end
 		if evt ~= PLAYERANIMEVENT_JUMP then return ACT_INVALID end
 	end
 
 	-------------------------------------------------------------
 	function g_VR.StartCharacterSystem(ply)
-		local SteamID = ply:SteamID64()
-		if not g_VR.net[SteamID] or CharacterInit(ply) == false then return end
-		characterInfo[SteamID].boneCallback = ply:AddCallback("BuildBonePositions", BoneCallbackFunc)
+		local steamid = ply:SteamID()
+		if not g_VR.net[steamid] or CharacterInit(ply) == false then return end
+		characterInfo[steamid].boneCallback = ply:AddCallback("BuildBonePositions", BoneCallbackFunc)
 		if ply == LocalPlayer() then
 			hook.Add("VRMod_PreRender", "vrutil_hook_calcplyrenderpos", PreRenderFunc)
 		end
@@ -576,28 +576,28 @@ if CLIENT then
 		hook.Add("PostPlayerDraw", "vrutil_hook_postplayerdraw", PostPlayerDrawFunc)
 		hook.Add("CalcMainActivity", "vrutil_hook_calcmainactivity", CalcMainActivityFunc)
 		hook.Add("DoAnimationEvent", "vrutil_hook_doanimationevent", DoAnimationEventFunc)
-		activePlayers[SteamID] = true
+		activePlayers[steamid] = true
 	end
 
-	function g_VR.StopCharacterSystem(SteamID)
-		if not activePlayers[SteamID] then return end
-		local ply = player.GetBySteamID64(SteamID)
-		if characterInfo[SteamID] then
+	function g_VR.StopCharacterSystem(steamid)
+		if not activePlayers[steamid] then return end
+		local ply = player.GetBySteamID(steamid)
+		if characterInfo[steamid] then
 			if IsValid(ply) then
-				for k, v in pairs(characterInfo[SteamID].bones) do
+				for k, v in pairs(characterInfo[steamid].bones) do
 					if not isnumber(v) then continue end
 					ply:ManipulateBoneAngles(v, Angle(0, 0, 0))
 				end
 
-				ply:RemoveCallback("BuildBonePositions", characterInfo[SteamID].boneCallback)
+				ply:RemoveCallback("BuildBonePositions", characterInfo[steamid].boneCallback)
 				if ply == LocalPlayer() then
 					hook.Remove("VRMod_PreRender", "vrutil_hook_calcplyrenderpos")
-					ply:ManipulateBoneScale(characterInfo[SteamID].bones.b_head, Vector(1, 1, 1))
-					-- ply:ManipulateBonePosition(characterInfo[SteamID].bones.b_head, vector_origin)
+					ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, Vector(1, 1, 1))
+					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_head, vector_origin)
 				end
 			end
 
-			activePlayers[SteamID] = nil
+			activePlayers[steamid] = nil
 		end
 
 		if table.Count(activePlayers) == 0 then
@@ -620,8 +620,8 @@ if CLIENT then
 	hook.Add(
 		"VRMod_Exit",
 		"vrmod_characterstop",
-		function(ply, SteamID)
-			g_VR.StopCharacterSystem(SteamID)
+		function(ply, steamid)
+			g_VR.StopCharacterSystem(steamid)
 		end
 	)
 end

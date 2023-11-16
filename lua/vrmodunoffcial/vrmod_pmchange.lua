@@ -12,7 +12,7 @@ if CLIENT then
 		net.Receive(
 			"vrmod_pmchange",
 			function()
-				local ply = player.GetBySteamID64(net.ReadString())
+				local ply = player.GetBySteamID(net.ReadString())
 				local model = net.ReadString()
 				if ply then
 					ply.vrmod_pm = model
@@ -33,7 +33,7 @@ if CLIENT then
 						og(unpack(args))
 						if args[1]:IsPlayer() then
 							net.Start("vrmod_pmchange")
-							net.WriteString(args[1]:SteamID64())
+							net.WriteString(args[1]:SteamID())
 							net.WriteString(args[2])
 							net.Broadcast()
 						end
