@@ -20,16 +20,16 @@ local function init()
 				local leftHand = net.ReadBool()
 				local localPos = net.ReadVector()
 				local localAng = net.ReadAngle()
-				local SteamID64 = ply:SteamID64()
-				if g_VR.net[SteamID64] == nil then return end
+				local SteamID = ply:SteamID64()
+				if g_VR.net[SteamID] == nil then return end
 				--
 				ent.RenderOverride = function()
-					if g_VR.net[SteamID64] == nil then return end
+					if g_VR.net[SteamID] == nil then return end
 					local wpos, wang
 					if leftHand then
-						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID64].lerpedFrame.lefthandPos, g_VR.net[SteamID64].lerpedFrame.lefthandAng)
+						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID].lerpedFrame.lefthandPos, g_VR.net[SteamID].lerpedFrame.lefthandAng)
 					else
-						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID64].lerpedFrame.righthandPos, g_VR.net[SteamID64].lerpedFrame.righthandAng)
+						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID].lerpedFrame.righthandPos, g_VR.net[SteamID].lerpedFrame.righthandAng)
 					end
 
 					ent:SetPos(wpos)

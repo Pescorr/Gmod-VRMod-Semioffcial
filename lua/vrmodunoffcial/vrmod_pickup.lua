@@ -47,16 +47,16 @@ if CLIENT then
 				local localPos = net.ReadVector()
 				local localAng = net.ReadAngle()
 				--
-				local SteamID64 = IsValid(ply) and ply:SteamID64()
-				if g_VR.net[SteamID64] == nil then return end
+				local SteamID = IsValid(ply) and ply:SteamID64()
+				if g_VR.net[SteamID] == nil then return end
 				--
 				ent.RenderOverride = function()
-					if g_VR.net[SteamID64] == nil then return end
+					if g_VR.net[SteamID] == nil then return end
 					local wpos, wang
 					if bLeftHand then
-						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID64].lerpedFrame.lefthandPos, g_VR.net[SteamID64].lerpedFrame.lefthandAng)
+						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID].lerpedFrame.lefthandPos, g_VR.net[SteamID].lerpedFrame.lefthandAng)
 					else
-						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID64].lerpedFrame.righthandPos, g_VR.net[SteamID64].lerpedFrame.righthandAng)
+						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[SteamID].lerpedFrame.righthandPos, g_VR.net[SteamID].lerpedFrame.righthandAng)
 					end
 
 					ent:SetPos(wpos)
@@ -81,14 +81,14 @@ elseif SERVER then
 	local pickupController = nil
 	local pickupList = {}
 	local pickupCount = 0
-	function drop(SteamID64, bLeftHand, handPos, handAng, handVel, handAngVel)
+	function drop(SteamID, bLeftHand, handPos, handAng, handVel, handAngVel)
 		for i = 1, pickupCount do
 			local t = pickupList[i]
-			if t.SteamID64 ~= SteamID64 or t.left ~= bLeftHand then continue end
+			if t.SteamID ~= SteamID or t.left ~= bLeftHand then continue end
 			local phys = t.phys
 			--peszone
 			if not t or not t.ent then
-				drop(t.SteamID64, t.left)
+				drop(t.SteamID, t.left)
 				break
 			end
 
@@ -111,8 +111,8 @@ elseif SERVER then
 			net.WriteEntity(t.ent)
 			net.WriteBool(true) --drop
 			net.Broadcast()
-			if g_VR[t.SteamID64] then
-				g_VR[t.SteamID64].heldItems[bLeftHand and 1 or 2] = nil
+			if g_VR[t.SteamID] then
+				g_VR[t.SteamID].heldItems[bLeftHand and 1 or 2] = nil
 			end
 
 			pickupList[i] = pickupList[pickupCount]
@@ -148,7 +148,7 @@ elseif SERVER then
 
 	--pes&chatgptend
 	function pickup(ply, bLeftHand, handPos, handAng)
-		local SteamID64 = ply:SteamID64()
+		local SteamID = ply:SteamID64()
 		local pickupPoint = LocalToWorld(Vector(3, bLeftHand and -1.5 or 1.5, 0), Angle(), handPos, handAng)
 		local entities = ents.FindInSphere(pickupPoint, 100)
 		for k = 1, #entities do
@@ -190,7 +190,7 @@ elseif SERVER then
 				function pickupController:PhysicsSimulate(phys, deltatime)
 					phys:Wake()
 					local t = phys:GetEntity().vrmod_pickup_info
-					local frame = g_VR[t.SteamID64] and g_VR[t.SteamID64].latestFrame
+					local frame = g_VR[t.SteamID] and g_VR[t.SteamID].latestFrame
 					if not frame then return end
 					local handPos, handAng = LocalToWorld(t.left and frame.lefthandPos or frame.righthandPos, t.left and frame.lefthandAng or frame.righthandAng, t.ply:GetPos(), Angle()) --frame is relative to ply pos when on foot
 					self.ShadowParams.pos, self.ShadowParams.angle = LocalToWorld(t.localPos, t.localAng, handPos, handAng)
@@ -213,22 +213,22 @@ elseif SERVER then
 
 							--pescorrzonestart
 							if convarValues.vrmod_test_pickup_limit_droptest == 2 then
-								drop(t.SteamID64, t.left)
+								drop(t.SteamID, t.left)
 							end
 
 							if convarValues.vrmod_test_pickup_limit_droptest == 1 then
-								if not IsValid(t.phys) or not t.phys:IsMoveable() or not g_VR[t.SteamID64] or not t.ply:Alive() or t.ply:InVehicle() then
-									if not g_VR[t.SteamID64] or t.ply:InVehicle() then
+								if not IsValid(t.phys) or not t.phys:IsMoveable() or not g_VR[t.SteamID] or not t.ply:Alive() or t.ply:InVehicle() then
+									if not g_VR[t.SteamID] or t.ply:InVehicle() then
 										--print("dropping invalid")
-										drop(t.SteamID64, t.left)
+										drop(t.SteamID, t.left)
 									end
 								end
 							end
 
 							if convarValues.vrmod_test_pickup_limit_droptest == 0 then
-								if not g_VR[t.SteamID64] or t.ply:InVehicle() then
+								if not g_VR[t.SteamID] or t.ply:InVehicle() then
 									--print("dropping invalid")
-									drop(t.SteamID64, t.left)
+									drop(t.SteamID, t.left)
 								end
 							end
 							--pescorrzoneend
@@ -243,7 +243,7 @@ elseif SERVER then
 				local v2 = pickupList[k2]
 				if v == v2.ent then
 					index = k2
-					g_VR[v2.SteamID64].heldItems[v2.left and 1 or 2] = nil
+					g_VR[v2.SteamID].heldItems[v2.left and 1 or 2] = nil
 					break
 				end
 			end
@@ -275,12 +275,12 @@ elseif SERVER then
 				localPos = localPos,
 				localAng = localAng,
 				collisionGroup = pickupList[index] and pickupList[index].collisionGroup or v:GetCollisionGroup(),
-				SteamID64 = SteamID64,
+				SteamID = SteamID,
 				ply = ply
 			}
 
-			g_VR[SteamID64].heldItems = g_VR[SteamID64].heldItems or {}
-			g_VR[SteamID64].heldItems[bLeftHand and 1 or 2] = pickupList[index]
+			g_VR[SteamID].heldItems = g_VR[SteamID].heldItems or {}
+			g_VR[SteamID].heldItems[bLeftHand and 1 or 2] = pickupList[index]
 			v.vrmod_pickup_info = pickupList[index]
 			v:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR) --don't collide with the player
 			--

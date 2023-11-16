@@ -268,16 +268,16 @@ if CLIENT then
 	concommand.Add(
 		"vrmod_character_auto",
 		function(ply, cmd, args)
-			local SteamID64 = ply:SteamID64()
+			local SteamID = ply:SteamID64()
 			local eyes = ply:GetAttachment(ply:LookupAttachment("eyes"))
 			local feet = ply:GetPos()
 			if eyes then
 				local eyeHeight = eyes.Pos.z - feet.z
 				local crouchHeight = eyeHeight / 2
-				print("Eye height for " .. SteamID64 .. " is: " .. eyeHeight)
+				print("Eye height for " .. SteamID .. " is: " .. eyeHeight)
 				-- Store the eye height for later use
 				characterInfo = characterInfo or {}
-				characterInfo[SteamID64] = characterInfo[SteamID64] or {}
+				characterInfo[SteamID] = characterInfo[SteamID] or {}
 				local eyeconvar = GetConVar("vrmod_characterEyeHeight")
 				eyeconvar:SetFloat(eyeHeight + 3)
 				local crouchconvar = GetConVar("vrmod_crouchthreshold")

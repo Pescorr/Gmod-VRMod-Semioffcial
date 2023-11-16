@@ -136,7 +136,7 @@ if CLIENT then
 	g_VR.net = {
 	--[[
 	
-		"SteamID64" = {
+		"SteamID" = {
 			
 			frames = {
 				1 = {
@@ -437,12 +437,12 @@ if CLIENT then
 	local swepOriginalFovs = {}
 	
 	net.Receive("vrutil_net_exit",function(len)
-		local SteamID64 = net.ReadString()
+		local SteamID = net.ReadString()
 		if game.SinglePlayer() then
-			SteamID64 = LocalPlayer():SteamID64()
+			SteamID = LocalPlayer():SteamID64()
 		end
-		local ply = player.GetBySteamID64(SteamID64)
-		g_VR.net[SteamID64] = nil
+		local ply = player.GetBySteamID64(SteamID)
+		g_VR.net[SteamID] = nil
 		if table.Count(g_VR.net) == 0 then
 			hook.Remove("PreRender","vrutil_hook_netlerp")
 		end
@@ -455,7 +455,7 @@ if CLIENT then
 			end
 			swepOriginalFovs = {}
 		end
-		hook.Run( "VRMod_Exit", ply, SteamID64 )
+		hook.Run( "VRMod_Exit", ply, SteamID )
 	end)
 	
 	net.Receive("vrutil_net_switchweapon",function(len)
@@ -625,17 +625,17 @@ elseif SERVER then
 		hook.Run( "VRMod_Start", ply )
 	end)
 	
-	local function net_exit(SteamID64)
-		if g_VR[SteamID64] ~= nil then
-			g_VR[SteamID64] = nil
-			local ply = player.GetBySteamID64(SteamID64)
+	local function net_exit(SteamID)
+		if g_VR[SteamID] ~= nil then
+			g_VR[SteamID] = nil
+			local ply = player.GetBySteamID64(SteamID)
 			ply:SetCurrentViewOffset(ply.originalViewOffset)
 			ply:SetViewOffset(ply.originalViewOffset)
 			-- ply:StripWeapon("weapon_vrmod_empty")
 			
 			--relay exit message to everyone
 			net.Start("vrutil_net_exit")
-			net.WriteString(SteamID64)
+			net.WriteString(SteamID)
 			net.Broadcast()
 			
 			hook.Run( "VRMod_Exit", ply )
@@ -661,7 +661,7 @@ elseif SERVER then
 				net.WriteBool(g_VR[k].dontHideBullets)
 				net.Send(ply)
 			else
-				print("VRMod: Invalid SteamID64 \""..k.."\" found in player table")
+				print("VRMod: Invalid SteamID \""..k.."\" found in player table")
 			end
 		end
 	end)
