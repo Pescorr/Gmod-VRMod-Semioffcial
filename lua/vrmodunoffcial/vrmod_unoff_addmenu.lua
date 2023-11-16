@@ -73,30 +73,48 @@ hook.Add(
 		-- fps_max.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		-- --DNumSlider end
 
+		--DButton end
+		--DCheckBoxLabel Start
+		local vrmod_open_menu_auto_optimization = Panel6:Add("DCheckBoxLabel") -- Create the checkbox
+		vrmod_open_menu_auto_optimization:SetPos(20, 290) -- Set the position
+		vrmod_open_menu_auto_optimization:SetText("[VRMenu Open -> Auto Basic Optimization]") -- Set the text next to the box
+		vrmod_open_menu_auto_optimization:SetConVar("vrmod_gmod_optimization_auto") -- Change a ConVar when the box it ticked/unticked
+		vrmod_open_menu_auto_optimization:SizeToContents() -- Make its size the same as the contents
+		--DCheckBoxLabel end
+		--Panel6 "TAB6" end
+
+
 		--DButton Start
 		--gmod_optimization
 		local gmod_optimization = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
-		gmod_optimization:SetText("vrmod_gmod_optimization") -- Set the text on the button
+		gmod_optimization:SetText("vrmod_gmod_optimization\n(Basic)") -- Set the text on the button
 		gmod_optimization:SetPos(20, 315) -- Set the position on the frame
-		gmod_optimization:SetSize(330, 30) -- Set the size
+		gmod_optimization:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		gmod_optimization.DoClick = function()
 			RunConsoleCommand("vrmod_gmod_optimization") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
 		gmod_optimization.DoRightClick = function()
+			RunConsoleCommand("vrmod_gmod_optimization")
+		end
+
+		--DButton Start
+		--gmod_optimization
+		local gmod_optimization02 = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
+		gmod_optimization02:SetText("vrmod_gmod_optimization\n(Strong)") -- Set the text on the button
+		gmod_optimization02:SetPos(190, 315) -- Set the position on the frame
+		gmod_optimization02:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		gmod_optimization02.DoClick = function()
+			RunConsoleCommand("vrmod_gmod_optimization_02") -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+		gmod_optimization02.DoRightClick = function()
 			RunConsoleCommand("vrmod_gmod_optimization_02")
 		end
 
-		--DButton end
-		--DCheckBoxLabel Start
-		local vrmod_open_menu_auto_optimization = Panel6:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_open_menu_auto_optimization:SetPos(20, 290) -- Set the position
-		vrmod_open_menu_auto_optimization:SetText("[Automatic Optimization]") -- Set the text next to the box
-		vrmod_open_menu_auto_optimization:SetConVar("vrmod_gmod_optimization_auto") -- Change a ConVar when the box it ticked/unticked
-		vrmod_open_menu_auto_optimization:SizeToContents() -- Make its size the same as the contents
-		--DCheckBoxLabel end
-		--Panel6 "TAB6" end
+
 
 	-- Panel02 "TAB02" Start
 
@@ -117,7 +135,7 @@ hook.Add(
 		--DCheckBoxLabel Start
 		local allow_teleport_client = Panel02:Add("DCheckBoxLabel") -- Create the checkbox
 		allow_teleport_client:SetPos(20, 60) -- Set the position
-		allow_teleport_client:SetText("allow_teleport_client") -- Set the text next to the box
+		allow_teleport_client:SetText("Teleport Button Enable(Client)") -- Set the text next to the box
 		allow_teleport_client:SetConVar("vrmod_allow_teleport_client") -- Change a ConVar when the box it ticked/unticked
 		allow_teleport_client:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
@@ -197,6 +215,25 @@ hook.Add(
 		-- If not using convars, you can use this hook + Panel.SetValue()
 		vrmod_pickup_limit.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
+
+		--DButton Start
+		--GamePlay_defaultbutton
+		local GamePlay_defaultbutton = vgui.Create("DButton", Panel02) -- Create the button and parent it to the frame
+		GamePlay_defaultbutton:SetText("setdefaultvalue") -- Set the text on the button
+		GamePlay_defaultbutton:SetPos(190, 310) -- Set the position on the frame
+		GamePlay_defaultbutton:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		GamePlay_defaultbutton.DoClick = function()
+			RunConsoleCommand("vrmod_allow_teleport_client", "0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vr_pickup_disable_client", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_pickup_weight", "100") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_pickup_range", "1.2") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_pickup_limit","0") -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+		GamePlay_defaultbutton.DoRightClick = function() end
+		--DButton end
+
 
 
 
@@ -294,6 +331,26 @@ hook.Add(
 		vrmod_ui_outline:SizeToContents()						-- Make its size the same as the contents
 		--DCheckBoxLabel end
 
+		--DButton Start
+		--character_restart
+		local UI_defaultbutton = vgui.Create("DButton", Panel1) -- Create the button and parent it to the frame
+		UI_defaultbutton:SetText("setdefaultvalue") -- Set the text on the button
+		UI_defaultbutton:SetPos(190, 310) -- Set the position on the frame
+		UI_defaultbutton:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		UI_defaultbutton.DoClick = function()
+			RunConsoleCommand("vrmod_mapbrowser_enable", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_quickmenu_exit", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_vgui_reset_menu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_attach_quickmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_attach_weaponmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_attach_popup", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vre_ui_attachtohand", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_ui_outline","0") -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+		UI_defaultbutton.DoRightClick = function() end
+		--DButton end
 
 
 
@@ -381,13 +438,13 @@ hook.Add(
 
 		--DLabel&DTextEntry Start
 		local vrmod_hudblacklist = Panel02:Add("DLabel")
-		vrmod_hudblacklist:SetPos(10, 305) -- Set the position of the label
+		vrmod_hudblacklist:SetPos(10, 260) -- Set the position of the label
 		vrmod_hudblacklist:SetText("vrmod_hudblacklist") --  Set the text of the label
 		vrmod_hudblacklist:SizeToContents() -- Size the label to fit the text in it
 		vrmod_hudblacklist:SetDark(0) -- Set the colour of the text inside the label to a darker one
 		local vrmod_hudblacklist = Panel02:Add("DTextEntry")
 		vrmod_hudblacklist_String = GetConVar("vrmod_hudblacklist"):GetString()
-		vrmod_hudblacklist:SetPos(20, 320) -- Set the position
+		vrmod_hudblacklist:SetPos(20, 275) -- Set the position
 		vrmod_hudblacklist:SetSize(330, 25) -- Set the size (X,Y)
 		vrmod_hudblacklist:SetUpdateOnType(0) -- Set the position
 		vrmod_hudblacklist:SetValue(vrmod_hudblacklist_String)
@@ -396,6 +453,25 @@ hook.Add(
 		end
 		--DLabel&DTextEntry end
 
+		--DButton Start
+		--HUD_defaultbutton
+		local HUD_defaultbutton = vgui.Create("DButton", Panel02) -- Create the button and parent it to the frame
+		HUD_defaultbutton:SetText("setdefaultvalue") -- Set the text on the button
+		HUD_defaultbutton:SetPos(190, 310) -- Set the position on the frame
+		HUD_defaultbutton:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		HUD_defaultbutton.DoClick = function()
+			RunConsoleCommand("vrmod_hud", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_hudcurve", "60") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_huddistance", "60") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_hudscale", "0.05") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_hudtestalpha", "0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_test_ui_testver", "0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_hudblacklist","") -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+		HUD_defaultbutton.DoRightClick = function() end
+		--DButton end
 
 	-- Panel02 "TAB02" End
 
@@ -739,6 +815,27 @@ hook.Add(
 		allow_teleport:SetConVar("vrmod_allow_teleport") -- Change a ConVar when the box it ticked/unticked
 		allow_teleport:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
+
+		--DButton Start
+		--character_restart
+		local net_defaultbutton = vgui.Create("DButton", Panel5) -- Create the button and parent it to the frame
+		net_defaultbutton:SetText("setdefaultvalue") -- Set the text on the button
+		net_defaultbutton:SetPos(190, 310) -- Set the position on the frame
+		net_defaultbutton:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		net_defaultbutton.DoClick = function()
+			RunConsoleCommand("vrmod_net_tickrate", "67") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_net_storedframes", "15") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_net_delaymax", "0.2") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_net_delay", "0.1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_allow_teleport",true) -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+		net_defaultbutton.DoRightClick = function() end
+		--DButton end
+
+
+
 		--Panel5 "TAB5" end
 
 		--Panel7 "TAB7" Start
