@@ -41,7 +41,7 @@ if CLIENT then
 		end
 	end)
 	
-	hook.Add("VRMod_Exit","flashlight",function(ply, SteamID64)
+	hook.Add("VRMod_Exit","flashlight",function(ply, SteamID)
 		if ply == LocalPlayer() and flashlight then
 			hook.Remove("VRMod_PreRender","flashlight")
 			flashlight:Remove()
