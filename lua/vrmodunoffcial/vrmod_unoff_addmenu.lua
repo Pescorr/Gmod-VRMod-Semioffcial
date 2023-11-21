@@ -96,13 +96,13 @@ hook.Add(
 		end
 
 		gmod_optimization.DoRightClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization")
+RunConsoleCommand("vrmod_gmod_optimization")
 		end
 
 		--DButton Start
 		--gmod_optimization
 		local gmod_optimization02 = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
-		gmod_optimization02:SetText("vrmod_gmod_optimization\n(Strong)") -- Set the text on the button
+		gmod_optimization02:SetText("vrmod_gmod_optimization\n(buggy but Strong)") -- Set the text on the button
 		gmod_optimization02:SetPos(190, 315) -- Set the position on the frame
 		gmod_optimization02:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
@@ -111,7 +111,7 @@ hook.Add(
 		end
 
 		gmod_optimization02.DoRightClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization_02")
+						RunConsoleCommand("vrmod_gmod_optimization_02")
 		end
 
 
@@ -225,7 +225,7 @@ hook.Add(
 		-- A custom function run when clicked ( note the . instead of : )
 		GamePlay_defaultbutton.DoClick = function()
 			RunConsoleCommand("vrmod_allow_teleport_client", "0") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vr_pickup_disable_client", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vr_pickup_disable_client", "0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_pickup_weight", "100") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_pickup_range", "1.2") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_pickup_limit","0") -- Run the console command "say hi" when you click it ( command, args )
