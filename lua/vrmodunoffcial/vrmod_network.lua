@@ -559,7 +559,8 @@ if CLIENT then
 		hook.Call("VRMod_ExitVehicle", nil)
 	end)
 
-elseif SERVER then
+end
+if SERVER then
 
 	util.AddNetworkString("vrutil_net_join")
 	util.AddNetworkString("vrutil_net_exit")
