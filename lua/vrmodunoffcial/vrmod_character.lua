@@ -290,7 +290,7 @@ if CLIENT then
 
 	local function CharacterInit(ply)
 		local steamid = ply:SteamID()
-		local pmname = ply:GetModel() or ply.vrmod_pm 
+		local pmname = ply.vrmod_pm or ply:GetModel() 
 		if characterInfo[steamid] and characterInfo[steamid].modelName == pmname then return end
 		if ply == LocalPlayer() then
 			timer.Create(

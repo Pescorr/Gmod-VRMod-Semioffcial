@@ -967,6 +967,13 @@ RunConsoleCommand("vrmod_gmod_optimization")
 		ui_realtime:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 
+		--DCheckBoxLabel Start
+		local hud_visible_quickmenukey = Panel8:Add("DCheckBoxLabel") -- Create the checkbox
+		hud_visible_quickmenukey:SetPos(20, 70) -- Set the position
+		hud_visible_quickmenukey:SetText("hud_visible_quickmenukey") -- Set the text next to the box
+		hud_visible_quickmenukey:SetConVar("hud_visible_quickmenukey") -- Change a ConVar when the box it ticked/unticked
+		hud_visible_quickmenukey:SizeToContents() -- Make its size the same as the contents
+		--DCheckBoxLabel end
 
 
 
