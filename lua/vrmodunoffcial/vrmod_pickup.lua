@@ -75,7 +75,6 @@ if CLIENT then
 			end
 		end
 	)
-
 elseif SERVER then
 	util.AddNetworkString("vrmod_pickup")
 	local pickupController = nil
@@ -156,13 +155,20 @@ elseif SERVER then
 			--pescorrzonestart
 			-- ここで shouldPickUp 関数を使用して、エンティティが拾われるべきかどうかをチェックします。
 			if not shouldPickUp(v) then continue end
-			if convarValues.vrmod_pickup_limit == 3 then
-				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or v == ply or ply:InVehicle() or v:GetMoveType() ~= MOVETYPE_VPHYSICS or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight then continue end
+			if convarValues.vrmod_pickup_limit == 3 then return end
+			if convarValues.vrmod_pickup_limit == 2 then
+				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or ply:InVehicle() or not v:GetPhysicsObject():IsMoveable() or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight or v:GetPhysicsObject():HasGameFlag(FVPHYSICS_MULTIOBJECT_ENTITY) or v == ply or (v.CPPICanPickup ~= nil and not v:CPPICanPickup(ply)) then continue end
 			end
 
-			if convarValues.vrmod_pickup_limit == 2 then return end
 			if convarValues.vrmod_pickup_limit == 1 then
-				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or ply:InVehicle() or not v:GetPhysicsObject():IsMoveable() or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight or v:GetPhysicsObject():HasGameFlag(FVPHYSICS_MULTIOBJECT_ENTITY) or v == ply or (v.CPPICanPickup ~= nil and not v:CPPICanPickup(ply)) then continue end
+				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or v == ply or ply:InVehicle() or v:GetMoveType() ~= MOVETYPE_VPHYSICS or (v.CPPICanPickup ~= nil and not v:CPPICanPickup(ply)) or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight then continue end
+				-- Check if the entity is a ragdoll
+				if v:GetClass() == "prop_ragdoll" then
+					-- Calculate the closest point on the ragdoll to the player's left hand position
+					local closestPoint = v:NearestPoint(handPos)
+					pickupPoint = closestPoint
+				end
+
 			end
 
 			if convarValues.vrmod_pickup_limit == 0 then
@@ -282,8 +288,7 @@ elseif SERVER then
 			g_VR[steamid].heldItems = g_VR[steamid].heldItems or {}
 			g_VR[steamid].heldItems[bLeftHand and 1 or 2] = pickupList[index]
 			v.vrmod_pickup_info = pickupList[index]
-			v:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR) --don't collide with the player
-			--
+			v:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR) --don't collide with the player			--
 			net.Start("vrmod_pickup")
 			net.WriteEntity(ply)
 			net.WriteEntity(v)

@@ -2,12 +2,19 @@ if SERVER then return end
 
 local open = false
 
+local openconvar = CreateClientConVar("vrmod_gbradial_cmd_open","+gb-radial",true,FCVAR_ARCHIVE)
+local closeconvar = CreateClientConVar("vrmod_gbradial_cmd_close","-gb-radial",true,FCVAR_ARCHIVE)
+local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", "0", true, FCVAR_ARCHIVE)
+
 function VREgb_radialToggle()
     if !open then
         VREgb_radialOpen()
     else
         VRUtilMenuClose("vremenu_gb_radial")
-			LocalPlayer():ConCommand("-gb-radial")
+			LocalPlayer():ConCommand(closeconvar:GetString())
+            if cl_hudonlykey:GetBool() then
+                LocalPlayer():ConCommand("vrmod_hud 0")
+            end
     end
 end
 
@@ -23,6 +30,9 @@ function VREgb_radialOpen()
         return ScrW(),ScrH()
     end
 
+    if cl_hudonlykey:GetBool() then
+        LocalPlayer():ConCommand("vrmod_hud 1")
+    end
 
 
     local settingsgrid = vgui.Create("DGrid", vregb_radialPanel)
@@ -41,7 +51,7 @@ function VREgb_radialOpen()
     backbutton.DoClick = function()
         VRUtilMenuClose("vremenu_vrmod")
         VREMenuToggle()
-			LocalPlayer():ConCommand("-gb-radial")
+        LocalPlayer():ConCommand(closeconvar:GetString())
     end
 
 
@@ -52,7 +62,12 @@ function VREgb_radialOpen()
 
     -- Menu code starts here
 
-			LocalPlayer():ConCommand("+gb-radial")
+    LocalPlayer():ConCommand(openconvar:GetString())
+
+    if cl_hudonlykey:GetBool() then
+        LocalPlayer():ConCommand("vrmod_hud 1")
+    end
+
 
 
     -- Menu code ends here
@@ -80,7 +95,7 @@ function VREgb_radialOpen()
         vregb_radialPanel:Remove()
         vregb_radialPanel = nil
          hook.Remove("PreRender","vre_rendergb_radial")
-		LocalPlayer():ConCommand("-gb-radial")
+         LocalPlayer():ConCommand(closeconvar:GetString())
 		 open = false
 	end)
 	

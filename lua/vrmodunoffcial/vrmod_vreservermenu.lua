@@ -98,7 +98,7 @@ function vre_svmenuOpen()
 					LocalPlayer():ConCommand("vrmod_pickup_range 99.00")
 				else
 					button1on = 0
-					LocalPlayer():ConCommand("vrmod_pickup_range 1.2")
+					LocalPlayer():ConCommand("vrmod_pickup_range 1.1")
 				end
 			--command end
 			end
