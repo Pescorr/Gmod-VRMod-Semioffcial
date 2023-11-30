@@ -491,7 +491,7 @@ if CLIENT then
 			function()
 				for k, v in ipairs(simulate) do
 					if v.pose.pos == v.pose.simulatedPos then
-						v.pose.pos, v.pose.ang = LocalToWorld(v.offset, Angle(90, 0, 0), g_VR.tracking.hmd.pos, Angle(0, g_VR.tracking.hmd.ang.yaw, 0))
+						v.pose.pos, v.pose.ang = LocalToWorld(v.offset, Angle(90, 0, 0), g_VR.tracking.pose_righthand.pos, Angle(0, g_VR.tracking.pose_righthand.ang.yaw, 0))
 						v.pose.simulatedPos = v.pose.pos
 					else
 						v.pose.simulatedPos = nil
@@ -530,11 +530,11 @@ if CLIENT then
 		)
 
 		local localply = LocalPlayer()
-		local cameraover = CreateClientConVar("vrmod_cameraoverride", "1", FCVAR_ARCHIVE)
+		local cameraover = CreateClientConVar("vrmod_cameraoverride", "1", true, FCVAR_ARCHIVE)
 		local currentViewEnt = localply
 		local pos1, ang1
-		local uselefthand = CreateClientConVar("vrmod_LeftHand", "0", FCVAR_ARCHIVE)
-		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", "0", FCVAR_ARCHIVE)
+		local uselefthand = CreateClientConVar("vrmod_LeftHand", "0", true, FCVAR_ARCHIVE)
+		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", "0", true, FCVAR_ARCHIVE)
 		hook.Add(
 			"RenderScene",
 			"vrutil_hook_renderscene",

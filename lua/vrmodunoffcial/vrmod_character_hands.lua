@@ -47,10 +47,10 @@ hook.Add("VRMod_Start","vrmod_starthandsonly",function(ply)
 			targetMatrix = mtx
 		}
 	end
-	
+		
 	hands:SetPos(LocalPlayer():GetPos())
 	hands:SetRenderBounds(zeroVec,zeroVec,Vector(1,1,1)*65000)
-	
+		
 	local frame = 0
 	
 	hands:AddCallback("BuildBonePositions", function(ent, numbones)

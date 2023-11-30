@@ -226,72 +226,8 @@ if CLIENT then
 		function(ply, cmd, args)
 			-- Gmodのluaコード
 			local function setConvars()
-				local optimizeconvar = {
-					{"mat_motion_blur_enabled", "0"},
-					{"r_WaterDrawReflection", "0"},
-					{"r_WaterDrawRefraction", "0"},
-					{"r_waterforceexpensive", "0"},
-					{"r_waterforcereflectentities", "0"},
-					{"engine_no_focus_sleep", "0"},
-					{"r_mapextents", "5000"},
-					{"fps_max", "60"},
-					{"mat_queue_mode", "2"},
-					{"cl_threaded_bone_setup", "1"},
-					{"cl_threaded_client_leaf_system", "1"},
-					{"r_threaded_client_shadow_manager", "1"},
-					{"r_threaded_particles", "1"},
-					{"r_threaded_renderables", "1"},
-					{"r_queued_ropes", "1"},
-					{"studio_queue_mode", "1"},
-					{"cl_forcepreload", "1"},
-					{"sv_forcepreload", "1"},
-					{"r_projectedtexture_filter", "0"},
-					{"cl_detaildist", "500"},
-					{"cl_detailfade", "400"},
-					{"cl_drawownshadow", "0"},
-					{"mat_bumpmap", "1"},
-					{"mat_colorcorrection", "0"},
-					{"mat_dynamic_tonemapping", "0"},
-					{"mat_filtertextures", "1"},
-					{"mat_mipmaptextures", "1"},
-					{"mat_parallaxmap", "0"},
-					{"mat_showlowresimage", "0"},
-					{"mat_use_compressed_hdr_textures", "1"},
-					{"r_3dsky", "0"},
-					{"r_ambientboost", "0"},
-					{"r_decals", "60.00"},
-					{"r_drawdecals", "0"},
-					{"r_drawdetailprops", "1"},
-					{"r_drawparticles", "1"},
-					{"r_farz", "12000"},
-					{"r_radiosity", "2"},
-					{"cl_ejectbrass", "0"},
-					{"g_ragdoll_maxcount", "0"},
-					{"gmod_physiterations", "1"},
-					{"mat_aaquality", "0"},
-					{"r_drawflecks", "0"},
-					{"r_drawrain", "0"},
-					{"r_drawropes", "0"},
-					{"r_drawskybox", "1"},
-					{"r_drawsprites", "1"},
-					{"r_DrawDisp", "1"},
-					{"r_drawstaticprops", "1"},
-					{"mat_alphacoverage", "0"},
-					{"gmod_mcore_test", "1"},
-					{"r_maxdlights", "0.00"},
-					{"r_shadow_allowbelow", "0"},
-					{"r_shadow_allowdynamic", "0"},
-					{"r_shadowfromanyworldlight", "0"},
-					{"r_shadowmaxrendered", "0.00"},
-					{"r_shadowrendertotexture", "0"},
-					{"SyntHud_max_ap", "0"},
-					{"mat_filterlightmaps", "0"},
-					{"r_shadow_lightpos_lerptime", "60.00"},
-					{"mat_antialias", "0"},
-					{"mat_compressedtextures", "1"},
-					{"mat_specular", "0"}
-				}
-								for _, optimizeconvar in ipairs(optimizeconvar) do
+				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_mapextents", "5000"}, {"fps_max", "60"}, {"mat_queue_mode", "2"}, {"cl_threaded_bone_setup", "1"}, {"cl_threaded_client_leaf_system", "1"}, {"r_threaded_client_shadow_manager", "1"}, {"r_threaded_particles", "1"}, {"r_threaded_renderables", "1"}, {"r_queued_ropes", "1"}, {"studio_queue_mode", "1"}, {"cl_forcepreload", "1"}, {"sv_forcepreload", "1"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"cl_drawownshadow", "0"}, {"mat_bumpmap", "1"}, {"mat_colorcorrection", "0"}, {"mat_dynamic_tonemapping", "0"}, {"mat_filtertextures", "1"}, {"mat_mipmaptextures", "1"}, {"mat_parallaxmap", "0"}, {"mat_showlowresimage", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_3dsky", "0"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawdecals", "0"}, {"r_drawdetailprops", "1"}, {"r_drawparticles", "1"}, {"r_farz", "12000"}, {"r_radiosity", "2"}, {"cl_ejectbrass", "0"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"mat_aaquality", "0"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawskybox", "1"}, {"r_drawsprites", "1"}, {"r_DrawDisp", "1"}, {"r_drawstaticprops", "1"}, {"mat_alphacoverage", "0"}, {"gmod_mcore_test", "1"}, {"r_maxdlights", "0.00"}, {"r_shadow_allowbelow", "0"}, {"r_shadow_allowdynamic", "0"}, {"r_shadowfromanyworldlight", "0"}, {"r_shadowmaxrendered", "0.00"}, {"r_shadowrendertotexture", "0"}, {"SyntHud_max_ap", "0"}, {"r_shadow_lightpos_lerptime", "60.00"}, {"mat_antialias", "0"}, {"mat_compressedtextures", "1"}, {"mat_specular", "0"},{"ai_expression_optimization","1"},{"r_flashlightscissor","1"},{"spawnicon_queue","1"}}
+				for _, optimizeconvar in ipairs(optimizeconvar) do
 					local name, value = unpack(optimizeconvar)
 					LocalPlayer():ConCommand(name .. " " .. value)
 					if CLIENT then
@@ -301,10 +237,14 @@ if CLIENT then
 			end
 
 			setConvars()
-			timer.Simple(5)
-			if g_VR.active == true then
-				LocalPlayer():ConCommand("vrmod_restart")
-			end
+			timer.Simple(
+				2,
+				function()
+					if g_VR.active == true then
+						LocalPlayer():ConCommand("vrmod_restart")
+					end
+				end
+			)
 		end
 	)
 

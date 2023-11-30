@@ -1,11 +1,9 @@
-
-
 function VRMod_SemiOffcial_Include()
     local paths = {}
-    local operation = CreateClientConVar("vrmod_dev_unoffcial_folder_file_operation", "1",true, FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons", 1, 2)
+    local operation = CreateClientConVar("vrmod_dev_unoffcial_folder_file_operation", "1", true, FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons", 1, 2)
     if operation:GetInt() == 1 then
         -- ConVarを作成
-        CreateClientConVar("vrmod_dev_unoffcial_folder_excluded_files", "vrmod_sample01.lua,vrmod_sample02.lua",true, FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons")
+        CreateClientConVar("vrmod_dev_unoffcial_folder_excluded_files", "vrmod_sample01.lua,vrmod_sample02.lua", true, FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons")
         -- ConVarの値を取得
         local excludedFilesString = GetConVarString("vrmod_dev_unoffcial_folder_excluded_files")
         local excludedFiles = {}
@@ -36,7 +34,7 @@ function VRMod_SemiOffcial_Include()
     if operation:GetInt() == 2 then
         local paths = {}
         -- ConVarを作成
-        CreateClientConVar("vrmod_dev_unoffcial_folder_included_files", "vrmod_sample01.lua,vrmod_sample02.lua",true, FCVAR_ARCHIVE, "Included Lua files separated by semicolons")
+        CreateClientConVar("vrmod_dev_unoffcial_folder_included_files", "vrmod_sample01.lua,vrmod_sample02.lua", true, FCVAR_ARCHIVE, "Included Lua files separated by semicolons")
         -- ConVarの値を取得
         local includedFilesString = GetConVarString("vrmod_dev_unoffcial_folder_included_files")
         local includedFiles = {}
@@ -66,7 +64,6 @@ function VRMod_SemiOffcial_Include()
 end
 
 VRMod_SemiOffcial_Include()
-
 concommand.Add(
     "vrmod_dev_lua_reinclude_semioffcial",
     function()

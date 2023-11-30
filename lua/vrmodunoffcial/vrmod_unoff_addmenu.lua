@@ -227,7 +227,7 @@ RunConsoleCommand("vrmod_gmod_optimization")
 			RunConsoleCommand("vrmod_allow_teleport_client", "0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vr_pickup_disable_client", "0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_pickup_weight", "100") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_pickup_range", "1.2") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_pickup_range", "1.1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_pickup_limit","0") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
@@ -583,7 +583,8 @@ RunConsoleCommand("vrmod_gmod_optimization")
 		end
 
 		character_auto.DoRightClick = function()
-			RunConsoleCommand("vrmod_character_auto") -- Run the console command "say hi" when you click it ( command, args )							
+			RunConsoleCommand("vrmod_character_auto") -- Run the console command "say hi" when you click it ( command, args )		
+					
 		end
 
 		--DButton end
@@ -968,11 +969,11 @@ RunConsoleCommand("vrmod_gmod_optimization")
 		--DCheckBoxLabel end
 
 		--DCheckBoxLabel Start
-		local hud_visible_quickmenukey = Panel8:Add("DCheckBoxLabel") -- Create the checkbox
-		hud_visible_quickmenukey:SetPos(20, 70) -- Set the position
-		hud_visible_quickmenukey:SetText("hud_visible_quickmenukey") -- Set the text next to the box
-		hud_visible_quickmenukey:SetConVar("hud_visible_quickmenukey") -- Change a ConVar when the box it ticked/unticked
-		hud_visible_quickmenukey:SizeToContents() -- Make its size the same as the contents
+		local vrmod_hud_visible_quickmenukey = Panel8:Add("DCheckBoxLabel") -- Create the checkbox
+		vrmod_hud_visible_quickmenukey:SetPos(20, 70) -- Set the position
+		vrmod_hud_visible_quickmenukey:SetText("vrmod_hud_visible_quickmenukey") -- Set the text next to the box
+		vrmod_hud_visible_quickmenukey:SetConVar("vrmod_hud_visible_quickmenukey") -- Change a ConVar when the box it ticked/unticked
+		vrmod_hud_visible_quickmenukey:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 
 
