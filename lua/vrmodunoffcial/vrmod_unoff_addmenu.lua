@@ -279,7 +279,7 @@ RunConsoleCommand("vrmod_gmod_optimization")
 		attach_quickmenu:SetSize(320, 25) -- Set the size (X,Y)
 		attach_quickmenu:SetText("quickmenu Attach Position") -- Set the text above the slider
 		attach_quickmenu:AddChoice("left hand")
-		-- attach_quickmenu:AddChoice("(buggy)")
+		attach_quickmenu:AddChoice("(buggy)")
 		attach_quickmenu:AddChoice("HMD")
 		attach_quickmenu:AddChoice("right hand")
 		attach_quickmenu.OnSelect = function(self, index, value)
@@ -293,7 +293,7 @@ RunConsoleCommand("vrmod_gmod_optimization")
 		attach_weaponmenu:SetSize(320, 25) -- Set the size (X,Y)
 		attach_weaponmenu:SetText("weaponmenu Attach Position") -- Set the text above the slider
 		attach_weaponmenu:AddChoice("left hand")
-		-- attach_weaponmenu:AddChoice("(buggy)")
+		attach_weaponmenu:AddChoice("(buggy)")
 		attach_weaponmenu:AddChoice("HMD")
 		attach_weaponmenu:AddChoice("right hand")
 		attach_weaponmenu.OnSelect = function(self, index, value)
@@ -307,7 +307,7 @@ RunConsoleCommand("vrmod_gmod_optimization")
 		attach_popup:SetSize(320, 25) -- Set the size (X,Y)
 		attach_popup:SetText("popup Attach Position") -- Set the text above the slider
 		attach_popup:AddChoice("left hand")
-		-- attach_popup:AddChoice("(buggy)")
+		attach_popup:AddChoice("(buggy)")
 		attach_popup:AddChoice("HMD")
 		attach_popup:AddChoice("right hand")
 		attach_popup.OnSelect = function(self, index, value)
@@ -434,6 +434,13 @@ RunConsoleCommand("vrmod_gmod_optimization")
 		vrmod_test_ui_testver:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 
+		--DCheckBoxLabel Start
+		local vrmod_hud_visible_quickmenukey = Panel02:Add("DCheckBoxLabel") -- Create the checkbox
+		vrmod_hud_visible_quickmenukey:SetPos(20, 165) -- Set the position
+		vrmod_hud_visible_quickmenukey:SetText("HUD only while pressing menu key") -- Set the text next to the box
+		vrmod_hud_visible_quickmenukey:SetConVar("vrmod_hud_visible_quickmenukey") -- Change a ConVar when the box it ticked/unticked
+		vrmod_hud_visible_quickmenukey:SizeToContents() -- Make its size the same as the contents
+		--DCheckBoxLabel end
 
 
 		--DLabel&DTextEntry Start
@@ -968,13 +975,6 @@ RunConsoleCommand("vrmod_gmod_optimization")
 		ui_realtime:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 
-		--DCheckBoxLabel Start
-		local vrmod_hud_visible_quickmenukey = Panel8:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_hud_visible_quickmenukey:SetPos(20, 70) -- Set the position
-		vrmod_hud_visible_quickmenukey:SetText("vrmod_hud_visible_quickmenukey") -- Set the text next to the box
-		vrmod_hud_visible_quickmenukey:SetConVar("vrmod_hud_visible_quickmenukey") -- Change a ConVar when the box it ticked/unticked
-		vrmod_hud_visible_quickmenukey:SizeToContents() -- Make its size the same as the contents
-		--DCheckBoxLabel end
 
 
 

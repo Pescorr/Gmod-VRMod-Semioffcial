@@ -491,7 +491,7 @@ if CLIENT then
 			function()
 				for k, v in ipairs(simulate) do
 					if v.pose.pos == v.pose.simulatedPos then
-						v.pose.pos, v.pose.ang = LocalToWorld(v.offset, Angle(90, 0, 0), g_VR.tracking.pose_righthand.pos, Angle(0, g_VR.tracking.pose_righthand.ang.yaw, 0))
+						v.pose.pos, v.pose.ang = LocalToWorld(v.offset, Angle(90, 0, 0), g_VR.tracking.hmd.pos, Angle(0, g_VR.tracking.hmd.ang.yaw, 0))
 						v.pose.simulatedPos = v.pose.pos
 					else
 						v.pose.simulatedPos = nil

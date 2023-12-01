@@ -80,6 +80,37 @@ hook.Add(
 			return
 		end
 
+		-- if action == "boolean_right_pickup" then
+		-- 	if cl_pickupdisable:GetBool() then return end
+		-- 	vrmod.Pickup(false, not pressed)
+		-- 	if pressed then
+		-- 		local wep = LocalPlayer():GetActiveWeapon()
+		-- 		if IsValid(wep) and wep:GetClass() == "weapon_physgun" then
+		-- 			LocalPlayer():ConCommand("+use")
+		-- 			hook.Add(
+		-- 				"CreateMove",
+		-- 				"vrutil_hook_cmphysguncontrol",
+		-- 				function(cmd)
+		-- 					if g_VR.input.vector2_walkdirection.y > 0.9 then
+		-- 						cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_FORWARD))
+		-- 					elseif g_VR.input.vector2_walkdirection.y < -0.9 then
+		-- 						cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_BACK))
+		-- 					else
+		-- 						cmd:SetMouseX(g_VR.input.vector2_walkdirection.x * 50)
+		-- 						cmd:SetMouseY(g_VR.input.vector2_walkdirection.y * -50)
+		-- 					end
+		-- 				end
+		-- 			)
+		-- 		end
+		-- 	else
+		-- 		LocalPlayer():ConCommand("-use")
+		-- 		hook.Remove("CreateMove", "vrutil_hook_cmphysguncontrol")
+		-- 	end
+
+		-- 	return
+		-- end
+
+
 		if action == "boolean_lefthandmode" then
 			LocalPlayer():ConCommand("vrmod_lefthand 1")
 		end
