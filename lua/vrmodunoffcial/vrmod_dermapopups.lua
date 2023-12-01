@@ -107,6 +107,7 @@ meta.MakePopup = function(...)
 							function()
 								if not g_VR.active and IsValid(panel) then
 									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
+									panel:RequestFocus()
 								end
 							end
 						)
@@ -142,6 +143,8 @@ meta.MakePopup = function(...)
 							function()
 								if not g_VR.active and IsValid(panel) then
 									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
+									panel:RequestFocus()
+
 								end
 							end
 						)
