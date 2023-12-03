@@ -270,7 +270,7 @@ if CLIENT then
 		if vmi.offsetPos == nil or vmi.offsetAng == nil then
 			vmi.offsetPos, vmi.offsetAng = Vector(), Angle()
 
-			local cm = ClientsideModel(vm)
+			local cm = ClientsideModel(wep:GetWeaponViewModel())
 			if IsValid(cm) then
 				cm:SetNoDraw(true)
 				cm:SetupBones()
