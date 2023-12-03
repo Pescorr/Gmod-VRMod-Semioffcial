@@ -162,12 +162,6 @@ elseif SERVER then
 
 			if convarValues.vrmod_pickup_limit == 1 then
 				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or v == ply or ply:InVehicle() or v:GetMoveType() ~= MOVETYPE_VPHYSICS or (v.CPPICanPickup ~= nil and not v:CPPICanPickup(ply)) or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight then continue end
-				-- Check if the entity is a ragdoll
-				if v:GetClass() == "prop_ragdoll" then
-					-- Calculate the closest point on the ragdoll to the player's left hand position
-					local closestPoint = v:NearestPoint(handPos)
-					pickupPoint = closestPoint
-				end
 
 			end
 
@@ -334,3 +328,5 @@ elseif SERVER then
 		end
 	)
 end
+
+

@@ -2,8 +2,9 @@ if SERVER then return end
 
 local open = false
 
-local openconvar = CreateClientConVar("vrmod_gbradial_cmd_open","+gb-radial",true,FCVAR_ARCHIVE)
-local closeconvar = CreateClientConVar("vrmod_gbradial_cmd_close","-gb-radial",true,FCVAR_ARCHIVE)
+local openconvar = CreateClientConVar("vrmod_userbutton02_cmd_open","+gb-radial",true,FCVAR_ARCHIVE)
+local closeconvar = CreateClientConVar("vrmod_userbutton02_cmd_close","-gb-radial",true,FCVAR_ARCHIVE)
+local buttonname = CreateClientConVar("vrmod_userbutton02_name","vremenu_gb_radial",true,FCVAR_ARCHIVE)
 local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", "0", true, FCVAR_ARCHIVE)
 
 function VREgb_radialToggle()
@@ -91,7 +92,7 @@ function VREgb_radialOpen()
         mode = 4
     end
 
-    VRUtilMenuOpen("vremenu_gb_radial", ScrW(), ScrH(), vregb_radialPanel, mode, pos, ang, 0.01, true, function()
+    VRUtilMenuOpen(buttonname:GetString(), ScrW(), ScrH(), vregb_radialPanel, mode, pos, ang, 0.01, true, function()
         vregb_radialPanel:Remove()
         vregb_radialPanel = nil
          hook.Remove("PreRender","vre_rendergb_radial")

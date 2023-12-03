@@ -25,17 +25,17 @@ meta.MakePopup = function(...)
 				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
 				panel.Paint = function(self, w, h)
-					surface.SetDrawColor(249, 60, 2)
+					surface.SetDrawColor(175, 174, 187)
 					surface.DrawRect(0, 0, w, h)
 				end
 				popupCount = popupCount + 1
 			end
 
-			if panel:GetName() == "DHTML" then
+			if panel:GetName() == "Frame" then
 				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
 				panel.Paint = function(self, w, h)
-					surface.SetDrawColor(249, 60, 2)
+					surface.SetDrawColor(175, 174, 187)
 					surface.DrawRect(0, 0, w, h)
 				end
 
