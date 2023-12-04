@@ -491,7 +491,7 @@ if CLIENT then
 			function()
 				for k, v in ipairs(simulate) do
 					if v.pose.pos == v.pose.simulatedPos then
-						v.pose.pos, v.pose.ang = LocalToWorld(v.offset, Angle(90, 0, 0), g_VR.tracking.pose_righthand.pos, Angle(0, g_VR.tracking.hmd.ang.yaw, 0))
+						v.pose.pos, v.pose.ang = LocalToWorld(v.offset, Angle(90, 0, 0), g_VR.tracking.hmd.pos, Angle(0, g_VR.tracking.hmd.ang.yaw, 0))
 						v.pose.simulatedPos = v.pose.pos
 					else
 						v.pose.simulatedPos = nil
@@ -663,7 +663,7 @@ if CLIENT then
 				--set view according to viewentity
 				local viewEnt = localply:GetViewEntity()
 				if viewEnt ~= localply then
-					local rawPos, rawAng = WorldToLocal(g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_righthand.ang, g_VR.origin, g_VR.originAngle)
+					local rawPos, rawAng = WorldToLocal(g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang, g_VR.origin, g_VR.originAngle)
 					if viewEnt ~= currentViewEnt then
 						local pos, ang = LocalToWorld(rawPos, rawAng, viewEnt:GetPos(), viewEnt:GetAngles())
 						pos1, ang1 = WorldToLocal(viewEnt:GetPos(), viewEnt:GetAngles(), pos, ang)

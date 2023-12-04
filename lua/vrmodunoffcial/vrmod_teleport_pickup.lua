@@ -29,6 +29,9 @@ concommand.Add("vrmod_pickup_nearest_left", function(ply)
         return
     end
 
+    handAng = handAng - Angle(0, 0, 180)
+
+
     -- エンティティを手の位置にテレポート
     nearestEnt:SetPos(handPos)
     nearestEnt:SetAngles(handAng)
@@ -67,6 +70,8 @@ concommand.Add("vrmod_pickup_nearest_right", function(ply)
         ply:ChatPrint("手の位置と角度を取得できませんでした。")
         return
     end
+
+    handAng = handAng - Angle(0, 0, 180)
 
     -- エンティティを手の位置にテレポート
     nearestEnt:SetPos(handPos)
