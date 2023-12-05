@@ -520,7 +520,9 @@ if CLIENT then
 
 		local desktopView = convars.vrmod_desktopview:GetInt()
 		local cropVerticalMargin = (1 - (vrScrH:GetInt() / vrScrW:GetInt() * rtWidthright / rtHeight)) / 2
+		local cropVerticalMargin02 = 1 - cropVerticalMargin
 		local cropHorizontalOffset = (desktopView == 3) and 0.5 or 0
+		local cropHorizontalOffset02 = 0.5 + cropHorizontalOffset
 		local mat_rt = CreateMaterial(
 			"vrmod_mat_rt" .. tostring(SysTime()),
 			"UnlitGeneric",
@@ -674,12 +676,14 @@ if CLIENT then
 				else
 					g_VR.view.origin, g_VR.view.angles = g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang
 				end
-
+				
 				currentViewEnt = viewEnt
+				local ipdeye = (ipd * 0.5 * g_VR.scale)
+
 				--
 				g_VR.view.origin = g_VR.view.origin + g_VR.view.angles:Forward() * -(eyez * g_VR.scale)
-				g_VR.eyePosLeft = g_VR.view.origin + g_VR.view.angles:Right() * -(ipd * 0.5 * g_VR.scale)
-				g_VR.eyePosRight = g_VR.view.origin + g_VR.view.angles:Right() * (ipd * 0.5 * g_VR.scale)
+				g_VR.eyePosLeft = g_VR.view.origin + g_VR.view.angles:Right() * - ipdeye
+				g_VR.eyePosRight = g_VR.view.origin + g_VR.view.angles:Right() * ipdeye
 				render.PushRenderTarget(g_VR.rt)
 				-- left
 				g_VR.view.origin = g_VR.eyePosLeft
@@ -708,7 +712,7 @@ if CLIENT then
 					surface.SetDrawColor(255, 255, 255, 255)
 					surface.SetMaterial(mat_rt)
 					render.CullMode(1)
-					surface.DrawTexturedRectUV(-1, -1, 2, 2, cropHorizontalOffset, 1 - cropVerticalMargin, 0.5 + cropHorizontalOffset, cropVerticalMargin)
+					surface.DrawTexturedRectUV(-1, -1, 2, 2, cropHorizontalOffset, cropVerticalMargin02, cropHorizontalOffset02, cropVerticalMargin)
 					render.CullMode(0)
 				end
 
@@ -814,6 +818,7 @@ if CLIENT then
 		hook.Remove("PreDrawPlayerHands", "vrutil_hook_predrawplayerhands")
 		hook.Remove("PreDrawViewModel", "vrutil_hook_predrawviewmodel")
 		hook.Remove("ShouldDrawLocalPlayer", "vrutil_hook_shoulddrawlocalplayer")
+
 		g_VR.tracking = {}
 		g_VR.threePoints = false
 		g_VR.sixPoints = false

@@ -55,7 +55,6 @@ function VREaddvrmenuOpen()
 
 	-- Activate bothmode to be able to press buttons even when using a vehicle.
 	LocalPlayer():ConCommand("vrmod_keymode_both")
-
 	--3button toggle start
 	local button2 = vgui.Create("DButton")
 	button2:SetText("attach_popup: ")
@@ -113,8 +112,8 @@ function VREaddvrmenuOpen()
 		button3:SetText("attach Menu hand: " .. ccval3[button3on + 1])
 		draw.RoundedBox(8, 0, 0, w, h, BUTTON_3TIER[math.abs(button3on + 1)])
 	end
-	--3button toggle end
 
+	--3button toggle end
 	--2button toggle start
 	local teleposerver = GetConVar("vrmod_allow_teleport")
 	if teleposerver:GetBool() then
@@ -289,39 +288,33 @@ function VREaddvrmenuOpen()
 		function button9:Paint(w, h)
 			button9:SetText("ArcVR_PouchMode: \n" .. ccval9[button9on + 1])
 			draw.RoundedBox(8, 0, 0, w, h, BUTTON_4TIER[button9on + 1])
-			if GetConVar("vrmod_floatinghands"):GetBool() then
-				button9:SetText("ArcVR_PouchMode \n Floating hand Mode")
-				draw.RoundedBox(8, 0, 0, w, h, BUTTON_4TIER[button9on + 1])
-			end
 		end
 		--button toggle end
 	end
 
-		-- --2button toggle start
-		-- local buttonA = vgui.Create("DButton")
-		-- local ccvalA = {"Type1", "Type2"}
-		-- buttonA:SetText("Pickup Mode\n")
-		-- buttonA:SetSize(120, 60)
-		-- buttonA:SetTextColor(Color(255, 255, 255))
-		-- grid:AddItem(buttonA)
-		-- buttonA.DoClick = function()
-		-- 	--command start
-		-- 	if buttonAon == 1 then
-		-- 		buttonAon = 0
-		-- 		LocalPlayer():ConCommand("vrmod_pickup_retry 1")
-		-- 	else
-		-- 		buttonAon = 1
-		-- 		LocalPlayer():ConCommand("vrmod_pickup_retry 0")
-		-- 	end
-		-- end
-
-		-- --command end
-		-- function buttonA:Paint(w, h)
-		-- 	buttonA:SetText("Pickup Possible\n" .. ccvalA[buttonAon + 1])
-		-- 	draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon - 2)])
-		-- end
-		-- --2button toggle end
-
+	-- --2button toggle start
+	-- local buttonA = vgui.Create("DButton")
+	-- local ccvalA = {"Type1", "Type2"}
+	-- buttonA:SetText("Pickup Mode\n")
+	-- buttonA:SetSize(120, 60)
+	-- buttonA:SetTextColor(Color(255, 255, 255))
+	-- grid:AddItem(buttonA)
+	-- buttonA.DoClick = function()
+	-- 	--command start
+	-- 	if buttonAon == 1 then
+	-- 		buttonAon = 0
+	-- 		LocalPlayer():ConCommand("vrmod_pickup_retry 1")
+	-- 	else
+	-- 		buttonAon = 1
+	-- 		LocalPlayer():ConCommand("vrmod_pickup_retry 0")
+	-- 	end
+	-- end
+	-- --command end
+	-- function buttonA:Paint(w, h)
+	-- 	buttonA:SetText("Pickup Possible\n" .. ccvalA[buttonAon + 1])
+	-- 	draw.RoundedBox(8, 0, 0, w, h, BUTTON_2TIER[math.abs(buttonAon - 2)])
+	-- end
+	-- --2button toggle end
 	--2button toggle start		
 	local buttonB = vgui.Create("DButton")
 	buttonB:SetText("disable\npickup: ")
