@@ -25,7 +25,7 @@ meta.MakePopup = function(...)
 				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
 				panel.Paint = function(self, w, h)
-					surface.SetDrawColor(175, 174, 187)
+					surface.SetDrawColor(150, 149, 160)
 					surface.DrawRect(0, 0, w, h)
 				end
 				popupCount = popupCount + 1

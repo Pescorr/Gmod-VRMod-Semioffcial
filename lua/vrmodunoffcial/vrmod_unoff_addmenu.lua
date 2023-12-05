@@ -73,7 +73,7 @@ hook.Add(
 		--DButton end
 		--DCheckBoxLabel Start
 		local vrmod_open_menu_auto_optimization = Panel6:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_open_menu_auto_optimization:SetPos(20, 290) -- Set the position
+		vrmod_open_menu_auto_optimization:SetPos(20, 250) -- Set the position
 		vrmod_open_menu_auto_optimization:SetText("[VRMenu Open -> Auto Basic Optimization]") -- Set the text next to the box
 		vrmod_open_menu_auto_optimization:SetConVar("vrmod_gmod_optimization_auto") -- Change a ConVar when the box it ticked/unticked
 		vrmod_open_menu_auto_optimization:SizeToContents() -- Make its size the same as the contents
@@ -83,7 +83,7 @@ hook.Add(
 		--gmod_optimization
 		local gmod_optimization = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
 		gmod_optimization:SetText("vrmod_gmod_optimization\n(Basic)") -- Set the text on the button
-		gmod_optimization:SetPos(20, 315) -- Set the position on the frame
+		gmod_optimization:SetPos(20, 270) -- Set the position on the frame
 		gmod_optimization:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		gmod_optimization.DoClick = function()
@@ -98,7 +98,7 @@ hook.Add(
 		--gmod_optimization
 		local gmod_optimization02 = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
 		gmod_optimization02:SetText("vrmod_gmod_optimization\n(buggy but Strong)") -- Set the text on the button
-		gmod_optimization02:SetPos(190, 315) -- Set the position on the frame
+		gmod_optimization02:SetPos(190, 270) -- Set the position on the frame
 		gmod_optimization02:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		gmod_optimization02.DoClick = function()
@@ -108,6 +108,40 @@ hook.Add(
 		gmod_optimization02.DoRightClick = function()
 			RunConsoleCommand("vrmod_gmod_optimization_02")
 		end
+
+		--DButton Start
+		--gmod_optimization
+		local gmod_optimization02 = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
+		gmod_optimization02:SetText("vrmod_gmod_optimization\n(buggy but Strong)") -- Set the text on the button
+		gmod_optimization02:SetPos(190, 270) -- Set the position on the frame
+		gmod_optimization02:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		gmod_optimization02.DoClick = function()
+			RunConsoleCommand("vrmod_gmod_optimization_02") -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+		gmod_optimization02.DoRightClick = function()
+			RunConsoleCommand("vrmod_gmod_optimization_02")
+		end
+		
+
+		--FPS_defaultbutton
+		local FPS_defaultbutton = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
+		FPS_defaultbutton:SetText("setdefaultvalue\n(Gmod Default)") -- Set the text on the button
+		FPS_defaultbutton:SetPos(190, 310) -- Set the position on the frame
+		FPS_defaultbutton:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		FPS_defaultbutton.DoClick = function()
+			RunConsoleCommand("vrmod_gmod_optimization_reset")
+		end
+
+		FPS_defaultbutton.DoRightClick = function()
+			RunConsoleCommand("vrmod_gmod_optimization_reset")		
+		
+		end
+		--DButton end
+
+
 
 		-- Panel02 "TAB02" Start
 		local Panel02 = vgui.Create("DPanel", sheet)
@@ -229,7 +263,7 @@ hook.Add(
 			RunConsoleCommand("vr_pickup_disable_client", "0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_pickup_weight", "100") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_pickup_range", "1.1") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_pickup_limit", "0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_pickup_limit", "1") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
 		GamePlay_defaultbutton.DoRightClick = function() end
@@ -478,7 +512,6 @@ hook.Add(
 		characterEyeHeight:SetConVar("vrmod_characterEyeHeight") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()
 		characterEyeHeight.OnValueChanged = function(self, value)
-			LocalPlayer():ConCommand("vrmod_character_apply")
 		end
 
 		--DNumSlider end				
@@ -547,7 +580,7 @@ hook.Add(
 		character_auto.DoClick = function()
 			RunConsoleCommand("vrmod_character_auto") -- Run the console command "say hi" when you click it ( command, args )							
 			timer.Simple(
-				1,
+				2,
 				function()
 					RunConsoleCommand("vrmod_scale_auto") -- Run the console command "say hi" when you click it ( command, args )					
 				end
@@ -1059,7 +1092,7 @@ hook.Add(
 -- local EXAMPLE = vgui.Create("DPanel", sheet)
 -- sheet:AddSheet("this is title", EXAMPLE, "icon16/user_edit.png")
 -- EXAMPLE.Paint = function(self, w, h)
--- 	draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+-- 	draw.RoundedBox(4, 0, 0, w, h, Color(126, 126, 128, self:GetAlpha()))
 -- end
 -- NEWTAB EXAMPLE End
 --Settings02 end
