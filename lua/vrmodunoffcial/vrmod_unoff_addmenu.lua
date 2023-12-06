@@ -27,7 +27,7 @@ hook.Add(
 		--DCheckBoxLabel Start
 		local r_shadows = Panel6:Add("DCheckBoxLabel") -- Create the checkbox
 		r_shadows:SetPos(20, 30) -- Set the position
-		r_shadows:SetText("Shadows Enable(Client)") -- Set the text next to the box
+		r_shadows:SetText("Shadows&FlashLights Effect Enable(Client)") -- Set the text next to the box
 		r_shadows:SetConVar("r_shadows") -- Change a ConVar when the box it ticked/unticked
 		r_shadows:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
