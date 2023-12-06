@@ -1,4 +1,53 @@
 if CLIENT then
+
+-- Module for Left Grip Mode in VRMod
+local LeftGripMode = {}
+
+-- Define a new ConVar
+local leftGripModeActive = CreateClientConVar("vrmod_leftgripmode", "0",true, FCVAR_ARCHIVE, "Enable or disable left grip mode in VRMod")
+
+-- Function to update the view model based on the left grip mode
+function LeftGripMode.UpdateViewModel(g_VR, netFrame)
+    -- Check if the left grip mode is active
+    if leftGripModeActive:GetBool() then
+        -- Left grip mode logic goes here
+        if g_VR.currentvmi then
+            local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_lefthand.ang)
+            g_VR.viewModelPos = pos
+            g_VR.viewModelAng = ang
+        end
+
+        if IsValid(g_VR.viewModel) then
+            if not g_VR.usingWorldModels then
+                g_VR.viewModel:SetPos(g_VR.viewModelPos)
+                g_VR.viewModel:SetAngles(g_VR.viewModelAng)
+                g_VR.viewModel:SetupBones()
+
+                -- Override hand pose in net frame
+                if netFrame then
+                    local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
+                    if b then
+                        local mtx = g_VR.viewModel:GetBoneMatrix(b)
+                        netFrame.righthandPos = mtx:GetTranslation()
+                        netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
+                    end
+
+                    local c = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
+                    if c then
+                        local mtxl = g_VR.viewModel:GetBoneMatrix(c)
+                        netFrame.lefthandPos = mtxl:GetTranslation()
+                        netFrame.lefthandAng = mtxl:GetAngles() - Angle(0, 0, 0)
+                    end
+                end
+            end
+
+            g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+        end
+    end
+end
+
+
+
 	function VRUtilRemoveHooker()
 		hook.Remove("PreDrawTranslucentRenderables", "vrmod_floatinghands_dummymirror")
 		hook.Remove("RenderScene", "vrutil_hook_renderscene")
