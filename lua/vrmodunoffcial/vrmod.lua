@@ -18,10 +18,10 @@ if convars.vrmod_configversion:GetString() ~= convars.vrmod_configversion:GetDef
 end
 
 if CLIENT then
-	local errorout = CreateClientConVar("vrmod_error_check_method", "1", true)
+	local errorout = CreateClientConVar("vrmod_error_check_method", 1, true)
 	local vrScrH = CreateClientConVar("vrmod_ScrH", ScrH(), true, FCVAR_ARCHIVE)
 	local vrScrW = CreateClientConVar("vrmod_ScrW", ScrW(), true, FCVAR_ARCHIVE)
-	local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun", "1", true, FCVAR_ARCHIVE)
+	local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun", 1, true, FCVAR_ARCHIVE)
 	g_VR.scale = 0
 	g_VR.origin = Vector(0, 0, 0)
 	g_VR.originAngle = Angle(0, 0, 0)
@@ -38,10 +38,10 @@ if CLIENT then
 	g_VR.changedInputs = {}
 	g_VR.errorText = ""
 	--todo move some of these to the files where they belong
-	vrmod.AddCallbackedConvar("vrmod_althead", nil, "1")
+	vrmod.AddCallbackedConvar("vrmod_althead", nil, 1)
 	vrmod.AddCallbackedConvar("vrmod_autostart", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_scale", nil, "38.7")
-	vrmod.AddCallbackedConvar("vrmod_heightmenu", nil, "1")
+	vrmod.AddCallbackedConvar("vrmod_heightmenu", nil, 1)
 	vrmod.AddCallbackedConvar("vrmod_floatinghands", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_desktopview", nil, "3")
 	vrmod.AddCallbackedConvar("vrmod_useworldmodels", nil, "0")
@@ -426,13 +426,13 @@ if CLIENT then
 		overrideConvar("playerscaling_clientspeed", "0")
 		overrideConvar("playerscaling_clientjump", "0")
 		if autoarcbench:GetBool() then
-			overrideConvar("arccw_dev_benchgun", "1")
-			overrideConvar("arc9_dev_benchgun", "1")
+			overrideConvar("arccw_dev_benchgun", 1)
+			overrideConvar("arc9_dev_benchgun", 1)
 			overrideConvar("arc9_tpik", "0")
 		end
 
 		--overrideConvar("pac_suppress_frames", "0")
-		--overrideConvar("pac_override_fov", "1")
+		--overrideConvar("pac_override_fov", 1)
 		--3D audio fix
 		hook.Add(
 			"CalcView",
@@ -532,11 +532,13 @@ if CLIENT then
 		)
 
 		local localply = LocalPlayer()
-		local cameraover = CreateClientConVar("vrmod_cameraoverride", "1", true, FCVAR_ARCHIVE)
+		local cameraover = CreateClientConVar("vrmod_cameraoverride", 1, true, FCVAR_ARCHIVE)
 		local currentViewEnt = localply
 		local pos1, ang1
-		local uselefthand = CreateClientConVar("vrmod_LeftHand", "0", true, FCVAR_ARCHIVE)
-		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", "0", true, FCVAR_ARCHIVE)
+		local uselefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
+		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", 0, true, FCVAR_ARCHIVE)
+		-- local leftgripmode = CreateClientConVar("vrmod_leftgripmode", 0,true,FCVAR_ARCHIVE)
+
 		hook.Add(
 			"RenderScene",
 			"vrutil_hook_renderscene",
@@ -566,7 +568,50 @@ if CLIENT then
 					hook.Call("VRMod_Input", nil, k, v)
 				end
 
-				--lefthand&foregrip start
+				-- 				--foregrip start
+				-- --lefthand&foregrip start
+				-- --gripmode start
+				-- if leftgripmode:GetBool() then
+				-- 	local netFrame = VRUtilNetUpdateLocalPly()
+				-- 	--update viewmodel position
+				-- 	if g_VR.currentvmi then
+				-- 		local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_lefthand.ang)
+				-- 		local posl, angl = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_lefthand.ang)
+				-- 		g_VR.viewModelPos = pos
+				-- 		g_VR.viewModelAng = angl
+				-- 	end
+
+				-- 	if IsValid(g_VR.viewModel) then
+				-- 		if not g_VR.usingWorldModels then
+				-- 			g_VR.viewModel:SetPos(g_VR.viewModelPos)
+				-- 			g_VR.viewModel:SetAngles(g_VR.viewModelAng)
+				-- 			g_VR.viewModel:SetupBones()
+				-- 			--override hand pose in net frame
+				-- 			if netFrame then
+				-- 				local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
+				-- 				if b then
+				-- 					local mtx = g_VR.viewModel:GetBoneMatrix(b)
+				-- 					netFrame.righthandPos = mtx:GetTranslation()
+				-- 					netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
+				-- 				end
+
+				-- 				local c = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
+				-- 				if c then
+				-- 					local mtxl = g_VR.viewModel:GetBoneMatrix(c)
+				-- 					netFrame.lefthandPos = mtxl:GetTranslation()
+				-- 					netFrame.lefthandAng = mtxl:GetAngles() - Angle(0, 0, 0)
+				-- 				end
+				-- 			end
+				-- 		end
+
+				-- 		g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+				-- 	end
+				-- end
+
+				-- --gripmode end
+				-- --foregrip end
+
+
 				--lefthandmode start
 				if uselefthand:GetBool() then
 					if lefthandmode:GetBool() then
@@ -582,14 +627,15 @@ if CLIENT then
 						if IsValid(g_VR.viewModel) then
 							if not g_VR.usingWorldModels then
 								g_VR.viewModel:SetPos(g_VR.viewModelPos)
-								g_VR.viewModel:SetAngles(g_VR.viewModelAng)
+								g_VR.viewModel:SetAngles(g_VR.viewModelAng)								
 								g_VR.viewModel:SetupBones()
 								--override hand pose in net frame
 								if netFrame then
 									local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
 									if b then
 										local mtx = g_VR.viewModel:GetBoneMatrix(b)
-										netFrame.lefthandPos = mtx:GetTranslation()
+
+										netFrame.lefthandPos = mtx:GetTranslation() - Vector(-13,0,0)
 										netFrame.lefthandAng = mtx:GetAngles() - Angle(0, 0, 180)
 									end
 								end
@@ -660,8 +706,6 @@ if CLIENT then
 				end
 
 				--righthand end
-				-- end
-				--lefthand&foregrip end
 				--set view according to viewentity
 				local viewEnt = localply:GetViewEntity()
 				if viewEnt ~= localply then
@@ -676,13 +720,12 @@ if CLIENT then
 				else
 					g_VR.view.origin, g_VR.view.angles = g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang
 				end
-				
-				currentViewEnt = viewEnt
-				local ipdeye = (ipd * 0.5 * g_VR.scale)
 
+				currentViewEnt = viewEnt
+				local ipdeye = ipd * 0.5 * g_VR.scale
 				--
 				g_VR.view.origin = g_VR.view.origin + g_VR.view.angles:Forward() * -(eyez * g_VR.scale)
-				g_VR.eyePosLeft = g_VR.view.origin + g_VR.view.angles:Right() * - ipdeye
+				g_VR.eyePosLeft = g_VR.view.origin + g_VR.view.angles:Right() * -ipdeye
 				g_VR.eyePosRight = g_VR.view.origin + g_VR.view.angles:Right() * ipdeye
 				render.PushRenderTarget(g_VR.rt)
 				-- left

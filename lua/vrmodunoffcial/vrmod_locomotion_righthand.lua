@@ -1,7 +1,7 @@
 --******************************************************************************************************************************
-local cv_allowtp = CreateClientConVar("vrmod_allow_teleport", "1",true, FCVAR_REPLICATED)
-local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client","0",true,FCVAR_ARCHIVE)
-local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly","0",false,FCVAR_ARCHIVE)
+local cv_allowtp = CreateClientConVar("vrmod_allow_teleport", 1,true, FCVAR_REPLICATED)
+local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client",0,true,FCVAR_ARCHIVE)
+local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly",0,false,FCVAR_ARCHIVE)
 
 if SERVER then 
 	util.AddNetworkString("vrmod_teleport")
@@ -85,9 +85,9 @@ local convars, convarValues = vrmod.AddCallbackedConvar("vrmod_controlleroriente
 vrmod.AddCallbackedConvar("vrmod_smoothturn", "smoothTurn", "0", nil, nil, nil, nil, tobool)
 vrmod.AddCallbackedConvar("vrmod_smoothturnrate", "smoothTurnRate", "180", nil, nil, nil, nil, tonumber)
 vrmod.AddCallbackedConvar("vrmod_crouchthreshold", "crouchThreshold", "40", nil, nil, nil, nil, tonumber)
-local cv_cargunmode = CreateClientConVar("vrmod_vehicle_reticlemode","1",false,FCVAR_ARCHIVE)
-local cv_sight = CreateClientConVar("vrmod_sight_bodypart","1",false,FCVAR_ARCHIVE)
-local jumpduck = CreateClientConVar("vrmod_autojumpduck","1",true,FCVAR_ARCHIVE,nil,"0","1")
+local cv_cargunmode = CreateClientConVar("vrmod_vehicle_reticlemode",1,false,FCVAR_ARCHIVE)
+local cv_sight = CreateClientConVar("vrmod_sight_bodypart",1,false,FCVAR_ARCHIVE)
+local jumpduck = CreateClientConVar("vrmod_autojumpduck",1,true,FCVAR_ARCHIVE)
 local zeroVec, zeroAng = Vector(), Angle()
 local upVec = Vector(0,0,1)
 

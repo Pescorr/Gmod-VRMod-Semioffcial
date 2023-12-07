@@ -1,6 +1,6 @@
 --******************************************************************************************************************************
-local cv_allowtp = CreateClientConVar("vrmod_allow_teleport", "1",true, FCVAR_REPLICATED)
-local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client","0",true,FCVAR_ARCHIVE)
+local cv_allowtp = CreateClientConVar("vrmod_allow_teleport", 1,true, FCVAR_REPLICATED)
+local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client",0,true,FCVAR_ARCHIVE)
 
 if SERVER then 
 	util.AddNetworkString("vrmod_teleport")
@@ -78,8 +78,8 @@ end)
 --******************************************************************************************************************************
 
 if SERVER then 
-	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",FCVAR_ARCHIVE)
-	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",FCVAR_ARCHIVE)
+	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle",0,false,FCVAR_ARCHIVE)
+	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle",0,false,FCVAR_ARCHIVE)
 	return
 	end
 
@@ -88,16 +88,16 @@ local convars, convarValues = vrmod.AddCallbackedConvar("vrmod_controlleroriente
 vrmod.AddCallbackedConvar("vrmod_smoothturn", "smoothTurn", "0", nil, nil, nil, nil, tobool)
 vrmod.AddCallbackedConvar("vrmod_smoothturnrate", "smoothTurnRate", "180", nil, nil, nil, nil, tonumber)
 vrmod.AddCallbackedConvar("vrmod_crouchthreshold", "crouchThreshold", "40", nil, nil, nil, nil, tonumber)
-local cv_cargunmode = CreateClientConVar("vrmod_vehicle_reticlemode","1",FCVAR_ARCHIVE)
-local cv_sight = CreateClientConVar("vrmod_sight_bodypart","1",FCVAR_ARCHIVE)
-local jumpduck = CreateClientConVar("vrmod_autojumpduck","1",true,FCVAR_ARCHIVE,nil,"0","1")
+local cv_cargunmode = CreateClientConVar("vrmod_vehicle_reticlemode",1,FCVAR_ARCHIVE)
+local cv_sight = CreateClientConVar("vrmod_sight_bodypart",1,false,FCVAR_ARCHIVE)
+local jumpduck = CreateClientConVar("vrmod_autojumpduck",1,true,FCVAR_ARCHIVE)
 local zeroVec, zeroAng = Vector(), Angle()
 local upVec = Vector(0,0,1)
 
 local function start()
 	local ply = LocalPlayer()
-	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",FCVAR_ARCHIVE)
-	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",FCVAR_ARCHIVE)
+	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle",0,false,FCVAR_ARCHIVE)
+	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle",0,false,FCVAR_ARCHIVE)
 
 	local followVec = zeroVec
 	local originVehicleLocalPos, originVehicleLocalAng = zeroVec, zeroAng
@@ -170,8 +170,8 @@ local function start()
 		if not g_VR.threePoints then return end
 		
 		local moveType = ply:GetMoveType()
-		local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",FCVAR_ARCHIVE)
-		local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",FCVAR_ARCHIVE)
+		local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle",0,false,FCVAR_ARCHIVE)
+		local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle",0,false,FCVAR_ARCHIVE)
 
 		--vehicle behaviour
 		if ply:InVehicle() and !cv_cargunmode:GetBool() then
