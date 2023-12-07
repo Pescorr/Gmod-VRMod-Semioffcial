@@ -8,10 +8,10 @@ surface.CreateFont(
 	}
 )
 
-local contexticon = CreateClientConVar("vrmod_enable_contextmenu_button", "1", true, FCVAR_ARCHIVE)
-local autoscrsetting = CreateClientConVar("vrmod_scr_alwaysautosetting", "1", true, FCVAR_ARCHIVE)
-local autooptimize = CreateClientConVar("vrmod_gmod_optimization_auto", "0", true, FCVAR_ARCHIVE)
-local vrautobenchgun = CreateClientConVar("vrmod_auto_arc_benchgun", "1", true, FCVAR_ARCHIVE)
+local contexticon = CreateClientConVar("vrmod_enable_contextmenu_button", 1, true, FCVAR_ARCHIVE)
+local autoscrsetting = CreateClientConVar("vrmod_scr_alwaysautosetting", 1, true, FCVAR_ARCHIVE)
+local autooptimize = CreateClientConVar("vrmod_gmod_optimization_auto", 0, true, FCVAR_ARCHIVE)
+local vrautobenchgun = CreateClientConVar("vrmod_auto_arc_benchgun", 1, true, FCVAR_ARCHIVE)
 -- local vrautogunsetting = CreateClientConVar("vrmod_auto_normalgunsetting", "1", true, FCVAR_ARCHIVE)
 
 
@@ -165,7 +165,7 @@ concommand.Add(
 	end
 )
 
-local convars = vrmod.AddCallbackedConvar("vrmod_showonstartup", nil, "0")
+local convars = vrmod.AddCallbackedConvar("vrmod_showonstartup", nil, 0)
 if contexticon:GetBool() then
 	list.Set(
 		"DesktopWindows",

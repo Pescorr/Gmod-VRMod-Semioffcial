@@ -1,8 +1,8 @@
-local cl_bothkey = CreateClientConVar("vrmod_vehicle_bothkeymode", "0", true, FCVAR_ARCHIVE)
-local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client", "0", true, FCVAR_ARCHIVE)
-local cl_lefthand = CreateClientConVar("vrmod_LeftHand", "0", true, FCVAR_ARCHIVE)
-local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", "0", true, FCVAR_ARCHIVE)
-local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", "0", true, FCVAR_ARCHIVE)
+local cl_bothkey = CreateClientConVar("vrmod_vehicle_bothkeymode", 0, true, FCVAR_ARCHIVE)
+local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client", 0, true, FCVAR_ARCHIVE)
+local cl_lefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
+local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", 0, true, FCVAR_ARCHIVE)
+local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", 0, true, FCVAR_ARCHIVE)
 if SERVER then return end
 local ply = LocalPlayer()
 hook.Add(
