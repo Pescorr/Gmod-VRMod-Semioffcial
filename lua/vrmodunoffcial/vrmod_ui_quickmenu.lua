@@ -160,10 +160,10 @@ function g_VR.MenuOpen()
 			if not changes then return end
 			VRUtilMenuRenderStart("miscmenu")
 			--debug
-			--surface.SetDrawColor(Color(255,0,0,255))
-			--surface.DrawOutlinedRect(0,0,512,512)
-			--renderCount = renderCount + 1
-			--draw.SimpleText( renderCount, "HudSelectionText", 0, 512, Color( 255, 250, 0, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM )
+			surface.SetDrawColor(Color(255,0,0,255))
+			surface.DrawOutlinedRect(0,0,512,512)
+			renderCount = renderCount + 1
+			draw.SimpleText( renderCount, "HudSelectionText", 0, 512, Color( 255, 250, 0, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM )
 			--buttons
 			local buttonWidth, buttonHeight = 82, 53
 			local gap = (512 - buttonWidth * 6) / 5
