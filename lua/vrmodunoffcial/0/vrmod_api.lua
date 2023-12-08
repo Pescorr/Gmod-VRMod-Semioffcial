@@ -292,7 +292,7 @@ if CLIENT then
 		end
 		local cache = fingerAngleCache[modelName..sequenceNumber]
 		if cache then return cache end
-		--
+	
 		local pmdl = ClientsideModel(pm)
 		pmdl:SetupBones()
 		local tmdl = ClientsideModel( modelName )
@@ -301,15 +301,21 @@ if CLIENT then
 		local tmp = {"0","01","02","1","11","12","2","21","22","3","31","32","4","41","42"}
 		local r = {}
 		for i = 1,30 do
-			r[i] = Angle()
+			r[i] = Angle() -- Default angle
 			local fingerBoneName = "ValveBiped.Bip01_"..((i<16) and "L" or "R").."_Finger"..tmp[i-(i<16 and 0 or 15)]
 			local pfinger = pmdl:LookupBone(fingerBoneName) or -1
 			local tfinger = tmdl:LookupBone(fingerBoneName) or -1
-			if pmdl:GetBoneMatrix(pfinger) then
-				local _, pmoffset = WorldToLocal(Vector(0,0,0),pmdl:GetBoneMatrix(pfinger):GetAngles(),Vector(0,0,0),pmdl:GetBoneMatrix(pmdl:GetBoneParent(pfinger)):GetAngles())
+			local pBoneMatrix = pmdl:GetBoneMatrix(pfinger)
+			local pParentBoneMatrix = pmdl:GetBoneMatrix(pmdl:GetBoneParent(pfinger))
+			if pBoneMatrix and pParentBoneMatrix then
+				local _, pmoffset = WorldToLocal(Vector(0,0,0), pBoneMatrix:GetAngles(), Vector(0,0,0), pParentBoneMatrix:GetAngles())
 				if tfinger ~= -1 then
-					local _, tmoffset = WorldToLocal(Vector(0,0,0),tmdl:GetBoneMatrix(tfinger):GetAngles(),Vector(0,0,0),tmdl:GetBoneMatrix(tmdl:GetBoneParent(tfinger)):GetAngles())
-					r[i] = tmoffset-pmoffset
+					local tBoneMatrix = tmdl:GetBoneMatrix(tfinger)
+					local tParentBoneMatrix = tmdl:GetBoneMatrix(tmdl:GetBoneParent(tfinger))
+					if tBoneMatrix and tParentBoneMatrix then
+						local _, tmoffset = WorldToLocal(Vector(0,0,0), tBoneMatrix:GetAngles(), Vector(0,0,0), tParentBoneMatrix:GetAngles())
+						r[i] = tmoffset - pmoffset
+					end
 				end
 			end
 		end
