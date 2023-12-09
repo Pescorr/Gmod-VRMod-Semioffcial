@@ -30,7 +30,7 @@ end
 
 if CLIENT then
 
-	local errorenable = CreateClientConVar("vrmod_error_hard",0,true,FCVAR_ARCHIVE,"",0,1)
+	local errorenable = CreateClientConVar("vrmod_error_hard",0,true,FCVAR_ARCHIVE)
 
 	g_VR.net = g_VR.net or {}
 	g_VR.viewModelInfo = g_VR.viewModelInfo or {}
@@ -40,7 +40,7 @@ if CLIENT then
 	function vrmod.GetStartupError()
 		local error = nil
 		if errorenable:GetBool() then
-			if g_VR.moduleVersion == 0 then
+			if not g_VR.moduleVersion then
 				if not file.Exists("lua/bin/gmcl_vrmod_win32.dll","GAME") then
 					error = "Module not installed. Read the workshop description for instructions.\n"
 				else
@@ -460,6 +460,8 @@ if CLIENT then
 		end
 		DComboBox.OnSelect = function( self, index, value )
 			convars.vrmod_locomotion:SetInt(index)
+			vrmod.StopLocomotion()
+			vrmod.StartLocomotion()
 		end
 		DComboBox.Think = function(self)
 			local v = convars.vrmod_locomotion:GetInt()

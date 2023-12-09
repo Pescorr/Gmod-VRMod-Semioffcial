@@ -1,8 +1,8 @@
 if SERVER then return end
 local open = false
 local button1on = 0
-local button2on = GetConVar("vrmod_attach_popup"):GetInt() or 0
-local button3on = GetConVar("vrmod_attach_quickmenu"):GetInt() or 0
+local button2on = GetConVar("vrmod_attach_popup"):GetFloat()
+local button3on = GetConVar("vrmod_attach_quickmenu"):GetFloat()
 local button4on = GetConVar("vrmod_allow_teleport_client"):GetInt() or 0
 local button5on = 0
 local button6on = GetConVar("vrmod_vehicle_reticlemode"):GetInt() or 0

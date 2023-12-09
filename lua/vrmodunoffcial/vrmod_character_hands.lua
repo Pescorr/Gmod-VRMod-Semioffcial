@@ -1,6 +1,6 @@
 if CLIENT then
 	local hands
-	CreateClientConVar("vrmod_floatinghands_material", "models/dog/eyeglass", true, FCVAR_ARCHIVE)
+	CreateClientConVar("vrmod_floatinghands_material", "models/shiny", true, FCVAR_ARCHIVE)
 	CreateClientConVar("vrmod_floatinghands_model", "models/player/vr_hands.mdl", true, FCVAR_ARCHIVE)
 	local convars = vrmod.GetConvars()
 	hook.Add(
