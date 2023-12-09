@@ -538,7 +538,6 @@ if CLIENT then
 		local uselefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
 		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", 0, true, FCVAR_ARCHIVE)
 		-- local leftgripmode = CreateClientConVar("vrmod_leftgripmode", 0,true,FCVAR_ARCHIVE)
-
 		hook.Add(
 			"RenderScene",
 			"vrutil_hook_renderscene",
@@ -580,7 +579,6 @@ if CLIENT then
 				-- 		g_VR.viewModelPos = pos
 				-- 		g_VR.viewModelAng = angl
 				-- 	end
-
 				-- 	if IsValid(g_VR.viewModel) then
 				-- 		if not g_VR.usingWorldModels then
 				-- 			g_VR.viewModel:SetPos(g_VR.viewModelPos)
@@ -594,7 +592,6 @@ if CLIENT then
 				-- 					netFrame.righthandPos = mtx:GetTranslation()
 				-- 					netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
 				-- 				end
-
 				-- 				local c = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
 				-- 				if c then
 				-- 					local mtxl = g_VR.viewModel:GetBoneMatrix(c)
@@ -603,15 +600,11 @@ if CLIENT then
 				-- 				end
 				-- 			end
 				-- 		end
-
 				-- 		g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 				-- 	end
 				-- end
-
 				-- --gripmode end
 				-- --foregrip end
-
-
 				--lefthandmode start
 				if uselefthand:GetBool() then
 					if lefthandmode:GetBool() then
@@ -627,15 +620,14 @@ if CLIENT then
 						if IsValid(g_VR.viewModel) then
 							if not g_VR.usingWorldModels then
 								g_VR.viewModel:SetPos(g_VR.viewModelPos)
-								g_VR.viewModel:SetAngles(g_VR.viewModelAng)								
+								g_VR.viewModel:SetAngles(g_VR.viewModelAng)
 								g_VR.viewModel:SetupBones()
 								--override hand pose in net frame
 								if netFrame then
 									local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
 									if b then
 										local mtx = g_VR.viewModel:GetBoneMatrix(b)
-
-										netFrame.lefthandPos = mtx:GetTranslation() - Vector(-13,0,0)
+										netFrame.lefthandPos = mtx:GetTranslation()
 										netFrame.lefthandAng = mtx:GetAngles() - Angle(0, 0, 180)
 									end
 								end
@@ -861,7 +853,6 @@ if CLIENT then
 		hook.Remove("PreDrawPlayerHands", "vrutil_hook_predrawplayerhands")
 		hook.Remove("PreDrawViewModel", "vrutil_hook_predrawviewmodel")
 		hook.Remove("ShouldDrawLocalPlayer", "vrutil_hook_shoulddrawlocalplayer")
-
 		g_VR.tracking = {}
 		g_VR.threePoints = false
 		g_VR.sixPoints = false

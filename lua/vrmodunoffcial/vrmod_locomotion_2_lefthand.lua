@@ -303,7 +303,7 @@ local function options( panel )
 end
 
 timer.Simple(0,function()
-	vrmod.AddLocomotionOption("□lefthand(carhandletest)", start, stop, options)
+	vrmod.AddLocomotionOption("2.lefthand(VehicleStear/ON)", start, stop, options)
 	-- vrmod.AddInGameMenuItem("Toggle Noclip", 2, 1, function()
 		-- LocalPlayer():ConCommand("noclip")
 	-- end)

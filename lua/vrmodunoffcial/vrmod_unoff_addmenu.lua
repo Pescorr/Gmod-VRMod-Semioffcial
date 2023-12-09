@@ -14,7 +14,7 @@ hook.Add(
 		local Panel6 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("FPS&Graphic", Panel6, "icon16/cog_add.png")
 		Panel6.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DCheckBoxLabel Start
@@ -147,7 +147,7 @@ hook.Add(
 		local Panel02 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("GamePlay", Panel02, "icon16/joystick.png")
 		Panel02.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- -- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DCheckBoxLabel Start
@@ -272,7 +272,7 @@ hook.Add(
 		--Panel1 "TAB1" Start
 		local Panel1 = vgui.Create("DPanel", sheet)
 		Panel1.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- -- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		sheet:AddSheet("UI", Panel1, "icon16/application_view_gallery.png")
@@ -286,35 +286,35 @@ hook.Add(
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_exit = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_exit:SetPos(20, 40) -- Set the position
-		vrmod_quickmenu_exit:SetText("[VR EXIT]\nON = Show the [VR EXIT] button in the Quick Menu") -- Set the text next to the box
+		vrmod_quickmenu_exit:SetText("[VR EXIT]") -- Set the text next to the box
 		vrmod_quickmenu_exit:SetConVar("vrmod_quickmenu_exit") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_exit:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_vgui_reset_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_vgui_reset_menu:SetPos(20, 70) -- Set the position
-		vrmod_vgui_reset_menu:SetText("[vgui_reset]\nON = Show the [ui reset] button in the Quick Menu") -- Set the text next to the box
+		vrmod_vgui_reset_menu:SetText("[vgui_reset]") -- Set the text next to the box
 		vrmod_vgui_reset_menu:SetConVar("vrmod_quickmenu_vgui_reset_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_vgui_reset_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_seated_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_seated_menu:SetPos(20, 100) -- Set the position
-		vrmod_quickmenu_seated_menu:SetText("[seated]\nON = Show the [ui reset] button in the Quick Menu") -- Set the text next to the box
+		vrmod_quickmenu_seated_menu:SetText("[seated]") -- Set the text next to the box
 		vrmod_quickmenu_seated_menu:SetConVar("vrmod_quickmenu_seated_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_seated_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_chat = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_chat:SetPos(20, 130) -- Set the position
-		vrmod_quickmenu_chat:SetText("[chat]\nON = Show the [ui reset] button in the Quick Menu") -- Set the text next to the box
+		vrmod_quickmenu_chat:SetText("[chat]") -- Set the text next to the box
 		vrmod_quickmenu_chat:SetConVar("vrmod_quickmenu_chat") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_chat:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_vre_gbradial_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_vre_gbradial_menu:SetPos(20, 160) -- Set the position
-		vrmod_quickmenu_vre_gbradial_menu:SetText("[vre_gbradial_menu]\nON = Show the [ui reset] button in the Quick Menu") -- Set the text next to the box
+		vrmod_quickmenu_vre_gbradial_menu:SetText("[vre_gbradial_menu]") -- Set the text next to the box
 		vrmod_quickmenu_vre_gbradial_menu:SetConVar("vrmod_quickmenu_vre_gbradial_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_vre_gbradial_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
@@ -384,9 +384,13 @@ hook.Add(
 		UI_defaultbutton:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		UI_defaultbutton.DoClick = function()
-			RunConsoleCommand("vrmod_mapbrowser_enable", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_quickmenu_mapbrowser_enable", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_quickmenu_exit", "1") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_vgui_reset_menu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_quickmenu_vgui_reset_menu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_quickmenu_seated_menu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_quickmenu_chat", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_quickmenu_vre_gbradial_menu", "1") -- Run the console command "say hi" when you click it ( command, args )
+
 			RunConsoleCommand("vrmod_attach_quickmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_attach_weaponmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_attach_popup", "1") -- Run the console command "say hi" when you click it ( command, args )
@@ -401,7 +405,7 @@ hook.Add(
 		local Panel02 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("HUD", Panel02, "icon16/layers.png")
 		Panel02.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DCheckBoxLabel Start
@@ -520,7 +524,7 @@ hook.Add(
 		local Panel3 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Character", Panel3, "icon16/user_edit.png")
 		Panel3.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DNumSlider Start
@@ -658,7 +662,7 @@ hook.Add(
 		local Panel2 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Character02", Panel2, "icon16/user_edit.png")
 		Panel2.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DNumSlider Start
@@ -780,7 +784,7 @@ hook.Add(
 		local Panel5 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Network(Server)", Panel5, "icon16/ipod_cast_add.png")
 		Panel5.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DNumSlider Start
@@ -864,7 +868,7 @@ hook.Add(
 		local Panel7 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Misc", Panel7, "icon16/computer_edit.png")
 		Panel7.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DCheckBoxLabel Start
@@ -943,7 +947,7 @@ hook.Add(
 		local Panel8 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Misc02", Panel8, "icon16/computer_edit.png")
 		Panel8.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DCheckBoxLabel Start
@@ -991,7 +995,7 @@ hook.Add(
 		local Panel9 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("GameRebootRequied", Panel9, "icon16/computer_edit.png")
 		Panel9.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		--DNumSlider Start
@@ -1057,7 +1061,7 @@ hook.Add(
 		local PanelEMSTOP = vgui.Create("DPanel", sheet)
 		sheet:AddSheet( "VRStop Key", PanelEMSTOP, "icon16/stop.png")
 		PanelEMSTOP.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
+			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
 
 		-- Emergency Stop Key Binder

@@ -5,22 +5,23 @@ if CLIENT then
 	g_VR.menuCursorY = 0
 	local _, convarValues = vrmod.GetConvars()
 	vrmod.AddCallbackedConvar("vrmod_test_ui_testver", nil, 0, nil, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-	vrmod.AddCallbackedConvar("vrmod_ui_realtime", nil, 1, nil, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+	vrmod.AddCallbackedConvar("vrmod_ui_realtime", nil, 0, nil, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_attach_weaponmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_quickmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, nil, "", 0, 1, tonumber)
-	local uioutline = CreateClientConVar("vrmod_ui_outline",1,true,FCVAR_ARCHIVE,nil,0,1)
+	local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 	local rt_beam = GetRenderTarget("vrmod_rt_beam", 64, 64, false)
 	local mat_beam = CreateMaterial(
 		"vrmod_mat_beam",
 		"UnlitGeneric",
 		{
-			["$basetexture"] = rt_beam:GetName()
+			["$basetexture"] = rt_beam:GetName(),
+			["$ignorez"] = 1  -- 深度バッファを無視して描画
 		}
 	)
-
+	
 	render.PushRenderTarget(rt_beam)
 	render.Clear(0, 0, 255, 255)
 	render.PopRenderTarget()
@@ -29,6 +30,7 @@ if CLIENT then
 	local menuOrder = {}
 	local menusExist = false
 	local prevFocusPanel = nil
+	
 	function VRUtilMenuRenderPanel(uid)
 		if not menus[uid] or not menus[uid].panel or not menus[uid].panel:IsValid() then return end
 		render.PushRenderTarget(menus[uid].rt)
@@ -37,9 +39,9 @@ if CLIENT then
 		local oldclip = DisableClipping(false)
 		render.SetWriteDepthToDestAlpha(false)
 		menus[uid].panel:PaintManual()
-render.SetWriteDepthToDestAlpha(true)
+		render.SetWriteDepthToDestAlpha(true)
 		DisableClipping(oldclip)
-				cam.End2D()
+		cam.End2D()
 		render.PopRenderTarget()
 	end
 
@@ -72,7 +74,7 @@ render.SetWriteDepthToDestAlpha(true)
 			if v.panel then
 				if not IsValid(v.panel) or not v.panel:IsVisible() then
 					VRUtilMenuClose(k)
-continue
+					continue
 				end
 			end
 
@@ -87,19 +89,20 @@ continue
 				pos, ang = LocalToWorld(pos, ang, g_VR.origin, g_VR.originAngle)
 			end
 
-cam.IgnoreZ(true)
-						cam.Start3D2D(pos, ang, v.scale)
+			cam.IgnoreZ(true)
+			cam.Start3D2D(pos, ang, v.scale)
 			surface.SetDrawColor(255, 255, 255, 255)
 			surface.SetMaterial(v.mat)
 			surface.DrawTexturedRect(0, 0, v.width, v.height)
 			--debug outline
 			if uioutline:GetBool() then
-				surface.SetDrawColor(255,0,0,255)
-				surface.DrawOutlinedRect(0,0,v.width,v.height)
+				surface.SetDrawColor(255, 0, 0, 255)
+				surface.DrawOutlinedRect(0, 0, v.width, v.height)
 			end
+
 			cam.End3D2D()
-cam.IgnoreZ(false)
-						if v.cursorEnabled then
+			cam.IgnoreZ(false)
+			if v.cursorEnabled then
 				local cursorX, cursorY = -1, -1
 				local cursorWorldPos = Vector(0, 0, 0)
 				local start = g_VR.tracking.pose_righthand.pos
@@ -231,11 +234,13 @@ cam.IgnoreZ(false)
 			hook.Remove("PostDrawTranslucentRenderables", "vrutil_hook_drawmenus")
 			g_VR.menuFocus = false
 			menusExist = false
-		gui.EnableScreenClicker(false)
+			gui.EnableScreenClicker(false)
 		end
 	end
 
 	function ReloadKeyPressed()
+	end
+
 	-- local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
 	-- -- マウスカーソル下にあるパネルを取得する
 	-- local panel = vgui.GetHoveredPanel()
@@ -244,8 +249,6 @@ cam.IgnoreZ(false)
 	-- -- テキストボックスにConVarの文字列を設定する
 	-- panel:SetString (VRClipboard)
 	-- end
-	end
-
 	hook.Add(
 		"VRMod_Input",
 		"ui",
@@ -274,14 +277,14 @@ cam.IgnoreZ(false)
 			-- VRUtilMenuRenderPanel(g_VR.menuFocus)
 			-- end
 			if g_VR.menuFocus and action == "boolean_reload" then
-			if pressed then
-			-- キー入力イベントをフックする
-			ReloadKeyPressed()
-			else
-			ReloadKeyPressed()
-			end
+				if pressed then
+					-- キー入力イベントをフックする
+					ReloadKeyPressed()
+				else
+					ReloadKeyPressed()
+				end
 
-			VRUtilMenuRenderPanel(g_VR.menuFocus)
+				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 
 			if g_VR.menuFocus and action == "boolean_back" then
