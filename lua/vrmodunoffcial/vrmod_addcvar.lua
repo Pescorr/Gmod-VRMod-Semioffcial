@@ -145,32 +145,6 @@ if CLIENT then
 		end
 	)
 
-	concommand.Add(
-		"vrmod_normalgunsetting",
-		function(ply, cmd, args)
-			LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_mode 0")
-			LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_passes 0")
-			LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_intensity 0")
-			LocalPlayer():ConCommand("cl_tfa_fx_ads_dof 0")
-			LocalPlayer():ConCommand("cl_tfa_fx_ads_dof_hd 0")
-			LocalPlayer():ConCommand("cl_tfa_3dscope_overlay 0")
-			LocalPlayer():ConCommand("sv_tfa_sprint_enabled 0")
-			LocalPlayer():ConCommand("cl_tfa_ironsights_toggle 0")
-			LocalPlayer():ConCommand("arccw_blur_toytown 0")
-			LocalPlayer():ConCommand("arccw_blur 0")
-			LocalPlayer():ConCommand("arc9_cheapscopes 0")
-			LocalPlayer():ConCommand("arc9_controller 1")
-			LocalPlayer():ConCommand("arc9_autolean 0")
-			LocalPlayer():ConCommand("arc9_never_ready 1")
-			LocalPlayer():ConCommand("arc9_vm_cambob 0")
-			LocalPlayer():ConCommand("arc9_vm_cambobwalk 0")
-			LocalPlayer():ConCommand("arc9_breath_pp 0")
-			LocalPlayer():ConCommand("arc9_fx_rtblur 0")
-			LocalPlayer():ConCommand("arc9_fx_adsblur 0")
-			LocalPlayer():ConCommand("arc9_fx_reloadblur 0")
-			LocalPlayer():ConCommand("arc9_fx_animblur 0")
-		end
-	)
 
 	concommand.Add(
 		"vrmod_scale_auto",
@@ -238,10 +212,10 @@ if CLIENT then
 
 			setConvars()
 			timer.Simple(
-				2,
+				1,
 				function()
 					if g_VR.active == true then
-						LocalPlayer():ConCommand("vrmod_restart")
+						LocalPlayer():ConCommand("vrmod_character_restart")
 					end
 				end
 			)

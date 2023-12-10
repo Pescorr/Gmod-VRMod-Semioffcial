@@ -49,7 +49,7 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_znear", nil, "6.0")
 	vrmod.AddCallbackedConvar("vrmod_characterEyeHeight", nil, "66.8", nil, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_characterHeadToHmdDist", nil, "6.3", nil, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-	vrmod.AddCallbackedConvar("vrmod_oldcharacteryaw", nil, "0")
+	vrmod.AddCallbackedConvar("vrmod_oldcharacteryaw", nil, "1")
 	vrmod.AddCallbackedConvar("vrmod_controlleroffset_x", nil, "-15")
 	vrmod.AddCallbackedConvar("vrmod_controlleroffset_y", nil, "-1")
 	vrmod.AddCallbackedConvar("vrmod_controlleroffset_z", nil, "5")
@@ -96,7 +96,7 @@ if CLIENT then
 			form:CheckBox("Alternative head angle manipulation method", "vrmod_althead")
 			form:ControlHelp("Less precise, compatibility for jigglebones")
 			form:CheckBox("Automatically start VR after map loads", "vrmod_autostart")
-			form:CheckBox("Replace climbing mechanics (when available)", "vrmod_climbing")
+			form:CheckBox("Replace climbing mechanics (when available)", "")
 			form:CheckBox("Replace door use mechanics (when available)", "vrmod_doors")
 			form:CheckBox("Enable engine postprocessing", "vrmod_postprocess")
 			--

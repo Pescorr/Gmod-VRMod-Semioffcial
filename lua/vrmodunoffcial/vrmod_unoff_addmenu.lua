@@ -109,21 +109,6 @@ hook.Add(
 			RunConsoleCommand("vrmod_gmod_optimization_02")
 		end
 
-		--DButton Start
-		--gmod_optimization
-		local gmod_optimization02 = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
-		gmod_optimization02:SetText("vrmod_gmod_optimization\n(buggy but Strong)") -- Set the text on the button
-		gmod_optimization02:SetPos(190, 270) -- Set the position on the frame
-		gmod_optimization02:SetSize(160, 30) -- Set the size
-		-- A custom function run when clicked ( note the . instead of : )
-		gmod_optimization02.DoClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization_02") -- Run the console command "say hi" when you click it ( command, args )
-		end
-
-		gmod_optimization02.DoRightClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization_02")
-		end
-		
 
 		--FPS_defaultbutton
 		local FPS_defaultbutton = vgui.Create("DButton", Panel6) -- Create the button and parent it to the frame
@@ -276,45 +261,54 @@ hook.Add(
 		end
 
 		sheet:AddSheet("UI", Panel1, "icon16/application_view_gallery.png")
+
+				-- DLabel start
+		local titleLabel = Panel1:Add("DLabel")
+		titleLabel:SetText("Quickmenu Visible Button")
+		titleLabel:SetPos(20, -3)
+		titleLabel:SizeToContents()
+		--DLabel end
+
+
 		--DCheckBoxLabel Start
 		local vrmod_mapbrowser = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_mapbrowser:SetPos(20, 10) -- Set the position
-		vrmod_mapbrowser:SetText("[mapbrowser]\nON = Show the [Map Browser] button in the Quick Menu") -- Set the text next to the box
+		vrmod_mapbrowser:SetPos(20, 15) -- Set the position
+		vrmod_mapbrowser:SetText("[Map Browser]") -- Set the text next to the box
 		vrmod_mapbrowser:SetConVar("vrmod_quickmenu_mapbrowser_enable") -- Change a ConVar when the box it ticked/unticked
 		vrmod_mapbrowser:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_exit = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_quickmenu_exit:SetPos(20, 40) -- Set the position
+		vrmod_quickmenu_exit:SetPos(20, 45) -- Set the position
 		vrmod_quickmenu_exit:SetText("[VR EXIT]") -- Set the text next to the box
 		vrmod_quickmenu_exit:SetConVar("vrmod_quickmenu_exit") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_exit:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_vgui_reset_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_vgui_reset_menu:SetPos(20, 70) -- Set the position
-		vrmod_vgui_reset_menu:SetText("[vgui_reset]") -- Set the text next to the box
+		vrmod_vgui_reset_menu:SetPos(20, 75) -- Set the position
+		vrmod_vgui_reset_menu:SetText("[UI RESET]") -- Set the text next to the box
 		vrmod_vgui_reset_menu:SetConVar("vrmod_quickmenu_vgui_reset_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_vgui_reset_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_seated_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_quickmenu_seated_menu:SetPos(20, 100) -- Set the position
-		vrmod_quickmenu_seated_menu:SetText("[seated]") -- Set the text next to the box
+		vrmod_quickmenu_seated_menu:SetPos(20, 105) -- Set the position
+		vrmod_quickmenu_seated_menu:SetText("[seated mode]") -- Set the text next to the box
 		vrmod_quickmenu_seated_menu:SetConVar("vrmod_quickmenu_seated_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_seated_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_chat = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_quickmenu_chat:SetPos(20, 130) -- Set the position
+		vrmod_quickmenu_chat:SetPos(20, 135) -- Set the position
 		vrmod_quickmenu_chat:SetText("[chat]") -- Set the text next to the box
 		vrmod_quickmenu_chat:SetConVar("vrmod_quickmenu_chat") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_chat:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_vre_gbradial_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_quickmenu_vre_gbradial_menu:SetPos(20, 160) -- Set the position
-		vrmod_quickmenu_vre_gbradial_menu:SetText("[vre_gbradial_menu]") -- Set the text next to the box
+		vrmod_quickmenu_vre_gbradial_menu:SetPos(20, 165) -- Set the position
+		vrmod_quickmenu_vre_gbradial_menu:SetText("[VRE gbradial] & [VRE Add menu]") -- Set the text next to the box
 		vrmod_quickmenu_vre_gbradial_menu:SetConVar("vrmod_quickmenu_vre_gbradial_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_vre_gbradial_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
@@ -322,9 +316,9 @@ hook.Add(
 
 		--vrmod_attach_quickmenu
 		local attach_quickmenu = vgui.Create("DComboBox", Panel1)
-		attach_quickmenu:SetPos(20, 190) -- Set the position (X,Y)
+		attach_quickmenu:SetPos(20, 195) -- Set the position (X,Y)
 		attach_quickmenu:SetSize(320, 25) -- Set the size (X,Y)
-		attach_quickmenu:SetText("quickmenu Attach Position") -- Set the text above the slider
+		attach_quickmenu:SetText("[quickmenu Attach Position]") -- Set the text above the slider
 		attach_quickmenu:AddChoice("left hand")
 		attach_quickmenu:AddChoice("ʄ(buggy)")
 		attach_quickmenu:AddChoice("HMD")
@@ -336,9 +330,9 @@ hook.Add(
 		--DNumSlider end
 		--vrmod_attach_weaponmenu
 		local attach_weaponmenu = vgui.Create("DComboBox", Panel1)
-		attach_weaponmenu:SetPos(20, 220) -- Set the position (X,Y)
+		attach_weaponmenu:SetPos(20, 225) -- Set the position (X,Y)
 		attach_weaponmenu:SetSize(320, 25) -- Set the size (X,Y)
-		attach_weaponmenu:SetText("weaponmenu Attach Position") -- Set the text above the slider
+		attach_weaponmenu:SetText("[weaponmenu Attach Position]") -- Set the text above the slider
 		attach_weaponmenu:AddChoice("left hand")
 		attach_weaponmenu:AddChoice("ʄ(buggy)")
 		attach_weaponmenu:AddChoice("HMD")
@@ -350,9 +344,9 @@ hook.Add(
 		--DNumSlider end
 		--vrmod_attach_popup
 		local attach_popup = vgui.Create("DComboBox", Panel1)
-		attach_popup:SetPos(20, 250) -- Set the position (X,Y)
+		attach_popup:SetPos(20, 255) -- Set the position (X,Y)
 		attach_popup:SetSize(320, 25) -- Set the size (X,Y)
-		attach_popup:SetText("popup Attach Position") -- Set the text above the slider
+		attach_popup:SetText("[popup Window Attach Position]") -- Set the text above the slider
 		attach_popup:AddChoice("left hand")
 		attach_popup:AddChoice("ʄ(buggy)")
 		attach_popup:AddChoice("HMD")
@@ -364,15 +358,15 @@ hook.Add(
 		--DNumSlider end
 		--DCheckBoxLabel Start
 		local vremenu_attach = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vremenu_attach:SetPos(20, 285) -- Set the position
+		vremenu_attach:SetPos(20, 290) -- Set the position
 		vremenu_attach:SetText("VRE UI AttachToLeftHand") -- Set the text next to the box
 		vremenu_attach:SetConVar("vre_ui_attachtohand") -- Change a ConVar when the box it ticked/unticked
 		vremenu_attach:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_ui_outline = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_ui_outline:SetPos(20, 310) -- Set the position
-		vrmod_ui_outline:SetText("[vrmod_ui_outline]") -- Set the text next to the box
+		vrmod_ui_outline:SetPos(20, 315) -- Set the position
+		vrmod_ui_outline:SetText("menu&ui Red outline") -- Set the text next to the box
 		vrmod_ui_outline:SetConVar("vrmod_ui_outline") -- Change a ConVar when the box it ticked/unticked
 		vrmod_ui_outline:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
@@ -380,7 +374,7 @@ hook.Add(
 		--character_restart
 		local UI_defaultbutton = vgui.Create("DButton", Panel1) -- Create the button and parent it to the frame
 		UI_defaultbutton:SetText("setdefaultvalue") -- Set the text on the button
-		UI_defaultbutton:SetPos(190, 310) -- Set the position on the frame
+		UI_defaultbutton:SetPos(190, 315) -- Set the position on the frame
 		UI_defaultbutton:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		UI_defaultbutton.DoClick = function()
@@ -874,21 +868,21 @@ hook.Add(
 		--DCheckBoxLabel Start
 		local showonstartup = Panel7:Add("DCheckBoxLabel") -- Create the checkbox
 		showonstartup:SetPos(20, 10) -- Set the position
-		showonstartup:SetText("[vrmod_showonstartup]") -- Set the text next to the box
+		showonstartup:SetText("VRMod Menu showonstartup") -- Set the text next to the box
 		showonstartup:SetConVar("vrmod_showonstartup") -- Change a ConVar when the box it ticked/unticked
 		showonstartup:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local pmchange = Panel7:Add("DCheckBoxLabel") -- Create the checkbox
 		pmchange:SetPos(20, 30) -- Set the position
-		pmchange:SetText("[vrmod_pmchange]") -- Set the text next to the box
+		pmchange:SetText("[Player Model ]") -- Set the text next to the box
 		pmchange:SetConVar("vrmod_pmchange") -- Change a ConVar when the box it ticked/unticked
 		pmchange:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local autoarcbench_button = Panel7:Add("DCheckBoxLabel") -- Create the checkbox
 		autoarcbench_button:SetPos(20, 120) -- Set the position
-		autoarcbench_button:SetText("[vrmod_auto_arc_benchgun]") -- Set the text next to the box
+		autoarcbench_button:SetText("Auto Optimize (ArcCW/Arc9/TFA)") -- Set the text next to the box
 		autoarcbench_button:SetConVar("vrmod_auto_arc_benchgun") -- Change a ConVar when the box it ticked/unticked
 		autoarcbench_button:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
@@ -896,7 +890,7 @@ hook.Add(
 		--DCheckBoxLabel Start
 		local manualpickup = Panel7:Add("DCheckBoxLabel") -- Create the checkbox
 		manualpickup:SetPos(10, 150) -- Set the position
-		manualpickup:SetText("[vrmod_manualpickups(Server)]\nUse of this requires\n{VRMod Manual Item Pickup}\nby Dr. Hugo.\nhttps://steamcommunity.com/sharedfiles/filedetails/?id=2910621738\nAllows manual pickup of supplies and weaponsto increase immersion.\nDisables automatic pickup when walkin over an item.") -- Set the text next to the box
+		manualpickup:SetText("[vrmod_manualpickups(Server)]\nUse of this requires\n{VRMod Manual Item Pickup}\nby Dr. Hugo.") -- Set the text next to the box
 		manualpickup:SetConVar("vrmod_manualpickups") -- Change a ConVar when the box it ticked/unticked
 		manualpickup:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
@@ -919,29 +913,6 @@ hook.Add(
 		-- If not using convars, you can use this hook + Panel.SetValue()
 		fov_desired.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
-		-- --DCheckBoxLabel Start
-		-- 	local vrmod_test_keydown = Panel7:Add( "DCheckBoxLabel" ) -- Create the checkbox
-		-- 	vrmod_test_keydown:SetPos( 20, 270 )						-- Set the position
-		-- 	vrmod_test_keydown:SetText("[keydown_inputtest]")					-- Set the text next to the box
-		-- 	vrmod_test_keydown:SetConVar( "keydown_inputtest" )				-- Change a ConVar when the box it ticked/unticked
-		-- 	vrmod_test_keydown:SizeToContents()						-- Make its size the same as the contents
-		-- --DCheckBoxLabel end
-		-- --DLabel&DTextEntry Start
-		-- local emptyhanded_swep_label = Panel7:Add( "DLabel" )
-		-- emptyhanded_swep_label:SetPos( 10, 215 ) -- Set the position of the label
-		-- emptyhanded_swep_label:SetText( "vrmod_emptyhanded_swep" ) --  Set the text of the label
-		-- emptyhanded_swep_label:SizeToContents() -- Size the label to fit the text in it
-		-- emptyhanded_swep_label:SetDark( 0 ) -- Set the colour of the text inside the label to a darker one
-		-- local emptyhanded_swep = Panel7:Add( "DTextEntry" )
-		-- emptyhanded_swep_String = GetConVar("vrmod_emptyhanded_swep"):GetString()
-		-- emptyhanded_swep:SetPos( 20, 230 )						-- Set the position
-		-- emptyhanded_swep:SetSize( 330, 25 )			-- Set the size (X,Y)
-		-- emptyhanded_swep:SetUpdateOnType(0)						-- Set the position
-		-- emptyhanded_swep:SetValue( emptyhanded_swep_String )
-		-- emptyhanded_swep.OnEnter = function( self )
-		-- emptyhanded_swep:UpdateConvarValue( "vrmod_emptyhanded_swep" )				-- Change a ConVar when the box it ticked/unticked
-		-- end
-		-- --DLabel&DTextEntry end
 		-- Panel7 "TAB7" End
 		--Panel8 "TAB8" Start
 		local Panel8 = vgui.Create("DPanel", sheet)
@@ -974,7 +945,7 @@ hook.Add(
 		--DCheckBoxLabel Start
 		local ui_realtime = Panel8:Add("DCheckBoxLabel") -- Create the checkbox
 		ui_realtime:SetPos(20, 50) -- Set the position
-		ui_realtime:SetText("ui_realtime") -- Set the text next to the box
+		ui_realtime:SetText("UI Render Alternative") -- Set the text next to the box
 		ui_realtime:SetConVar("vrmod_ui_realtime") -- Change a ConVar when the box it ticked/unticked
 		ui_realtime:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end

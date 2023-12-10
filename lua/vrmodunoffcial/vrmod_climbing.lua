@@ -1078,7 +1078,7 @@ if CLIENT then
 
 	g_VR = g_VR or {}
 
-	local convars = vrmod.AddCallbackedConvar("vrmod_climbing", nil, "0")
+	local convars = vrmod.AddCallbackedConvar("vrmod_climbing", nil, 0)
 
 	concommand.Add("vrmod_ladderdebug", function( ply, cmd, args )
 		hook[args[1] == "1" and "Add" or "Remove"]("PostDrawTranslucentRenderables","vrmod_ladderdebug",function()
