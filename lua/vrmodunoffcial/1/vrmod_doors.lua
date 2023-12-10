@@ -167,7 +167,7 @@ if CLIENT then
 		hook.Remove("VRMod_AllowDefaultAction","doors")
 	end
 	
-	local _, convarValues = vrmod.AddCallbackedConvar("vrmod_doors","vrmod_doors","0", FCVAR_ARCHIVE, "",nil,nil, tobool, function(val)
+	local _, convarValues = vrmod.AddCallbackedConvar("vrmod_doors","vrmod_doors","1", FCVAR_ARCHIVE, "",nil,nil, tobool, function(val)
 		if val and g_VR.active then init() else cleanup() end
 	end)
 	
