@@ -5,6 +5,7 @@ local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", 0, true, FC
 local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", 0, true, FCVAR_ARCHIVE)
 if SERVER then return end
 local ply = LocalPlayer()
+
 hook.Add(
 	"VRMod_EnterVehicle",
 	"vrmod_switchactionset",
@@ -44,12 +45,14 @@ hook.Add(
 
 		if action == "boolean_forword" then
 			LocalPlayer():ConCommand(pressed and "+forward" or "-forward")
+			LocalPlayer():ConCommand("lvs_throttle")
 
 			return
 		end
 
 		if action == "boolean_back" then
 			LocalPlayer():ConCommand(pressed and "+back" or "-back")
+			LocalPlayer():ConCommand("lvs_brake")
 
 			return
 		end
@@ -80,37 +83,6 @@ hook.Add(
 			return
 		end
 
-		-- if action == "boolean_right_pickup" then
-		-- 	if cl_pickupdisable:GetBool() then return end
-		-- 	vrmod.Pickup(false, not pressed)
-		-- 	if pressed then
-		-- 		local wep = LocalPlayer():GetActiveWeapon()
-		-- 		if IsValid(wep) and wep:GetClass() == "weapon_physgun" then
-		-- 			LocalPlayer():ConCommand("+use")
-		-- 			hook.Add(
-		-- 				"CreateMove",
-		-- 				"vrutil_hook_cmphysguncontrol",
-		-- 				function(cmd)
-		-- 					if g_VR.input.vector2_walkdirection.y > 0.9 then
-		-- 						cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_FORWARD))
-		-- 					elseif g_VR.input.vector2_walkdirection.y < -0.9 then
-		-- 						cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_BACK))
-		-- 					else
-		-- 						cmd:SetMouseX(g_VR.input.vector2_walkdirection.x * 50)
-		-- 						cmd:SetMouseY(g_VR.input.vector2_walkdirection.y * -50)
-		-- 					end
-		-- 				end
-		-- 			)
-		-- 		end
-		-- 	else
-		-- 		LocalPlayer():ConCommand("-use")
-		-- 		hook.Remove("CreateMove", "vrutil_hook_cmphysguncontrol")
-		-- 	end
-
-		-- 	return
-		-- end
-
-
 		if action == "boolean_lefthandmode" then
 			LocalPlayer():ConCommand("vrmod_lefthand 1")
 		end
@@ -119,10 +91,6 @@ hook.Add(
 			LocalPlayer():ConCommand("vrmod_lefthand 0")
 		end
 
-		-- if action == "boolean_foregrip" then
-		-- LocalPlayer():ConCommand(pressed and "vrmod_leftgripmode 1" or "vrmod_leftgripmode 0")
-		-- 	return
-		-- end
 		if action == "boolean_use" or action == "boolean_exit" then
 			if pressed then
 				LocalPlayer():ConCommand("+use")
