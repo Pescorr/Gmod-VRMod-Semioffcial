@@ -192,6 +192,27 @@ function VRUtilWeaponMenuOpen()
 				end
 			end
 		)
+	elseif mode == 2 then
+		--forw, left, up
+		VRUtilMenuOpen(
+			"weaponmenu",
+			512,
+			512,
+			nil,
+			2,
+			Vector(13, 6, 10.5),
+			Angle(0, -90, 90),
+			0.03,
+			true,
+			function()
+				hook.Remove("PreRender", "vrutil_hook_renderweaponselect")
+				open = false
+				if items[prevValues.hoveredItem] and IsValid(items[prevValues.hoveredItem].wep) then
+					input.SelectWeapon(items[prevValues.hoveredItem].wep)
+				end
+			end
+		)
+
 	else --
 		VRUtilMenuOpen(
 			"weaponmenu",
