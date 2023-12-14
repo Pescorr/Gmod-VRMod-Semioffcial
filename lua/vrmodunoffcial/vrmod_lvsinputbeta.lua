@@ -17,6 +17,13 @@ if CLIENT then
         ["CAR_THROTTLE_MOD"] = false,
         ["CAR_LIGHTS_TOGGLE"] = false,
         ["CAR_SWAP_AMMO"] = false,
+        ["+THRUST_SF"] = false,
+        ["-THRUST_SF"] = false,
+        ["+VTOL_Z_SF"] = false,
+        ["-VTOL_Z_SF"] = false,
+        ["+VTOL_Y_SF"] = false,
+        ["-VTOL_Y_SF"] = false,
+        ["-VTOL_X_SF"] = false,
         ["ZOOM"] = false,
     }
 
@@ -50,22 +57,56 @@ if CLIENT then
                 actionStates["ATTACK"] = pressed
             end
 
-            -- if action == "boolean_right_pickup" then
-            --     actionStates["FREELOOK"] = not pressed
-            -- end
+            if action == "boolean_secondaryfire" then
+                actionStates["CAR_SWAP_AMMO"] = pressed
+                actionStates["ZOOM"] = pressed
+            end
+
+            if action == "boolean_sprint" then
+                actionStates["HELI_HOVER"] = pressed
+                actionStates["+PITCH_SF"] = pressed
+            end
+
 
             if action == "boolean_forword" then
                 actionStates["CAR_THROTTLE"] = pressed
                 actionStates["CAR_THROTTLE_MOD"] = pressed
                 actionStates["+THROTTLE"] = pressed
                 actionStates["+THRUST_HELI"] = pressed
+                actionStates["+THRUST_SF"] = pressed
             end
 
             if action == "boolean_back" then
                 actionStates["CAR_BRAKE"] = pressed
                 actionStates["-THROTTLE"] = pressed
                 actionStates["-THRUST_HELI"] = pressed
+                actionStates["-THRUST_SF"] = pressed
+                actionStates["-VTOL_X_SF"] = pressed
+
             end
+
+            if action == "boolean_left" then
+                actionStates["-ROLL_SF"] = pressed
+                actionStates["CAR_STEER_LEFT"] = pressed
+                actionStates["-ROLL_HELI"] = pressed
+            end
+
+            if action == "boolean_right" then
+                actionStates["+ROLL_SF"] = pressed
+                actionStates["CAR_STEER_RIGHT"] = pressed
+                actionStates["+ROLL_HELI"] = pressed
+            end
+
+
+            if action == "boolean_back" then
+                actionStates["CAR_BRAKE"] = pressed
+                actionStates["-THROTTLE"] = pressed
+                actionStates["-THRUST_HELI"] = pressed
+                actionStates["-THRUST_SF"] = pressed
+                actionStates["-VTOL_X_SF"] = pressed
+
+            end
+
 
             if action == "boolean_handbrake" then
                 actionStates["CAR_HANDBRAKE"] = pressed
@@ -80,9 +121,6 @@ if CLIENT then
                 actionStates["CAR_LIGHTS_TOGGLE"] = pressed
             end
 
-            if action == "boolean_spawnmenu" then
-                actionStates["CAR_SWAP_AMMO"] = pressed
-            end
 
             if action == "boolean_spawnmenu" and pressed then
                 -- ネットワークを介してサーバーにコマンドを送信

@@ -1045,9 +1045,9 @@ hook.Add(
 		emergStopHoldTime:SetPos(20, 50)
 		emergStopHoldTime:SetSize(330, 30)
 		emergStopHoldTime:SetText("Hold Time for \n Emergency Stop (Seconds)")
-		emergStopHoldTime:SetMin(1)
-		emergStopHoldTime:SetMax(10)
-		emergStopHoldTime:SetDecimals(1)
+		emergStopHoldTime:SetMin(0.0)
+		emergStopHoldTime:SetMax(10.0)
+		emergStopHoldTime:SetDecimals(2)
 		emergStopHoldTime:SetConVar("vrmod_emergencystop_time")
 
 	end

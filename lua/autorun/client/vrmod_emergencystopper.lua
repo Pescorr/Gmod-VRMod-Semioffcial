@@ -25,7 +25,7 @@
 
 -- Create ConVars for emergency stop
 CreateClientConVar("vrmod_emergencystop_key", KEY_ESCAPE, true, FCVAR_ARCHIVE, "Key for VR Emergency Stop")
-CreateClientConVar("vrmod_emergencystop_time", 3, true, FCVAR_ARCHIVE, "Time to hold the key for VR Emergency Stop (in seconds)")
+CreateClientConVar("vrmod_emergencystop_time", 1, true, FCVAR_ARCHIVE, "Time to hold the key for VR Emergency Stop (in seconds)")
 
 -- Emergency Stop functionality
 local keyDownTime = nil
