@@ -18,10 +18,10 @@ if CLIENT then
 		"UnlitGeneric",
 		{
 			["$basetexture"] = rt_beam:GetName(),
-			["$ignorez"] = 1  -- 深度バッファを無視して描画
+			["$ignorez"] = 1 -- 深度バッファを無視して描画
 		}
 	)
-	
+
 	render.PushRenderTarget(rt_beam)
 	render.Clear(0, 0, 255, 255)
 	render.PopRenderTarget()
@@ -30,7 +30,6 @@ if CLIENT then
 	local menuOrder = {}
 	local menusExist = false
 	local prevFocusPanel = nil
-	
 	function VRUtilMenuRenderPanel(uid)
 		if not menus[uid] or not menus[uid].panel or not menus[uid].panel:IsValid() then return end
 		render.PushRenderTarget(menus[uid].rt)
@@ -238,9 +237,6 @@ if CLIENT then
 		end
 	end
 
-	function ReloadKeyPressed()
-	end
-
 	-- local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
 	-- -- マウスカーソル下にあるパネルを取得する
 	-- local panel = vgui.GetHoveredPanel()
@@ -273,15 +269,34 @@ if CLIENT then
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 
-			-- if g_VR.menuFocus and action == "boolean_right_pickup" then
-			-- VRUtilMenuRenderPanel(g_VR.menuFocus)
-			-- end
-			if g_VR.menuFocus and action == "boolean_reload" then
+			if g_VR.menuFocus and action == "boolean_sprint" then
 				if pressed then
 					-- キー入力イベントをフックする
-					ReloadKeyPressed()
+					gui.InternalMousePressed(MOUSE_MIDDLE)
 				else
-					ReloadKeyPressed()
+					gui.InternalMouseReleased(MOUSE_MIDDLE)
+				end
+
+				VRUtilMenuRenderPanel(g_VR.menuFocus)
+			end
+
+			if g_VR.menuFocus and action == "boolean_mouse4" then
+				if pressed then
+					-- キー入力イベントをフックする
+					gui.InternalMousePressed(MOUSE_4)
+				else
+					gui.InternalMouseReleased(MOUSE_4)
+				end
+
+				VRUtilMenuRenderPanel(g_VR.menuFocus)
+			end
+
+			if g_VR.menuFocus and action == "boolean_mouse5" then
+				if pressed then
+					-- キー入力イベントをフックする
+					gui.InternalMousePressed(MOUSE_5)
+				else
+					gui.InternalMouseReleased(MOUSE_5)
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
@@ -290,8 +305,10 @@ if CLIENT then
 			if g_VR.menuFocus and action == "boolean_back" then
 				if pressed then
 					gui.InternalMouseWheeled(-2)
+					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
 				else
 					gui.InternalMouseWheeled(-2)
+					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
@@ -300,22 +317,14 @@ if CLIENT then
 			if g_VR.menuFocus and action == "boolean_forword" then
 				if pressed then
 					gui.InternalMouseWheeled(2)
+					gui.InternalMousePressed(MOUSE_WHEEL_UP)
 				else
 					gui.InternalMouseWheeled(2)
+					gui.InternalMousePressed(MOUSE_WHEEL_UP)
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 		end
 	)
-	-- if g_VR.menuFocus and action == "boolean_left_pickup" then
-	-- if pressed then
-	-- gui.InternalKeyCodePressed(KEY_LCONTROL)
-	-- gui.InternalKeyCodePressed(KEY_V)
-	-- else
-	-- gui.InternalKeyCodeReleased(KEY_LCONTROL)
-	-- gui.InternalKeyCodeReleased(KEY_V)
-	-- end
-	-- VRUtilMenuRenderPanel(g_VR.menuFocus)
-	-- end
 end

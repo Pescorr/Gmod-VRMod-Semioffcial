@@ -10,7 +10,7 @@ hook.Add(
             
             -- 車両がLFS車両かどうか確認
             if vehicle.LVS then
-                RunConsoleCommand("vrmod_vehicle_reticlemode", "1") -- コンソールコマンドを実行
+                RunConsoleCommand("vrmod_vehicle_reticlemode", "1") -- コンソールコマンドを実行                
             end
 
             -- 車両がSimfphys車両かどうか確認
