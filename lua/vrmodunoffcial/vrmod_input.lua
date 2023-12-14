@@ -45,14 +45,12 @@ hook.Add(
 
 		if action == "boolean_forword" then
 			LocalPlayer():ConCommand(pressed and "+forward" or "-forward")
-			LocalPlayer():ConCommand("lvs_throttle")
 
 			return
 		end
 
 		if action == "boolean_back" then
 			LocalPlayer():ConCommand(pressed and "+back" or "-back")
-			LocalPlayer():ConCommand("lvs_brake")
 
 			return
 		end
