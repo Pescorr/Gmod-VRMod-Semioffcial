@@ -548,7 +548,7 @@ elseif SERVER then
 				t.count, t.time = 1, SysTime()
 			end
 			if t.count > maxCountPerSec or len > maxLen then
-				--print("VRMod: netmsg limit exceeded by "..ply:SteamID().." | "..msgName.." | "..t.count.."/"..maxCountPerSec.." msgs/sec | "..len.."/"..maxLen.." bits")
+				print("VRMod: netmsg limit exceeded by "..ply:SteamID().." | "..msgName.." | "..t.count.."/"..maxCountPerSec.." msgs/sec | "..len.."/"..maxLen.." bits")
 				return
 			end
 			callback(len,ply)

@@ -279,38 +279,45 @@ hook.Add(
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_exit = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_quickmenu_exit:SetPos(20, 45) -- Set the position
+		vrmod_quickmenu_exit:SetPos(20, 40) -- Set the position
 		vrmod_quickmenu_exit:SetText("[VR EXIT]") -- Set the text next to the box
 		vrmod_quickmenu_exit:SetConVar("vrmod_quickmenu_exit") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_exit:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_vgui_reset_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_vgui_reset_menu:SetPos(20, 75) -- Set the position
+		vrmod_vgui_reset_menu:SetPos(20, 65) -- Set the position
 		vrmod_vgui_reset_menu:SetText("[UI RESET]") -- Set the text next to the box
 		vrmod_vgui_reset_menu:SetConVar("vrmod_quickmenu_vgui_reset_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_vgui_reset_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_seated_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_quickmenu_seated_menu:SetPos(20, 105) -- Set the position
+		vrmod_quickmenu_seated_menu:SetPos(20, 90) -- Set the position
 		vrmod_quickmenu_seated_menu:SetText("[seated mode]") -- Set the text next to the box
 		vrmod_quickmenu_seated_menu:SetConVar("vrmod_quickmenu_seated_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_seated_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_chat = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_quickmenu_chat:SetPos(20, 135) -- Set the position
+		vrmod_quickmenu_chat:SetPos(20, 115) -- Set the position
 		vrmod_quickmenu_chat:SetText("[chat]") -- Set the text next to the box
 		vrmod_quickmenu_chat:SetConVar("vrmod_quickmenu_chat") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_chat:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_vre_gbradial_menu = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
-		vrmod_quickmenu_vre_gbradial_menu:SetPos(20, 165) -- Set the position
+		vrmod_quickmenu_vre_gbradial_menu:SetPos(20, 140) -- Set the position
 		vrmod_quickmenu_vre_gbradial_menu:SetText("[VRE gbradial] & [VRE Add menu]") -- Set the text next to the box
 		vrmod_quickmenu_vre_gbradial_menu:SetConVar("vrmod_quickmenu_vre_gbradial_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_vre_gbradial_menu:SizeToContents() -- Make its size the same as the contents
+		--DCheckBoxLabel end
+		--DCheckBoxLabel Start
+		local vrmod_quickmenu_vehiclemode = Panel1:Add("DCheckBoxLabel") -- Create the checkbox
+		vrmod_quickmenu_vehiclemode:SetPos(20, 165) -- Set the position
+		vrmod_quickmenu_vehiclemode:SetText("[Toggle Vehicle Mode]") -- Set the text next to the box
+		vrmod_quickmenu_vehiclemode:SetConVar("vrmod_quickmenu_togglevehiclemode") -- Change a ConVar when the box it ticked/unticked
+		vrmod_quickmenu_vehiclemode:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 
 
@@ -370,6 +377,8 @@ hook.Add(
 		vrmod_ui_outline:SetConVar("vrmod_ui_outline") -- Change a ConVar when the box it ticked/unticked
 		vrmod_ui_outline:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
+
+		
 		--DButton Start
 		--character_restart
 		local UI_defaultbutton = vgui.Create("DButton", Panel1) -- Create the button and parent it to the frame
@@ -380,13 +389,13 @@ hook.Add(
 		UI_defaultbutton.DoClick = function()
 			RunConsoleCommand("vrmod_quickmenu_mapbrowser_enable", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_quickmenu_exit", "1") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_quickmenu_vgui_reset_menu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_quickmenu_vgui_reset_menu", "0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_quickmenu_seated_menu", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_quickmenu_chat", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_quickmenu_vre_gbradial_menu", "1") -- Run the console command "say hi" when you click it ( command, args )
-
-			RunConsoleCommand("vrmod_attach_quickmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_quickmenu_togglevehiclemode", "0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_attach_weaponmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_attach_quickmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_attach_popup", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vre_ui_attachtohand", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_ui_outline", "0") -- Run the console command "say hi" when you click it ( command, args )

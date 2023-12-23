@@ -632,7 +632,7 @@ if SERVER then
 			local ply = player.GetBySteamID(steamid)
 			ply:SetCurrentViewOffset(ply.originalViewOffset)
 			ply:SetViewOffset(ply.originalViewOffset)
-			-- ply:StripWeapon("weapon_vrmod_empty")
+			ply:StripWeapon("weapon_vrmod_empty")
 			
 			--relay exit message to everyone
 			net.Start("vrutil_net_exit")

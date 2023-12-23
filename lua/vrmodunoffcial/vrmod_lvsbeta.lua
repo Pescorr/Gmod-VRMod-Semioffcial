@@ -1,3 +1,6 @@
+if not LVS then return end
+
+
 util.AddNetworkString("lvs_setinput")
 -- ネットワークメッセージを受け取る
 net.Receive(

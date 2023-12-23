@@ -1,4 +1,5 @@
 if CLIENT then
+    if not LVS then return end
     local actionStates = {
         ["ENGINE"] = false,
         ["EXIT"] = false,
@@ -28,11 +29,14 @@ if CLIENT then
     }
 
     local function updateServer()
-        for action, state in pairs(actionStates) do
-            net.Start("lvs_setinput")
-            net.WriteString(action)
-            net.WriteBool(state)
-            net.SendToServer()
+        -- プレイヤーが車両に乗っているか確認
+        if LocalPlayer():InVehicle() then
+            for action, state in pairs(actionStates) do
+                net.Start("lvs_setinput")
+                net.WriteString(action)
+                net.WriteBool(state)
+                net.SendToServer()
+            end
         end
     end
 
@@ -67,7 +71,6 @@ if CLIENT then
                 actionStates["+PITCH_SF"] = pressed
             end
 
-
             if action == "boolean_forword" then
                 actionStates["CAR_THROTTLE"] = pressed
                 actionStates["CAR_THROTTLE_MOD"] = pressed
@@ -82,7 +85,6 @@ if CLIENT then
                 actionStates["-THRUST_HELI"] = pressed
                 actionStates["-THRUST_SF"] = pressed
                 actionStates["-VTOL_X_SF"] = pressed
-
             end
 
             if action == "boolean_left" then
@@ -97,16 +99,13 @@ if CLIENT then
                 actionStates["+ROLL_HELI"] = pressed
             end
 
-
             if action == "boolean_back" then
                 actionStates["CAR_BRAKE"] = pressed
                 actionStates["-THROTTLE"] = pressed
                 actionStates["-THRUST_HELI"] = pressed
                 actionStates["-THRUST_SF"] = pressed
                 actionStates["-VTOL_X_SF"] = pressed
-
             end
-
 
             if action == "boolean_handbrake" then
                 actionStates["CAR_HANDBRAKE"] = pressed
@@ -117,10 +116,12 @@ if CLIENT then
                 actionStates["FREELOOK"] = pressed
             end
 
+            -- if action == "boolean_right_pickup" then
+            --     actionStates["FREELOOK"] = not pressed
+            -- end
             if action == "boolean_flashlight" then
                 actionStates["CAR_LIGHTS_TOGGLE"] = pressed
             end
-
 
             if action == "boolean_spawnmenu" and pressed then
                 -- ネットワークを介してサーバーにコマンドを送信
@@ -142,7 +143,7 @@ if CLIENT then
                             0.1,
                             0,
                             function()
-                                if CurTime() - usePressedTime > 0.2 then
+                                if CurTime() - usePressedTime > 0.4 then
                                     actionStates["EXIT"] = true
                                     useTimerRunning = false
                                     timer.Remove("CheckUseDuration")
@@ -154,6 +155,7 @@ if CLIENT then
                 else
                     if useTimerRunning then
                         useTimerRunning = false
+                        usePressedTime = 0.0
                         timer.Remove("CheckUseDuration")
                     end
 

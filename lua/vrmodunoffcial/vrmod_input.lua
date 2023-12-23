@@ -5,7 +5,6 @@ local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", 0, true, FC
 local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", 0, true, FCVAR_ARCHIVE)
 if SERVER then return end
 local ply = LocalPlayer()
-
 hook.Add(
 	"VRMod_EnterVehicle",
 	"vrmod_switchactionset",
@@ -69,6 +68,7 @@ hook.Add(
 
 		if action == "boolean_left_pickup" then
 			if cl_pickupdisable:GetBool() then return end
+			DropItemsHeldByPlayer(LocalPlayer(), true)
 			vrmod.Pickup(true, not pressed)
 
 			return
@@ -76,6 +76,7 @@ hook.Add(
 
 		if action == "boolean_right_pickup" then
 			if cl_pickupdisable:GetBool() then return end
+			DropItemsHeldByPlayer(LocalPlayer(), false)
 			vrmod.Pickup(false, not pressed)
 
 			return
@@ -258,3 +259,20 @@ hook.Add(
 		end
 	end
 )
+
+-- VRMod_Input フックを追加し、入力アクションを監視します
+-- hook.Add(
+-- 	"VRMod_Input",
+-- 	"vre_drop_items_on_release",
+-- 	function(action, pressed)
+-- 		-- "boolean_left_pickup" アクションが離されたとき
+-- 		if action == "boolean_left_pickup" and not pressed then
+-- 			DropItemsHeldByPlayer(LocalPlayer(), true)
+-- 		end
+
+-- 		-- "boolean_right_pickup" アクションが離されたとき
+-- 		if action == "boolean_right_pickup" and not pressed then
+-- 			DropItemsHeldByPlayer(LocalPlayer(), false)
+-- 		end
+-- 	end
+-- )
