@@ -11,8 +11,11 @@ if SERVER then return end
     local vguireset = CreateClientConVar("vrmod_quickmenu_vgui_reset_menu", "1")
     local vre_gbradial_menu = CreateClientConVar("vrmod_quickmenu_vre_gbradial_menu", "1")
     local vrmod_quickmenu_chat = CreateClientConVar("vrmod_quickmenu_chat", "1")
+    local vrmod_quickmenu_togglevehiclemode = CreateClientConVar("vrmod_quickmenu_togglevehiclemode", "1")
+
 
 local button1on = 0
+local button2on = 0
 
 hook.Add(
     "VRMod_OpenQuickMenu",
@@ -146,6 +149,46 @@ hook.Add(
             vrmod.RemoveInGameMenuItem("UI RESET")
         end
 
+        if seated_menu:GetBool() then
+            vrmod.AddInGameMenuItem(
+                "seated mode",
+                1,
+                2,
+                function()
+                    if button1on == 1 then
+                        button1on = 0
+                        LocalPlayer():ConCommand("vrmod_seated 1")
+                    else
+                        button1on = 1
+                        LocalPlayer():ConCommand("vrmod_seated 0")
+                    end
+                end
+            )
+        else
+            vrmod.RemoveInGameMenuItem("seated mode")
+        end
+
+        if vrmod_quickmenu_togglevehiclemode:GetBool() then
+            vrmod.AddInGameMenuItem(
+                "[LVS/TANK] ModeToggle [Simf/HL2]",
+                3,
+                3,
+                function()
+                    if button2on == 1 then
+                        button2on = 0
+                        LocalPlayer():ConCommand("vrmod_lfsmode")
+                    else
+                        button2on = 1
+                        LocalPlayer():ConCommand("vrmod_simfmode")
+                    end
+                end
+            )
+        else
+            vrmod.RemoveInGameMenuItem("[LVS/TANK] ModeToggle [Simf/HL2]")
+        end
+
+
+
         if vrmod_quickmenu_chat:GetBool() then
             vrmod.AddInGameMenuItem(
                 "chat",
@@ -158,6 +201,10 @@ hook.Add(
         else
             vrmod.RemoveInGameMenuItem("chat")
         end
+
+        vrmod.RemoveInGameMenuItem("ArcCW Customize")
+
+    
     end
 )
 

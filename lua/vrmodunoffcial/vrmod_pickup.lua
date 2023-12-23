@@ -10,7 +10,7 @@ scripted_ents.Register(
 local _, convarValues = vrmod.GetConvars()
 vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 0, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 3, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_dev_pickup_limit_droptest", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 2, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.2, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 100, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 99999, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 if CLIENT then
 	function vrmod.Pickup(bLeftHand, bDrop)
@@ -150,11 +150,19 @@ elseif SERVER then
 		local steamid = ply:SteamID()
 		local pickupPoint = LocalToWorld(Vector(3, bLeftHand and -1.5 or 1.5, 0), Angle(), handPos, handAng)
 		local entities = ents.FindInSphere(pickupPoint, 100)
+		local closestDist = math.huge
+		local closestEnt = nil
 		for k = 1, #entities do
 			local v = entities[k]
 			--pescorrzonestart
 			-- ここで shouldPickUp 関数を使用して、エンティティが拾われるべきかどうかをチェックします。
 			if not shouldPickUp(v) then continue end
+			local dist = v:GetPos():Distance(pickupPoint)
+			if dist < closestDist then
+				closestDist = dist
+				closestEnt = v
+			end
+
 			if convarValues.vrmod_pickup_limit == 3 then return end
 			if convarValues.vrmod_pickup_limit == 2 then
 				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or ply:InVehicle() or not v:GetPhysicsObject():IsMoveable() or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight or v:GetPhysicsObject():HasGameFlag(FVPHYSICS_MULTIOBJECT_ENTITY) or v == ply or (v.CPPICanPickup ~= nil and not v:CPPICanPickup(ply)) then continue end
@@ -262,9 +270,9 @@ elseif SERVER then
 				pickupController:AddToMotionController(v:GetPhysicsObject())
 				v:PhysWake()
 			else
-				--print("existing pickup")
 			end
 
+			--print("existing pickup")
 			--print("existing pickup")
 			local localPos, localAng = WorldToLocal(v:GetPos(), v:GetAngles(), handPos, handAng)
 			pickupList[index] = {

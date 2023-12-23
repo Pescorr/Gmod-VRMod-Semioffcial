@@ -31,6 +31,17 @@ meta.MakePopup = function(...)
 				popupCount = popupCount + 1
 			end
 
+			if panel:GetName() == "DImage" then
+				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
+				panel = panel:GetChildren()[1]
+				panel.Paint = function(self, w, h)
+					surface.SetDrawColor(175, 174, 187)
+					surface.DrawRect(0, 0, w, h)
+				end
+
+				popupCount = popupCount + 1
+			end
+
 			if popupCount == 0 then
 				local ang = Angle(0, g_VR.tracking.hmd.ang.yaw - 90, 45)
 				basePos, baseAng = WorldToLocal(g_VR.tracking.hmd.pos + Vector(0, 0, -20) + Angle(0, g_VR.tracking.hmd.ang.yaw, 0):Forward() * 30 + ang:Forward() * vrScrW:GetInt() * -0.02 + ang:Right() * vrScrH:GetInt() * -0.02, ang, g_VR.origin, g_VR.originAngle)
