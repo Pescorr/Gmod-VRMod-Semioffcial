@@ -149,24 +149,6 @@ elseif SERVER then
 	function pickup(ply, bLeftHand, handPos, handAng)
 		local steamid = ply:SteamID()
 		local pickupPoint = LocalToWorld(Vector(3, bLeftHand and -1.5 or 1.5, 0), Angle(), handPos, handAng)
-		-- 0ダメージの攻撃を手の位置で発生させる
-		local tr = util.TraceLine(
-			{
-				start = handPos,
-				endpos = handPos + handAng:Forward() * 10, -- 小さな距離で十分
-				filter = ply
-			}
-		)
-
-		if tr.HitNonWorld then
-			local dmginfo = DamageInfo()
-			dmginfo:SetDamage(0.1)
-			dmginfo:SetAttacker(ply)
-			dmginfo:SetInflictor(ply)
-			dmginfo:SetDamageForce(Vector(1, 1, 1))
-			tr.Entity:TakeDamageInfo(dmginfo)
-		end
-
 		local entities = ents.FindInSphere(pickupPoint, 100)
 		local closestDist = math.huge
 		local closestEnt = nil
