@@ -12,6 +12,7 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, nil, "", 0, 1, tonumber)
 	local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+	local VRClipboard = CreateClientConVar("vrmod_Clipboard","",true,FCVAR_ARCHIVE,"")
 	local rt_beam = GetRenderTarget("vrmod_rt_beam", 64, 64, false)
 	local mat_beam = CreateMaterial(
 		"vrmod_mat_beam",
@@ -237,7 +238,7 @@ if CLIENT then
 		end
 	end
 
-	-- local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
+	local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
 	-- -- マウスカーソル下にあるパネルを取得する
 	-- local panel = vgui.GetHoveredPanel()
 	-- -- パネルがDTextEntryであるかどうかを確認する
@@ -279,6 +280,18 @@ if CLIENT then
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
+
+			if g_VR.menuFocus and action == "boolean_reload" then
+				if pressed then
+					-- キー入力イベントをフックする
+					gui.AddCaption(vrmod_Clipboard:GetString())
+				else
+					gui.AddCaption(vrmod_Clipboard:GetString())
+				end
+
+				VRUtilMenuRenderPanel(g_VR.menuFocus)
+			end
+
 
 			if g_VR.menuFocus and action == "boolean_mouse4" then
 				if pressed then
