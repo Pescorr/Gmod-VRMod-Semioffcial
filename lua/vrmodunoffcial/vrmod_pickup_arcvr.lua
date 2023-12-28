@@ -101,7 +101,7 @@ local function init()
 						end
 
 						v.ent:SetCollisionGroup(v.ent.originalCollisionGroup)
-						v.ent:PhysicsInit(SOLID_VPHYSICS)
+						v.ent:PhysicsInit(COLLISION_GROUP_WEAPON)
 						v.ent:PhysWake()
 						v.ent:GetPhysicsObject():SetVelocity(vel)
 						v.ent:GetPhysicsObject():AddAngleVelocity(angvel)

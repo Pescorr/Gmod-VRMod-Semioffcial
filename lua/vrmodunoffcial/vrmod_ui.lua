@@ -170,7 +170,7 @@ if CLIENT then
 			ang = ang,
 			scale = scale,
 			cursorEnabled = cursorEnabled,
-			rt = GetRenderTarget("vrmod_rt_ui_" .. uid, width, height, false),
+			rt = GetRenderTargetEx("vrmod_rt_ui_" .. uid, width, height,RT_SIZE_NO_CHANGE,MATERIAL_RT_DEPTH_SHARED,1024,CREATERENDERTARGETFLAGS_AUTOMIPMAP,IMAGE_FORMAT_DEFAULT),
 			width = width,
 			height = height,
 		}
@@ -212,7 +212,7 @@ if CLIENT then
 		for k, v in pairs(menus) do
 			if k == uid or not uid then
 				if IsValid(v.panel) then
-					v.panel:SetPaintedManually(false)
+					-- v.panel:SetPaintedManually(false)
 				end
 
 				if v.closeFunc then

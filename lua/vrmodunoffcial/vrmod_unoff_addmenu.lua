@@ -2,7 +2,7 @@ if SERVER then return end
 local convars, convarValues = vrmod.GetConvars()
 hook.Add(
 	"VRMod_Menu",
-	"addsettings",
+	"VRaddsettings",
 	function(frame)
 		--Settings02 Start
 		--add VRMod_Menu Settings02 propertysheet start
@@ -16,6 +16,7 @@ hook.Add(
 		Panel6.Paint = function(self, w, h)
 			-- draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, self:GetAlpha()))
 		end
+
 
 		--DCheckBoxLabel Start
 		local r_3dsky = Panel6:Add("DCheckBoxLabel") -- Create the checkbox
