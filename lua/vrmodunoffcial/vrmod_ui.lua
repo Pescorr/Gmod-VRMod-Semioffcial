@@ -12,7 +12,6 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, nil, "", 0, 1, tonumber)
 	local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
-	local VRClipboard = CreateClientConVar("vrmod_Clipboard","",true,FCVAR_ARCHIVE,"")
 	local rt_beam = GetRenderTarget("vrmod_rt_beam", 64, 64, false)
 	local mat_beam = CreateMaterial(
 		"vrmod_mat_beam",
@@ -170,7 +169,7 @@ if CLIENT then
 			ang = ang,
 			scale = scale,
 			cursorEnabled = cursorEnabled,
-			rt = GetRenderTargetEx("vrmod_rt_ui_" .. uid, width, height,RT_SIZE_NO_CHANGE,MATERIAL_RT_DEPTH_SHARED,1024,CREATERENDERTARGETFLAGS_AUTOMIPMAP,IMAGE_FORMAT_DEFAULT),
+			rt = GetRenderTarget("vrmod_rt_ui_" .. uid, width, height, false),
 			width = width,
 			height = height,
 		}
@@ -212,7 +211,7 @@ if CLIENT then
 		for k, v in pairs(menus) do
 			if k == uid or not uid then
 				if IsValid(v.panel) then
-					-- v.panel:SetPaintedManually(false)
+					v.panel:SetPaintedManually(false)
 				end
 
 				if v.closeFunc then
@@ -238,7 +237,7 @@ if CLIENT then
 		end
 	end
 
-	local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
+	-- local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
 	-- -- マウスカーソル下にあるパネルを取得する
 	-- local panel = vgui.GetHoveredPanel()
 	-- -- パネルがDTextEntryであるかどうかを確認する
@@ -281,16 +280,6 @@ if CLIENT then
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 
-			if g_VR.menuFocus and action == "boolean_reload" then
-				if pressed then
-					-- キー入力イベントをフックする
-					gui.AddCaption(vrmod_Clipboard:GetString())
-				else
-					gui.AddCaption(vrmod_Clipboard:GetString())
-				end
-
-				VRUtilMenuRenderPanel(g_VR.menuFocus)
-			end
 
 
 			if g_VR.menuFocus and action == "boolean_mouse4" then
@@ -321,7 +310,7 @@ if CLIENT then
 					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
 				else
 					gui.InternalMouseWheeled(-2)
-					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
+					gui.InternalMouseReleased(MOUSE_WHEEL_DOWN)
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
@@ -333,7 +322,7 @@ if CLIENT then
 					gui.InternalMousePressed(MOUSE_WHEEL_UP)
 				else
 					gui.InternalMouseWheeled(2)
-					gui.InternalMousePressed(MOUSE_WHEEL_UP)
+					gui.InternalMouseReleased(MOUSE_WHEEL_UP)
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)

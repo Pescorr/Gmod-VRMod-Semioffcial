@@ -56,6 +56,13 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_controlleroffset_pitch", nil, "50")
 	vrmod.AddCallbackedConvar("vrmod_controlleroffset_yaw", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_controlleroffset_roll", nil, "0")
+	-- ConVarの追加
+	vrmod.AddCallbackedConvar("vrmod_hmdoffset_x", nil, "0")
+	vrmod.AddCallbackedConvar("vrmod_hmdoffset_y", nil, "0")
+	vrmod.AddCallbackedConvar("vrmod_hmdoffset_z", nil, "0")
+	vrmod.AddCallbackedConvar("vrmod_hmdoffset_pitch", nil, "0")
+	vrmod.AddCallbackedConvar("vrmod_hmdoffset_yaw", nil, "0")
+	vrmod.AddCallbackedConvar("vrmod_hmdoffset_roll", nil, "0")
 	vrmod.AddCallbackedConvar(
 		"vrmod_postprocess",
 		nil,
@@ -352,7 +359,7 @@ if CLIENT then
 			return
 		end
 
-		local displayInfo = VRMOD_GetDisplayInfo(1, 2)
+		local displayInfo = VRMOD_GetDisplayInfo(1, 5)
 		local rtWidth, rtHeight = displayInfo.RecommendedWidth * 2, displayInfo.RecommendedHeight
 		local rtWidthright = rtWidth / 2
 		if system.IsLinux() then
@@ -502,6 +509,18 @@ if CLIENT then
 				if #simulate == 0 then
 					hook.Remove("VRMod_Tracking", "simulatehands")
 				end
+			end
+		)
+
+		-- HMDの追跡データ更新時にオフセットを適用
+		hook.Add(
+			"VRMod_Tracking",
+			"vrmod_apply_hmdoffset",
+			function()
+				local hmdOffsetPos = Vector(convars.vrmod_hmdoffset_x:GetFloat(), convars.vrmod_hmdoffset_y:GetFloat(), convars.vrmod_hmdoffset_z:GetFloat())
+				local hmdOffsetAng = Angle(convars.vrmod_hmdoffset_pitch:GetFloat(), convars.vrmod_hmdoffset_yaw:GetFloat(), convars.vrmod_hmdoffset_roll:GetFloat())
+				local hmdPose = g_VR.tracking.hmd
+				hmdPose.pos, hmdPose.ang = LocalToWorld(hmdOffsetPos, hmdOffsetAng, hmdPose.pos, hmdPose.ang)
 			end
 		)
 
