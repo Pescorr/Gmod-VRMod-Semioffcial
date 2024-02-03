@@ -59,7 +59,7 @@ if CLIENT then
     end
 
     local usePressedTime = 0
-    local pickuphandle = CreateClientConVar("vrmod_lvs_pickup_handle","1",true)
+    local pickuphandle = CreateClientConVar("vrmod_lvs_pickup_handle", "1", true)
     local useTimerRunning = false
     hook.Add(
         "VRMod_Input",
@@ -88,15 +88,6 @@ if CLIENT then
             if action == "boolean_sprint" then
                 actionStates["HELI_HOVER"] = pressed
                 actionStates["+PITCH_SF"] = pressed
-            end
-
-            if action == "boolean_forword" then
-                actionStates["CAR_THROTTLE"] = pressed
-                actionStates["CAR_THROTTLE_MOD"] = pressed
-                actionStates["+THROTTLE"] = pressed
-                actionStates["+THRUST_HELI"] = pressed
-                actionStates["+THRUST_SF"] = pressed
-                actionStates["cl_simfphys_keygearup"] = pressed
             end
 
             if action == "boolean_forword" then
@@ -147,14 +138,12 @@ if CLIENT then
                 actionStates["FREELOOK"] = pressed
             end
 
-            if action == "boolean_right_pickup" then
-                actionStates["FREELOOK"] = not pressed
+            if pickuphandle:GetBool() then
+                if action == "boolean_right_pickup" or action == "boolean_left_pickup" then
+                    actionStates["FREELOOK"] = not pressed
+                end
             end
 
-            if action == "boolean_left_pickup" then
-                actionStates["FREELOOK"] = not pressed
-            end
-            
             if action == "boolean_flashlight" then
                 actionStates["CAR_LIGHTS_TOGGLE"] = pressed
                 actionStates["cl_simfphys_lights"] = pressed

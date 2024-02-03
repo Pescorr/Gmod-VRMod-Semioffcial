@@ -7,35 +7,35 @@ g_VR.action_manifest = [[
 	"default_bindings": [
 		{
 			"controller_type": "vive_controller",
-			"binding_url": "vrmod_bindings_vive_controller.txt"
+			"binding_url": "vrmod_bindings_vive_controller.json"
 		},
 		{
 			"controller_type": "oculus_touch",
-			"binding_url": "vrmod_bindings_oculus_touch.txt"
+			"binding_url": "vrmod_bindings_oculus_touch.json"
 		},
 		{
 			"controller_type": "holographic_controller",
-			"binding_url": "vrmod_bindings_holographic_controller.txt"
+			"binding_url": "vrmod_bindings_holographic_controller.json"
 		},
 		{
 			"controller_type": "knuckles",
-			"binding_url": "vrmod_bindings_knuckles.txt"
+			"binding_url": "vrmod_bindings_knuckles.json"
 		},
 		{
 			"controller_type": "vive_cosmos_controller",
-			"binding_url": "vrmod_bindings_vive_cosmos_controller.txt"
+			"binding_url": "vrmod_bindings_vive_cosmos_controller.json"
 		},
 		{
 			"controller_type": "vive_tracker_left_foot",
-			"binding_url": "vrmod_bindings_vive_tracker_left_foot.txt"
+			"binding_url": "vrmod_bindings_vive_tracker_left_foot.json"
 		},
 		{
 			"controller_type": "vive_tracker_right_foot",
-			"binding_url": "vrmod_bindings_vive_tracker_right_foot.txt"
+			"binding_url": "vrmod_bindings_vive_tracker_right_foot.json"
 		},
 		{
 			"controller_type": "vive_tracker_waist",
-			"binding_url": "vrmod_bindings_vive_tracker_waist.txt"
+			"binding_url": "vrmod_bindings_vive_tracker_waist.json"
 		}
 	], 
 	
@@ -2059,15 +2059,15 @@ local function WriteBindingFiles()
 	if not file.Exists("vrmod","DATA") then
 		file.CreateDir("vrmod")
 	end
-	file.Write("vrmod/vrmod_action_manifest.txt",g_VR.action_manifest)
-	file.Write("vrmod/vrmod_bindings_holographic_controller.txt",g_VR.bindings_holographic)
-	file.Write("vrmod/vrmod_bindings_oculus_touch.txt",g_VR.bindings_touch)
-	file.Write("vrmod/vrmod_bindings_vive_controller.txt",g_VR.bindings_vive)
-	file.Write("vrmod/vrmod_bindings_knuckles.txt",g_VR.bindings_knuckles)
-	file.Write("vrmod/vrmod_bindings_vive_cosmos_controller.txt",g_VR.bindings_cosmos)
-	file.Write("vrmod/vrmod_bindings_vive_tracker_left_foot.txt",g_VR.bindings_vive_tracker_left_foot)
-	file.Write("vrmod/vrmod_bindings_vive_tracker_right_foot.txt",g_VR.bindings_vive_tracker_right_foot)
-	file.Write("vrmod/vrmod_bindings_vive_tracker_waist.txt",g_VR.bindings_vive_tracker_waist)
+	file.Write("vrmod/vrmod_action_manifest.json",g_VR.action_manifest)
+	file.Write("vrmod/vrmod_bindings_holographic_controller.json",g_VR.bindings_holographic)
+	file.Write("vrmod/vrmod_bindings_oculus_touch.json",g_VR.bindings_touch)
+	file.Write("vrmod/vrmod_bindings_vive_controller.json",g_VR.bindings_vive)
+	file.Write("vrmod/vrmod_bindings_knuckles.json",g_VR.bindings_knuckles)
+	file.Write("vrmod/vrmod_bindings_vive_cosmos_controller.json",g_VR.bindings_cosmos)
+	file.Write("vrmod/vrmod_bindings_vive_tracker_left_foot.json",g_VR.bindings_vive_tracker_left_foot)
+	file.Write("vrmod/vrmod_bindings_vive_tracker_right_foot.json",g_VR.bindings_vive_tracker_right_foot)
+	file.Write("vrmod/vrmod_bindings_vive_tracker_waist.json",g_VR.bindings_vive_tracker_waist)
 end
 
 local cv_bindingVersion = CreateClientConVar("vrmod_bindingversion", "0", true, false)
