@@ -6,7 +6,7 @@ g_VR.CustomActions = {}
 local open = false
 
 function VRUtilLoadCustomActions()
-	local str = file.Read("vrmod/vrmod_custom_actions.txt")
+	local str = file.Read("vrmod/vrmod_custom_actions.json")
 	if str then
 		g_VR.CustomActions = util.JSONToTable(str)
 	end
@@ -41,7 +41,7 @@ concommand.Add( "vrmod_actioneditor", function( ply, cmd, args )
 			end
 		end
 		--
-		file.Write("vrmod/vrmod_custom_actions.txt",util.TableToJSON(g_VR.CustomActions,false))
+		file.Write("vrmod/vrmod_custom_actions.json",util.TableToJSON(g_VR.CustomActions,false))
 		--
 		local pos = 0
 		while true do
@@ -56,7 +56,7 @@ concommand.Add( "vrmod_actioneditor", function( ply, cmd, args )
 		for i = 1, #g_VR.CustomActions do
 			firstPart = firstPart.. ",\n		{\n			\"name\": \"".. "/actions/".. ((g_VR.CustomActions[i].driving or g_VR.CustomActions[i][4] == "1") and "driving" or "main") .."/in/"..g_VR.CustomActions[i][1].."\",\n			\"type\": \"boolean\"\n		}"
 		end
-		file.Write("vrmod/vrmod_action_manifest.txt",firstPart..lastPart)
+		file.Write("vrmod/vrmod_action_manifest.json",firstPart..lastPart)
 	end
 
 	local DScrollPanel

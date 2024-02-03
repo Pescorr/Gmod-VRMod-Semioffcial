@@ -359,7 +359,7 @@ if CLIENT then
 			return
 		end
 
-		local displayInfo = VRMOD_GetDisplayInfo(1, 5)
+		local displayInfo = VRMOD_GetDisplayInfo(1, 10)
 		local rtWidth, rtHeight = displayInfo.RecommendedWidth * 2, displayInfo.RecommendedHeight
 		local rtWidthright = rtWidth / 2
 		if system.IsLinux() then
@@ -412,7 +412,7 @@ if CLIENT then
 		local eyez = displayInfo.TransformRight[3][4]
 		--
 		--set up active bindings
-		VRMOD_SetActionManifest("vrmod/vrmod_action_manifest.txt")
+		VRMOD_SetActionManifest("vrmod/vrmod_action_manifest.json")
 		VRMOD_SetActiveActionSets("/actions/base", LocalPlayer():InVehicle() and "/actions/driving" or "/actions/main")
 		VRUtilLoadCustomActions()
 		g_VR.input, g_VR.changedInputs = VRMOD_GetActions() --make inputs immediately available
