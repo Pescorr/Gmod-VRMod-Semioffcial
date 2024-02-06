@@ -412,7 +412,7 @@ if CLIENT then
 		local eyez = displayInfo.TransformRight[3][4]
 		--
 		--set up active bindings
-		VRMOD_SetActionManifest("vrmod/vrmod_action_manifest.json")
+		VRMOD_SetActionManifest("vrmod/vrmod_action_manifest.txt")
 		VRMOD_SetActiveActionSets("/actions/base", LocalPlayer():InVehicle() and "/actions/driving" or "/actions/main")
 		VRUtilLoadCustomActions()
 		g_VR.input, g_VR.changedInputs = VRMOD_GetActions() --make inputs immediately available
@@ -556,7 +556,7 @@ if CLIENT then
 		local pos1, ang1
 		local uselefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
 		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", 0, true, FCVAR_ARCHIVE)
-		local leftgripmode = CreateClientConVar("vrmod_leftgripmode", "0", FCVAR_ARCHIVE)
+		local leftgripmode = CreateClientConVar("vrmod_leftgripmode", 0, FCVAR_ARCHIVE)
 		-- RenderScene フック内でHMDの位置と角度を調整
 		hook.Add(
 			"RenderScene",

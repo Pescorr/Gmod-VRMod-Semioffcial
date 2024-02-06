@@ -150,19 +150,11 @@ elseif SERVER then
 		local steamid = ply:SteamID()
 		local pickupPoint = LocalToWorld(Vector(3, bLeftHand and -1.5 or 1.5, 0), Angle(), handPos, handAng)
 		local entities = ents.FindInSphere(pickupPoint, 100)
-		local closestDist = math.huge
-		local closestEnt = nil
 		for k = 1, #entities do
 			local v = entities[k]
 			--pescorrzonestart
 			-- ここで shouldPickUp 関数を使用して、エンティティが拾われるべきかどうかをチェックします。
 			if not shouldPickUp(v) then continue end
-			local dist = v:GetPos():Distance(pickupPoint)
-			if dist < closestDist then
-				closestDist = dist
-				closestEnt = v
-			end
-
 			if convarValues.vrmod_pickup_limit == 3 then return end
 			if convarValues.vrmod_pickup_limit == 2 then
 				if not IsValid(v) or not IsValid(v:GetPhysicsObject()) or ply:InVehicle() or not v:GetPhysicsObject():IsMoveable() or v:GetPhysicsObject():GetMass() > convarValues.vrmod_pickup_weight or v:GetPhysicsObject():HasGameFlag(FVPHYSICS_MULTIOBJECT_ENTITY) or v == ply or (v.CPPICanPickup ~= nil and not v:CPPICanPickup(ply)) then continue end
@@ -270,9 +262,9 @@ elseif SERVER then
 				pickupController:AddToMotionController(v:GetPhysicsObject())
 				v:PhysWake()
 			else
+				--print("existing pickup")
 			end
 
-			--print("existing pickup")
 			--print("existing pickup")
 			local localPos, localAng = WorldToLocal(v:GetPos(), v:GetAngles(), handPos, handAng)
 			pickupList[index] = {
