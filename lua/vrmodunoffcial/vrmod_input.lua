@@ -5,6 +5,7 @@ local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", 0, true, FC
 local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", 0, true, FCVAR_ARCHIVE)
 if SERVER then return end
 local ply = LocalPlayer()
+
 hook.Add(
 	"VRMod_EnterVehicle",
 	"vrmod_switchactionset",

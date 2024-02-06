@@ -25,8 +25,8 @@ if CLIENT then
 
 
     hook.Add("CreateMove","vre_simfphysfix_remix",function()
-		local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",true,nil)
-		local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",true,nil)
+		local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle","0",false,FCVAR_ARCHIVE)
+		local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle","0",false,FCVAR_ARCHIVE)
 	
 	
         if not LocalPlayer():InVehicle() or scripted_ents.Get("gmod_sent_vehicle_fphysics_base") == nil or !g_VR.net[LocalPlayer():SteamID()] then return end

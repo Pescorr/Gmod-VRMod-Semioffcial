@@ -80,7 +80,7 @@
 -- 		eye_error, lip_error = (err1 or eye_error), (err2 or lip_error)
 -- 		local dataTables = {VRMOD_SRanipalGetLipData(), VRMOD_SRanipalGetEyeData()}
 -- 		--
--- 		local filename = "vrmod/flexbinder/"..string.match(string.sub(ply:GetModel(),1,-5),"[^/]*$")..".json"
+-- 		local filename = "vrmod/flexbinder/"..string.match(string.sub(ply:GetModel(),1,-5),"[^/]*$")..".txt"
 -- 		local connections = util.JSONToTable(file.Read(filename) or "[]")
 -- 		local flexScale = 1
 -- 		if isnumber(connections[#connections]) then

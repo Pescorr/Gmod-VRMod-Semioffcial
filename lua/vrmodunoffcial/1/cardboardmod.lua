@@ -76,7 +76,7 @@ concommand.Add( "cardboardmod_start", function( ply, cmd, args )
 	local rt = GetRenderTarget( "rt_cardboardmod"..math.floor(SysTime()), rtWidth, rtHeight)
 	VRMOD_ShareTextureFinish()
 		
-	VRMOD_SetActionManifest("vrmod/vrmod_action_manifest.json")
+	VRMOD_SetActionManifest("vrmod/vrmod_action_manifest.txt")
 	VRMOD_SetActiveActionSets("/actions/vrmod")
 		
 	local scale =  GetConVar("cardboardmod_scale"):GetFloat()

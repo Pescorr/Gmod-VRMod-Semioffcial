@@ -280,8 +280,6 @@ if CLIENT then
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 
-
-
 			if g_VR.menuFocus and action == "boolean_mouse4" then
 				if pressed then
 					-- キー入力イベントをフックする
@@ -310,7 +308,7 @@ if CLIENT then
 					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
 				else
 					gui.InternalMouseWheeled(-2)
-					gui.InternalMouseReleased(MOUSE_WHEEL_DOWN)
+					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
@@ -322,7 +320,7 @@ if CLIENT then
 					gui.InternalMousePressed(MOUSE_WHEEL_UP)
 				else
 					gui.InternalMouseWheeled(2)
-					gui.InternalMouseReleased(MOUSE_WHEEL_UP)
+					gui.InternalMousePressed(MOUSE_WHEEL_UP)
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
