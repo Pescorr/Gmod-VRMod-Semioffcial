@@ -1,5 +1,5 @@
 
-concommand.Add("vrmod_pickup_nearest_left", function(ply)
+concommand.Add("vrmod_test_pickup_nearest_left", function(ply)
     local plyPos = ply:GetPos()
 
     -- プレイヤーの周囲のエンティティを検索し、最も近いものを見つける
@@ -10,7 +10,7 @@ concommand.Add("vrmod_pickup_nearest_left", function(ply)
             if not IsValid(ent) or not IsValid(ent:GetPhysicsObject()) or ent == ply or ply:InVehicle() or (ent.CPPICanPickup ~= nil and not ent:CPPICanPickup(ply)) then continue end
             
             nearestDist = ent:GetPos():DistToSqr(plyPos)
-            nearestEnt = ent
+            nearestEnt = ent    
         end
     end
 
@@ -29,7 +29,7 @@ concommand.Add("vrmod_pickup_nearest_left", function(ply)
         return
     end
 
-    handAng = handAng - Angle(0, 0, 180)
+    handAng = handAng - Angle()
 
 
     -- エンティティを手の位置にテレポート
@@ -42,7 +42,7 @@ end)
 
 
 --右手用
-concommand.Add("vrmod_pickup_nearest_right", function(ply)
+concommand.Add("vrmod_test_pickup_nearest_right", function(ply)
     local plyPos = ply:GetPos()
 
     -- プレイヤーの周囲のエンティティを検索し、最も近いものを見つける
@@ -71,7 +71,7 @@ concommand.Add("vrmod_pickup_nearest_right", function(ply)
         return
     end
 
-    handAng = handAng - Angle(0, 0, 180)
+    handAng = handAng - Angle()
 
     -- エンティティを手の位置にテレポート
     nearestEnt:SetPos(handPos)

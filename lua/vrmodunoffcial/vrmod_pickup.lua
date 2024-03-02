@@ -261,10 +261,9 @@ elseif SERVER then
 				pickupCount = pickupCount + 1
 				pickupController:AddToMotionController(v:GetPhysicsObject())
 				v:PhysWake()
-			else
-				--print("existing pickup")
 			end
 
+			--print("existing pickup")
 			--print("existing pickup")
 			local localPos, localAng = WorldToLocal(v:GetPos(), v:GetAngles(), handPos, handAng)
 			pickupList[index] = {

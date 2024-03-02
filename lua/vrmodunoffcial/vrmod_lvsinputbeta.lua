@@ -26,6 +26,24 @@ if CLIENT then
         ["-VTOL_Y_SF"] = false,
         ["-VTOL_X_SF"] = false,
         ["ZOOM"] = false,
+        ["cl_simfphys_keyforward"] = false,
+        ["cl_simfphys_keyreverse"] = false,
+        ["cl_simfphys_keyleft"] = false,
+        ["cl_simfphys_keyright"] = false,
+        ["cl_simfphys_keywot"] = false,
+        ["cl_simfphys_keyclutch"] = false,
+        ["cl_simfphys_keygearup"] = false,
+        ["cl_simfphys_keygeardown"] = false,
+        ["cl_simfphys_keyhandbrake"] = false,
+        ["cl_simfphys_cruisecontrol"] = false,
+        ["cl_simfphys_lights"] = false,
+        ["cl_simfphys_foglights"] = false,
+        ["cl_simfphys_keyhorn"] = false,
+        ["cl_simfphys_keyengine"] = false,
+        ["cl_simfphys_key_air_forward"] = false,
+        ["cl_simfphys_key_air_reverse"] = false,
+        ["cl_simfphys_key_air_right"] = false,
+        ["cl_simfphys_key_turnmenu"] = false,
     }
 
     local function updateServer()
@@ -41,6 +59,7 @@ if CLIENT then
     end
 
     local usePressedTime = 0
+    local pickuphandle = CreateClientConVar("vrmod_lvs_pickup_handle", "1", true)
     local useTimerRunning = false
     hook.Add(
         "VRMod_Input",
@@ -66,6 +85,29 @@ if CLIENT then
                 actionStates["ZOOM"] = pressed
             end
 
+
+            if action == "vector1_forward" then
+                local throttleValue = vrmod.GetInput("vector1_forward") -- vector1_forward の現在の値を取得
+                if throttleValue > 0 then
+                    if throttleValue < 50 then
+                        actionStates["CAR_THROTTLE"] = true
+                        actionStates["CAR_THROTTLE_MOD"] = false
+                    elseif throttleValue >= 50 then
+                        actionStates["CAR_THROTTLE"] = true
+                        actionStates["CAR_THROTTLE_MOD"] = true
+                    end
+                else
+                    actionStates["CAR_THROTTLE"] = false
+                    actionStates["CAR_THROTTLE_MOD"] = false
+                end
+            end
+
+            if action == "vector1_reverse" then
+                local throttleValue = vrmod.GetInput("vector1_reverse") -- vector1_forward の現在の値を取得
+                actionStates["CAR_BRAKE"] = throttleValue > 0 -- throttleValue が 0 より大きい場合、CAR_THROTTLE を有効にする
+            end
+
+
             if action == "boolean_sprint" then
                 actionStates["HELI_HOVER"] = pressed
                 actionStates["+PITCH_SF"] = pressed
@@ -77,6 +119,7 @@ if CLIENT then
                 actionStates["+THROTTLE"] = pressed
                 actionStates["+THRUST_HELI"] = pressed
                 actionStates["+THRUST_SF"] = pressed
+                actionStates["cl_simfphys_keygearup"] = pressed
             end
 
             if action == "boolean_back" then
@@ -85,6 +128,7 @@ if CLIENT then
                 actionStates["-THRUST_HELI"] = pressed
                 actionStates["-THRUST_SF"] = pressed
                 actionStates["-VTOL_X_SF"] = pressed
+                actionStates["cl_simfphys_keygeardown"] = pressed
             end
 
             if action == "boolean_left" then
@@ -110,17 +154,24 @@ if CLIENT then
             if action == "boolean_handbrake" then
                 actionStates["CAR_HANDBRAKE"] = pressed
                 actionStates["HELI_HOVER"] = pressed
+                actionStates["cl_simfphys_keyhandbrake"] = pressed
             end
 
             if action == "boolean_walkkey" then
                 actionStates["FREELOOK"] = pressed
             end
 
-            -- if action == "boolean_right_pickup" then
-            --     actionStates["FREELOOK"] = not pressed
-            -- end
+            if pickuphandle:GetBool() and GetConVar("vrmod_locomotion") == 1 or GetConVar("vrmod_locomotion") == 2 then
+                if action == "boolean_right_pickup" then
+                    actionStates["FREELOOK"] = not pressed
+                    RunConsoleCommand("lvs_mouseaim", "1")
+                    RunConsoleCommand("vrmod_locomotion", "1")
+                end
+            end
+
             if action == "boolean_flashlight" then
                 actionStates["CAR_LIGHTS_TOGGLE"] = pressed
+                actionStates["cl_simfphys_lights"] = pressed
             end
 
             if action == "boolean_spawnmenu" and pressed then

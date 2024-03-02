@@ -1,3 +1,25 @@
+if CLIENT then return end
+-- コンソールコマンド 'remove_reflective_glass' を追加して、func_reflective_glass エンティティを削除する
+concommand.Add(
+    "remove_reflective_glass",
+    function(ply, cmd, args)
+        -- 実行者が管理者か確認
+        if not IsValid(ply) or ply:IsAdmin() then
+            -- func_reflective_glass エンティティを検索して削除
+            for _, ent in ipairs(ents.FindByClass("func_reflective_glass")) do
+                ent:Remove()
+            end
+
+            -- 実行者がいる場合は、操作が成功したことを通知
+            if IsValid(ply) then
+                ply:PrintMessage(HUD_PRINTCONSOLE, "Removed all func_reflective_glass entities.")
+            end
+        else
+            -- 実行者が管理者でない場合は、拒否メッセージを表示
+            ply:PrintMessage(HUD_PRINTCONSOLE, "You must be an admin to use this command.")
+        end
+    end
+)
 -- local localply = LocalPlayer()
 -- local cameraover = CreateClientConVar("vrmod_cameraoverride", 1, true, FCVAR_ARCHIVE)
 -- local currentViewEnt = localply
@@ -25,7 +47,6 @@
 --                 worldPose.pos, worldPose.ang = LocalToWorld(g_VR.leftControllerOffsetPos * 0.01 * g_VR.scale, g_VR.leftControllerOffsetAng, worldPose.pos, worldPose.ang)
 --             end
 --         end
-
 --         g_VR.sixPoints = (g_VR.tracking.pose_waist and g_VR.tracking.pose_leftfoot and g_VR.tracking.pose_rightfoot) ~= nil
 --         hook.Call("VRMod_Tracking")
 --         --handle input
@@ -33,7 +54,6 @@
 --         for k, v in pairs(g_VR.changedInputs) do
 --             hook.Call("VRMod_Input", nil, k, v)
 --         end
-
 --         --lefthand&foregrip start
 --         --gripmode start
 --         if leftgripmode:GetBool() then
@@ -45,7 +65,6 @@
 --                 g_VR.viewModelPos = pos
 --                 g_VR.viewModelAng = angl
 --             end
-
 --             if IsValid(g_VR.viewModel) then
 --                 if not g_VR.usingWorldModels then
 --                     g_VR.viewModel:SetPos(g_VR.viewModelPos)
@@ -59,7 +78,6 @@
 --                             netFrame.righthandPos = mtx:GetTranslation()
 --                             netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
 --                         end
-
 --                         local c = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
 --                         if c then
 --                             local mtxl = g_VR.viewModel:GetBoneMatrix(c)
@@ -68,7 +86,6 @@
 --                         end
 --                     end
 --                 end
-
 --                 g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 --             end
 --             --gripmode end
@@ -84,7 +101,6 @@
 --                         g_VR.viewModelPos = pos
 --                         g_VR.viewModelAng = ang
 --                     end
-
 --                     if IsValid(g_VR.viewModel) then
 --                         if not g_VR.usingWorldModels then
 --                             g_VR.viewModel:SetPos(g_VR.viewModelPos)
@@ -100,7 +116,6 @@
 --                                 end
 --                             end
 --                         end
-
 --                         g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 --                     end
 --                     --lefthand-Type2(RhandSimurate) end
@@ -113,7 +128,6 @@
 --                         g_VR.viewModelPos = pos
 --                         g_VR.viewModelAng = ang
 --                     end
-
 --                     if IsValid(g_VR.viewModel) then
 --                         if not g_VR.usingWorldModels then
 --                             g_VR.viewModel:SetPos(g_VR.viewModelPos)
@@ -129,7 +143,6 @@
 --                                 end
 --                             end
 --                         end
-
 --                         g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 --                     end
 --                     --lefthand-type1(Bip01_L_hand Posirion) end
@@ -144,7 +157,6 @@
 --                     g_VR.viewModelPos = pos
 --                     g_VR.viewModelAng = ang
 --                 end
-
 --                 if IsValid(g_VR.viewModel) then
 --                     if not g_VR.usingWorldModels then
 --                         g_VR.viewModel:SetPos(g_VR.viewModelPos)
@@ -160,13 +172,11 @@
 --                             end
 --                         end
 --                     end
-
 --                     g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 --                 end
 --             end
 --             --righthand end
 --         end
-
 --         --lefthand&foregrip end
 --         --set view according to viewentity
 --         local viewEnt = localply:GetViewEntity()
@@ -176,13 +186,11 @@
 --                 local pos, ang = LocalToWorld(rawPos, rawAng, viewEnt:GetPos(), viewEnt:GetAngles())
 --                 pos1, ang1 = WorldToLocal(viewEnt:GetPos(), viewEnt:GetAngles(), pos, ang)
 --             end
-
 --             rawPos, rawAng = LocalToWorld(rawPos, rawAng, pos1, ang1)
 --             g_VR.view.origin, g_VR.view.angles = LocalToWorld(rawPos, rawAng, viewEnt:GetPos(), viewEnt:GetAngles())
 --         else
 --             g_VR.view.origin, g_VR.view.angles = g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang
 --         end
-
 --         currentViewEnt = viewEnt
 --         --
 --         g_VR.view.origin = g_VR.view.origin + g_VR.view.angles:Forward() * -(eyez * g_VR.scale)
@@ -210,7 +218,6 @@
 --             surface.DrawRect(0, 0, rtWidth, rtHeight)
 --             cam.End2D()
 --         end
-
 --         render.PopRenderTarget(g_VR.rt)
 --         if desktopView > 1 then
 --             surface.SetDrawColor(255, 255, 255, 255)
@@ -219,9 +226,7 @@
 --             surface.DrawTexturedRectUV(-1, -1, 2, 2, cropHorizontalOffset, 1 - cropVerticalMargin, 0.5 + cropHorizontalOffset, cropVerticalMargin)
 --             render.CullMode(0)
 --         end
-
 --         hook.Call("VRMod_PostRender")
-
 --         return cameraover:GetBool()
 --     end
 -- )
