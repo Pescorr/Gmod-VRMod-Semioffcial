@@ -1,4 +1,4 @@
-if CLIENT then
+--[[ if CLIENT then
 	hook.Add("VRE_simphys_Overrides","vre_simfphysfix_override",function()
 		if LocalPlayer():InVehicle() then
 			hook.Remove("CreateMove","vre_simfphysfix")
@@ -100,4 +100,4 @@ elseif SERVER then
 	-- end)
 
 	
-end
+end ]]

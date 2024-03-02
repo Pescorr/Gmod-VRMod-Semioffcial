@@ -433,7 +433,7 @@ if CLIENT then
 		overrideConvar("playerscaling_clientspeed", "0")
 		overrideConvar("playerscaling_clientjump", "0")
 		if autoarcbench:GetBool() then
-			overrideConvar("arccw_dev_benchgun", 1)
+			-- overrideConvar("arccw_dev_benchgun", 1)
 			overrideConvar("arc9_dev_benchgun", 1)
 			overrideConvar("arc9_tpik", "0")
 		end
@@ -556,7 +556,7 @@ if CLIENT then
 		local pos1, ang1
 		local uselefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
 		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", 0, true, FCVAR_ARCHIVE)
-		local leftgripmode = CreateClientConVar("vrmod_leftgripmode", 0, FCVAR_ARCHIVE)
+		local foregripmode = CreateClientConVar("vrmod_Foregripmode", 0,false)
 		-- RenderScene フック内でHMDの位置と角度を調整
 		hook.Add(
 			"RenderScene",
@@ -589,7 +589,7 @@ if CLIENT then
 
 				--lefthand&foregrip start
 				--gripmode start
-				if leftgripmode:GetBool() then
+				if foregripmode:GetBool() then
 					local netFrame = VRUtilNetUpdateLocalPly()
 					--update viewmodel position
 					if g_VR.currentvmi then
@@ -598,6 +598,8 @@ if CLIENT then
 						g_VR.viewModelPos = pos
 						g_VR.viewModelAng = angl
 					end
+
+					
 
 					if IsValid(g_VR.viewModel) then
 						if not g_VR.usingWorldModels then
