@@ -20,13 +20,15 @@ end
 local function TeleportEntityToHand(ply, handPos, ent, isLeftHand)
     if ent then
         ent:SetPos(handPos)
+        ent:Activate(false)
         -- 0.08秒後にpickup関数を実行
         timer.Simple(
-            0.08,
+            0.06,
             function()
                 pickup(ply, isLeftHand, handPos, Angle())
             end
         )
+        ent:Activate(true)
     else
         ply:ChatPrint("指定された範囲内に条件を満たすエンティティが見つかりませんでした。")
     end

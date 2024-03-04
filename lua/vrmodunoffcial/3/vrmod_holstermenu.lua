@@ -53,7 +53,7 @@ hook.Add(
             },
             {
                 convar = "vrmod_weapondrop_enable",
-                label = "[WIP]Weapon Drop Enable"    
+                label = "[WIP]Weapon Drop Enable"
             },
             {
                 convar = "vrmod_weapondrop_trashwep",
@@ -110,7 +110,7 @@ hook.Add(
             slider:SetSize(320, 25)
             slider:SetText(data.label)
             slider:SetMin(0)
-            slider:SetMax(99)
+            slider:SetMax(30)
             slider:SetDecimals(2)
             slider:SetConVar(data.convar)
             posY = posY + 30
@@ -156,7 +156,6 @@ hook.Add(
             posY = posY + 20
         end
 
-
         -- CheckBox ConVars
         local checkBoxConVars03 = {
             {
@@ -181,8 +180,6 @@ hook.Add(
             checkBox03:SizeToContents()
             posY = posY + 20
         end
-
-
     end
 )
 -- Derma Panel End
