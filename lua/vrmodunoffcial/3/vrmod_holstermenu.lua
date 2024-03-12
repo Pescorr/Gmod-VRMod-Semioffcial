@@ -110,8 +110,8 @@ hook.Add(
             slider:SetSize(320, 25)
             slider:SetText(data.label)
             slider:SetMin(0)
-            slider:SetMax(30)
-            slider:SetDecimals(2)
+            slider:SetMax(50)
+            slider:SetDecimals(0)
             slider:SetConVar(data.convar)
             posY = posY + 30
         end

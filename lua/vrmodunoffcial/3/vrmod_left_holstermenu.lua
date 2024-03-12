@@ -64,12 +64,12 @@ hook.Add(
             slider:SetSize(320, 25)
             slider:SetText(data.label)
             slider:SetMin(0)
-            slider:SetMax(99)
-            slider:SetDecimals(2)
+            slider:SetMax(50)
+            slider:SetDecimals(0)
             slider:SetConVar(data.convar)
             posY = posY + 30
         end
-
+        
         -- DTextEntry ConVars for Left Hand
         local textEntryConVars = {"vrmod_weppouch_weapon_left_Spine", "vrmod_weppouch_weapon_left_Head", "vrmod_weppouch_weapon_left_Pelvis", "vrmod_weppouch_customcvar_left_spine_cmd", "vrmod_weppouch_customcvar_left_head_cmd", "vrmod_weppouch_customcvar_left_pelvis_cmd", "vrmod_weppouch_customcvar_left_spine_put_cmd", "vrmod_weppouch_customcvar_left_head_put_cmd", "vrmod_weppouch_customcvar_left_pelvis_put_cmd"}
         for _, convar in pairs(textEntryConVars) do
