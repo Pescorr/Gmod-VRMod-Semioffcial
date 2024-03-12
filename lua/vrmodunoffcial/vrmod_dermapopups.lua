@@ -16,11 +16,13 @@ meta.MakePopup = function(...)
 	local uid = "popup_" .. popupCount
 	-- Add the new popup to the list
 	table.insert(allPopups, uid)
+	
 	--wait because makepopup might be called before menu is fully built
 	timer.Simple(
 		0.1,
 		function()
 			if not IsValid(panel) then return end
+			panel:SetPaintedManually(true)
 			if panel:GetName() == "DMenu" then
 				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
@@ -40,6 +42,17 @@ meta.MakePopup = function(...)
 				end
 
 				popupCount = popupCount + 1
+			end
+
+			if panel:GetName() == "DPanel" then
+				panel = panel:GetChildren()[1]
+				panel.Paint = function(self, w, h)
+					surface.SetDrawColor(175, 174, 187)
+					surface.DrawRect(0, 0, w, h)
+				end
+
+				popupCount = popupCount + 1
+
 			end
 
 			if popupCount == 0 then

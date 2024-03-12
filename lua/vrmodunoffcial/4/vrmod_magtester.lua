@@ -1,13 +1,25 @@
--- 必要なフックや関数がGmodVR環境で設定されていることを前提とします。
--- エンティティがピックアップされたときに呼ばれる関数
+AddCSLuaFile()
+
+-- Entity removal should be done on server side, so we use a network message
+if SERVER then
+    util.AddNetworkString("RemoveMagEntity")
+
+    net.Receive("RemoveMagEntity", function(len, ply)
+        local ent = net.ReadEntity()
+        if IsValid(ent) and ent:GetClass() == "vrmod_magent" then
+            ent:Remove()
+        end
+    end)
+end
+
 hook.Add(
     "VRMod_Pickup",
     "CustomMagazineReloadPickup",
     function(player, entity)
         if entity:GetClass() == "vrmod_magent" and vrmod.IsPlayerInVR(player) then
-            -- プレイヤーがマガジンをピックアップしたことを記録
+            -- When the player picks up a magazine in VR, mark them as having a magazine
             player.hasMagazine = true
-            player.magazineEntity = entity -- ピックアップされたエンティティを記録
+            player.magazineEntity = entity
         end
     end
 )
@@ -15,21 +27,20 @@ hook.Add(
 local function CheckHandTouch(player)
     local leftHandPos = vrmod.GetLeftHandPos(player)
     local rightViewModelPos = vrmod.GetRightHandPos(player)
-    local some_threshold = CreateClientConVar("vrmod_magent_range","13",true,FCVAR_ARCHIVE) -- 必要に応じて調整
-    if not leftHandPos or not rightViewModelPos then return false end -- 一方または両方の位置が nil のため、チェックを実行できない
-    if leftHandPos:Distance(rightViewModelPos) < some_threshold:GetFloat() then return true end
+    local threshold = CreateClientConVar("vrmod_magent_range", "13", true, FCVAR_ARCHIVE)
+
+    if not leftHandPos or not rightViewModelPos then return false end
+    if leftHandPos:Distance(rightViewModelPos) < threshold:GetFloat() then return true end
 
     return false
 end
 
--- 'リロード'アクションを実行するメインロジック
 hook.Add(
     "Think",
     "CustomMagazineReloadThink",
     function()
         for _, player in ipairs(player.GetAll()) do
             if CheckHandTouch(player) and player.hasMagazine then
-                -- リロード処理をここで独立して実行
                 local wep = player:GetActiveWeapon()
                 if wep:IsValid() then
                     local ammoType = wep:GetPrimaryAmmoType()
@@ -44,12 +55,17 @@ hook.Add(
                     end
                 end
 
-                -- 左手に持っているエンティティを放し、削除する
-                if IsValid(player.magazineEntity) then
-                    player.magazineEntity:Remove()
+                -- Instead of directly removing the entity, send a network message to the server to do it
+                if SERVER then
+                    if IsValid(player.magazineEntity) then
+                        player.magazineEntity:Remove()
+                    end
+                else
+                    net.Start("RemoveMagEntity")
+                    net.WriteEntity(player.magazineEntity)
+                    net.SendToServer()
                 end
 
-                -- フラグをリセット
                 player.hasMagazine = false
                 player.magazineEntity = nil
             end

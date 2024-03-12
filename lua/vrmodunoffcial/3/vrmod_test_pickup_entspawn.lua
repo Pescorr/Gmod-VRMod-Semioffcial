@@ -5,17 +5,18 @@ if CLIENT then
         function(ply, cmd, args)
             if ply:InVehicle() then
                 ply:ChatPrint("車両内では使用できません。")
+
                 return
             end
 
             local entClass = args[1] -- Entity class from command argument
             if not entClass or entClass == "" then
                 ply:ChatPrint("エンティティクラスを指定してください。")
+
                 return
             end
 
             local handPos, handAng = vrmod.GetLeftHandPose(ply)
-
             net.Start("vrmod_test_spawn_entity")
             net.WriteString(entClass)
             net.WriteVector(handPos)
@@ -31,17 +32,18 @@ if CLIENT then
         function(ply, cmd, args)
             if ply:InVehicle() then
                 ply:ChatPrint("車両内では使用できません。")
+
                 return
             end
 
             local entClass = args[1] -- Entity class from command argument
             if not entClass or entClass == "" then
                 ply:ChatPrint("エンティティクラスを指定してください。")
+
                 return
             end
 
             local handPos, handAng = vrmod.GetRightHandPose(ply)
-
             net.Start("vrmod_test_spawn_entity")
             net.WriteString(entClass)
             net.WriteVector(handPos)
@@ -55,36 +57,33 @@ end
 -- Server-side code
 if SERVER then
     util.AddNetworkString("vrmod_test_spawn_entity")
+    net.Receive(
+        "vrmod_test_spawn_entity",
+        function(len, ply)
+            local entClass = net.ReadString()
+            local handPos = net.ReadVector()
+            local handAng = net.ReadAngle()
+            local isLeftHand = net.ReadBool()
+            local spawnedEnt = ents.Create(entClass)
+            if not IsValid(spawnedEnt) then return end
+            -- Ensure the entity follows the hand until successfully picked up using the pickup function from vrmod_pickup.lua
+            local function followAndTryPickup()
+                if not IsValid(spawnedEnt) then return end
+                spawnedEnt:Spawn()
+                spawnedEnt:SetPos(handPos) -- Adjust this value as needed
+                spawnedEnt:SetAngles(handAng - Angle(4.9,4,-3.5))
 
-    net.Receive("vrmod_test_spawn_entity", function(len, ply)
-        local entClass = net.ReadString()
-        local handPos = net.ReadVector()
-        local handAng = net.ReadAngle()
-        local isLeftHand = net.ReadBool()
-
-        local spawnedEnt = ents.Create(entClass)
-        if not IsValid(spawnedEnt) then return end
-
-        spawnedEnt:SetPos(handPos)
-        -- Set angles with XYZ all rotated by 90 degrees
-        spawnedEnt:SetAngles(handAng + Angle(90, 90, 90))
-
-        timer.Simple(
-            0,
-            function()
-                pickup(ply, isLeftHand, handPos, handAng)
+                -- Attempt to pick up using the pickup function from vrmod_pickup.lua
+                if IsValid(spawnedEnt) then
+                    -- Using the custom pickup function tailored for VRMod
+                    pickup(ply, isLeftHand, spawnedEnt:GetPos(), spawnedEnt:GetAngles())
+                    -- 追従タイマーを停止するロジックをここに追加
+                    timer.Remove(ply:UserID() .. "followAndTryPickup")
+                end
             end
-        )
-        spawnedEnt:Spawn()
 
-        spawnedEnt:Activate()
-
-        -- Despawn the entity after 20 seconds
-        timer.Simple(20, function()
-            if IsValid(spawnedEnt) then
-                spawnedEnt:Remove()
-            end
-        end)
-
-    end)
+            -- Repeatedly try to follow and pickup until the entity is picked up or becomes invalid
+            timer.Create(ply:UserID() .. "followAndTryPickup", 0.09, 0, followAndTryPickup)
+        end
+    )
 end

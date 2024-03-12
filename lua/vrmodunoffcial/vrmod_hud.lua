@@ -107,6 +107,38 @@ local function AddHUD()
 		)
 	end
 
+	-- -- グローバル変数で変更フラグを管理
+	-- local needsUpdate = true
+	-- hook.Add(
+	-- 	"HUDShouldDraw",
+	-- 	"MarkHUDForUpdate",
+	-- 	function()
+	-- 		needsUpdate = true
+	-- 	end
+	-- )
+
+	-- hook.Add(
+	-- 	"HUDPaint",
+	-- 	"CustomHUDPaintOptimized",
+	-- 	function()
+	-- 		if needsUpdate then
+	-- 			timer.Simple(
+	-- 				1.00,
+	-- 				function()
+	-- 					local meta = vgui.GetWorldPanel()
+	-- 					meta:SetPaintedManually(true)
+	-- 					-- 必要なUI部分だけを更新する処理
+	-- 					render.RenderHUD(0, 0, ScrW(), ScrH())
+	-- 					meta:PaintManual()
+	-- 					meta:SetPaintedManually(false)
+	-- 					meta:InvalidateLayout(true)
+	-- 					needsUpdate = false -- 更新完了後はフラグを下ろす		
+	-- 				end
+	-- 			)
+	-- 		end
+	-- 	end
+	-- )
+
 	hook.Add(
 		"VRMod_PreRender",
 		"hud",

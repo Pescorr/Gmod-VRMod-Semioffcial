@@ -39,7 +39,6 @@ hook.Add(
 
 		if action == "boolean_secondaryfire" then
 			LocalPlayer():ConCommand(pressed and "+attack2" or "-attack2")
-
 			return
 		end
 
@@ -135,7 +134,6 @@ hook.Add(
 
 		if action == "boolean_flashlight" and pressed then
 			LocalPlayer():ConCommand("impulse 100")
-
 			return
 		end
 
@@ -171,13 +169,11 @@ hook.Add(
 
 		if action == "boolean_chat" then
 			LocalPlayer():ConCommand(pressed and "+zoom" or "-zoom")
-
 			return
 		end
 
 		if action == "boolean_walkkey" then
 			LocalPlayer():ConCommand(pressed and "+walk" or "-walk")
-
 			return
 		end
 

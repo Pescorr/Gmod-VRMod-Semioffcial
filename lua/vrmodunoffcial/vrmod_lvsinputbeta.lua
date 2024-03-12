@@ -161,10 +161,11 @@ if CLIENT then
                 actionStates["FREELOOK"] = pressed
             end
 
-            if pickuphandle:GetBool() then
+            if pickuphandle:GetBool() and GetConVar("vrmod_locomotion") == 1 then
                 if action == "boolean_right_pickup" then
                     actionStates["FREELOOK"] = not pressed
                     RunConsoleCommand("lvs_mouseaim", "1")
+                    RunConsoleCommand("vrmod_locomotion", "1")
                 end
             end
 

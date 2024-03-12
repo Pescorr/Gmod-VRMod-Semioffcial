@@ -81,18 +81,18 @@ elseif SERVER then
 	local pickupList = {}
 	local pickupCount = 0
 
-	local function attackAtHandPosition(handPos)
-        -- ここで、手の位置にダミーの攻撃を発生させます。
-        -- この攻撃はダメージを与えませんが、ピックアップの前にエンティティへのインタラクションを示します。
-        local dmgInfo = DamageInfo()
-        dmgInfo:SetDamage(0)
-        dmgInfo:SetDamageType(DMG_GENERIC)
-        util.TraceLine({
-            start = handPos,
-            endpos = handPos + Vector(0, 0, -1), -- 1ユニット下向きにトレース
-            filter = function(ent) return false end -- 何もヒットしないようにフィルター
-        }):GetEntity():TakeDamageInfo(dmgInfo)
-    end
+	-- local function attackAtHandPosition(handPos)
+    --     -- ここで、手の位置にダミーの攻撃を発生させます。
+    --     -- この攻撃はダメージを与えませんが、ピックアップの前にエンティティへのインタラクションを示します。
+    --     local dmgInfo = DamageInfo()
+    --     dmgInfo:SetDamage(0)
+    --     dmgInfo:SetDamageType(DMG_GENERIC)
+    --     util.TraceLine({
+    --         start = handPos,
+    --         endpos = handPos + Vector(0, 0, -1), -- 1ユニット下向きにトレース
+    --         filter = function(ent) return false end -- 何もヒットしないようにフィルター
+    --     }):GetEntity():TakeDamageInfo(dmgInfo)
+    -- end
 
 	function drop(steamid, bLeftHand, handPos, handAng, handVel, handAngVel)
 		for i = 1, pickupCount do
