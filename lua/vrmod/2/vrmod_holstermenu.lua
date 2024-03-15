@@ -1,5 +1,5 @@
 if SERVER then return end
-local convars, convarValues = vrmod.GetConvars()
+-- local convars, convarValues = vrmod.GetConvars()
 hook.Add(
     "VRMod_Menu",
     "pVRHolsterMenu",

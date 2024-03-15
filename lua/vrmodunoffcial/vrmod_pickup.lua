@@ -340,3 +340,46 @@ elseif SERVER then
 		end
 	)
 end
+
+if SERVER then
+	-- サーバー側でconcommandを登録
+	concommand.Add(
+		"vrmod_reset_pickup",
+		function(ply)
+			if not ply:IsValid() or not ply:IsSuperAdmin() then return end -- プレイヤーが無効または管理者でない場合は実行しない
+			-- pickupListテーブルをクリアする
+			pickupList = {}
+			pickupCount = 0
+			-- 既存のpickupControllerを削除する
+			if IsValid(pickupController) then
+				pickupController:Remove()
+				pickupController = nil
+			end
+
+			-- クライアントにメッセージを送信する
+			net.Start("vrmod_pickup_reset")
+			net.Broadcast()
+			print("VRMod pickup table has been reset by " .. ply:Nick())
+		end
+	)
+
+	-- クライアントにメッセージを送信するためのネットワークストリングを登録
+	util.AddNetworkString("vrmod_pickup_reset")
+elseif CLIENT then
+	-- クライアント側でネットワークメッセージを受信したときの処理を登録
+	net.Receive(
+		"vrmod_pickup_reset",
+		function()
+			-- クライアント側のheldItemsテーブルをクリアする
+			local steamid = LocalPlayer():SteamID()
+			if g_VR[steamid] then
+				g_VR[steamid].heldItems = {}
+			end
+
+			-- クライアント側のheldEntityLeftとheldEntityRightを解放する
+			g_VR.heldEntityLeft = nil
+			g_VR.heldEntityRight = nil
+			print("VRMod pickup table has been reset")
+		end
+	)
+end

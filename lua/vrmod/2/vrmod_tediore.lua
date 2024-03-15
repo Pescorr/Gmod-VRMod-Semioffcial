@@ -96,6 +96,7 @@ if CLIENT then
     local tedioreenable = CreateClientConVar("vrmod_weapondrop_reload", 0, true, FCVAR_ARCHIVE, "", 0, 1)
     local dropenable = CreateClientConVar("vrmod_weapondrop_enable", 0, true, FCVAR_ARCHIVE, "", 0, 1)
     local dropmode = CreateClientConVar("vrmod_weapondrop_trashwep", 0, true, FCVAR_ARCHIVE, "", 0, 1)
+    local dummylefthand = CreateClientConVar("vrmod_lefthand",0,false)
     local ply = LocalPlayer()
     hook.Add(
         "VRMod_Input",
