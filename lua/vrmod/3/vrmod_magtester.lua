@@ -14,8 +14,8 @@ end
 
 -- Sound ConVars
 if CLIENT then
-    CreateClientConVar("vrmod_magpickup_sound", "items/ammo_pickup.wav", true, false, "Sound played when a magazine is picked up.")
-    CreateClientConVar("vrmod_magreload_sound", "weapons/pistol/pistol_reload1.wav", true, false, "Sound played when the weapon is reloaded with a magazine.")
+    -- CreateClientConVar("vrmod_magpickup_sound", "items/ammo_pickup.wav", true, false, "Sound played when a magazine is picked up.")
+    CreateClientConVar("vrmod_magent_sound", "weapons/shotgun/shotgun_reload3.wav", true, false, "Sound played when the weapon is reloaded with a magazine.")
 end
 
 hook.Add(
@@ -28,10 +28,10 @@ hook.Add(
             player.magazineEntity = entity
 
             -- Play pickup sound on the client
-            if CLIENT then
-                local pickupSound = GetConVar("vrmod_magpickup_sound"):GetString()
-                player:EmitSound(pickupSound)
-            end
+            -- if CLIENT then
+            --     local pickupSound = GetConVar("vrmod_magpickup_sound"):GetString()
+            --     player:EmitSound(pickupSound)
+            -- end
         end
     end
 )
@@ -67,7 +67,7 @@ hook.Add(
 
                         -- Play reload sound on the client
                         if CLIENT then
-                            local reloadSound = GetConVar("vrmod_magreload_sound"):GetString()
+                            local reloadSound = GetConVar("vrmod_magent_sound"):GetString()
                             player:EmitSound(reloadSound)
                         end
                     end

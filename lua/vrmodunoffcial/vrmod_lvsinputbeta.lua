@@ -161,11 +161,9 @@ if CLIENT then
                 actionStates["FREELOOK"] = pressed
             end
 
-            if pickuphandle:GetBool() and GetConVar("vrmod_locomotion") == 1 then
+            if pickuphandle:GetBool() then
                 if action == "boolean_right_pickup" then
                     actionStates["FREELOOK"] = not pressed
-                    RunConsoleCommand("lvs_mouseaim", "1")
-                    RunConsoleCommand("vrmod_locomotion", "1")
                 end
             end
 
@@ -177,7 +175,6 @@ if CLIENT then
             if action == "boolean_spawnmenu" and pressed then
                 -- ネットワークを介してサーバーにコマンドを送信
                 if LocalPlayer():InVehicle() then
-                    -- 車両がLFS車両かどうか確認
                     RunConsoleCommand("vr_dummy_menu_toggle", "1") -- メニューを閉じた時にConVarをリセット
                 end
             else
