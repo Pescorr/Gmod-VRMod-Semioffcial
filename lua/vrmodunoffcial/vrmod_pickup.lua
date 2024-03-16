@@ -80,32 +80,30 @@ elseif SERVER then
 	local pickupController = nil
 	local pickupList = {}
 	local pickupCount = 0
-
 	-- local function attackAtHandPosition(handPos)
-    --     -- ここで、手の位置にダミーの攻撃を発生させます。
-    --     -- この攻撃はダメージを与えませんが、ピックアップの前にエンティティへのインタラクションを示します。
-    --     local dmgInfo = DamageInfo()
-    --     dmgInfo:SetDamage(0)
-    --     dmgInfo:SetDamageType(DMG_GENERIC)
-    --     util.TraceLine({
-    --         start = handPos,
-    --         endpos = handPos + Vector(0, 0, -1), -- 1ユニット下向きにトレース
-    --         filter = function(ent) return false end -- 何もヒットしないようにフィルター
-    --     }):GetEntity():TakeDamageInfo(dmgInfo)
-    -- end
-
+	--     -- ここで、手の位置にダミーの攻撃を発生させます。
+	--     -- この攻撃はダメージを与えませんが、ピックアップの前にエンティティへのインタラクションを示します。
+	--     local dmgInfo = DamageInfo()
+	--     dmgInfo:SetDamage(0)
+	--     dmgInfo:SetDamageType(DMG_GENERIC)
+	--     util.TraceLine({
+	--         start = handPos,
+	--         endpos = handPos + Vector(0, 0, -1), -- 1ユニット下向きにトレース
+	--         filter = function(ent) return false end -- 何もヒットしないようにフィルター
+	--     }):GetEntity():TakeDamageInfo(dmgInfo)
+	-- end
 	function drop(steamid, bLeftHand, handPos, handAng, handVel, handAngVel)
 		for i = 1, pickupCount do
 			local t = pickupList[i]
+			if not t then continue end -- 追加: tがnilの場合はスキップ
 			if t.steamid ~= steamid or t.left ~= bLeftHand then continue end
 			local phys = t.phys
-			--peszone
-			if not t or not t.ent then
+			-- 修正: tがテーブルであることを確認
+			if not istable(t) or not t.ent then
 				drop(t.steamid, t.left)
 				break
 			end
 
-			--peszone end
 			if IsValid(phys) and IsValid(t.ent) then
 				t.ent:SetCollisionGroup(t.collisionGroup)
 				pickupController:RemoveFromMotionController(phys)
@@ -136,7 +134,6 @@ elseif SERVER then
 				pickupController:Remove()
 				pickupController = nil
 				hook.Remove("Tick", "vrmod_pickup")
-				--print("removed controller")
 			end
 
 			hook.Call("VRMod_Drop", nil, t.ply, t.ent)
@@ -254,9 +251,15 @@ elseif SERVER then
 			local index = pickupCount + 1
 			for k2 = 1, pickupCount do
 				local v2 = pickupList[k2]
+				if not v2 then continue end -- 追加: v2がnilの場合はスキップ
+				if not istable(v2) then continue end -- 追加: v2がテーブルでない場合はスキップ
 				if v == v2.ent then
 					index = k2
-					g_VR[v2.steamid].heldItems[v2.left and 1 or 2] = nil
+					-- 修正: g_VR[v2.steamid]とheldItemsの存在を確認
+					if g_VR[v2.steamid] and g_VR[v2.steamid].heldItems then
+						g_VR[v2.steamid].heldItems[v2.left and 1 or 2] = nil
+					end
+
 					break
 				end
 			end

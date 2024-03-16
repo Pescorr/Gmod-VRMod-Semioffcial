@@ -989,6 +989,120 @@ hook.Add(
 		vrmod_scr_alwaysautosetting:SetConVar("vrmod_scr_alwaysautosetting") -- Change a ConVar when the box it ticked/unticked
 		vrmod_scr_alwaysautosetting:SizeToContents() -- Make its size the same as the contents
 		-- MenuTab10  End
+		-- MenuTab11 (Foregrip) Start
+		local MenuTab11 = vgui.Create("DPanel", sheet)
+		sheet:AddSheet("Foregrip", MenuTab11, "icon16/controller.png")
+		MenuTab11.Paint = function(self, w, h) end
+		-- DNumSlider Start
+		-- vrmod_Foregripmode_range
+		local foregripmode_range = vgui.Create("DNumSlider", MenuTab11)
+		foregripmode_range:SetPos(20, 10) -- Set the position (X,Y)
+		foregripmode_range:SetSize(370, 25) -- Set the size (X,Y)
+		foregripmode_range:SetText("Foregrip Mode Range") -- Set the text above the slider
+		foregripmode_range:SetMin(1) -- Set the minimum number you can slide to
+		foregripmode_range:SetMax(100) -- Set the maximum number you can slide to
+		foregripmode_range:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
+		foregripmode_range:SetConVar("vrmod_Foregripmode_range") -- Changes the ConVar when you slide
+		foregripmode_range.OnValueChanged = function(self, value) end
+		-- DNumSlider End
+		-- DCheckBoxLabel Start
+		local foregripmode_enable = MenuTab11:Add("DCheckBoxLabel")
+		foregripmode_enable:SetPos(20, 40)
+		foregripmode_enable:SetText("Enable Foregrip Mode")
+		foregripmode_enable:SetConVar("vrmod_Foregripmode_enable")
+		foregripmode_enable:SizeToContents()
+		-- DCheckBoxLabel End
+		-- MenuTab11 (Foregrip) End
+		-- MenuTab12 (Entity Teleport) Start
+		local MenuTab12 = vgui.Create("DPanel", sheet)
+		sheet:AddSheet("Entity Teleport", MenuTab12, "icon16/wand.png")
+		MenuTab12.Paint = function(self, w, h) end
+		-- DCheckBoxLabel Start
+		local entteleport_enable = MenuTab12:Add("DCheckBoxLabel")
+		entteleport_enable:SetPos(20, 10)
+		entteleport_enable:SetText("Enable Entity Teleport")
+		entteleport_enable:SetConVar("vrmod_test_entteleport_enable")
+		entteleport_enable:SizeToContents()
+		-- DCheckBoxLabel End
+		-- DNumSlider Start
+		-- vrmod_test_entteleport_range
+		local entteleport_range = vgui.Create("DNumSlider", MenuTab12)
+		entteleport_range:SetPos(20, 40)
+		entteleport_range:SetSize(370, 25)
+		entteleport_range:SetText("Entity Teleport Range")
+		entteleport_range:SetMin(1)
+		entteleport_range:SetMax(1000)
+		entteleport_range:SetDecimals(0)
+		entteleport_range:SetConVar("vrmod_test_entteleport_range")
+		entteleport_range.OnValueChanged = function(self, value) end
+		-- DNumSlider End
+		-- MenuTab12 (Entity Teleport) End
+		-- MenuTab13 (Miscellaneous) Start
+		local MenuTab13 = vgui.Create("DPanel", sheet)
+		sheet:AddSheet("Miscellaneous", MenuTab13, "icon16/wrench.png")
+		MenuTab13.Paint = function(self, w, h) end
+		-- DCheckBoxLabel Start
+		local lvs_pickup_handle = MenuTab13:Add("DCheckBoxLabel")
+		lvs_pickup_handle:SetPos(20, 10)
+		lvs_pickup_handle:SetText("Enable LVS Pickup Handle")
+		lvs_pickup_handle:SetConVar("vrmod_lvs_pickup_handle")
+		lvs_pickup_handle:SizeToContents()
+		-- DCheckBoxLabel End
+		-- DCheckBoxLabel Start
+		local pmchange = MenuTab13:Add("DCheckBoxLabel")
+		pmchange:SetPos(20, 40)
+		pmchange:SetText("Enable Player Model Change")
+		pmchange:SetConVar("vrmod_pmchange")
+		pmchange:SizeToContents()
+		-- DCheckBoxLabel End
+		-- DCheckBoxLabel Start
+		local error_hard = MenuTab13:Add("DCheckBoxLabel")
+		error_hard:SetPos(20, 70)
+		error_hard:SetText("Enable Hard Errors")
+		error_hard:SetConVar("vrmod_error_hard")
+		error_hard:SizeToContents()
+		-- DCheckBoxLabel End
+		-- DCheckBoxLabel Start
+		local pickup_disable_client = MenuTab13:Add("DCheckBoxLabel")
+		pickup_disable_client:SetPos(20, 100)
+		pickup_disable_client:SetText("Disable Pickup Client")
+		pickup_disable_client:SetConVar("vr_pickup_disable_client")
+		pickup_disable_client:SizeToContents()
+		-- DCheckBoxLabel End
+		-- MenuTab13 (Miscellaneous) End
+		-- MenuTab14 (Magazine) Start
+		local MenuTab14 = vgui.Create("DPanel", sheet)
+		sheet:AddSheet("Magazine", MenuTab14, "icon16/basket.png")
+		MenuTab14.Paint = function(self, w, h) end
+		-- DTextEntry Start
+		local magent_sound = vgui.Create("DTextEntry", MenuTab14)
+		magent_sound:SetPos(20, 40)
+		magent_sound:SetSize(370, 25)
+		magent_sound:SetText("Magazine Enter Sound")
+		magent_sound:SetConVar("vrmod_magent_sound")
+		-- DTextEntry End
+		-- DNumSlider Start
+		-- vrmod_magent_range
+		local magent_range = vgui.Create("DNumSlider", MenuTab14)
+		magent_range:SetPos(20, 70)
+		magent_range:SetSize(370, 25)
+		magent_range:SetText("Magazine Enter Range")
+		magent_range:SetMin(1)
+		magent_range:SetMax(100)
+		magent_range:SetDecimals(0)
+		magent_range:SetConVar("vrmod_magent_range")
+		magent_range.OnValueChanged = function(self, value) end
+		-- DNumSlider End
+		-- DTextEntry Start
+		local magent_model = vgui.Create("DTextEntry", MenuTab14)
+		magent_model:SetPos(20, 100)
+		magent_model:SetSize(370, 25)
+		magent_model:SetText("Magazine Enter Model")
+		magent_model:SetConVar("vrmod_magent_model")
+		-- DTextEntry End
+		-- MenuTab14 (Magazine) End
+
+		
 		-- PanelEMSTOP  Start
 		local PanelEMSTOP = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("VRStop Key", PanelEMSTOP, "icon16/stop.png")
@@ -1008,14 +1122,9 @@ hook.Add(
 		emergStopHoldTime:SetDecimals(2)
 		emergStopHoldTime:SetConVar("vrmod_emergencystop_time")
 	end
-	--Settings02 end
---
-
 )
-
-
-
-
+--Settings02 end
+--
 -- EXAMPLE Start
 -- local EXAMPLE = vgui.Create("DPanel", sheet)
 -- sheet:AddSheet("this is title", EXAMPLE, "icon16/user_edit.png")
@@ -1023,9 +1132,6 @@ hook.Add(
 -- 	draw.RoundedBox(4, 0, 0, w, h, Color(126, 126, 128, self:GetAlpha()))
 -- end
 -- EXAMPLE End
-
-
-
 --DCheckBoxLabel end
 -- --DLabel&DTextEntry Start
 -- local FlohandmodelL = Panel9:Add("DLabel")

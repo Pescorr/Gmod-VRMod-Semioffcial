@@ -2,7 +2,7 @@
 
 
 AddCSLuaFile()
-local modelname = CreateClientConVar("vrmod_magent_modelname","models/Items/mag_mac10.mdl",true,FCVAR_ARCHIVE)
+local modelname = CreateClientConVar("vrmod_magent_model","models/Items/combine_rifle_ammo01.mdl",true,FCVAR_ARCHIVE)
 
 ENT.Type = "anim"
 ENT.Base = "base_gmodentity"
