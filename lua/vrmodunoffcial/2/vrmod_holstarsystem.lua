@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 if SERVER then return end
 -- 既存のConVarはそのまま
 local weppouch_pelvis = CreateClientConVar("vrmod_weppouch_Pelvis", 1, true, FCVAR_ARCHIVE, "", 0, 1)

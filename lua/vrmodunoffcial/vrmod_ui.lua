@@ -48,7 +48,7 @@ if CLIENT then
 		render.PushRenderTarget(menus[uid].rt)
 		cam.Start2D()
 		render.Clear(0, 0, 0, 0, true, true)
-		render.SetWriteDepthToDestAlpha(false)
+		render.SetWriteDepthToDestAlpha(true)
 	end
 
 	function VRUtilMenuRenderEnd()
@@ -328,5 +328,3 @@ if CLIENT then
 		end
 	)
 end
-
-

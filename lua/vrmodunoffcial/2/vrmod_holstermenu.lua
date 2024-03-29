@@ -21,7 +21,7 @@ hook.Add(
         scrollPanel:Dock(FILL)
         local posY = 40
         -- CheckBox ConVars
-        local checkBoxConVars = {
+        local checkBoxConVars0A = {
             {
                 convar = "vrmod_weppouch_Spine",
                 label = "Spine Enable"
@@ -36,7 +36,7 @@ hook.Add(
             }
         }
 
-        for _, data in pairs(checkBoxConVars) do
+        for _, data in pairs(checkBoxConVars0A) do
             local checkBox = vgui.Create("DCheckBoxLabel", sheet)
             checkBox:SetPos(20, posY)
             checkBox:SetText(data.label)
@@ -70,22 +70,22 @@ hook.Add(
             posY = posY + 20
         end
 
-        -- CheckBox ConVars
-        local checkBoxConVars0C = {
-            {
-                convar = "developer",
-                label = "Pouchrange\nVisible"
-            }
-        }
+        -- -- CheckBox ConVars
+        -- local checkBoxConVars0C = {
+        --     {
+        --         convar = "developer",
+        --         label = "Pouchrange\nVisible"
+        --     }
+        -- }
 
-        for _, data in pairs(checkBoxConVars0C) do
-            local ConVars0C = vgui.Create("DCheckBoxLabel", sheet)
-            ConVars0C:SetPos(290, posY - 120)
-            ConVars0C:SetText(data.label)
-            ConVars0C:SetConVar(data.convar)
-            ConVars0C:SizeToContents()
+        -- for _, data in pairs(checkBoxConVars0C) do
+        --     local ConVars0C = vgui.Create("DCheckBoxLabel", sheet)
+        --     ConVars0C:SetPos(290, posY - 120)
+        --     ConVars0C:SetText(data.label)
+        --     ConVars0C:SetConVar(data.convar)
+        --     ConVars0C:SizeToContents()
             posY = posY + 20
-        end
+        -- end
 
         posY = posY - 80
         -- DNumSlider ConVars

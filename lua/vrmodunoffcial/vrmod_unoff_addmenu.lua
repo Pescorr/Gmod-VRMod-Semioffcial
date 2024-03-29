@@ -54,7 +54,7 @@ hook.Add(
 		-- If not using convars, you can use this hook + Panel.SetValue()
 		mat_queue_mode.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
-		--DNumSlider Start
+		-- --DNumSlider Start
 		-- --fps_max
 		-- local fps_max = vgui.Create("DNumSlider", MenuTab01)
 		-- fps_max:SetPos(20, 190) -- Set the position (X,Y)
@@ -749,6 +749,104 @@ hook.Add(
 		character_reset.DoRightClick = function() end
 		--DButton end
 		--MenuTab06  end
+		-- --MenuTab11 (Locomotion) Start
+		-- local MenuTab11 = vgui.Create("DPanel", sheet)
+		-- sheet:AddSheet("Locomotion", MenuTab11, "icon16/joystick.png")
+		-- MenuTab11.Paint = function(self, w, h) end
+		-- --DCheckBoxLabel Start
+		-- local cv_allowtp = MenuTab11:Add("DCheckBoxLabel")
+		-- cv_allowtp:SetPos(20, 10)
+		-- cv_allowtp:SetText("Allow teleportation (Server)")
+		-- cv_allowtp:SetConVar("vrmod_allow_teleport")
+		-- cv_allowtp:SizeToContents()
+		-- --DCheckBoxLabel End
+		-- --DCheckBoxLabel Start 
+		-- local cv_usetp = MenuTab11:Add("DCheckBoxLabel")
+		-- cv_usetp:SetPos(20, 40)
+		-- cv_usetp:SetText("Use teleportation (Client)")
+		-- cv_usetp:SetConVar("vrmod_allow_teleport_client")
+		-- cv_usetp:SizeToContents()
+		-- --DCheckBoxLabel End
+		-- --DComboBox Start
+		-- local cv_vehicle_steer_source = vgui.Create("DComboBox", MenuTab11)
+		-- cv_vehicle_steer_source:SetPos(20, 70)
+		-- cv_vehicle_steer_source:SetSize(200, 20)
+		-- cv_vehicle_steer_source:SetValue("Vehicle steer source")
+		-- cv_vehicle_steer_source:AddChoice("Analog stick", 0)
+		-- cv_vehicle_steer_source:AddChoice("Right hand", 1)
+		-- cv_vehicle_steer_source:AddChoice("Left hand", 2)
+		-- cv_vehicle_steer_source.OnSelect = function(self, index, value)
+		-- 	LocalPlayer():ConCommand("vrmod_vehicle_steer_source " .. value)
+		-- end
+
+		-- --DComboBox End
+		-- --DComboBox Start  
+		-- local cv_weapon_aim_source = vgui.Create("DComboBox", MenuTab11)
+		-- cv_weapon_aim_source:SetPos(20, 100)
+		-- cv_weapon_aim_source:SetSize(200, 20)
+		-- cv_weapon_aim_source:SetValue("Weapon aim source")
+		-- cv_weapon_aim_source:AddChoice("HMD", 0)
+		-- cv_weapon_aim_source:AddChoice("Right hand", 1)
+		-- cv_weapon_aim_source:AddChoice("Left hand", 2)
+		-- cv_weapon_aim_source.OnSelect = function(self, index, value)
+		-- 	LocalPlayer():ConCommand("vrmod_weapon_aim_source " .. value)
+		-- end
+
+		-- --DComboBox End
+		-- --DCheckBoxLabel Start
+		-- local cv_analog_move_only = MenuTab11:Add("DCheckBoxLabel")
+		-- cv_analog_move_only:SetPos(20, 130)
+		-- cv_analog_move_only:SetText("Use analog stick only for movement")
+		-- cv_analog_move_only:SetConVar("vrmod_analog_move_only")
+		-- cv_analog_move_only:SizeToContents()
+		-- --DCheckBoxLabel End
+		-- --DCheckBoxLabel Start
+		-- local cv_car_gun_mode = MenuTab11:Add("DCheckBoxLabel")
+		-- cv_car_gun_mode:SetPos(20, 160)
+		-- cv_car_gun_mode:SetText("Vehicle reticle mode")
+		-- cv_car_gun_mode:SetConVar("vrmod_vehicle_reticle_mode")
+		-- cv_car_gun_mode:SizeToContents()
+		-- --DCheckBoxLabel End  
+		-- --DCheckBoxLabel Start
+		-- local cv_jump_duck = MenuTab11:Add("DCheckBoxLabel")
+		-- cv_jump_duck:SetPos(20, 190)
+		-- cv_jump_duck:SetText("Automatic jump and duck")
+		-- cv_jump_duck:SetConVar("vrmod_auto_jump_duck")
+		-- cv_jump_duck:SizeToContents()
+		-- --DCheckBoxLabel End
+		-- --DCheckBoxLabel Start 
+		-- local cv_righthandle = MenuTab11:Add("DCheckBoxLabel")
+		-- cv_righthandle:SetPos(20, 220)
+		-- cv_righthandle:SetText("Right hand pickup")
+		-- cv_righthandle:SetConVar("vrmod_test_Righthandle")
+		-- cv_righthandle:SizeToContents()
+		-- --DCheckBoxLabel End
+		-- --DCheckBoxLabel Start
+		-- local cv_lefthandle = MenuTab11:Add("DCheckBoxLabel")
+		-- cv_lefthandle:SetPos(20, 250)
+		-- cv_lefthandle:SetText("Left hand pickup")
+		-- cv_lefthandle:SetConVar("vrmod_test_lefthandle")
+		-- cv_lefthandle:SizeToContents()
+		-- --DCheckBoxLabel End
+		-- --DButton Start 
+		-- local default_button = vgui.Create("DButton", MenuTab11)
+		-- default_button:SetText("Set default values")
+		-- default_button:SetPos(20, 280)
+		-- default_button:SetSize(160, 30)
+		-- default_button.DoClick = function()
+		-- 	RunConsoleCommand("vrmod_allow_teleport", "1")
+		-- 	RunConsoleCommand("vrmod_allow_teleport_client", "0")
+		-- 	RunConsoleCommand("vrmod_vehicle_steer_source", "0")
+		-- 	RunConsoleCommand("vrmod_weapon_aim_source", "0")
+		-- 	RunConsoleCommand("vrmod_analog_move_only", "0")
+		-- 	RunConsoleCommand("vrmod_vehicle_reticle_mode", "1")
+		-- 	RunConsoleCommand("vrmod_auto_jump_duck", "1")
+		-- 	RunConsoleCommand("vrmod_test_Righthandle", "0")
+		-- 	RunConsoleCommand("vrmod_test_lefthandle", "0")
+		-- end
+
+		-- --DButton End
+		-- --MenuTab11 (Locomotion) End
 		--MenuTab07  Start
 		local MenuTab07 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Network(Server)", MenuTab07, "icon16/ipod_cast_add.png")
@@ -926,6 +1024,39 @@ hook.Add(
 		cameraoverride.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
 		-- MenuTab09  End	
+		-- MenuTab13 (Miscellaneous) Start
+		local MenuTab13 = vgui.Create("DPanel", sheet)
+		sheet:AddSheet("Miscellaneous", MenuTab13, "icon16/wrench.png")
+		MenuTab13.Paint = function(self, w, h) end
+		-- DCheckBoxLabel Start
+		local lvs_pickup_handle = MenuTab13:Add("DCheckBoxLabel")
+		lvs_pickup_handle:SetPos(20, 10)
+		lvs_pickup_handle:SetText("Enable LVS Pickup Handle")
+		lvs_pickup_handle:SetConVar("vrmod_lvs_pickup_handle")
+		lvs_pickup_handle:SizeToContents()
+		-- DCheckBoxLabel End
+		-- DCheckBoxLabel Start
+		local pmchange = MenuTab13:Add("DCheckBoxLabel")
+		pmchange:SetPos(20, 40)
+		pmchange:SetText("Enable Player Model Change")
+		pmchange:SetConVar("vrmod_pmchange")
+		pmchange:SizeToContents()
+		-- DCheckBoxLabel End
+		-- DCheckBoxLabel Start
+		local error_hard = MenuTab13:Add("DCheckBoxLabel")
+		error_hard:SetPos(20, 70)
+		error_hard:SetText("Enable Hard Errors")
+		error_hard:SetConVar("vrmod_error_hard")
+		error_hard:SizeToContents()
+		-- DCheckBoxLabel End
+		-- DCheckBoxLabel Start
+		local pickup_disable_client = MenuTab13:Add("DCheckBoxLabel")
+		pickup_disable_client:SetPos(20, 100)
+		pickup_disable_client:SetText("Disable Pickup Client")
+		pickup_disable_client:SetConVar("vr_pickup_disable_client")
+		pickup_disable_client:SizeToContents()
+		-- DCheckBoxLabel End
+		-- MenuTab13 (Miscellaneous) End
 		--MenuTab10  Start
 		local MenuTab10 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("GameRebootRequied", MenuTab10, "icon16/computer_edit.png")
@@ -989,120 +1120,6 @@ hook.Add(
 		vrmod_scr_alwaysautosetting:SetConVar("vrmod_scr_alwaysautosetting") -- Change a ConVar when the box it ticked/unticked
 		vrmod_scr_alwaysautosetting:SizeToContents() -- Make its size the same as the contents
 		-- MenuTab10  End
-		-- MenuTab11 (Foregrip) Start
-		local MenuTab11 = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Foregrip", MenuTab11, "icon16/controller.png")
-		MenuTab11.Paint = function(self, w, h) end
-		-- DNumSlider Start
-		-- vrmod_Foregripmode_range
-		local foregripmode_range = vgui.Create("DNumSlider", MenuTab11)
-		foregripmode_range:SetPos(20, 10) -- Set the position (X,Y)
-		foregripmode_range:SetSize(370, 25) -- Set the size (X,Y)
-		foregripmode_range:SetText("Foregrip Mode Range") -- Set the text above the slider
-		foregripmode_range:SetMin(1) -- Set the minimum number you can slide to
-		foregripmode_range:SetMax(100) -- Set the maximum number you can slide to
-		foregripmode_range:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
-		foregripmode_range:SetConVar("vrmod_Foregripmode_range") -- Changes the ConVar when you slide
-		foregripmode_range.OnValueChanged = function(self, value) end
-		-- DNumSlider End
-		-- DCheckBoxLabel Start
-		local foregripmode_enable = MenuTab11:Add("DCheckBoxLabel")
-		foregripmode_enable:SetPos(20, 40)
-		foregripmode_enable:SetText("Enable Foregrip Mode")
-		foregripmode_enable:SetConVar("vrmod_Foregripmode_enable")
-		foregripmode_enable:SizeToContents()
-		-- DCheckBoxLabel End
-		-- MenuTab11 (Foregrip) End
-		-- MenuTab12 (Entity Teleport) Start
-		local MenuTab12 = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Entity Teleport", MenuTab12, "icon16/wand.png")
-		MenuTab12.Paint = function(self, w, h) end
-		-- DCheckBoxLabel Start
-		local entteleport_enable = MenuTab12:Add("DCheckBoxLabel")
-		entteleport_enable:SetPos(20, 10)
-		entteleport_enable:SetText("Enable Entity Teleport")
-		entteleport_enable:SetConVar("vrmod_test_entteleport_enable")
-		entteleport_enable:SizeToContents()
-		-- DCheckBoxLabel End
-		-- DNumSlider Start
-		-- vrmod_test_entteleport_range
-		local entteleport_range = vgui.Create("DNumSlider", MenuTab12)
-		entteleport_range:SetPos(20, 40)
-		entteleport_range:SetSize(370, 25)
-		entteleport_range:SetText("Entity Teleport Range")
-		entteleport_range:SetMin(1)
-		entteleport_range:SetMax(1000)
-		entteleport_range:SetDecimals(0)
-		entteleport_range:SetConVar("vrmod_test_entteleport_range")
-		entteleport_range.OnValueChanged = function(self, value) end
-		-- DNumSlider End
-		-- MenuTab12 (Entity Teleport) End
-		-- MenuTab13 (Miscellaneous) Start
-		local MenuTab13 = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Miscellaneous", MenuTab13, "icon16/wrench.png")
-		MenuTab13.Paint = function(self, w, h) end
-		-- DCheckBoxLabel Start
-		local lvs_pickup_handle = MenuTab13:Add("DCheckBoxLabel")
-		lvs_pickup_handle:SetPos(20, 10)
-		lvs_pickup_handle:SetText("Enable LVS Pickup Handle")
-		lvs_pickup_handle:SetConVar("vrmod_lvs_pickup_handle")
-		lvs_pickup_handle:SizeToContents()
-		-- DCheckBoxLabel End
-		-- DCheckBoxLabel Start
-		local pmchange = MenuTab13:Add("DCheckBoxLabel")
-		pmchange:SetPos(20, 40)
-		pmchange:SetText("Enable Player Model Change")
-		pmchange:SetConVar("vrmod_pmchange")
-		pmchange:SizeToContents()
-		-- DCheckBoxLabel End
-		-- DCheckBoxLabel Start
-		local error_hard = MenuTab13:Add("DCheckBoxLabel")
-		error_hard:SetPos(20, 70)
-		error_hard:SetText("Enable Hard Errors")
-		error_hard:SetConVar("vrmod_error_hard")
-		error_hard:SizeToContents()
-		-- DCheckBoxLabel End
-		-- DCheckBoxLabel Start
-		local pickup_disable_client = MenuTab13:Add("DCheckBoxLabel")
-		pickup_disable_client:SetPos(20, 100)
-		pickup_disable_client:SetText("Disable Pickup Client")
-		pickup_disable_client:SetConVar("vr_pickup_disable_client")
-		pickup_disable_client:SizeToContents()
-		-- DCheckBoxLabel End
-		-- MenuTab13 (Miscellaneous) End
-		-- MenuTab14 (Magazine) Start
-		local MenuTab14 = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Magazine", MenuTab14, "icon16/basket.png")
-		MenuTab14.Paint = function(self, w, h) end
-		-- DTextEntry Start
-		local magent_sound = vgui.Create("DTextEntry", MenuTab14)
-		magent_sound:SetPos(20, 40)
-		magent_sound:SetSize(370, 25)
-		magent_sound:SetText("Magazine Enter Sound")
-		magent_sound:SetConVar("vrmod_magent_sound")
-		-- DTextEntry End
-		-- DNumSlider Start
-		-- vrmod_magent_range
-		local magent_range = vgui.Create("DNumSlider", MenuTab14)
-		magent_range:SetPos(20, 70)
-		magent_range:SetSize(370, 25)
-		magent_range:SetText("Magazine Enter Range")
-		magent_range:SetMin(1)
-		magent_range:SetMax(100)
-		magent_range:SetDecimals(0)
-		magent_range:SetConVar("vrmod_magent_range")
-		magent_range.OnValueChanged = function(self, value) end
-		-- DNumSlider End
-		-- DTextEntry Start
-		local magent_model = vgui.Create("DTextEntry", MenuTab14)
-		magent_model:SetPos(20, 100)
-		magent_model:SetSize(370, 25)
-		magent_model:SetText("Magazine Enter Model")
-		magent_model:SetConVar("vrmod_magent_model")
-		-- DTextEntry End
-		-- MenuTab14 (Magazine) End
-
-		
 		-- PanelEMSTOP  Start
 		local PanelEMSTOP = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("VRStop Key", PanelEMSTOP, "icon16/stop.png")
