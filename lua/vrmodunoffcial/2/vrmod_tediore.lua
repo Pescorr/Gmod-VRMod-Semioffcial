@@ -1,3 +1,4 @@
+AddCSLuaFile()
 if SERVER then
     -- -- util.AddNetworkString("vr_tediore")
     util.AddNetworkString("ChangeWeapon")

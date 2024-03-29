@@ -460,7 +460,7 @@ Version 71:
 -fixed issue where players would get spammed by lua errors on servers with ulib installed when someone disconnects while in VR
 ]]
 
-hook.Add("VRMod_Menu","changelog",function(frame)
+hook.Add("VRMod_Menu","xxvrchangelog",function(frame)
 	local panel = vgui.Create( "DPanel", frame.DPropertySheet )
 	frame.DPropertySheet:AddSheet( "Changelog", panel )
 	

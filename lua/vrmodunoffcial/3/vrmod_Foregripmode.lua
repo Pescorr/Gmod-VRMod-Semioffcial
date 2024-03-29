@@ -1,4 +1,8 @@
+AddCSLuaFile()
+
+
 if SERVER then return end
+local some_threshold = CreateClientConVar("vrmod_Foregripmode_range", "13", true, FCVAR_ARCHIVE) -- 必要に応じて調整
 
 local function CheckHandTouch(player)
     local leftHandPos = vrmod.GetLeftHandPos(player)

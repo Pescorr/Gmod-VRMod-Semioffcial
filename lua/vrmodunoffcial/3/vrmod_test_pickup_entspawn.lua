@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 -- Client-side code
 if CLIENT then
     concommand.Add(
