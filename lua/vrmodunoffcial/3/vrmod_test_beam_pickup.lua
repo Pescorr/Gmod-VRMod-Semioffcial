@@ -30,14 +30,9 @@ if SERVER then
                 ent:SetPos(handPos)
                 ent:Activate(false)
                 -- 0.08秒後にpickup関数を実行
-                timer.Simple(
-                    0.00,
-                    function()
                         pickup(ply, isLeftHand, handPos, Angle())
-                    end
-                )
 
-                ent:Activate(true)
+                -- ent:Activate(true)
             end
         end
 
