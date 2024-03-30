@@ -219,6 +219,55 @@ function VRUtilOpenHeightMenu()
 				convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
 			end
 		},
+		{
+			x = 0,
+			y = 255,
+			w = 50,
+			h = 50,
+			text = "Auto\nOffset",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = convarValues.vrmod_seated,
+			fn = function()
+				convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+			end
+		},
+		-- 新しいボタン「Reset」の定義を追加
+		{
+			x = 250,
+			y = 310, -- これは前のボタンの下に配置するためのY位置です
+			w = 50,
+			h = 50,
+			text = "Reset\nConfig",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = true, -- このボタンは常に有効です
+			fn = function()
+				RunConsoleCommand("vrmod_character_reset")
+			end
+		},
+		-- 新しいボタン「FullAuto」の定義を追加
+		{
+			x = 250,
+			y = 365, -- 「Reset」ボタンの下に配置
+			w = 50,
+			h = 50,
+			text = "Full\nAuto",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = true, -- このボタンも常に有効
+			fn = function()
+				RunConsoleCommand("vrmod_scale_auto")
+				RunConsoleCommand("vrmod_character_auto")
+				g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+				convars.vrmod_scale:SetFloat(g_VR.scale)
+				convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+				RunConsoleCommand("vrmod_character_restart")
+			end
+		},
 	}
 
 	renderControls = function()

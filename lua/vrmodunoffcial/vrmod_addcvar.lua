@@ -125,6 +125,8 @@ if CLIENT then
 			print("vrmod_scale 38.7")
 			LocalPlayer():ConCommand("vrmod_crouchthreshold 40.0")
 			print("vrmod_crouchthreshold 40.0")
+			LocalPlayer():ConCommand("vrmod_seatedoffset  33.4")
+			print("vrmod_crouchthreshold 33.4")
 		end
 	)
 
