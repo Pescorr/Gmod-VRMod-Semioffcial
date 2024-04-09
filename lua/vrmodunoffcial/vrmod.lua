@@ -46,7 +46,6 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_desktopview", nil, "3")
 	vrmod.AddCallbackedConvar("vrmod_useworldmodels", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_laserpointer", nil, "0")
-	vrmod.AddCallbackedConvar("vrmod_znear", nil, "6.0")
 	vrmod.AddCallbackedConvar("vrmod_characterEyeHeight", nil, "66.8", nil, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_characterHeadToHmdDist", nil, "6.3", nil, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_oldcharacteryaw", nil, "1")
@@ -63,6 +62,22 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_hmdoffset_pitch", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_hmdoffset_yaw", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_hmdoffset_roll", nil, "0")
+	vrmod.AddCallbackedConvar(
+		"vrmod_znear",
+		nil,
+		"6.0",
+		nil,
+		nil,
+		nil,
+		nil,
+		tonumber,
+		function(val)
+			if g_VR.view then
+				g_VR.view.znear = val
+			end
+		end
+	)
+
 	vrmod.AddCallbackedConvar(
 		"vrmod_postprocess",
 		nil,
@@ -433,9 +448,10 @@ if CLIENT then
 		overrideConvar("playerscaling_clientspeed", "0")
 		overrideConvar("playerscaling_clientjump", "0")
 		if autoarcbench:GetBool() then
-			-- overrideConvar("arccw_dev_benchgun", 1)
+			overrideConvar("arccw_dev_benchgun", 1)
 			overrideConvar("arc9_dev_benchgun", 1)
-			overrideConvar("arc9_tpik", "0")
+			overrideConvar("arc9_cruelty_reload", 0)
+			overrideConvar("arc9_tpik", 0)
 		end
 
 		--overrideConvar("pac_suppress_frames", "0")
@@ -556,7 +572,7 @@ if CLIENT then
 		local pos1, ang1
 		local uselefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
 		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", 0, true, FCVAR_ARCHIVE)
-		local foregripmode = CreateClientConVar("vrmod_Foregripmode", 0,false)
+		local foregripmode = CreateClientConVar("vrmod_Foregripmode", 0, false)
 		-- RenderScene フック内でHMDの位置と角度を調整
 		hook.Add(
 			"RenderScene",
@@ -598,8 +614,6 @@ if CLIENT then
 						g_VR.viewModelPos = pos
 						g_VR.viewModelAng = angl
 					end
-
-					
 
 					if IsValid(g_VR.viewModel) then
 						if not g_VR.usingWorldModels then

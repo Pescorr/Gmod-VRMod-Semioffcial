@@ -1,6 +1,5 @@
 if SERVER then return end
 local convars, convarValues = vrmod.GetConvars()
-
 -- VRMod_OpenQuickMenuイベントにフックを追加
 -- 各ConVarに基づいてメニュー項目を更新
 local vrmod_cmd_spawnmenu_open = CreateClientConVar("vrmod_cmd_spawnmenu_open", "+menu")
@@ -15,56 +14,79 @@ local vre_gbradial_menu = CreateClientConVar("vrmod_quickmenu_vre_gbradial_menu"
 local vrmod_quickmenu_chat = CreateClientConVar("vrmod_quickmenu_chat", "1")
 local vrmod_togglemirror = CreateClientConVar("vrmod_quickmenu_togglemirror", "1")
 local vrmod_quickmenu_togglevehiclemode = CreateClientConVar("vrmod_quickmenu_togglevehiclemode", "1")
+local vrmod_quickmenu_noclip = CreateClientConVar("vrmod_quickmenu_noclip", "1")
+local spawn_menu = CreateClientConVar("vrmod_quickmenu_spawn_menu", "1")
+local context_menu = CreateClientConVar("vrmod_quickmenu_context_menu", "1")
+local vrmod_quickmenu_arccw = CreateClientConVar("vrmod_quickmenu_arccw", "1")
 local button1on = 0
 local button2on = 0
 hook.Add(
     "VRMod_OpenQuickMenu",
     "UpdateQuickMenuItems",
     function()
-        vrmod.AddInGameMenuItem(
-            "Spawn Menu",
-            2,
-            0,
-            function()
-                if not IsValid(g_SpawnMenu) then return end
-                LocalPlayer():ConCommand(vrmod_cmd_spawnmenu_open:GetString())
-                hook.Add(
-                    "VRMod_OpenQuickMenu",
-                    "close_spawnmenu",
-                    function()
-                        hook.Remove("VRMod_OpenQuickMenu", "close_spawnmenu")
-                        g_SpawnMenu:Close()
-                        LocalPlayer():ConCommand(vrmod_cmd_spawnmenu_close:GetString())
+        if spawn_menu:GetBool() then
+            vrmod.AddInGameMenuItem(
+                "Spawn Menu",
+                2,
+                0,
+                function()
+                    if not IsValid(g_SpawnMenu) then return end
+                    LocalPlayer():ConCommand(vrmod_cmd_spawnmenu_open:GetString())
+                    hook.Add(
+                        "VRMod_OpenQuickMenu",
+                        "close_spawnmenu",
+                        function()
+                            hook.Remove("VRMod_OpenQuickMenu", "close_spawnmenu")
+                            g_SpawnMenu:Close()
+                            LocalPlayer():ConCommand(vrmod_cmd_spawnmenu_close:GetString())
 
-                        return false
-                    end
-                )
-            end
-        )
+                            return false
+                        end
+                    )
+                end
+            )
+        else
+            vrmod.RemoveInGameMenuItem("Spawn Menu")
+        end
 
-        vrmod.AddInGameMenuItem(
-            "Context Menu",
-            3,
-            0,
-            function()
-                if not IsValid(g_ContextMenu) then return end
-                LocalPlayer():ConCommand(vrmod_cmd_contextmenu_open:GetString())
-                hook.Add(
-                    "VRMod_OpenQuickMenu",
-                    "closecontextmenu",
-                    function()
-                        hook.Remove("VRMod_OpenQuickMenu", "closecontextmenu")
-                        g_ContextMenu:Close()
-                        LocalPlayer():ConCommand(vrmod_cmd_contextmenu_close:GetString())
+        if context_menu:GetBool() then
+            vrmod.AddInGameMenuItem(
+                "Context Menu",
+                3,
+                0,
+                function()
+                    if not IsValid(g_ContextMenu) then return end
+                    LocalPlayer():ConCommand(vrmod_cmd_contextmenu_open:GetString())
+                    hook.Add(
+                        "VRMod_OpenQuickMenu",
+                        "closecontextmenu",
+                        function()
+                            hook.Remove("VRMod_OpenQuickMenu", "closecontextmenu")
+                            g_ContextMenu:Close()
+                            LocalPlayer():ConCommand(vrmod_cmd_contextmenu_close:GetString())
 
-                        return false
-                    end
-                )
-            end
-        )
+                            return false
+                        end
+                    )
+                end
+            )
+        else
+            vrmod.RemoveInGameMenuItem("Context Menu")
+        end
 
+        if vrmod_quickmenu_noclip:GetBool() then
+            vrmod.AddInGameMenuItem(
+                "Toggle Noclip",
+                2,
+                1,
+                function()
+                    LocalPlayer():ConCommand("noclip")
+                end
+            )
+        else
+            vrmod.RemoveInGameMenuItem("Toggle Noclip")
+        end
 
-        
         if seated_menu:GetBool() then
             vrmod.AddInGameMenuItem(
                 "seated mode",
@@ -104,7 +126,6 @@ hook.Add(
         else
             vrmod.RemoveInGameMenuItem("Mirror Toggle")
         end
-
 
         if vre_gbradial_menu:GetBool() then
             vrmod.AddInGameMenuItem(
@@ -224,10 +245,12 @@ hook.Add(
             vrmod.RemoveInGameMenuItem("chat")
         end
 
+        if not vrmod_quickmenu_arccw:GetBool() then
+            vrmod.RemoveInGameMenuItem("ArcCW Customize")
+        end
     end
 )
 
--- vrmod.RemoveInGameMenuItem("ArcCW Customize")
 hook.Add(
     "VRMod_Exit",
     "restore_spawnmenu",

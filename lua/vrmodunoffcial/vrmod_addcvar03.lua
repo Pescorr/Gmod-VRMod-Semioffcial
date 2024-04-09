@@ -21,3 +21,62 @@ concommand.Add(
     end
 )
 
+-- local function ReadBindingDataFromVMT(fileName)
+--     local filePath = "materials/vrmod/" .. fileName .. ".vmt"
+--     if file.Exists(filePath, "GAME") then
+--         local f = file.Open(filePath, "r", "GAME")
+--         if f then
+--             local vmt = f:Read(f:Size())
+--             f:Close()
+
+--             local bindingData = string.match(vmt, '%$bindingdata%s+"(.+)"')
+--             if bindingData then
+--                 return bindingData
+--             else
+--                 print("Error: $bindingdata not found in " .. filePath)
+--             end
+--         else
+--             print("Error: Failed to open " .. filePath)
+--         end
+--     else
+--         print("Error: " .. filePath .. " not found")
+--     end
+--     return nil
+-- end
+
+-- local function WriteBindingDataToTXT(fileName, bindingData)
+--     local filePath = "materials/vrmod/" .. fileName .. ".txt"
+--     local f = file.Open(filePath, "w", "GAME")
+--     if f then
+--         f:Write(bindingData)
+--         f:Close()
+--         print("Binding data written to " .. filePath)
+--     else
+--         print("Error: Failed to write binding data to " .. filePath)
+--     end
+-- end
+
+-- local function ProcessBindingFile(fileName)
+--     local bindingData = ReadBindingDataFromVMT(fileName)
+--     if bindingData then
+--         WriteBindingDataToTXT(fileName, bindingData)
+--     end
+-- end
+
+-- local function Init()
+--     if not file.Exists("materials/vrmod", "GAME") then
+--         file.CreateDir("materials/vrmod")
+--     end
+
+--     ProcessBindingFile("vrmod_action_manifest")
+--     ProcessBindingFile("vrmod_bindings_holographic_controller")
+--     ProcessBindingFile("vrmod_bindings_oculus_touch")
+--     ProcessBindingFile("vrmod_bindings_vive_controller")
+--     ProcessBindingFile("vrmod_bindings_knuckles")
+--     ProcessBindingFile("vrmod_bindings_vive_cosmos_controller")
+--     ProcessBindingFile("vrmod_bindings_vive_tracker_left_foot")
+--     ProcessBindingFile("vrmod_bindings_vive_tracker_right_foot")
+--     ProcessBindingFile("vrmod_bindings_vive_tracker_waist")
+-- end
+
+hook.Add("InitPostEntity", "VRMod_InitBindings", Init)
