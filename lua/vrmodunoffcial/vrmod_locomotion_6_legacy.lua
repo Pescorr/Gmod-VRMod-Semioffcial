@@ -272,9 +272,6 @@ end
 
 timer.Simple(0,function()
 	vrmod.AddLocomotionOption("6.Legacy", start, stop, options)
-	vrmod.AddInGameMenuItem("Toggle Noclip", 2, 1, function()
-		LocalPlayer():ConCommand("noclip")
-	end)
 end)
 
 

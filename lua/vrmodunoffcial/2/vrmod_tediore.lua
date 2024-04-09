@@ -1,10 +1,9 @@
 AddCSLuaFile()
 if SERVER then
-    -- -- util.AddNetworkString("vr_tediore")
     util.AddNetworkString("ChangeWeapon")
     util.AddNetworkString("ReloadHolster")
     util.AddNetworkString("DropWeapon")
-    -- len is the net message length, which we don't care about, ply is the player who sent it.
+    util.AddNetworkString("SelectEmptyWeapon")
     net.Receive(
         "ChangeWeapon",
         function(len, ply)
@@ -13,7 +12,14 @@ if SERVER then
         end
     )
 
-    -- hook.Add("KeyPress", "weaponreplacerpresser", function (ply, key)
+    -- 他のネットワークメッセージの追加
+    net.Receive(
+        "SelectEmptyWeapon",
+        function(len, ply)
+            ply:SelectWeapon("weapon_vrmod_empty")
+        end
+    )
+
     net.Receive(
         "DropWeapon",
         function(len, ply)
@@ -36,34 +42,7 @@ if SERVER then
                 Wwep = ents.Create("prop_physics")
             end
 
-            Wwep:SetModel(modelname)
-            ply:LookupBone("ValveBiped.Bip01_R_Hand")
-            local Bon, BonAng = ply:GetBonePosition(11)
-            Wwep:SetPos(guninhandpos + BonAng:Forward() * 10 - BonAng:Up() * 0 + BonAng:Right() * 4)
-            Wwep:SetAngles(guninhandang)
-            Wwep:SetModel(wep:GetModel())
-            Wwep:Spawn()
-            local phys = Wwep:GetPhysicsObject()
-            if phys and phys:IsValid() then
-                phys:Wake()
-                phys:SetVelocity(ply:GetVelocity() + rhandvel)
-                phys:AddAngleVelocity(-phys:GetAngleVelocity() + phys:WorldToLocalVector(rhandangvel))
-            end
-
-            if wepdropmode then
-                ply:StripWeapon(ply:GetActiveWeapon():GetClass())
-            end
-
-            ply:Give("weapon_vrmod_empty")
-            ply:SelectWeapon("weapon_vrmod_empty")
-        end
-    )
-
-    net.Receive(
-        "ReloadHolster",
-        function(len, ply)
             local wep = ply:GetActiveWeapon()
-            -- ply:StripWeapon(ply:GetActiveWeapon():GetClass())
             if wep:IsValid() then
                 local ammoType = wep:GetPrimaryAmmoType()
                 local ammoCount = ply:GetAmmoCount(ammoType)
@@ -78,42 +57,61 @@ if SERVER then
             end
 
             ply:Give("weapon_vrmod_empty")
+            Wwep:SetModel(modelname)
+            ply:LookupBone("ValveBiped.Bip01_R_Hand")
+            local Bon, BonAng = ply:GetBonePosition(11)
+            Wwep:SetPos(guninhandpos + BonAng:Forward() * 10 - BonAng:Up() * 0 + BonAng:Right() * 4)
+            Wwep:SetAngles(guninhandang)
+            Wwep:SetModel(wep:GetModel())
+            Wwep:Spawn()
+            local phys = Wwep:GetPhysicsObject()
+            if phys and phys:IsValid() then
+                phys:Wake()
+                phys:SetMass(99) -- 重さを90に設定
+                phys:SetVelocity(ply:GetVelocity() + rhandvel)
+                phys:AddAngleVelocity(-phys:GetAngleVelocity() + phys:WorldToLocalVector(rhandangvel))
+            end
+
+            if wepdropmode then
+                ply:StripWeapon(ply:GetActiveWeapon():GetClass())
+            end
+
+            ply:Give("weapon_vrmod_empty")
             ply:SelectWeapon("weapon_vrmod_empty")
+            -- 要望1: prop_physicsは投げてから10秒後に自動で消える
+            timer.Simple(
+                3,
+                function()
+                    if IsValid(Wwep) and Wwep:GetClass() == "prop_physics" then
+                        Wwep:Remove()
+                    end
+                end
+            )
         end
     )
-    -- util.AddNetworkString("AddWeapon")
-    -- -- len is the net message length, which we don't care about, ply is the player who sent it.
-    -- net.Receive(
-    --     "AddWeapon",
-    --     function(len, ply)
-    --         local weaponClass = net.ReadString(8)
-    --         ply:Give(weaponClass)
-    --         ply:SelectWeapon(weaponClass)
-    --     end
-    -- )
 end
 
 if CLIENT then
-    local tedioreenable = CreateClientConVar("vrmod_weapondrop_reload", 0, true, FCVAR_ARCHIVE, "", 0, 1)
+    local tedioreenable = CreateClientConVar("vrmod_pickupoff_weaponholster", 0, true, FCVAR_ARCHIVE, "", 0, 1)
     local dropenable = CreateClientConVar("vrmod_weapondrop_enable", 0, true, FCVAR_ARCHIVE, "", 0, 1)
     local dropmode = CreateClientConVar("vrmod_weapondrop_trashwep", 0, true, FCVAR_ARCHIVE, "", 0, 1)
-    local dummylefthand = CreateClientConVar("vrmod_lefthand",0,false)
+    local dummylefthand = CreateClientConVar("vrmod_lefthand", 0, false)
     local ply = LocalPlayer()
     hook.Add(
         "VRMod_Input",
         "ReloadHolsterinput",
         function(action, state)
-            if tedioreenable:GetBool() then
+            if tedioreenable:GetBool() and not dropenable:GetBool() then
                 if not GetConVar("vrmod_lefthand"):GetBool() then
                     if action == "boolean_right_pickup" and not state then
-                        net.Start("ReloadHolster")
+                        net.Start("SelectEmptyWeapon")
                         net.SendToServer()
 
                         return
                     end
                 else
                     if action == "boolean_left_pickup" and not state then
-                        net.Start("ReloadHolster")
+                        net.Start("SelectEmptyWeapon")
                         net.SendToServer()
 
                         return

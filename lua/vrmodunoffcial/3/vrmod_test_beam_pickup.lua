@@ -1,13 +1,9 @@
 AddCSLuaFile()
--- クライアント側のコンソール変数を作成
 CreateClientConVar("vrmod_pickup_beamrange02", 50, true, FCVAR_ARCHIVE, "Range to check for entities to grab")
 CreateClientConVar("vrmod_pickup_weight", 100, true, FCVAR_ARCHIVE, "Max weight of entity to grab")
 CreateClientConVar("vrmod_pickup_beam_enable", 1, true, FCVAR_ARCHIVE, "Enable/disable the pickup beam laser")
--- サーバー側でFindNearestEntity関数とTeleportEntityToHand関数を定義
 if SERVER then
-    -- utilライブラリが利用可能かどうかを確認
     if util ~= nil then
-        -- ネットワークストリングを登録
         util.AddNetworkString("vrmod_pickup_beam")
         local function FindNearestEntity(ply, handPos, grabRange, maxWeight, excludeEnt)
             local nearestEnt = nil
@@ -30,9 +26,8 @@ if SERVER then
                 ent:SetPos(handPos)
                 ent:Activate(false)
                 -- 0.08秒後にpickup関数を実行
-                        pickup(ply, isLeftHand, handPos, Angle())
-
-                -- ent:Activate(true)
+                pickup(ply, isLeftHand, handPos, Angle())
+                ent:Activate(true)
             end
         end
 

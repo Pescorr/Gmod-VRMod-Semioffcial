@@ -104,6 +104,7 @@ function VRUtilOpenHeightMenu()
 			true,
 			function()
 				hook.Remove("PreDrawTranslucentRenderables", "vrmodheightmirror")
+				hook.Remove("VRMod_Input", "vrmodheightmenuinput")
 			end
 		)
 	else
@@ -119,6 +120,7 @@ function VRUtilOpenHeightMenu()
 			true,
 			function()
 				hook.Remove("PreDrawTranslucentRenderables", "vrmodheightmirror")
+				hook.Remove("VRMod_Input", "vrmodheightmenuinput")
 			end
 		)
 	end
@@ -149,10 +151,14 @@ function VRUtilOpenHeightMenu()
 			font = "Trebuchet24",
 			text_x = 25,
 			text_y = 15,
-			enabled = not convarValues.vrmod_seated,
+			enabled = true,
 			fn = function()
-				g_VR.scale = g_VR.scale + 0.5
-				convars.vrmod_scale:SetFloat(g_VR.scale)
+				if convarValues.vrmod_seated then
+					convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_seatedoffset + 0.5)
+				else
+					g_VR.scale = g_VR.scale + 0.5
+					convars.vrmod_scale:SetFloat(g_VR.scale)
+				end
 			end
 		},
 		{
@@ -164,10 +170,14 @@ function VRUtilOpenHeightMenu()
 			font = "Trebuchet24",
 			text_x = 25,
 			text_y = 0,
-			enabled = not convarValues.vrmod_seated,
+			enabled = true,
 			fn = function()
-				g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
-				convars.vrmod_scale:SetFloat(g_VR.scale)
+				if convarValues.vrmod_seated then
+					convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+				else
+					g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+					convars.vrmod_scale:SetFloat(g_VR.scale)
+				end
 			end
 		},
 		{
@@ -179,10 +189,14 @@ function VRUtilOpenHeightMenu()
 			font = "Trebuchet24",
 			text_x = 25,
 			text_y = 15,
-			enabled = not convarValues.vrmod_seated,
+			enabled = true,
 			fn = function()
-				g_VR.scale = g_VR.scale - 0.5
-				convars.vrmod_scale:SetFloat(g_VR.scale)
+				if convarValues.vrmod_seated then
+					convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_seatedoffset - 0.5)
+				else
+					g_VR.scale = g_VR.scale - 0.5
+					convars.vrmod_scale:SetFloat(g_VR.scale)
+				end
 			end
 		},
 		{
@@ -197,46 +211,14 @@ function VRUtilOpenHeightMenu()
 			enabled = true,
 			fn = function()
 				buttons[5].text = (not convarValues.vrmod_seated) and "Disable\nSeated\nOffset" or "Enable\nSeated\nOffset"
-				buttons[2].enabled = convarValues.vrmod_seated
-				buttons[3].enabled = convarValues.vrmod_seated
-				buttons[4].enabled = convarValues.vrmod_seated
-				buttons[6].enabled = not convarValues.vrmod_seated
 				convars.vrmod_seated:SetBool(not convarValues.vrmod_seated)
 				renderControls()
-			end
-		},
-		{
-			x = 0,
-			y = 255,
-			w = 50,
-			h = 50,
-			text = "Auto\nOffset",
-			font = "Trebuchet18",
-			text_x = 25,
-			text_y = 5,
-			enabled = convarValues.vrmod_seated,
-			fn = function()
-				convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
-			end
-		},
-		{
-			x = 0,
-			y = 255,
-			w = 50,
-			h = 50,
-			text = "Auto\nOffset",
-			font = "Trebuchet18",
-			text_x = 25,
-			text_y = 5,
-			enabled = convarValues.vrmod_seated,
-			fn = function()
-				convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
 			end
 		},
 		-- 新しいボタン「Reset」の定義を追加
 		{
 			x = 250,
-			y = 310, -- これは前のボタンの下に配置するためのY位置です
+			y = 395, -- これは前のボタンの下に配置するためのY位置です
 			w = 50,
 			h = 50,
 			text = "Reset\nConfig",
@@ -248,13 +230,13 @@ function VRUtilOpenHeightMenu()
 				RunConsoleCommand("vrmod_character_reset")
 			end
 		},
-		-- 新しいボタン「FullAuto」の定義を追加
+		-- 新しいボタン「AutoTestver」の定義を追加
 		{
 			x = 250,
-			y = 365, -- 「Reset」ボタンの下に配置
+			y = 450, -- 「Reset」ボタンの下に配置
 			w = 50,
 			h = 50,
-			text = "Full\nAuto",
+			text = "Auto\nTestVer",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
@@ -268,12 +250,41 @@ function VRUtilOpenHeightMenu()
 				RunConsoleCommand("vrmod_character_restart")
 			end
 		},
+		-- 新しいボタン「AutoTestver」の定義を追加
+		{
+			x = 0,
+			y = 450, -- 「Reset」ボタンの下に配置
+			w = 50,
+			h = 50,
+			text = "HideNear\nHMD\n-",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = g_VR.view.znear >= 0.5, -- このボタンも常に有効
+			fn = function()
+				g_VR.view.znear = g_VR.view.znear - 0.5
+			end
+		},
+		-- 新しいボタン「AutoTestver」の定義を追加
+		{
+			x = 100,
+			y = 450, -- 「Reset」ボタンの下に配置
+			w = 50,
+			h = 50,
+			text = "HideNear\nHMD\n+",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = g_VR.view.znear <= 20.0, -- このボタンも常に有効
+			fn = function()
+				g_VR.view.znear = g_VR.view.znear + 0.5
+			end
+		},
 	}
 
 	renderControls = function()
 		VRUtilMenuRenderStart("heightmenu")
 		surface.SetDrawColor(0, 0, 0, 255)
-		draw.DrawText("note: you must disable seated mode\nand stand up irl when adjusting scale", "Trebuchet18", 3, -2, Color(0, 0, 0, 255), TEXT_ALIGN_LEFT)
 		for k, v in ipairs(buttons) do
 			surface.SetDrawColor(0, 0, 0, v.enabled and 255 or 128)
 			surface.DrawRect(v.x, v.y, v.w, v.h)

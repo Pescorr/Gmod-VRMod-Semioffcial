@@ -48,7 +48,7 @@ hook.Add(
         -- CheckBox ConVars
         local checkBoxConVars0B = {
             {
-                convar = "vrmod_weapondrop_reload",
+                convar = "vrmod_pickupoff_weaponholster",
                 label = "Pickup Off -> Weapon Holster"
             },
             {
@@ -70,23 +70,21 @@ hook.Add(
             posY = posY + 20
         end
 
-        -- -- CheckBox ConVars
-        -- local checkBoxConVars0C = {
-        --     {
-        --         convar = "developer",
-        --         label = "Pouchrange\nVisible"
-        --     }
-        -- }
-
-        -- for _, data in pairs(checkBoxConVars0C) do
-        --     local ConVars0C = vgui.Create("DCheckBoxLabel", sheet)
-        --     ConVars0C:SetPos(290, posY - 120)
-        --     ConVars0C:SetText(data.label)
-        --     ConVars0C:SetConVar(data.convar)
-        --     ConVars0C:SizeToContents()
-            posY = posY + 20
-        -- end
-
+        -- CheckBox ConVars
+        local checkBoxConVars0C = {
+            {
+                convar = "vrmod_weppouch_visiblerange",
+                label = "Pouchrange\nVisible"
+            }
+        }
+        for _, data in pairs(checkBoxConVars0C) do
+            local ConVars0C = vgui.Create("DCheckBoxLabel", sheet)
+            ConVars0C:SetPos(290, posY - 120)
+            ConVars0C:SetText(data.label)
+            ConVars0C:SetConVar(data.convar)
+            ConVars0C:SizeToContents()
+        posY = posY + 20
+        end
         posY = posY - 80
         -- DNumSlider ConVars
         local numSliderConVars = {
