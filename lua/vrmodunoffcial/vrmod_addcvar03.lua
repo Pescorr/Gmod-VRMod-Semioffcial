@@ -21,6 +21,7 @@ concommand.Add(
     end
 )
 
+
 -- local function ReadBindingDataFromVMT(fileName)
 --     local filePath = "materials/vrmod/" .. fileName .. ".vmt"
 --     if file.Exists(filePath, "GAME") then
@@ -79,4 +80,4 @@ concommand.Add(
 --     ProcessBindingFile("vrmod_bindings_vive_tracker_waist")
 -- end
 
-hook.Add("InitPostEntity", "VRMod_InitBindings", Init)
+-- hook.Add("InitPostEntity", "VRMod_InitBindings", Init)

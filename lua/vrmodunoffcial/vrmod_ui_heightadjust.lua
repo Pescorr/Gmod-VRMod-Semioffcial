@@ -227,7 +227,7 @@ function VRUtilOpenHeightMenu()
 			text_y = 5,
 			enabled = true, -- このボタンは常に有効です
 			fn = function()
-				RunConsoleCommand("vrmod_character_reset")
+				RunConsoleCommand("vrmod_character_restart")
 			end
 		},
 		-- 新しいボタン「AutoTestver」の定義を追加

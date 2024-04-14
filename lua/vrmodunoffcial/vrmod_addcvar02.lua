@@ -1,4 +1,3 @@
-
 if CLIENT then
 	hook.Add(
 		"VRMod_Input",
@@ -7,10 +6,8 @@ if CLIENT then
 			if hook.Call("VRMod_AllowDefaultAction", nil, action) == false then return end
 			-- if action == "boolean_secondaryfire" then
 			-- 	LocalPlayer():ConCommand(pressed and "arccw_dev_benchgun 1" or "arccw_dev_benchgun 0")
-
 			-- 	return
 			-- end
-
 			if action == "boolean_chat" and pressed then
 				LocalPlayer():ConCommand("arccw_firemode")
 				LocalPlayer():ConCommand("arccw_toggle_ubgl")
@@ -20,13 +17,11 @@ if CLIENT then
 		end
 	)
 
-
 	-- -- 依存するConVarを事前に定義
 	-- local convars = {
 	-- 	vrmod_seatedoffset = GetConVar("vrmod_seatedoffset"),
 	-- 	vrmod_scale = GetConVar("vrmod_scale"),
 	-- }
-
 	-- -- 設定値を取得するためのユーティリティ関数
 	-- local function getConvarValues()
 	-- 	return {
@@ -35,7 +30,6 @@ if CLIENT then
 	-- 		vrmod_scale = convars.vrmod_scale:GetFloat(),
 	-- 	}
 	-- end
-
 	-- -- concommand 1: seatedoffsetの計算と設定
 	-- concommand.Add(
 	-- 	"set_vrmod_seatedoffset",
@@ -45,7 +39,6 @@ if CLIENT then
 	-- 		convars.vrmod_seatedoffset:SetFloat(newSeatedOffset)
 	-- 	end
 	-- )
-
 	-- -- concommand 2: VRのスケールの計算と設定
 	-- concommand.Add(
 	-- 	"adjust_vrmod_scale",
