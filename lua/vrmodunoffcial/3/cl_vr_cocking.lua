@@ -1,0 +1,55 @@
+	-- -- cl_vr_cocking.lua
+	-- local cv_slideplus = CreateClientConVar("arcticvr_slide_magnification", "1.0", true, FCVAR_ARCHIVE)
+	-- hook.Add(
+	-- 	"VRMod_Input",
+	-- 	"AVR_Cocking",
+	-- 	function(action, pressed)
+	-- 		local ply = LocalPlayer()
+	-- 		local wep = ply:GetActiveWeapon()
+	-- 		if not IsValid(wep) or not wep.ArcticVR then return end
+	-- 		if action == "boolean_left_pickup" and pressed then
+	-- 			local vm = g_VR.viewModel
+	-- 			if not vm then return end
+	-- 			if not IsValid(vm) then return end
+	-- 			local slidebone = wep.BoneIndices.slide
+	-- 			if not slidebone then return end
+	-- 			if wep:LeftHandInMaxs(slidebone, wep.SlideMins * cv_slideplus:GetFloat(), wep.SlideMaxs * cv_slideplus:GetFloat()) then
+	-- 				wep.SlideGrabbed = true
+	-- 				wep.SlidePos = 0
+	-- 				wep:PlayNetworkedSound(nil, "SlidePulledSound")
+	-- 			end
+	-- 		elseif not pressed then
+	-- 			wep.SlideGrabbed = false
+	-- 		end
+	-- 	end
+	-- )
+
+	-- function SWEP:LeftHandInMaxs(bone, mins, maxs)
+	-- 	local vm = g_VR.viewModel
+	-- 	if not vm then return false end
+	-- 	if not IsValid(vm) then return false end
+	-- 	local pos = WorldToLocal(LocalToWorld(Vector(3.5, -1.5, 1.2), Angle(0, 0, 0), g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang), Angle(0, 0, 0), vm:GetBoneMatrix(bone):GetTranslation(), vm:GetBoneMatrix(bone):GetAngles())
+	-- 	if pos.x > mins[1] and pos.x < maxs[1] and pos.y > mins[2] and pos.y < maxs[2] and pos.z > mins[3] and pos.z < maxs[3] then return true end
+
+	-- 	return false
+	-- end
+
+	-- function SWEP:VRThink()
+	-- 	local vm = g_VR.viewModel
+	-- 	if not vm then return end
+	-- 	if not IsValid(vm) then return end
+	-- 	if self.SlideGrabbed then
+	-- 		local lhpos = g_VR.tracking.pose_lefthand.pos
+	-- 		local lhang = g_VR.tracking.pose_lefthand.ang
+	-- 		local slidebone = self.BoneIndices.slide
+	-- 		local locpos = WorldToLocal(lhpos, lhang, vm:GetPos(), vm:GetAngles())
+	-- 		self.SlidePos = math.Clamp(locpos.x, 0, self.SlideBlowbackAmount)
+	-- 		if not self:LeftHandInMaxs(slidebone, self.SlideMins * cv_slideplus:GetFloat(), self.SlideMaxs * cv_slideplus:GetFloat()) then
+	-- 			self.SlideGrabbed = false
+	-- 		end
+	-- 	else
+	-- 		self.SlidePos = math.Approach(self.SlidePos, 0, FrameTime() * self.SlideBlowbackAmount * self.RPM / 60)
+	-- 	end
+
+	-- 	vm:ManipulateBonePosition(slidebone, self.SlidePos * self.SlideDir)
+	-- end
