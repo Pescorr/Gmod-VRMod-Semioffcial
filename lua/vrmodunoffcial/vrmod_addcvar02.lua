@@ -20,7 +20,6 @@ if CLIENT then
 		end
 	)
 
-
 	-- -- 依存するConVarを事前に定義
 	-- local convars = {
 	-- 	vrmod_seatedoffset = GetConVar("vrmod_seatedoffset"),
