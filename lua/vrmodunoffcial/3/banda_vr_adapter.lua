@@ -1,0 +1,793 @@
+-- -- banda_vr_adapter.lua
+
+-- if SERVER then return end
+
+-- local function DrawWristBand(vm)
+--     if GetConVar("wristband_enabled"):GetInt() ~= 1 then return end
+--     local TextColor = {
+--         r = GetConVar("ColorTR"):GetInt(),
+--         g = GetConVar("ColorTG"):GetInt(),
+--         b = GetConVar("ColorTB"):GetInt(),
+--         a = GetConVar("ColorTA"):GetInt(),
+--     }
+--     local Position = {
+--         x = GetConVar("wristbandX"):GetFloat(),
+--         y = GetConVar("wristbandY"):GetFloat(),
+--         z = GetConVar("wristbandZ"):GetFloat(),
+--         r = GetConVar("wristbandR"):GetFloat(),
+--         rx = GetConVar("wristbandRX"):GetFloat(),
+--         ry = GetConVar("wristbandRY"):GetFloat(),
+--         rz = GetConVar("wristbandRZ"):GetFloat(),
+--     }
+--     local lower = GetConVar("lowArc"):GetFloat()
+--     local CT = CurTime()
+--     local FT = FrameTime()
+--     local ply = LocalPlayer()
+--     local spin = CT
+--     if GetConVar("spin"):GetInt() ~= 1 then
+--         spin = 0
+--     end
+--     local wep = ply:GetActiveWeapon()
+--     local clip = wep:Clip1()
+--     local maxclip = wep:GetMaxClip1()
+--     local ammo = ply:GetAmmoCount(wep:GetPrimaryAmmoType())
+--     local alt = ply:GetAmmoCount(wep:GetSecondaryAmmoType())
+--     local frag = ply:GetAmmoCount("Grenade")
+--     local ammolen = string.len(ammo)
+--     local armor = ply:Armor()
+--     local maxarmor = ply:GetMaxArmor()
+--     armorLerp = Lerp(FT*10,armorLerp,armor)
+--     local armor_scale = armorLerp/maxarmor
+--     local health = ply:Health()
+--     local maxhealth = ply:GetMaxHealth()
+--     local health_scale = health/maxhealth
+--     healthLerp = Lerp(FT*10,healthLerp,health)
+--     local health_p1 = math.Remap(healthLerp, 0, 50, 0, 50 )
+--     local health_p2 = math.Remap(healthLerp, 50, 100 , 0, 50 )
+--     health_p1 = math.Clamp(health_p1, 0, 50 )
+--     health_p2 = math.Clamp(health_p2, 0, 50 )
+--     local bone = vm:LookupBone("ValveBiped.Bip01_L_Forearm") or vm:LookupBone("L Forearm")
+--     if bone == nil then return end
+--     local arm = vm:GetBoneMatrix(bone)
+--     if arm ~= nil then
+--         local checkpos = arm:GetTranslation() + arm:GetAngles():Forward()*9.5 + arm:GetAngles():Up()*3.1 + arm:GetAngles():Forward()*GetConVar("checkZ"):GetFloat() + arm:GetAngles():Right()*GetConVar("checkY"):GetFloat() + arm:GetAngles():Up()*GetConVar("checkX"):GetFloat()
+--         local armpos = arm:GetTranslation() + arm:GetAngles():Forward()*10 + arm:GetAngles():Forward()*Position.z + arm:GetAngles():Right()*Position.y + arm:GetAngles():Up()*Position.x
+--         local eyeang = vrmod.GetHMDAng() -- Changed from ply:EyeAngles()
+--         eyeang:RotateAroundAxis(eyeang:Up(),180)
+--         eyeang:RotateAroundAxis(eyeang:Right(),-90)
+--         local armang = arm:GetAngles()
+--         local armang1 = arm:GetAngles()
+--         armang:RotateAroundAxis(armang:Up(),180)
+--         armang:RotateAroundAxis(armang:Right(),90)
+--         armang1:RotateAroundAxis(armang1:Forward(),0)
+--         armang1:RotateAroundAxis(armang1:Right(),90)
+--         armang:RotateAroundAxis(armang:Up(),Position.rx)
+--         armang:RotateAroundAxis(armang:Right(),Position.ry+check)
+--         armang:RotateAroundAxis(armang:Forward(),-Position.rz)
+--         armang1:RotateAroundAxis(armang1:Up(),-Position.rx)
+--         armang1:RotateAroundAxis(armang1:Right(),-Position.ry-check)
+--         armang1:RotateAroundAxis(armang1:Forward(),-Position.rz)
+--         local ang = armang
+--         local ang1 = armang1
+--         local pos = armpos
+--         if VManip ~= nil then 
+--             if VManip:GetCurrentAnim() == "checkbracelet" and check == 90 then
+--                 pos = checkpos
+--             end
+--         end
+--         vrmod.MenuCreate("bracelet_menu", 512, 512, nil, 2, pos, ang, 0.1, false, function()
+--             vrmod.MenuRenderStart("bracelet_menu")
+--             surface.SetMaterial(Material("vgui/wrist/bar.png"))
+--             DrawArc(0,0,20*Position.r,5*Position.r,50 * CurTime(),125+50 * CurTime(),50*lower)
+--             DrawArc(0,0,20*Position.r,5*Position.r,50 * CurTime()+180,125+50 * CurTime()+180,50*lower)
+--             surface.SetDrawColor(GetConVar("ColorR"):GetInt(),GetConVar("ColorG"):GetInt()*health_scale,GetConVar("ColorB"):GetInt()*health_scale,GetConVar("ColorA"):GetInt()/10)
+--             DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin,2.5*health_p1+50 * spin,50*lower)
+--             DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin+180,2.5*health_p2+50 * spin+180,50*lower)
+--             surface.SetMaterial(Material("vgui/wrist/circle.png"))
+--             surface.DrawTexturedRectRotated(0, 0, 40*Position.r*checkRadius1, 40*Position.r*checkRadius1,120-50 * spin)
+--             surface.SetMaterial(Material("vgui/wrist/arrow.png"))
+--             surface.DrawTexturedRectRotated(0, 0, 50*Position.r*checkRadius, 50*Position.r*checkRadius,120-50 * spin) 
+--             vrmod.MenuRenderEnd()
+--             vrmod.MenuCreate("bracelet_menu_armor", 512, 512, nil, 2, pos, ang, 0.1, false, function()
+--                 vrmod.MenuRenderStart("bracelet_menu_armor")
+--                 surface.SetMaterial(Material("vgui/wrist/bar.png"))
+--                 surface.SetDrawColor(GetConVar("ColorAR"):GetInt(),GetConVar("ColorAG"):GetInt(),GetConVar("ColorAB"):GetInt(),GetConVar("ColorAA"):GetInt()/10)
+--                 DrawArc(0,0,18*Position.r*checkRadius,1*Position.r*checkRadius,0,360*armor_scale,50*lower)
+--                 vrmod.MenuRenderEnd()
+--             end)
+--             vrmod.MenuCreate("bracelet_menu_health", 512, 512, nil, 2, pos+arm:GetAngles():Forward()*0.1, ang, 0.1, false, function()
+--                 vrmod.MenuRenderStart("bracelet_menu_health")
+--                 surface.SetMaterial(Material("vgui/wrist/bar.png"))
+--                 surface.SetDrawColor(0,0,0,GetConVar("ColorA"):GetInt()*0.58)
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin,125+50 * spin,50*lower)
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin+180,125+50 * spin+180,50*lower)
+--                 surface.SetDrawColor(GetConVar("ColorR"):GetInt(),GetConVar("ColorG"):GetInt()*health_scale,GetConVar("ColorB"):GetInt()*health_scale,GetConVar("ColorA"):GetInt())
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin,2.5*health_p1+50 * spin,50*lower)
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin+180,2.5*health_p2+50 * spin+180,50*lower)
+--                 surface.SetMaterial(Material("vgui/wrist/arrow.png"))
+--                 surface.DrawTexturedRectRotated(0, 0, 50*Position.r*checkRadius, 50*Position.r*checkRadius,120-50 * spin)
+--                 vrmod.MenuRenderEnd()
+--             end)
+--             vrmod.MenuCreate("bracelet_menu_armor_front", 512, 512, nil, 2, pos-arm:GetAngles():Forward()*0.05, ang, 0.1, false, function()
+--                 vrmod.MenuRenderStart("bracelet_menu_armor_front")  
+--                 surface.SetDrawColor(0,0,0,GetConVar("ColorAA"):GetInt()*0.58)
+--                 surface.SetMaterial(Material("vgui/wrist/bar.png"))
+--                 DrawArc(0,0,18*Position.r*checkRadius,1*Position.r*checkRadius,0,360,50*lower)
+--                 surface.SetDrawColor(GetConVar("ColorAR"):GetInt(),GetConVar("ColorAG"):GetInt(),GetConVar("ColorAB"):GetInt(),GetConVar("ColorAA"):GetInt())
+--                 DrawArc(0,0,18*Position.r*checkRadius,1*Position.r*checkRadius,0,360*armor_scale,50*lower)
+--                 vrmod.MenuRenderEnd()
+--             end)
+--             vrmod.MenuCreate("bracelet_menu_health_back", 512, 512, nil, 2, pos, ang1, 0.1, false, function()
+--                 vrmod.MenuRenderStart("bracelet_menu_health_back")             
+--                 surface.SetMaterial(Material("vgui/wrist/bar.png"))
+--                 surface.SetDrawColor(0,0,0,GetConVar("ColorA"):GetInt()*0.58)
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin,125+50 * spin,50*lower)
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin+180,125+50 * spin+180,50*lower)
+--                 surface.SetDrawColor(GetConVar("ColorR"):GetInt(),GetConVar("ColorG"):GetInt()*health_scale,GetConVar("ColorB"):GetInt()*health_scale,GetConVar("ColorA"):GetInt())
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin-10,2.6*health_p1+50 * spin,50*lower)
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin+170,2.6*health_p2+50 * spin+180,50*lower)
+--                 surface.SetMaterial(Material("vgui/wrist/arrow.png"))
+--                 surface.DrawTexturedRectRotated(0, 0, 50*Position.r*checkRadius, 50*Position.r*checkRadius,120-50 * spin)
+--                 surface.SetDrawColor(GetConVar("ColorR"):GetInt(),GetConVar("ColorG"):GetInt()*health_scale,GetConVar("ColorB"):GetInt()*health_scale,GetConVar("ColorA"):GetInt()*compassAlpha)
+--                 surface.SetMaterial(Material("vgui/wrist/compass.png"))
+--                 surface.DrawTexturedRectRotated(0, 0, 80*Position.r*checkRadius1, 80*Position.r*checkRadius1,-vrmod.GetHMDAng().y+180) -- Changed from ply:EyeAngles().y
+--                 vrmod.MenuRenderEnd()
+--             end)
+--             vrmod.MenuCreate("bracelet_menu_armor_back", 512, 512, nil, 2, pos-arm:GetAngles():Forward()*0.15, ang1, 0.1, false, function()
+--                 vrmod.MenuRenderStart("bracelet_menu_armor_back")
+--                 surface.SetDrawColor(0,0,0,GetConVar("ColorAA"):GetInt()*0.58)
+--                 surface.SetMaterial(Material("vgui/wrist/bar.png"))
+--                 DrawArc(0,0,18*Position.r*checkRadius,1*Position.r*checkRadius,0,360,50*lower)
+--                 surface.SetDrawColor(GetConVar("ColorAR"):GetInt(),GetConVar("ColorAG"):GetInt(),GetConVar("ColorAB"):GetInt(),GetConVar("ColorAA"):GetInt())
+--                 DrawArc(0,0,18*Position.r*checkRadius,1*Position.r*checkRadius,0,360*armor_scale,50*lower)
+--                 vrmod.MenuRenderEnd()
+--             end)
+--             vrmod.MenuCreate("bracelet_menu_test", 512, 512, nil, 2, pos+arm:GetAngles():Forward()*0.1, ang1, 0.1, false, function()
+--                 vrmod.MenuRenderStart("bracelet_menu_test")
+--                 surface.SetMaterial(Material("vgui/wrist/bar.png"))
+--                 DrawArc(0,0,20*Position.r*checkRadius,5*Position.r*checkRadius,50 * CurTime(),125+50 * CurTime(),50*lower)
+--                 DrawArc(0,0,20*Position.r*checkRadius,5*Position.r*checkRadius,50 * CurTime()+180,125+50 * CurTime()+180,50*lower)
+--                 surface.SetDrawColor(GetConVar("ColorR"):GetInt(),GetConVar("ColorG"):GetInt()*health_scale,GetConVar("ColorB"):GetInt()*health_scale,GetConVar("ColorA"):GetInt()/10)
+--                 DrawArc(0,0,20*Position.r*checkRadius,3*Position.r*checkRadius,50 * spin+170,2.6*health_p2+50 * spin+180,50*lower)
+--                 surface.DrawTexturedRectRotated(0, 0, 50*Position.r*checkRadius, 50*Position.r*checkRadius,120-50 * spin)
+--                 surface.SetMaterial(Material("vgui/wrist/circle.png"))
+--                 surface.DrawTexturedRectRotated(0, 0, 40*Position.r*checkRadius1, 40*Position.r*checkRadius1,120-50 * spin)
+--                 vrmod.MenuRenderEnd()
+--             end)
+--             vrmod.MenuCreate("bracelet_menu_compass", 512, 512, nil, 2, pos+arm:GetAngles():Forward()*0.05, ang1, 0.1, false, function()
+--                 vrmod.MenuRenderStart("bracelet_menu_compass")
+--                 surface.SetDrawColor(GetConVar("ColorR"):GetInt(),GetConVar("ColorG"):GetInt()*health_scale,GetConVar("ColorB"):GetInt()*health_scale,GetConVar("ColorA"):GetInt()/10*compassAlpha)
+--                 surface.SetMaterial(Material("vgui/wrist/compass.png"))
+--                 surface.DrawTexturedRectRotated(0, 0, 80*Position.r*checkRadius1, 80*Position.r*checkRadius1,-vrmod.GetHMDAng().y+180) -- Changed from ply:EyeAngles().y
+--                 vrmod.MenuRenderEnd()
+--             end)
+--             vrmod.MenuCreate("bracelet_menu_armor_test", 512, 512, nil, 2, pos+arm:GetAngles():Forward()*0.1, ang1, 0.1, false, function()
+--                 vrmod.MenuRenderStart("bracelet_menu_armor_test")
+--                 surface.SetMaterial(Material("vgui/wrist/bar.png"))
+--                 surface.SetDrawColor(GetConVar("ColorAR"):GetInt(),GetConVar("ColorAG"):GetInt(),GetConVar("ColorAB"):GetInt(),GetConVar("ColorAA"):GetInt()/10)
+--                 DrawArc(0,0,18*Position.r*checkRadius,1*Position.r*checkRadius,0,360*armor_scale,50*lower)
+--                 vrmod.MenuRenderEnd()
+--             end)
+--             if VManip ~= nil then 
+--                 local statuspos = arm:GetTranslation() + arm:GetAngles():Forward()*10 - arm:GetAngles():Up()*ammotext_pos + arm:GetAngles():Up()*3.1 + arm:GetAngles():Forward()*GetConVar("checkZ"):GetFloat() + arm:GetAngles():Right()*GetConVar("checkY"):GetFloat() + arm:GetAngles():Up()*GetConVar("checkX"):GetFloat()
+--                 local statusang = vrmod.GetHMDAng() -- Changed from ply:EyeAngles()
+--                 local statusicon = vrmod.GetHMDAng() -- Changed from ply:EyeAngles()
+--                 local armor_color = Color(TextColor.r,TextColor.g,TextColor.b,TextColor.a*alphaLerp)
+--                 local armor_colorI = Color(TextColor.r,TextColor.g,TextColor.b,TextColor.a*alphaLerp)
+--                 local armor_colorT = Color(TextColor.r,TextColor.g,TextColor.b,TextColor.a*alphaLerp)
+--                 local health_color = Color(195,232,15,255*alphaLerp)
+--                 if check == 0 then
+--                     statuspos = arm:GetTranslation() + arm:GetAngles():Forward()*10 - arm:GetAngles():Up()*ammotext_pos + arm:GetAngles():Up()*3.1 + arm:GetAngles():Forward()*GetConVar("AmmoCountZ"):GetFloat() + arm:GetAngles():Right()*GetConVar("AmmoCountY"):GetFloat() + arm:GetAngles():Up()*GetConVar("AmmoCountX"):GetFloat()
+--                 end
+--                 if health <= 30 then
+--                     health_color = Color(255,0,0,255*alphaLerp)
+--                 end
+--                 if armor <= 30 and armor > 0 then
+--                     armor_color = Color(255,0,0,255*alphaLerp)
+--                     armor_colorI = Color(255,0,0,255*alphaLerp)
+--                     armor_colorT = Color(255,0,0,255*alphaLerp)
+--                 elseif armor == 0 then
+--                     armor_color = Color(255,0,0,0)
+--                     armor_colorI = Color(100,100,100,150*alphaLerp)
+--                     armor_colorT = Color(0,0,0,150*alphaLerp)
+--                 end
+--                 statusicon:RotateAroundAxis(statusicon:Forward(),0)
+--                 statusicon:RotateAroundAxis(statusicon:Right(),90)
+--                 statusicon:RotateAroundAxis(statusicon:Up(),190)
+--                 statusang:RotateAroundAxis(statusang:Up(),180)
+--                 statusang:RotateAroundAxis(statusang:Right(),-90)
+--                 statusang:RotateAroundAxis(statusang:Up(),90)
+--                 vrmod.MenuCreate("bracelet_menu_millennium", 512, 512, nil, 2, statuspos+arm:GetAngles():Forward()*0.1, statusang, 0.07*checkRadius/0.7, false, function()
+--                     vrmod.MenuRenderStart("bracelet_menu_millennium")
+--                     surface.SetMaterial(Material("vgui/wrist/millennium.png"))
+--                     if VManip:GetCurrentAnim() == "checkbracelet" and check == 90 then
+--                         surface.SetDrawColor(0,0,0,100)
+--                         surface.DrawTexturedRect(-31, -22,40,40)
+--                     else
+--                         surface.SetDrawColor(0,0,0,100)
+--                         surface.DrawTexturedRect(2, -4,8,8)
+--                     end
+--                     vrmod.MenuRenderEnd()
+--                 end)
+--                 if GetConVar("status_enable"):GetInt() == 1 and alphaLerp > 0.01 then
+--                     vrmod.MenuCreate("bracelet_menu_health_icon", 512, 512, nil, 2, statuspos+arm:GetAngles():Forward()*0.1, statusang, 0.07*checkRadius/0.7, false, function()
+--                         vrmod.MenuRenderStart("bracelet_menu_health_icon")
+--                         surface.SetDrawColor(health_color)
+--                         surface.SetMaterial(Material("vgui/wrist/health.png"))
+--                         surface.DrawTexturedRect(-23, -17,6,6)
+--                         if health <= 30 then	
+--                             surface.SetDrawColor(255,0,0,255 * math.abs(math.sin(CurTime()*2))*alphaLerp)
+--                             surface.SetMaterial(Material("vgui/wrist/warning.png"))
+--                             surface.DrawTexturedRect(1, -16,6,5)
+--                         end
+--                         surface.SetDrawColor(armor_colorI)
+--                         surface.SetMaterial(Material("vgui/wrist/armor.png"))
+--                         surface.DrawTexturedRect(-20, -10,5,5)
+--                         vrmod.MenuRenderEnd()
+--                     end)
+--                     vrmod.MenuCreate("bracelet_menu_status_text", 512, 512, nil, 2, statuspos, statusang, 0.01*checkRadius/0.7, false, function()
+--                         vrmod.MenuRenderStart("bracelet_menu_status_text")
+--                         if healthLerp > 99 then
+--                             healthLerp = 100
+--                         end
+--                         if armorLerp > 99 and armorLerp <= 100 then
+--                             armorLerp = 100
+--                         end
+--                         draw.SimpleText("HEALTH","Bracelet-Small",0,-130,health_color,TEXT_ALIGN_RIGHT)
+--                         draw.SimpleText("ARMOR","Bracelet-Small",0,-80,armor_colorT,TEXT_ALIGN_RIGHT)
+--                         draw.SimpleText("000","Bracelet-large",0,-130,Color(0,0,0,150*alphaLerp),TEXT_ALIGN_RIGHT)
+--                         draw.SimpleText(healthLerp - healthLerp%1,"Bracelet-large",0,-130,health_color,TEXT_ALIGN_RIGHT)
+--                         draw.SimpleText("000","Bracelet-Armor",0,-80,Color(0,0,0,150*alphaLerp),TEXT_ALIGN_RIGHT)
+--                         draw.SimpleText(armorLerp - armorLerp%1,"Bracelet-Armor",0,-80,armor_color,TEXT_ALIGN_RIGHT)
+--                         vrmod.MenuRenderEnd()
+--                     end)
+--                 end
+--             end
+--             if GetConVar("AmmoCount_enable"):GetInt() == 1 then
+--                 local ammopos = arm:GetTranslation() + arm:GetAngles():Forward()*10 - arm:GetAngles():Up()*ammotext_pos + arm:GetAngles():Up()*3.1 + arm:GetAngles():Forward()*GetConVar("AmmoCountZ"):GetFloat() + arm:GetAngles():Right()*GetConVar("AmmoCountY"):GetFloat() + arm:GetAngles():Up()*GetConVar("AmmoCountX"):GetFloat()
+--                 local Rotation = 0
+--                 local RScale = 1
+--                 local fragang = arm:GetAngles()
+--                 local fragcolor = Color(TextColor.r,TextColor.g,TextColor.b,TextColor.a)
+--                 local fragtext = Color(TextColor.r,TextColor.g,TextColor.b,TextColor.a)
+--                 if VManip:GetCurrentAnim() == "checkbracelet" then
+--                     ammopos = arm:GetTranslation() + arm:GetAngles():Forward()*10 - arm:GetAngles():Up()*ammotext_pos + arm:GetAngles():Up()*3.1 + arm:GetAngles():Forward()*GetConVar("checkZ"):GetFloat() + arm:GetAngles():Right()*GetConVar("checkY"):GetFloat() + arm:GetAngles():Up()*GetConVar("checkX"):GetFloat()
+--                 end
+--                 if GetConVar("AmmoCountEye"):GetInt() == 1 or VManip:GetCurrentAnim() == "checkbracelet" then
+--                     fragang = vrmod.GetHMDAng() -- Changed from ply:EyeAngles()
+--                     Rotation = 80
+--                     RScale = 0.7
+--                 end
+--                 fragang:RotateAroundAxis(fragang:Forward(),0)
+--                 fragang:RotateAroundAxis(fragang:Right(),90)
+--                 fragang:RotateAroundAxis(fragang:Up(),190)
+--                 fragang:RotateAroundAxis(fragang:Up(),Rotation+GetConVar("AmmoCountRX"):GetFloat())
+--                 fragang:RotateAroundAxis(fragang:Right(),GetConVar("AmmoCountRY"):GetFloat())
+--                 fragang:RotateAroundAxis(fragang:Forward(),GetConVar("AmmoCountRZ"):GetFloat())
+--                 if frag == 0 then
+--                     fragtext = Color(0,0,0,0)
+--                     fragcolor = Color(0,0,0,150)
+--                 end
+--                 vrmod.MenuCreate("bracelet_menu_frag", 512, 512, nil, 2, ammopos+arm:GetAngles():Forward()*0.1, fragang, 0.1*RScale*GetConVar("AmmoCountS"):GetFloat()*checkRadius, false, function()
+--                     vrmod.MenuRenderStart("bracelet_menu_frag")
+--                     surface.SetDrawColor(fragcolor)
+--                     surface.SetMaterial(Material("vgui/wrist/frag.png"))
+--                     surface.DrawTexturedRect(-13, -5,4,6)
+--                     vrmod.MenuRenderEnd()
+--                 end)
+--                 local ammoang = arm:GetAngles()
+--                 local clip_color = Color(255,255,255)
+--                 local ammo_color = Color(TextColor.r*0.58,TextColor.g*0.58,TextColor.b*0.58,TextColor.a)
+--                 local R_text = "RELOAD"
+--                 local R_pos = 0
+--                 if GetConVar("AmmoCountEye"):GetInt() == 1 or VManip:GetCurrentAnim() == "checkbracelet" then
+--                     ammoang = vrmod.GetHMDAng() -- Changed from ply:EyeAngles()
+--                 end
+--                 ammoang:RotateAroundAxis(ammoang:Up(),180)
+--                 ammoang:RotateAroundAxis(ammoang:Right(),-90)
+--                 ammoang:RotateAroundAxis(ammoang:Up(),10)
+--                 ammoang:RotateAroundAxis(ammoang:Up(),Rotation+GetConVar("AmmoCountRX"):GetFloat())
+--                 ammoang:RotateAroundAxis(ammoang:Right(),GetConVar("AmmoCountRY"):GetFloat())
+--                 ammoang:RotateAroundAxis(ammoang:Forward(),GetConVar("AmmoCountRZ"):GetFloat())
+--                 if ammo == 0 then
+--                     R_text = "EMPTY"
+--                     R_pos = 3
+--                 end	
+--                 if ammo <= maxclip then
+--                     ammo_color = Color(150,20,20,255)
+--                 end
+--                 vrmod.MenuCreate("bracelet_menu_ammo", 512, 512, nil, 2, ammopos, ammoang, 0.02*RScale*GetConVar("AmmoCountS"):GetFloat()*checkRadius, false, function()
+--                     vrmod.MenuRenderStart("bracelet_menu_ammo")
+--                     draw.RoundedBox(0,10,-20-line,2,100+line,Color(255,255,255,25))
+--                     draw.RoundedBox(0,9,-20-line,4,4,Color(255,255,255,255))
+--                     draw.RoundedBox(0,9,80,4,4,Color(255,255,255,255))
+--                     draw.SimpleText("00","Bracelet-Medium",0,-25,Color(0,0,0,150),TEXT_ALIGN_RIGHT)
+--                     draw.SimpleText(frag,"Bracelet-Medium",0,-25,fragtext,TEXT_ALIGN_RIGHT)
+--                     if clip > -1 and wep:GetHoldType() ~= "physgun" and wep:GetClass() ~= "weapon_bugbait" then
+--                         if alt > 0 then
+--                             altLerp = Lerp(FT*10,altLerp,50)
+--                             draw.SimpleText("00","Bracelet-Medium",0,55,Color(0,0,0,150),TEXT_ALIGN_RIGHT)
+--                             draw.SimpleText(alt,"Bracelet-Medium",0,55,Color(255,255,255),TEXT_ALIGN_RIGHT)
+--                             draw.RoundedBox(0,-altLerp+5,58,5,25,ammo_color)
+--                         else
+--                             altLerp = Lerp(FT*10,altLerp,0)
+--                         end
+--                         if clip <= maxclip/4 then
+--                             if sound then
+--                                 ply:EmitSound("bracelet/pong.wav")
+--                                 sound = false
+--                             end
+--                             clip_color = Color(255,0,0)
+--                             draw.RoundedBox(2,-120-clipLerp-ammolen*3-altLerp,62,65,18,Color(255,0,0,255 * math.abs(math.sin(CurTime()*2))))
+--                             draw.SimpleText(R_text,"Bracelet-Small",-60-clipLerp-ammolen*3-R_pos-altLerp,62,Color(0,0,0,100+255 * math.abs(math.sin(CurTime()*2))),TEXT_ALIGN_RIGHT)
+--                         else
+--                             sound = true
+--                         end
+--                         if clip > maxclip then
+--                             clip = clip-1
+--                             clipLerp = Lerp(FT*10,clipLerp,35)
+-- draw.SimpleText("+1","Bracelet-Medium",0,5,clip_color,TEXT_ALIGN_RIGHT)
+-- else
+-- clipLerp = Lerp(FT10,clipLerp,0)
+-- end
+-- draw.SimpleText("AMMO","Bracelet-Small",-69,-13,clip_color,TEXT_ALIGN_RIGHT)
+-- draw.SimpleText("000","Bracelet-large",-clipLerp,0,Color(0,0,0,150),TEXT_ALIGN_RIGHT)
+-- draw.SimpleText(clip,"Bracelet-large",-clipLerp,0,clip_color,TEXT_ALIGN_RIGHT)
+-- draw.SimpleText(ammo,"Bracelet-Medium",0-altLerp,55,ammo_color,TEXT_ALIGN_RIGHT)
+-- end
+-- vrmod.MenuRenderEnd()
+-- end)
+-- vrmod.MenuCreate("bracelet_menu_drone", 512, 512, nil, 2, ammopos, fragang, 0.1*RScaleGetConVar("AmmoCountS"):GetFloat()*checkRadius, false, function()
+-- vrmod.MenuRenderStart("bracelet_menu_drone")
+-- surface.SetDrawColor(100,150,255,255 * math.abs(math.sin(CurTime()*2)))
+-- surface.SetMaterial(Material("vgui/wrist/drone.png"))
+-- surface.DrawTexturedRectRotated(0, 0, 60*Position.rcheckRadius1, 30*Position.r*checkRadius*1,-15)
+-- vrmod.MenuRenderEnd()
+-- end)
+-- end
+-- end
+-- end
+-- end
+
+-- hook.Add("VRMod_Input", "banda_vr_adapter_input", function(action, pressed)
+-- local trace = ply:GetEyeTrace()
+-- local CT = CurTime()
+-- if VManip == nil or GetConVar("Inspection"):GetInt() ~= 1 then return end
+-- local ply = LocalPlayer()
+-- local trace = util.TraceLine({
+-- start = vrmod.GetHMDPos(), -- Changed from ply:EyePos()
+-- endpos = vrmod.GetHMDPos() + vrmod.GetHMDAng():Forward() * 10000, -- Changed from ply:GetAimVector() * 10000
+-- filter = ply,
+-- mask = MASK_SHOT
+-- })
+-- local condition = vrmod.GetInput("boolean_use") or (vrmod.GetInput(GetConVar("inpect_bind"):GetString()) and GetConVar("inpect_bind"):GetInt() ~= 0 )
+-- if ply:IsSprinting() then
+-- toggle_bracelet = false
+-- end
+-- if GetConVar("inspection_toggle"):GetInt() == 1 then
+-- condition = toggle_bracelet
+-- end
+-- if VManip:GetCurrentAnim() ~= "checkbracelet" then
+-- checksound = true
+-- downsound = true
+-- holosound = true
+-- check = 0
+-- ammotext_pos = Lerp(FrameTime()*10,ammotext_pos,0)
+-- checkRadius = Lerp(FrameTime()*10,checkRadius,1)
+-- checkRadius1 = Lerp(FrameTime()*10,checkRadius1,1)
+-- else
+-- if GetConVar("status_enable"):GetInt() == 1 then
+-- ammotext_pos = Lerp(FrameTime()*10,ammotext_pos,1)
+-- end
+-- if checksound then
+-- anim_delay = CT + 0.5
+-- ply:EmitSound("bracelet/check_"..math.random(1, 8)..".wav")
+-- checksound = false
+-- end
+-- if condition then
+-- if anim_delay > CT then
+-- checkRadius = Lerp(FrameTime()*10,checkRadius,0)
+-- checkRadius1 = Lerp(FrameTime()*10,checkRadius1,0)
+-- else
+-- if holosound then
+-- ply:EmitSound("bracelet/Hologram_1.wav")
+-- holosound = false
+-- end
+-- checkRadius = Lerp(FrameTime()*10,checkRadius,0.7)
+-- checkRadius1 = Lerp(FrameTime()*10,checkRadius1,0.7)
+-- if checkRadius1 > 0.65 then
+-- checkRadius1 = 0.65
+-- end
+-- if GetConVar("compass_enable"):GetInt() == 1 then
+-- compassAlpha = Lerp(FrameTime()*10,compassAlpha,1)
+-- end
+-- if GetConVar("status_enable"):GetInt() == 1 then
+-- line = Lerp(FrameTime()*10,line,100)
+-- end
+-- check = 90
+-- end
+-- else
+-- line = Lerp(FrameTime()*10,line,0)
+-- compassAlpha = Lerp(FrameTime()*10,compassAlpha,0)
+-- checkRadius = Lerp(FrameTime()*10,checkRadius,0)
+-- checkRadius1 = Lerp(FrameTime()*10,checkRadius1,0)
+-- end
+-- end
+-- if check == 90 then
+-- alphaLerp = Lerp(FrameTime()*10,alphaLerp,1)
+-- else
+-- alphaLerp = 0
+-- end
+-- if GetConVar("inpect_bind"):GetInt() == 0 then
+-- if vrmod.GetInput("boolean_use") then
+-- hold = CurTime() + 0.4
+-- toggle_bracelet = not toggle_bracelet
+-- end
+-- local condition2 = vrmod.GetInput("boolean_use") and hold < CurTime()
+-- if GetConVar("inspection_toggle"):GetInt() == 1 then
+-- condition2 = toggle_bracelet
+-- end
+-- if condition2 then
+-- VManip:PlayAnim("checkbracelet")
+-- else
+-- if VManip:GetCurrentAnim() == "checkbracelet" and downsound then
+-- downsound = false
+-- ply:EmitSound("bracelet/down_"..math.random(1, 6)..".wav")
+-- if check == 90 then
+-- ply:EmitSound("bracelet/Hologram_2.wav")
+-- end
+-- end
+-- VManip:QuitHolding("checkbracelet")
+-- end
+-- else
+-- if vrmod.GetInput(GetConVar("inpect_bind"):GetString()) and pressed then
+-- pressed = false
+-- hold = CurTime() + 0.4
+-- end
+-- if vrmod.GetInput(GetConVar("inpect_bind"):GetString()) and toggle < CT then
+-- toggle_bracelet = not toggle_bracelet
+-- toggle = CT + 0.5
+-- end
+-- local condition3 = vrmod.GetInput(GetConVar("inpect_bind"):GetString()) and hold < CurTime()
+-- if GetConVar("inspection_toggle"):GetInt() == 1 then
+-- condition3 = toggle_bracelet
+-- end
+-- if condition3 then
+-- VManip:PlayAnim("checkbracelet")
+-- else
+-- if VManip:GetCurrentAnim() == "checkbracelet" and downsound then
+-- pressed = true
+-- downsound = false
+-- ply:EmitSound("bracelet/down_"..math.random(1, 6)..".wav")
+-- if check == 90 then
+-- ply:EmitSound("bracelet/Hologram_2.wav")
+-- end
+-- end
+-- VManip:QuitHolding("checkbracelet")
+-- end
+-- end
+-- end)
+
+-- hook.Add("PostDrawTranslucentRenderables", "banda_vr_adapter_renderhook", function()
+-- local ply = LocalPlayer()
+-- local RFT = RealFrameTime()
+-- local FT = FrameTime()
+-- local CT = CurTime()
+-- local plyPos = vrmod.GetHMDPos() -- Changed from ply:GetPos()
+-- local plyAng = vrmod.GetHMDAng() -- Changed from ply:GetAngles()
+-- local trace = util.TraceLine({
+-- start = vrmod.GetHMDPos(), -- Changed from ply:EyePos()
+-- endpos = vrmod.GetHMDPos() + vrmod.GetHMDAng():Forward() * 10000, -- Changed from ply:GetAimVector() * 10000
+-- filter = ply,
+-- mask = MASK_SHOT
+-- })
+-- plyAng.p = 0
+-- if GetConVar("enemy_toggle"):GetInt() == 1 then
+-- for , i in ipairs(enemy) do
+-- if IsValid(i.ent) then
+-- local health = math.max(i.ent:GetNWInt("EnemyHealth"),0)
+-- local maxhealth = i.ent:GetNWInt("EnemyMaxHealth")
+-- i.hp = Lerp(FT10,i.hp,health)
+-- if i.hp < health + 1 then
+-- i.loss = Lerp(FT10,i.loss,health)
+-- end
+-- local losslength = i.loss/maxhealth
+-- local length = i.hp/maxhealth
+-- local scale = losslength - length
+-- local pos = i.ent:GetPos()
+-- local ang = vrmod.GetHMDAng() -- Changed from ply:EyeAngles()
+-- ang.r = -90
+-- ang.y = ang.y+90
+-- ang.p = 180
+-- pos.z = pos.z + i.ent:OBBMaxs().z + 10
+-- if i.ent:GetNWBool("EnemyToPlayer") then
+-- i.color = Color(255,0,0)
+-- i.iconcolor = Color(255,0,0)
+-- i.iconcolor1 = Color(255,0,0)
+-- i.icon = "enemy"
+-- i.iconw = 0
+-- else
+-- i.color = Color(5, 155, 221)
+-- i.iconcolor = Color(255,255,255)
+-- i.iconcolor1 = Color(200,200,200)
+-- i.icon = "rebel"
+-- i.iconw = 5
+-- end
+-- if trace.Entity == i.ent then
+-- i.delay = CT + 3
+-- end
+-- if i.delay > CT then
+-- i.flickerW = Lerp(FT10,i.flickerW,206)
+-- i.alpha = Lerp(FT10,i.alpha,1)
+-- else
+-- i.alpha = Lerp(FT*10,i.alpha,0)
+-- end
+-- if scale < 0 then
+-- scale = 0
+-- end
+-- if i.alpha > 0.9 then
+-- i.lossalpha = 1
+-- else
+-- i.lossalpha = 0
+-- end
+-- if length > 1 then
+-- length = 1
+-- end
+-- if losslength > 1 then
+-- losslength = 1
+-- end
+-- vrmod.MenuCreate("bracelet_menu_enemy"..i.ent:EntIndex(), 512, 512, nil, 0, pos, ang, 0.15, false, function()
+-- vrmod.MenuRenderStart("bracelet_menu_enemy_"..i.ent:EntIndex())
+-- if health > 0 then
+-- draw.RoundedBox(0,-97, 6,200,10,Color(0,0,0,150i.alpha))
+-- draw.RoundedBox(0,-97+200*length, -6,200*scale,20,Color(255,255,255,i.lossalpha50))
+-- draw.RoundedBox(0,-97, 6,losslength*200,10,Color(255,255,255,i.lossalpha255))
+-- draw.RoundedBox(0,-97, 6,length*200,10,ColorAlpha(i.color,i.alpha255))
+-- draw.RoundedBox(0,-97, 3,2,16,Color(200,200,200,i.alpha255))
+-- draw.RoundedBox(0,-97+length*200, 3,2,16,Color(200,200,200,i.alpha255))
+-- end
+-- vrmod.MenuRenderEnd()
+-- end)
+-- if i.alpha > 0.5 then
+-- i.move = Lerp(FT10,i.move,142)
+-- else
+-- i.move = Lerp(FT10,i.move,0)
+-- end
+-- vrmod.MenuCreate("bracelet_menu_enemy_icon_"..i.ent:EntIndex(), 512, 512, nil, 0, pos, ang, 0.15, false, function()
+-- vrmod.MenuRenderStart("bracelet_menu_enemy_icon_"..i.ent:EntIndex())
+
+-- surface.SetDrawColor(ColorAlpha(i.iconcolor1,255i.alphaM))
+-- surface.SetMaterial(Material("vgui/wrist/"..i.icon..".png"))
+-- surface.DrawTexturedRect(-i.move-i.iconw, -7,25+i.iconw,35)
+-- vrmod.MenuRenderEnd()
+-- end)
+-- end
+-- end
+-- end
+-- if GetConVar("frag_enable"):GetInt() == 1 then
+-- for _, ent in ipairs(ents.FindByClass("npc_grenade_frag")) do
+-- if IsValid(ent) then
+-- ExplosionRange(ent)
+-- end
+-- end
+-- end
+-- if GetConVar("item_enable"):GetInt() ~= 1 then return end
+-- if VManip:GetCurrentAnim() == "checkbracelet" and check == 90 then
+-- if scanAlpha < 0.01 then
+-- scan = 0
+-- else
+-- scan = Lerp(FT/10,scan,100)
+-- end
+-- if scan > 30 then
+-- scanAlpha = Lerp(FT10,scanAlpha,0)
+-- else
+-- scanAlpha = Lerp(FT10,scanAlpha,1)
+-- end
+-- else
+-- scan = Lerp(FT/2,scan,100)
+-- if scan > 30 then
+-- scanAlpha = Lerp(FT10,scanAlpha,0)
+-- if scanAlpha < 0.01 then
+-- scan = 0
+-- end
+-- end
+-- end
+-- if scanAlpha > 0.01 then
+-- vrmod.MenuCreate("bracelet_menu_scan", 512, 512, nil, 0, plyPos, plyAng, 0.15, false, function()
+-- vrmod.MenuRenderStart("bracelet_menu_scan")
+-- surface.SetDrawColor(255,255,255,255*scanAlpha)
+-- surface.SetMaterial(Material("vgui/wrist/bar.png"))
+-- DrawArc(0,0,50*scan,10,0,360,50)
+-- vrmod.MenuRenderEnd()
+-- end)
+-- end
+-- for _, i in pairs(supply) do
+-- if IsValid(i.ent) and IsValid(ply) then
+-- local vm = g_VR.viewModel -- Changed from ply:GetHands()
+-- local bone = vm:LookupBone("ValveBiped.Bip01_L_Forearm") or vm:LookupBone("L Forearm")
+-- if bone == nil then return end
+-- local arm = vm:GetBoneMatrix(bone)
+-- if arm == nil then return end
+-- local armpos = arm:GetTranslation() + arm:GetAngles():Forward()*5
+-- local entpos = i.ent:GetPos()
+-- local dist = vrmod.GetHMDPos():Distance(entpos) -- Changed from ply:GetPos():Distance(entpos)
+-- local TextPos = i.ent:GetPos()
+-- local textpos = TextPos:ToScreen()
+-- if i.ent:GetNWBool("EnemyToPlayer") then
+-- i.color = Color(255,0,0)
+-- i.icon = "enemy_1"
+-- end
+-- if VManip:GetCurrentAnim() == "checkbracelet" and check == 90 and dist < 500 then
+-- i.alpha = Lerp(FT3,i.alpha,1)
+-- if dist/49 - 1 < 2 then
+-- i.alphaT = Lerp(FT10,i.alphaT,0)
+-- i.move = Lerp(FT5,i.move,17)
+-- else
+-- i.move = Lerp(FT5,i.move,30)
+-- if i.move > 20 then
+-- i.alphaT = Lerp(FT10,i.alphaT,1)
+-- end
+-- end
+-- else
+-- i.move = Lerp(FT10,i.move,17)
+-- i.alphaT = Lerp(FT10,i.alphaT,0)
+-- if i.move < 20 then
+-- i.alpha = Lerp(FT10,i.alpha,0)
+-- end
+-- if i.alpha < 0.001 then
+-- i.move = -30
+-- end
+-- end
+-- if i.alpha > 0.01 then
+-- if not i.ent:IsNPC() and not i.ent:IsNextBot() then
+-- render.DrawLine(armpos, entpos, ColorAlpha(i.color,255i.alpha))
+-- end
+-- render.ClearStencil()
+-- render.SetStencilEnable(true)
+-- render.SetStencilWriteMask(255)
+-- render.SetStencilTestMask(255)
+-- render.SetStencilReferenceValue(15)
+-- render.SetStencilFailOperation(STENCILOPERATION_KEEP)
+-- render.SetStencilZFailOperation(STENCILOPERATION_REPLACE)
+-- render.SetStencilPassOperation(STENCILOPERATION_KEEP)
+-- render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_ALWAYS)
+-- render.SetBlend(0)
+-- i.ent:DrawModel()
+-- render.SetBlend(1)
+-- render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_EQUAL)
+-- vrmod.MenuCreate("bracelet_menu_supplystencil_"..i.ent:EntIndex(), ScrW(), ScrH(), nil, 0, Vector(), Angle(), 1, false, function()
+-- vrmod.MenuRenderStart("bracelet_menu_supplystencil_"..i.ent:EntIndex())
+-- surface.SetDrawColor(ColorAlpha(i.color,50i.alpha))
+-- surface.DrawRect( 0, 0, ScrW(), ScrH() )
+-- vrmod.MenuRenderEnd()
+-- end)
+-- i.ent:DrawModel()
+-- render.SetStencilEnable(false)
+-- if not i.ent:IsNPC() and not i.ent:IsNextBot() then
+-- vrmod.MenuCreate("bracelet_menu_supplyhud_"..i.ent:EntIndex(), 512, 512, nil, 0, Vector(textpos.x, textpos.y, 0), Angle(), 0, false, function()
+-- vrmod.MenuRenderStart("bracelet_menu_supplyhud_"..i.ent:EntIndex())
+-- surface.SetDrawColor(ColorAlpha(i.color,255i.alpha))
+-- surface.SetMaterial(Material("vgui/wrist/"..i.icon..".png"))
+-- surface.DrawTexturedRect(textpos.x-i.move,textpos.y,35,35)
+-- draw.SimpleText(string.format("%.0f",dist/49-1) .."m","Bracelet-MediumBlur",textpos.x,textpos.y,Color(0,0,0,255i.alphai.alphaT),TEXT_ALIGN_LEFT)
+-- draw.SimpleText(string.format("%.0f",dist/49-1) .."m","Bracelet-Medium",textpos.x,textpos.y,ColorAlpha(i.color,255i.alphai.alphaT),TEXT_ALIGN_LEFT)
+-- vrmod.MenuRenderEnd()
+-- end)
+-- else
+-- vrmod.MenuCreate("bracelet_menu_supplyhudnpc_"..i.ent:EntIndex(), 512, 512, nil, 0, Vector(textpos.x, textpos.y, 0), Angle(), 0, false, function()
+-- vrmod.MenuRenderStart("bracelet_menu_supplyhudnpc_"..i.ent:EntIndex())
+-- surface.SetDrawColor(ColorAlpha(i.color,255i.alpha))
+-- surface.SetMaterial(Material("vgui/wrist/"..i.icon..".png"))
+-- surface.DrawTexturedRect(textpos.x-17,textpos.y,35,35)
+-- vrmod.MenuRenderEnd()
+
+-- end)
+-- end
+-- end
+-- end
+-- end
+-- end)
+
+-- hook.Add("PostDrawPlayerHands", "banda_vr_adapter_drawwristband", function()
+-- if GetConVar("wristband_enabled"):GetInt() ~= 1 then return end
+-- if LocalPlayer():GetActiveWeapon().Base ~= "mg_base" then
+-- DrawWristBand(g_VR.viewModel) -- Changed from LocalPlayer():GetHands()
+-- end
+-- end)
+
+-- hook.Add("PostDrawViewModel", "banda_vr_adapter_drawwristband_mwb", function()
+-- if GetConVar("wristband_enabled"):GetInt() ~= 1 then return end
+-- if LocalPlayer():GetActiveWeapon().Base == "mg_base" then
+-- DrawWristBand(g_VR.viewModel) -- Changed from LocalPlayer():GetHands()
+-- end
+-- end)
+
+-- surface.CreateFont("Bracelet-large", {
+-- font = "Bender",
+-- extended = false,
+-- size = 60,
+-- weight = 550,
+-- blursize = 0,
+-- scanlines = 0,
+-- antialias = true,
+-- underline = false,
+-- italic = false,
+-- strikeout = false,
+-- symbol = false,
+-- rotary = false,
+-- shadow = false,
+-- additive = false,
+-- outline = false,
+-- })
+
+-- surface.CreateFont("Bracelet-Armor", {
+-- font = "Bender",
+-- extended = false,
+-- size = 50,
+-- weight = 550,
+-- blursize = 0,
+-- scanlines = 0,
+-- antialias = true,
+-- underline = false,
+-- italic = false,
+-- strikeout = false,
+-- symbol = false,
+-- rotary = false,
+-- shadow = false,
+-- additive = false,
+-- outline = false,
+-- })
+
+-- surface.CreateFont("Bracelet-Medium", {
+-- font = "Bender",
+-- extended = false,
+-- size = 30,
+-- weight = 550,
+-- blursize = 0,
+-- scanlines = 0,
+-- antialias = true,
+-- underline = false,
+-- italic = false,
+-- strikeout = false,
+-- symbol = false,
+-- rotary = false,
+-- shadow = false,
+-- additive = false,
+-- outline = false,
+-- })
+
+-- surface.CreateFont("Bracelet-MediumBlur", {
+-- font = "Bender",
+-- extended = false,
+-- size = 30,
+-- weight = 550,
+-- blursize = 4,
+-- scanlines = 0,
+-- antialias = true,
+-- underline = false,
+-- italic = false,
+-- strikeout = false,
+-- symbol = false,
+-- rotary = false,
+-- shadow = false,
+-- additive = false,
+-- outline = false,
+-- })
+
+-- surface.CreateFont("Bracelet-Small", {
+-- font = "Bender",
+-- extended = false,
+-- size = 15,
+-- weight = 550,
+-- blursize = 0,
+-- scanlines = 0,
+-- antialias = true,
+-- underline = false,
+-- italic = false,
+-- strikeout = false,
+-- symbol = false,
+-- rotary = false,
+-- shadow = false,
+-- additive = false,
+-- outline = false,
+-- })

@@ -1,92 +1,78 @@
--- -- vrmod_clipboard.lua
-
--- if SERVER then return end
-
--- -- クリップボードの内容を保存するテーブル
--- local clipboardData = {}
-
--- -- クリップボードの内容が変更された時のフック
--- hook.Add("OnClipboardTextChanged", "VRMod_ClipboardChanged", function(text)
---     if not clipboardData then
---         clipboardData = {}
---     end
-
---     local shouldSave = true -- デフォルトでは保存する
---     table.insert(clipboardData, {text, shouldSave})
-    
---     -- vrclipboard.jsonファイルへの書き込み
---     local jsonData = util.TableToJSON(clipboardData)
---     if file.Write("vrmod/vrclipboard.json", jsonData) then
---         print("Clipboard data saved to vrclipboard.json:")
---         print(jsonData)
---     else
---         print("Failed to save clipboard data to vrclipboard.json")
---     end
-    
---     updateVRClipboardMenu() -- メニューを更新する
--- end)
-
--- -- VRクリップボードメニューを表示する関数
--- local function showVRClipboardMenu()
---     if not g_VR.active then return end
-
---     local menuPanel = vgui.Create("DPanel")
---     menuPanel:SetSize(300, 400)
---     menuPanel:SetPos(0, 0)
---     menuPanel:SetPaintedManually(true)
-
---     -- メニューを更新する関数
---     function updateVRClipboardMenu()
---         menuPanel:Clear()
---         local yPos = 10
-
---         if not clipboardData then
---             clipboardData = {}
+-- if CLIENT then
+--     -- ダミー用のconvarを作成
+--     CreateClientConVar("clipboard_data", "", true, false)
+--     -- 選択中のテキストを取得する関数
+--     local function GetSelectedText()
+--         local textEntry = vgui.GetKeyboardFocus()
+--         if IsValid(textEntry) then
+--             local text = textEntry:GetText()
+--             local startPos, endPos = textEntry:GetSelection()
+--             if startPos ~= endPos then return text:sub(startPos, endPos - 1) end
 --         end
 
---         for i, data in ipairs(clipboardData) do
---             local text, shouldSave = data[1], data[2]
---             if shouldSave then
---                 local button = vgui.Create("DButton", menuPanel)
---                 button:SetText(text)
---                 button:SetSize(280, 30)
---                 button:SetPos(10, yPos)
---                 yPos = yPos + 40
+--         return nil
+--     end
 
---                 button.DoClick = function()
---                     local activeTextEntry = vgui.GetKeyboardFocus()
---                     if IsValid(activeTextEntry) then
---                         activeTextEntry:SetText(text)
---                     end
+--     -- 右クリックメニューに "Copy (VR)" 項目を追加
+--     hook.Add(
+--         "OnContextMenuOpen",
+--         "AddVRCopyOption",
+--         function()
+--             local ent = LocalPlayer():GetEyeTrace().Entity
+--             if IsValid(ent) then
+--                 local menuOption = "Copy (VR)"
+--                 local function copyToClipboard()
+--                     local entName = ent:GetName()
+--                     local entClass = ent:GetClass()
+--                     local entModel = ent:GetModel()
+--                     local clipboardText = string.format("Name: %s\nClass: %s\nModel: %s", entName, entClass, entModel)
+--                     SetClipboardText(clipboardText)
+--                     print("Entity information copied to clipboard.")
 --                 end
+
+--                 hook.Add(
+--                     "AddContextMenuOption",
+--                     "AddVRCopyOption",
+--                     function(menu)
+--                         menu:AddOption(menuOption, copyToClipboard)
+--                     end
+--                 )
 --             end
 --         end
---     end
+--     )
 
---     updateVRClipboardMenu() -- 初期表示時にメニューを更新する
+--     -- 選択中の文字列をclipboard_dataに記録するconcommand
+--     concommand.Add(
+--         "selection_to_clipboard",
+--         function(ply, cmd, args)
+--             local selectedText = GetSelectedText()
+--             if selectedText then
+--                 SetClipboardText(selectedText)
+--                 print("Selected text copied to clipboard.")
+--             else
+--                 print("No text selected.")
+--             end
+--         end
+--     )
 
---     VRUtilMenuOpen("vrclipboard", 300, 400, menuPanel, 1, Vector(4, 12, 10), Angle(0, -90, 60), 0.03, true, function()
---         menuPanel:Remove()
---     end)
--- end
-
--- -- VRMod_Startフックにメニューを表示する関数を追加
--- hook.Add("VRMod_Start", "VRMod_ShowClipboardMenu", function(ply)
---     if ply == LocalPlayer() then
---         showVRClipboardMenu()
---     end
--- end)
-
--- -- ゲーム開始時にvrclipboard.jsonからクリップボードデータを読み込む
--- if file.Exists("vrmod/vrclipboard.json", "DATA") then
---     local jsonData = file.Read("vrmod/vrclipboard.json", "DATA")
---     if jsonData then
---         clipboardData = util.JSONToTable(jsonData)
---         print("Loaded clipboard data from vrclipboard.json:")
---         print(jsonData)
---     else
---         print("Failed to load clipboard data from vrclipboard.json")
---     end
--- else
---     print("vrclipboard.json not found. Creating new file.")
+--     -- gmodに保存した文字列を入力するconcommand
+--     concommand.Add(
+--         "test_input",
+--         function(ply, cmd, args)
+--             timer.Simple(
+--                 0,
+--                 function()
+--                     local activeTextEntry = vgui.GetKeyboardFocus()
+--                     if IsValid(activeTextEntry) then
+--                         -- クリップボードから文字列を取得
+--                         local clipboardText = GetClipboardText()
+--                         activeTextEntry:SetText(clipboardText)
+--                         print("Inserted clipboard text into the active text entry.")
+--                     else
+--                         print("No active text entry found.")
+--                     end
+--                 end
+--             )
+--         end
+--     )
 -- end
