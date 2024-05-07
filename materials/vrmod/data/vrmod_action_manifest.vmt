@@ -1,0 +1,360 @@
+{
+	"default_bindings": [
+		{
+			"controller_type": "vive_controller",
+			"binding_url": "vrmod_bindings_vive_controller.txt"
+		},
+		{
+			"controller_type": "oculus_touch",
+			"binding_url": "vrmod_bindings_oculus_touch.txt"
+		},
+		{
+			"controller_type": "holographic_controller",
+			"binding_url": "vrmod_bindings_holographic_controller.txt"
+		},
+		{
+			"controller_type": "knuckles",
+			"binding_url": "vrmod_bindings_knuckles.txt"
+		},
+		{
+			"controller_type": "vive_cosmos_controller",
+			"binding_url": "vrmod_bindings_vive_cosmos_controller.txt"
+		},
+		{
+			"controller_type": "vive_tracker_left_foot",
+			"binding_url": "vrmod_bindings_vive_tracker_left_foot.txt"
+		},
+		{
+			"controller_type": "vive_tracker_right_foot",
+			"binding_url": "vrmod_bindings_vive_tracker_right_foot.txt"
+		},
+		{
+			"controller_type": "vive_tracker_waist",
+			"binding_url": "vrmod_bindings_vive_tracker_waist.txt"
+		}
+	], 
+	
+	"actions": [
+
+		{
+			"name": "/actions/base/in/pose_lefthand",
+			"type": "pose"
+		},
+		{
+			"name": "/actions/base/in/pose_righthand",
+			"type": "pose"
+		},
+		{
+			"name": "/actions/base/in/pose_leftfoot",
+			"type": "pose"
+		},
+		{
+			"name": "/actions/base/in/pose_rightfoot",
+			"type": "pose"
+		},
+		{
+			"name": "/actions/base/in/pose_waist",
+			"type": "pose"
+		},
+		{
+			"name": "/actions/base/in/skeleton_lefthand",
+			"type": "skeleton",
+			"skeleton": "/skeleton/hand/left"
+		},
+		{
+			"name": "/actions/base/in/skeleton_righthand",
+			"type": "skeleton",
+			"skeleton": "/skeleton/hand/right"
+		},
+		{
+			"name": "/actions/base/out/vibration_left",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/base/out/vibration_right",
+			"type": "vibration"
+		},
+
+		{
+			"name": "/actions/main/in/boolean_primaryfire",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/vector1_primaryfire",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/boolean_secondaryfire",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_left_primaryfire",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/vector1_left_primaryfire",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/boolean_left_secondaryfire",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_changeweapon",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_use",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_spawnmenu",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/vector2_walkdirection",
+			"type": "vector2"
+		},
+		{
+			"name": "/actions/main/in/boolean_walk",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_flashlight",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_turnleft",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_turnright",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/vector2_smoothturn",
+			"type": "vector2"
+		},
+		{
+			"name": "/actions/main/in/boolean_chat",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_reload",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_jump",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_crouch",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_left_pickup",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_right_pickup",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_undo",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_sprint",
+			"type": "boolean"
+		},
+		
+		{
+			"name": "/actions/main/in/boolean_forword",
+			"type": "boolean"
+		},
+		
+		{
+			"name": "/actions/main/in/boolean_back",
+			"type": "boolean"
+		},
+
+		{
+			"name": "/actions/main/in/boolean_left",
+			"type": "boolean"
+		},
+
+		{
+			"name": "/actions/main/in/boolean_right",
+			"type": "boolean"
+		},
+		
+		{
+			"name": "/actions/main/in/boolean_walkkey",
+			"type": "boolean"
+		},
+		
+		{
+			"name": "/actions/main/in/boolean_slot1",
+			"type": "boolean"
+		},
+		
+		{
+			"name": "/actions/main/in/boolean_slot2",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_slot3",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_slot4",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_slot5",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_slot6",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_teleport",
+			"type": "boolean"
+		},		
+		{
+			"name": "/actions/main/in/boolean_menucontext",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_lefthandmode",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/boolean_righthandmode",
+			"type": "boolean"
+		},
+		
+
+		{
+			"name": "/actions/driving/in/vector1_forward",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/driving/in/vector1_reverse",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/driving/in/boolean_turbo",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/driving/in/vector2_steer",
+			"type": "vector2"
+		},
+		{
+			"name": "/actions/driving/in/boolean_handbrake",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/driving/in/boolean_exit",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/driving/in/boolean_turret",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/driving/in/boolean_spawnmenu",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/driving/in/boolean_left_pickup",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/driving/in/boolean_right_pickup",
+			"type": "boolean"
+		}
+	],
+
+	"action_sets": [
+		{
+			"name": "/actions/base",
+			"usage": "leftright"
+		},
+		{
+			"name": "/actions/main",
+			"usage": "leftright"
+		},
+		{
+			"name": "/actions/driving",
+			"usage": "leftright"
+		}
+	],
+
+	"localization" : [
+		{
+			"language_tag": "en_us",
+
+			"/actions/base" : "Base",
+			"/actions/main" : "On Foot",
+			"/actions/driving" : "In Vehicle",
+
+			"/actions/base/in/pose_lefthand" : "Left Hand Pose",
+			"/actions/base/in/pose_righthand" : "Right Hand Pose",
+			"/actions/base/in/skeleton_lefthand" : "Left Hand Skeleton",
+			"/actions/base/in/skeleton_righthand" : "Right Hand Skeleton",
+			"/actions/base/out/vibration_left" : "Left Haptic Feedback",
+			"/actions/base/out/vibration_right" : "Right Haptic Feedback",
+			
+			"/actions/main/in/boolean_primaryfire" : "Primary Fire",
+			"/actions/main/in/vector1_primaryfire" : "Primary Fire (Analog)",
+			"/actions/main/in/boolean_secondaryfire" : "Secondary Fire",
+			"/actions/main/in/boolean_changeweapon" : "Weapon Menu",
+			"/actions/main/in/boolean_use" : "Use",
+			"/actions/main/in/boolean_spawnmenu" : "Quickmenu",
+			"/actions/main/in/vector2_walkdirection" : "Walk Direction",
+			"/actions/main/in/boolean_walk" : "Enable Walking",
+			"/actions/main/in/boolean_flashlight" : "Flashlight",
+			"/actions/main/in/boolean_turnleft" : "Snap Turn Left",
+			"/actions/main/in/boolean_turnright" : "Snap Turn Right",
+			"/actions/main/in/vector2_smoothturn" : "Smooth Turn",
+			"/actions/main/in/boolean_chat" : "chat",
+			"/actions/main/in/boolean_reload" : "Reload",
+			"/actions/main/in/boolean_jump" : "Jump",
+			"/actions/main/in/boolean_crouch" : "Crouch",
+			"/actions/main/in/boolean_left_pickup" : "Left Pickup",
+			"/actions/main/in/boolean_right_pickup" : "Right Pickup",
+			"/actions/main/in/boolean_undo" : "Undo",
+			"/actions/main/in/boolean_sprint" : "Sprint",
+			"/actions/main/in/boolean_forword" : "Forword",
+			"/actions/main/in/boolean_back" : "Back",
+			"/actions/main/in/boolean_left" : "Left",
+			"/actions/main/in/boolean_right" : "Right",
+			"/actions/main/in/boolean_walkkey" : "walkkey",
+			"/actions/main/in/boolean_slot1" : "slot1",			
+			"/actions/main/in/boolean_slot2" : "slot2",
+			"/actions/main/in/boolean_slot3" : "slot3",			
+			"/actions/main/in/boolean_slot4" : "slot4",			
+			"/actions/main/in/boolean_slot5" : "slot5",			
+			"/actions/main/in/boolean_slot6" : "slot6",			
+			"/actions/main/in/boolean_teleport" : "teleport",			
+			"/actions/main/in/boolean_menucontext" : "context menu",
+			"/actions/main/in/boolean_lefthandmode" : "lefthandmode",
+			"/actions/main/in/boolean_righthandmode" : "righthandmode",
+
+
+			"/actions/driving/in/vector1_forward" : "Forward",
+			"/actions/driving/in/vector1_reverse" : "Reverse",
+			"/actions/driving/in/vector2_steer" : "Steer",
+			"/actions/driving/in/boolean_turbo" : "Turbo",
+			"/actions/driving/in/boolean_handbrake" : "Handbrake",
+			"/actions/driving/in/boolean_turret" : "Turret",
+			"/actions/driving/in/boolean_exit" : "Exit Vehicle",
+			"/actions/driving/in/boolean_spawnmenu" : "Quickmenu",
+			"/actions/driving/in/boolean_left_pickup" : "Left Pickup",
+			"/actions/driving/in/boolean_right_pickup" : "Right Pickup"
+		}
+	]
+}
