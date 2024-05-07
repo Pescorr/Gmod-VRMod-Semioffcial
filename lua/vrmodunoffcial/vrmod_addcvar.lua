@@ -14,6 +14,38 @@ if CLIENT then
 		end
 	)
 
+	-- 鏡の反射のパフォーマンスを向上させる関数
+	local function optimizeMirrorReflections()
+		-- 解像度を動的に調整する
+		local function adjustReflectionResolution()
+			local currentFPS = 1 / FrameTime()
+			local targetFPS = 42 -- 目標のFPS
+			local resolutionScale = math.sqrt(currentFPS / targetFPS)
+			resolutionScale = math.Clamp(resolutionScale, 0.5, 1)
+			-- 解像度を設定
+			for _, ent in ipairs(ents.FindByClass("env_cubemap")) do
+				ent:SetKeyValue("cubemapsize", tostring(math.floor(1024 * resolutionScale)))
+			end
+		end
+
+		-- 描画距離を制限する
+		local maxReflectionDistance = 100 -- 反射の最大描画距離
+		-- 反射の描画距離を設定
+		for _, ent in ipairs(ents.FindByClass("env_cubemap")) do
+			ent:SetKeyValue("farz", tostring(maxReflectionDistance))
+		end
+
+		-- オブジェクトの詳細度を調整する
+		local reflectionLODDistance = 100 -- 反射でのLOD切り替え距離
+		-- 反射でのLOD切り替え距離を設定
+		for _, ent in ipairs(ents.FindByClass("env_cubemap")) do
+			ent:SetKeyValue("loddistance", tostring(reflectionLODDistance))
+		end
+
+		-- 解像度の動的調整を有効化
+		hook.Add("PreRender", "OptimizeMirrorReflections_AdjustResolution", adjustReflectionResolution)
+	end
+
 	concommand.Add(
 		"vrmod_keymode_restore",
 		function(ply, cmd, args)
@@ -79,6 +111,7 @@ if CLIENT then
 		"vrmod_character_restart",
 		function(ply, cmd, args)
 			if not g_VR.active then return end
+			g_VR.StopCharacterSystem(ply:SteamID())
 			LocalPlayer():ConCommand("vrmod_exit")
 			AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
 			include("vrmodunoffcial/vrmod_character.lua")
@@ -109,8 +142,10 @@ if CLIENT then
 	concommand.Add(
 		"vrmod_restart",
 		function(ply, cmd, args)
+			g_VR.StopCharacterSystem(ply:SteamID())
 			VRUtilClientExit()
 			VRUtilClientStart()
+			g_VR.StartCharacterSystem(ply)
 		end
 	)
 
@@ -182,6 +217,7 @@ if CLIENT then
 		function(ply, cmd, args)
 			-- Gmodのluaコード
 			local function setConvars()
+				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"mat_queue_mode", "1"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"fov_desired", "100"}, {"SyntHud_max_ap", "0"}}
 				for _, optimizeconvar in ipairs(optimizeconvar) do
 					local name, value = unpack(optimizeconvar)
 					LocalPlayer():ConCommand(name .. " " .. value)
@@ -192,6 +228,12 @@ if CLIENT then
 			end
 
 			setConvars()
+			timer.Simple(
+				1,
+				function()
+					optimizeMirrorReflections()
+				end
+			)
 		end
 	)
 
@@ -199,8 +241,36 @@ if CLIENT then
 		"vrmod_gmod_optimization_02",
 		function(ply, cmd, args)
 			-- Gmodのluaコード
+			-- LocalPlayer():ConCommand("remove_reflective_glass")
 			local function setConvars()
-				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"mat_queue_mode", "1"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_flashlightscissor", "0"}, {"fov_desired", "100"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_mapextents", "5000"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"mat_colorcorrection", "0"}, {"mat_dynamic_tonemapping", "0"}, {"mat_filtertextures", "1"}, {"mat_mipmaptextures", "1"}, {"mat_parallaxmap", "0"}, {"mat_showlowresimage", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_3dsky", "0"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawdecals", "0"}, {"r_drawdetailprops", "1"}, {"r_drawparticles", "1"}, {"r_farz", "-1"}, {"r_radiosity", "2"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawsprites", "1"}, {"r_DrawDisp", "1"}, {"mat_alphacoverage", "0"}, {"gmod_mcore_test", "1"}, {"r_maxdlights", "0.00"}, {"r_shadow_allowbelow", "0"}, {"r_shadow_allowdynamic", "0"}, {"r_shadowfromanyworldlight", "0"}, {"r_shadowmaxrendered", "0.00"}, {"r_shadowrendertotexture", "0"}, {"SyntHud_max_ap", "0"}, {"mat_antialias", "0"}, {"ai_strong_optimizations", "1"}, {"ai_strong_optimizations_no_checkstand", "1"}, {"ai_expression_optimization", "1"}, {"spawnicon_queue", "1"}}
+				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"mat_queue_mode", "1"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"fov_desired", "100"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_3dsky", "0"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawparticles", "1"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawsprites", "1"}, {"mat_alphacoverage", "0"}, {"gmod_mcore_test", "1"}, {"r_maxdlights", "0.00"}, {"r_shadowmaxrendered", "0.00"}, {"SyntHud_max_ap", "0"}, {"mat_compressedtextures", "1"}, {"ai_strong_optimizations", "1"}, {"r_radiosity", "2"}, {"ai_strong_optimizations_no_checkstand", "1"}, {"ai_expression_optimization", "1"}, {"r_flashlightdepthres", "256"}, {"spawnicon_queue", "1"}}
+				for _, optimizeconvar in ipairs(optimizeconvar) do
+					local name, value = unpack(optimizeconvar)
+					LocalPlayer():ConCommand(name .. " " .. value)
+					if CLIENT then
+						print(name .. " " .. value)
+					end
+				end
+			end
+
+			setConvars()
+			timer.Simple(
+				1,
+				function()
+					if g_VR.active == true then
+						LocalPlayer():ConCommand("vrmod_character_restart")
+					end
+				end
+			)
+		end
+	)
+
+	concommand.Add(
+		"vrmod_gmod_optimization_03",
+		function(ply, cmd, args)
+			-- Gmodのluaコード
+			local function setConvars()
+				local optimizeconvar = {{"r_drawparticles", "0"}, {"mat_bumpmap", "0"}, {"mat_specular", "0"}, {"cl_detailfade", "100"}, {"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"mat_queue_mode", "-1"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_flashlightscissor", "0"}, {"fov_desired", "100"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_mapextents", "5000"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"mat_colorcorrection", "0"}, {"mat_dynamic_tonemapping", "0"}, {"mat_filtertextures", "1"}, {"mat_mipmaptextures", "1"}, {"mat_parallaxmap", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_3dsky", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawdecals", "0"}, {"r_drawdetailprops", "1"}, {"r_drawparticles", "1"}, {"r_farz", "-1"}, {"r_radiosity", "1"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawsprites", "1"}, {"r_DrawDisp", "1"}, {"mat_alphacoverage", "0"}, {"gmod_mcore_test", "1"}, {"r_maxdlights", "0.00"}, {"r_shadow_allowbelow", "0"}, {"r_shadow_allowdynamic", "0"}, {"r_shadowfromanyworldlight", "0"}, {"r_shadowmaxrendered", "0.00"}, {"r_shadowrendertotexture", "0"}, {"mat_antialias", "0"}, {"mat_compressedtextures", "1"}, {"ai_strong_optimizations", "1"}, {"ai_expression_optimization", "1"}, {"spawnicon_queue", "1"}}
 				for _, optimizeconvar in ipairs(optimizeconvar) do
 					local name, value = unpack(optimizeconvar)
 					LocalPlayer():ConCommand(name .. " " .. value)
@@ -228,7 +298,8 @@ if CLIENT then
 		local bothmode = 0
 		local ply = LocalPlayer()
 		-- 以前のコマンドで設定されたconvarのリスト
-		local optimizeconvar = {"mat_motion_blur_enabled", "mat_motion_blur_falling_intensity", "mat_motion_blur_falling_min", "mat_motion_blur_falling_max", "mat_motion_blur_rotation_intensity", "mat_motion_blur_strength", "mat_queue_mode", "r_WaterDrawReflection", "r_WaterDrawRefraction", "r_waterforceexpensive", "r_waterforcereflectentities", "engine_no_focus_sleep", "fov_desired", "fps_max", "SyntHud_max_ap", "cl_threaded_bone_setup", "cl_threaded_client_leaf_system", "r_threaded_client_shadow_manager", "r_threaded_particles", "r_threaded_renderables", "r_queued_ropes", "studio_queue_mode", "cl_forcepreload", "sv_forcepreload", "r_projectedtexture_filter", "cl_detaildist", "cl_detailfade", "cl_drawownshadow", "mat_bumpmap", "mat_colorcorrection", "mat_dynamic_tonemapping", "mat_filtertextures", "mat_mipmaptextures", "mat_parallaxmap", "mat_showlowresimage", "mat_use_compressed_hdr_textures", "r_3dsky", "r_ambientboost", "r_decals", "r_drawdecals", "r_drawdetailprops", "r_drawparticles", "r_farz", "r_radiosity", "cl_ejectbrass", "g_ragdoll_maxcount", "gmod_physiterations", "mat_aaquality", "r_drawflecks", "r_drawrain", "r_drawropes", "r_drawskybox", "r_drawsprites", "r_DrawDisp", "r_drawstaticprops", "mat_alphacoverage", "mat_specular", "r_maxdlights", "r_shadow_allowbelow", "r_shadow_allowdynamic", "r_shadowfromanyworldlight", "r_shadowmaxrendered", "r_shadowrendertotexture", "r_shadow_lightpos_lerptime", "mat_antialias", "gmod_mcore_test", "ai_expression_optimization", "r_flashlightscissor", "spawnicon_queue", "r_mapextents"}
+		local optimizeconvar = {"mat_motion_blur_enabled", "mat_motion_blur_falling_intensity", "mat_motion_blur_falling_min", "mat_motion_blur_falling_max", "mat_motion_blur_rotation_intensity", "mat_motion_blur_strength", "mat_queue_mode", "r_WaterDrawReflection", "r_WaterDrawRefraction", "r_waterforceexpensive", "r_waterforcereflectentities", "fov_desired", "r_waterforceexpensive", "r_waterforcereflectentities", "engine_no_focus_sleep", "r_projectedtexture_filter", "cl_detaildist", "cl_detailfade", "mat_use_compressed_hdr_textures", "r_3dsky", "r_ambientboost", "r_decals", "r_drawparticles", "g_ragdoll_maxcount", "gmod_physiterations", "r_drawflecks", "r_drawrain", "r_drawropes", "r_drawsprites", "mat_alphacoverage", "gmod_mcore_test", "r_maxdlights", "r_shadowmaxrendered", "mat_compressedtextures", "ai_strong_optimizations", "r_radiosity", "ai_strong_optimizations_no_checkstand", "ai_expression_optimization", "r_flashlightdepthres", "spawnicon_queue"}
+		-- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
 		concommand.Add(
 			"vrmod_gmod_optimization_reset",
 			function(ply, cmd, args)
