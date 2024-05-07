@@ -36,7 +36,6 @@ function ENT:Initialize()
 
     local phys = self:GetPhysicsObject()
     if phys:IsValid() then
-        phys:Wake()
         phys:SetMass(5) -- 質量の調整
     end
 

@@ -120,12 +120,12 @@ function vre_svmenuOpen()
 					--command start
 						if button2on == 0 then
 						   button2on = 1
-							LocalPlayer():ConCommand("vrgrab_maxmass 60")
-							LocalPlayer():ConCommand("vrmod_pickup_weight 60")
-						elseif button2on == 1 then
-							button2on = 2
 							LocalPlayer():ConCommand("vrgrab_maxmass 100")
 							LocalPlayer():ConCommand("vrmod_pickup_weight 100")
+						elseif button2on == 1 then
+							button2on = 2
+							LocalPlayer():ConCommand("vrgrab_maxmass 300")
+							LocalPlayer():ConCommand("vrmod_pickup_weight 300")
 						elseif button2on == 2 then
 							button2on = 3
 							LocalPlayer():ConCommand("vrgrab_maxmass 99999")

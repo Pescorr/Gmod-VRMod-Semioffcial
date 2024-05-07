@@ -1,0 +1,240 @@
+-- if SERVER then return end
+-- local _, convars, convarValues = vrmod.GetConvars()
+-- local function createSettingsMenu()
+-- 	local settingsMenu = vgui.Create("DFrame")
+-- 	settingsMenu:SetSize(800, 600)
+-- 	settingsMenu:Center()
+-- 	settingsMenu:SetTitle("Settings")
+-- 	settingsMenu:SetVisible(false)
+-- 	settingsMenu:SetDraggable(false)
+-- 	settingsMenu:ShowCloseButton(false)
+-- 	settingsMenu:SetBackgroundBlur(true)
+-- 	settingsMenu:MakePopup()
+-- 	local settingsPanel = vgui.Create("DScrollPanel", settingsMenu)
+-- 	settingsPanel:Dock(FILL)
+-- 	local function createSettingsCategory(name, settings)
+-- 		local category = vgui.Create("DCollapsibleCategory", settingsPanel)
+-- 		category:SetLabel(name)
+-- 		category:SetExpanded(false)
+-- 		category:DockMargin(10, 10, 10, 0)
+-- 		category:Dock(TOP)
+-- 		for _, setting in ipairs(settings) do
+-- 			local settingPanel = vgui.Create("DPanel", category)
+-- 			settingPanel:SetHeight(30)
+-- 			settingPanel:Dock(TOP)
+-- 			settingPanel:DockMargin(5, 5, 5, 0)
+-- 			local checkbox = vgui.Create("DCheckBoxLabel", settingPanel)
+-- 			checkbox:SetText(setting.label)
+-- 			checkbox:SetConVar(setting.convar)
+-- 			checkbox:SetValue(GetConVar(setting.convar):GetBool())
+-- 			checkbox:SizeToContents()
+-- 			checkbox:Dock(LEFT)
+-- 		end
+-- 	end
+
+-- 	createSettingsCategory(
+-- 		"VR Settings",
+-- 		{
+-- 			{
+-- 				label = "Enable seated mode",
+-- 				convar = "vrmod_seated"
+-- 			},
+-- 			{
+-- 				label = "Enable teleport",
+-- 				convar = "vrmod_seated"
+-- 			}
+-- 		}
+-- 	)
+
+-- 	createSettingsCategory(
+-- 		"Performance Settings",
+-- 		{
+-- 			{
+-- 				label = "Optimize GPU",
+-- 				convar = "vrmod_seated"
+-- 			},
+-- 			{
+-- 				label = "Optimize CPU",
+-- 				convar = "vrmod_seated"
+-- 			}
+-- 		}
+-- 	)
+
+-- 	-- 他の設定カテゴリーを追加
+-- 	local backButton = vgui.Create("DButton", settingsMenu)
+-- 	backButton:SetText("Back")
+-- 	backButton:SetSize(100, 30)
+-- 	backButton:SetPos(10, settingsMenu:GetTall() - 40)
+-- 	backButton.DoClick = function()
+-- 		settingsMenu:Hide()
+-- 		createMainMenu():Show()
+-- 	end
+
+-- 	return settingsMenu
+-- end
+
+-- local function createCharacterMenu()
+-- 	local characterMenu = vgui.Create("DFrame")
+-- 	characterMenu:SetSize(800, 600)
+-- 	characterMenu:Center()
+-- 	characterMenu:SetTitle("Character Settings")
+-- 	characterMenu:SetVisible(false)
+-- 	characterMenu:SetDraggable(false)
+-- 	characterMenu:ShowCloseButton(false)
+-- 	characterMenu:SetBackgroundBlur(true)
+-- 	characterMenu:MakePopup()
+-- 	-- キャラクター設定項目の追加
+-- 	local backButton = vgui.Create("DButton", characterMenu)
+-- 	backButton:SetText("Back")
+-- 	backButton:SetSize(100, 30)
+-- 	backButton:SetPos(10, characterMenu:GetTall() - 40)
+-- 	backButton.DoClick = function()
+-- 		characterMenu:Hide()
+-- 		createMainMenu():Show()
+-- 	end
+
+-- 	return characterMenu
+-- end
+
+-- local function createNetworkMenu()
+-- 	local networkMenu = vgui.Create("DFrame")
+-- 	networkMenu:SetSize(800, 600)
+-- 	networkMenu:Center()
+-- 	networkMenu:SetTitle("Network Settings")
+-- 	networkMenu:SetVisible(false)
+-- 	networkMenu:SetDraggable(false)
+-- 	networkMenu:ShowCloseButton(false)
+-- 	networkMenu:SetBackgroundBlur(true)
+-- 	networkMenu:MakePopup()
+-- 	-- ネットワーク設定項目の追加
+-- 	local backButton = vgui.Create("DButton", networkMenu)
+-- 	backButton:SetText("Back")
+-- 	backButton:SetSize(100, 30)
+-- 	backButton:SetPos(10, networkMenu:GetTall() - 40)
+-- 	backButton.DoClick = function()
+-- 		networkMenu:Hide()
+-- 		createMainMenu():Show()
+-- 	end
+
+-- 	return networkMenu
+-- end
+
+-- local function createHelpMenu()
+-- 	local helpMenu = vgui.Create("DFrame")
+-- 	helpMenu:SetSize(800, 600)
+-- 	helpMenu:Center()
+-- 	helpMenu:SetTitle("Help")
+-- 	helpMenu:SetVisible(false)
+-- 	helpMenu:SetDraggable(false)
+-- 	helpMenu:ShowCloseButton(false)
+-- 	helpMenu:SetBackgroundBlur(true)
+-- 	helpMenu:MakePopup()
+-- 	local helpPanel = vgui.Create("DScrollPanel", helpMenu)
+-- 	helpPanel:Dock(FILL)
+-- 	local function createHelpTopic(name, text)
+-- 		local topic = vgui.Create("DLabel", helpPanel)
+-- 		topic:SetText(name .. ":")
+-- 		topic:SetFont("DermaLarge")
+-- 		topic:SetColor(Color(255, 255, 255))
+-- 		topic:Dock(TOP)
+-- 		topic:DockMargin(10, 10, 10, 0)
+-- 		local content = vgui.Create("DLabel", helpPanel)
+-- 		content:SetText(text)
+-- 		content:SetFont("DermaDefault")
+-- 		content:SetColor(Color(255, 255, 255))
+-- 		content:SetWrap(true)
+-- 		content:Dock(TOP)
+-- 		content:DockMargin(10, 0, 10, 10)
+-- 	end
+
+-- 	createHelpTopic("Getting Started", "To get started with VRMod, ...")
+-- 	createHelpTopic("Troubleshooting", "If you encounter any issues, ...")
+-- 	local backButton = vgui.Create("DButton", helpMenu)
+-- 	backButton:SetText("Back")
+-- 	backButton:SetSize(100, 30)
+-- 	backButton:SetPos(10, helpMenu:GetTall() - 40)
+-- 	backButton.DoClick = function()
+-- 		helpMenu:Hide()
+-- 		createMainMenu():Show()
+-- 	end
+
+-- 	return helpMenu
+-- end
+
+-- local function createMainMenu()
+-- 	local mainMenu = vgui.Create("DFrame")
+-- 	mainMenu:SetSize(800, 600)
+-- 	mainMenu:Center()
+-- 	mainMenu:SetTitle("VRMod Menu")
+-- 	mainMenu:SetVisible(false)
+-- 	mainMenu:SetDraggable(false)
+-- 	mainMenu:ShowCloseButton(false)
+-- 	mainMenu:SetBackgroundBlur(true)
+-- 	mainMenu:MakePopup()
+-- 	local menuLogo = vgui.Create("DImage", mainMenu)
+-- 	menuLogo:SetImage("vrmod/logo.png")
+-- 	menuLogo:SetSize(200, 200)
+-- 	menuLogo:Center()
+-- 	local buttonPanel = vgui.Create("DPanel", mainMenu)
+-- 	buttonPanel:SetSize(600, 200)
+-- 	buttonPanel:SetPos(100, 300)
+-- 	local function createMenuButton(icon, text, onClick)
+-- 		local button = vgui.Create("DImageButton", buttonPanel)
+-- 		button:SetImage(icon)
+-- 		button:SetSize(100, 100)
+-- 		button:Dock(LEFT)
+-- 		button:DockMargin(20, 0, 20, 0)
+-- 		button.DoClick = onClick
+-- 		local label = vgui.Create("DLabel", button)
+-- 		label:SetText(text)
+-- 		label:SetContentAlignment(5)
+-- 		label:SetTextColor(Color(255, 255, 255))
+-- 		label:Dock(BOTTOM)
+-- 	end
+
+-- 	createMenuButton(
+-- 		"vrmod/icons/settings.png",
+-- 		"Settings",
+-- 		function()
+-- 			mainMenu:Hide()
+-- 			createSettingsMenu()
+-- 		end
+-- 	)
+
+-- 	createMenuButton(
+-- 		"vrmod/icons/character.png",
+-- 		"Character",
+-- 		function()
+-- 			mainMenu:Hide()
+-- 			createCharacterMenu()
+-- 		end
+-- 	)
+
+-- 	createMenuButton(
+-- 		"vrmod/icons/network.png",
+-- 		"Network",
+-- 		function()
+-- 			mainMenu:Hide()
+-- 			createNetworkMenu()
+-- 		end
+-- 	)
+
+-- 	createMenuButton(
+-- 		"vrmod/icons/help.png",
+-- 		"Help",
+-- 		function()
+-- 			mainMenu:Hide()
+-- 			createHelpMenu()
+-- 		end
+-- 	)
+
+-- 	return mainMenu
+-- end
+
+-- concommand.Add(
+-- 	"vrmod_dev_menu",
+-- 	function()
+-- 		local mainMenu = createMainMenu()
+-- 		mainMenu:SetVisible(true)
+-- 	end
+-- )

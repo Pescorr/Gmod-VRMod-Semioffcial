@@ -6,7 +6,7 @@
 	and player:GetModel() will always return the old model no matter how many times you change pm
 
 --]]
-local cv_allowpmchg = CreateClientConVar("vrmod_pmchange", 0,true,FCVAR_ARCHIVE)
+local cv_allowpmchg = CreateClientConVar("vrmod_pmchange", 1,true,FCVAR_ARCHIVE)
 if CLIENT then
 	if cv_allowpmchg:GetBool() then
 		net.Receive(

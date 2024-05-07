@@ -54,20 +54,22 @@ hook.Add(
 		-- If not using convars, you can use this hook + Panel.SetValue()
 		mat_queue_mode.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
-		-- --DNumSlider Start
-		-- --fps_max
-		-- local fps_max = vgui.Create("DNumSlider", MenuTab01)
-		-- fps_max:SetPos(20, 190) -- Set the position (X,Y)
-		-- fps_max:SetSize(370, 110) -- Set the size (X,Y)
-		-- fps_max:SetText("[fps_max]\nIf fps is reduced when the multi core test is set to [1]\n the blinking will be reduced.\nIf the fps does not change from 45\nthe fps may be limited by the\nSSW function of hmd.") -- Set the text above the slider
-		-- fps_max:SetMin(15) -- Set the minimum number you can slide to
-		-- fps_max:SetMax(120) -- Set the maximum number you can slide to
-		-- fps_max:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
-		-- fps_max:SetConVar("fps_max") -- Changes the ConVar when you slide
-		-- -- If not using convars, you can use this hook + Panel.SetValue()
-		-- fps_max.OnValueChanged = function(self, value) end -- Called when the slider value changes
-		-- --DNumSlider end
+		--DNumSlider Start
+		--mat_queue_mode
+		local gmod_mcore_test = vgui.Create("DNumSlider", MenuTab01)
+		gmod_mcore_test:SetPos(20, 180) -- Set the position (X,Y)
+		gmod_mcore_test:SetSize(370, 90) -- Set the size (X,Y)
+		gmod_mcore_test:SetText("[gmod_mcore_test]") -- Set the text above the slider
+		gmod_mcore_test:SetMin(-1) -- Set the minimum number you can slide to
+		gmod_mcore_test:SetMax(1) -- Set the maximum number you can slide to
+		gmod_mcore_test:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
+		gmod_mcore_test:SetConVar("gmod_mcore_test") -- Changes the ConVar when you slide
+		-- If not using convars, you can use this hook + Panel.SetValue()
+		gmod_mcore_test.OnValueChanged = function(self, value) end -- Called when the slider value changes
+		--DNumSlider end
 		--DButton end
+
+
 		--DCheckBoxLabel Start
 		local vrmod_open_menu_auto_optimization = MenuTab01:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_open_menu_auto_optimization:SetPos(20, 250) -- Set the position
@@ -88,7 +90,7 @@ hook.Add(
 		end
 
 		gmod_optimization.DoRightClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization")
+			RunConsoleCommand("remove_reflective_glass")
 		end
 
 		--DButton Start
@@ -103,7 +105,7 @@ hook.Add(
 		end
 
 		gmod_optimization02.DoRightClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization_02")
+			RunConsoleCommand("vrmod_gmod_optimization_03")
 		end
 
 		--FPS_defaultbutton
@@ -1098,6 +1100,72 @@ hook.Add(
 		local MenuTab13 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Misc03", MenuTab13, "icon16/wrench.png")
 		MenuTab13.Paint = function(self, w, h) end
+
+
+		--DNumSlider Start
+		local vrmod_rtWidth_Multiplier = vgui.Create("DNumSlider", MenuTab13)
+		vrmod_rtWidth_Multiplier:SetPos(20, 10) -- Set the position (X,Y)
+		vrmod_rtWidth_Multiplier:SetSize(370, 25) -- Set the size (X,Y)
+		vrmod_rtWidth_Multiplier:SetText("[vrmod_rtWidth_Multiplier]") -- Set the text above the slider
+		vrmod_rtWidth_Multiplier:SetMin(0.1) -- Set the minimum number you can slide to
+		vrmod_rtWidth_Multiplier:SetMax(5.0) -- Set the maximum number you can slide to
+		vrmod_rtWidth_Multiplier:SetDecimals(1) -- Decimal places - zero for whole number (set 2 -> 0.00)
+		vrmod_rtWidth_Multiplier:SetConVar("vrmod_rtWidth_Multiplier") -- Changes the ConVar when you slide
+		-- If not using convars, you can use this hook + Panel.SetValue()
+		vrmod_rtWidth_Multiplier.OnValueChanged = function(self, value) end -- Called when the slider value changes
+		--DNumSlider end
+
+		--DNumSlider Start
+		local vrmod_rtHeight_Multiplier = vgui.Create("DNumSlider", MenuTab13)
+		vrmod_rtHeight_Multiplier:SetPos(20, 50) -- Set the position (X,Y)
+		vrmod_rtHeight_Multiplier:SetSize(370, 25) -- Set the size (X,Y)
+		vrmod_rtHeight_Multiplier:SetText("[vrmod_rtHeight_Multiplier]") -- Set the text above the slider
+		vrmod_rtHeight_Multiplier:SetMin(0.1) -- Set the minimum number you can slide to
+		vrmod_rtHeight_Multiplier:SetMax(5.0) -- Set the maximum number you can slide to
+		vrmod_rtHeight_Multiplier:SetDecimals(1) -- Decimal places - zero for whole number (set 2 -> 0.00)
+		vrmod_rtHeight_Multiplier:SetConVar("vrmod_rtHeight_Multiplier") -- Changes the ConVar when you slide
+		-- If not using convars, you can use this hook + Panel.SetValue()
+		vrmod_rtHeight_Multiplier.OnValueChanged = function(self, value) end -- Called when the slider value changes
+		--DNumSlider end
+
+
+				-- DCheckBoxLabel Start
+				local vrmod_keyboard_uichatkey = MenuTab13:Add("DCheckBoxLabel")
+				vrmod_keyboard_uichatkey:SetPos(20, 90)
+				vrmod_keyboard_uichatkey:SetText("vrmod_keyboard_uichatkey")
+				vrmod_keyboard_uichatkey:SetConVar("vrmod_keyboard_uichatkey")
+				vrmod_keyboard_uichatkey:SizeToContents()
+				-- DCheckBoxLabel End
+		
+		--DButton Start
+		--gmod_optimization
+		local vrmod_data_vmt_generate_test = vgui.Create("DButton", MenuTab13) -- Create the button and parent it to the frame
+		vrmod_data_vmt_generate_test:SetText("vrmod_data_vmt_generate_test") -- Set the text on the button
+		vrmod_data_vmt_generate_test:SetPos(20, 270) -- Set the position on the frame
+		vrmod_data_vmt_generate_test:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		vrmod_data_vmt_generate_test.DoClick = function()
+			RunConsoleCommand("vrmod_data_vmt_generate_test") -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+		--DButton Start
+		--character_restart
+		local misc3_defaultbutton = vgui.Create("DButton", MenuTab13) -- Create the button and parent it to the frame
+		misc3_defaultbutton:SetText("setdefaultvalue") -- Set the text on the button
+		misc3_defaultbutton:SetPos(190, 315) -- Set the position on the frame
+		misc3_defaultbutton:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		misc3_defaultbutton.DoClick = function()
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.5") -- Run the console command "say hi" when you click it ( command, args )
+
+		end
+		misc3_defaultbutton.DoRightClick = function()
+		
+		end
+		--DButton end
+
+		
 		-- MenuTab13 (Miscellaneous) End
 		--MenuTab10  Start
 		local MenuTab10 = vgui.Create("DPanel", sheet)

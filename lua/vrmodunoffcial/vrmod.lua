@@ -20,6 +20,8 @@ end
 if CLIENT then
 	local errorout = CreateClientConVar("vrmod_error_check_method", 1, true)
 	local vrScrH = CreateClientConVar("vrmod_ScrH", ScrH(), true, FCVAR_ARCHIVE)
+	local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
+	local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.5", true, FCVAR_ARCHIVE)
 	local vrScrW = CreateClientConVar("vrmod_ScrW", ScrW(), true, FCVAR_ARCHIVE)
 	local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun", 1, true, FCVAR_ARCHIVE)
 	g_VR.scale = 0
@@ -38,10 +40,10 @@ if CLIENT then
 	g_VR.changedInputs = {}
 	g_VR.errorText = ""
 	--todo move some of these to the files where they belong
-	vrmod.AddCallbackedConvar("vrmod_althead", nil, 1)
+	vrmod.AddCallbackedConvar("vrmod_althead", nil, "1")
 	vrmod.AddCallbackedConvar("vrmod_autostart", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_scale", nil, "38.7")
-	vrmod.AddCallbackedConvar("vrmod_heightmenu", nil, 1)
+	vrmod.AddCallbackedConvar("vrmod_heightmenu", nil, "1")
 	vrmod.AddCallbackedConvar("vrmod_floatinghands", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_desktopview", nil, "3")
 	vrmod.AddCallbackedConvar("vrmod_useworldmodels", nil, "0")
@@ -316,6 +318,39 @@ if CLIENT then
 		end
 	)
 
+	concommand.Add(
+		"vrmod_data_vmt_generate_test",
+		function(ply, cmd, args)
+			local function CopyVMTsToTXT()
+				-- "materials/vrmod/data/"フォルダのパスを指定
+				local vmtFolderPath = "materials/vrmod/data/"
+				-- "data/vrmod"フォルダが存在しない場合は作成
+				if not file.Exists("vrmod", "GAME") then
+					file.CreateDir("vrmod")
+				end
+
+				-- vmtファイルを検索
+				local vmtFiles = file.Find(vmtFolderPath .. "*.vmt", "GAME")
+				-- 各vmtファイルを処理
+				for _, vmtFileName in ipairs(vmtFiles) do
+					-- vmtファイルのフルパスを取得
+					local vmtFilePath = vmtFolderPath .. vmtFileName
+					-- vmtファイルをテキストとして読み込む
+					local vmtText = file.Read(vmtFilePath, "GAME")
+					-- txtファイル名を生成（.vmtを.txtに変更）
+					local txtFileName = string.gsub(vmtFileName, "%.vmt$", ".txt")
+					-- txtファイルのフルパスを生成
+					local txtFilePath = "vrmod/" .. txtFileName
+					-- txtファイルにvmtテキストを書き込む
+					file.Write(txtFilePath, vmtText)
+				end
+			end
+
+			-- 関数を呼び出してvmtをtxtにコピー
+			CopyVMTsToTXT()
+		end
+	)
+
 	local moduleLoaded = false
 	g_VR.moduleVersion = 0
 	if file.Exists("lua/bin/gmcl_vrmod_win32.dll", "GAME") then
@@ -357,6 +392,8 @@ if CLIENT then
 	end
 
 	function VRUtilClientStart()
+		local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
+		local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.5", true, FCVAR_ARCHIVE)
 		local error = vrmod.GetStartupError()
 		if error then
 			print("VRMod failed to start: " .. error)
@@ -375,11 +412,11 @@ if CLIENT then
 		end
 
 		local displayInfo = VRMOD_GetDisplayInfo(1, 10)
-		local rtWidth, rtHeight = displayInfo.RecommendedWidth * 2, displayInfo.RecommendedHeight
+		local rtWidth, rtHeight = displayInfo.RecommendedWidth * rtWidthMul:GetFloat(), displayInfo.RecommendedHeight * rtHeightMul:GetFloat()
 		local rtWidthright = rtWidth / 2
-		if system.IsLinux() then
-			rtWidth, rtHeight = math.min(4096, pow2ceil(rtWidth)), math.min(4096, pow2ceil(rtHeight)) --todo pow2ceil might not be necessary
-		end
+		-- if system.IsLinux() then
+		-- 	rtWidth, rtHeight = math.min(4096, pow2ceil(rtWidth)), math.min(4096, pow2ceil(rtHeight)) --todo pow2ceil might not be necessary
+		-- end
 
 		VRMOD_ShareTextureBegin()
 		g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
@@ -448,10 +485,10 @@ if CLIENT then
 		overrideConvar("playerscaling_clientspeed", "0")
 		overrideConvar("playerscaling_clientjump", "0")
 		if autoarcbench:GetBool() then
-			overrideConvar("arccw_dev_benchgun", 1)
-			overrideConvar("arc9_dev_benchgun", 1)
-			overrideConvar("arc9_cruelty_reload", 0)
-			overrideConvar("arc9_tpik", 0)
+			overrideConvar("arccw_dev_benchgun", "1")
+			overrideConvar("arc9_dev_benchgun", "1")
+			overrideConvar("arc9_cruelty_reload", "0")
+			overrideConvar("arc9_tpik", "0")
 		end
 
 		--overrideConvar("pac_suppress_frames", "0")
@@ -574,6 +611,40 @@ if CLIENT then
 		local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", 0, true, FCVAR_ARCHIVE)
 		local foregripmode = CreateClientConVar("vrmod_Foregripmode", 0, false)
 		-- RenderScene フック内でHMDの位置と角度を調整
+		-- g_VR.LeftView = {
+		-- 	x = 0,
+		-- 	y = 0,
+		-- 	w = rtWidthright,
+		-- 	h = rtHeight,
+		-- 	drawmonitors = false,
+		-- 	drawviewmodel = false,
+		-- 	znear = convars.vrmod_znear:GetFloat(),
+		-- 	dopostprocess = convars.vrmod_postprocess:GetBool()
+		-- }
+		-- g_VR.RightView = {
+		-- 	x = rtWidthright,
+		-- 	y = 0,
+		-- 	w = rtWidthright,
+		-- 	h = rtHeight,
+		-- 	drawmonitors = false,
+		-- 	drawviewmodel = false,
+		-- 	znear = convars.vrmod_znear:GetFloat(),
+		-- 	dopostprocess = convars.vrmod_postprocess:GetBool()
+		-- }
+		-- local function RenderLeftEye()
+		-- 	g_VR.LeftView.origin = g_VR.eyePosLeft
+		-- 	g_VR.LeftView.fov = hfovLeft
+		-- 	g_VR.LeftView.aspectratio = aspectLeft
+		-- 	hook.Call("VRMod_PreRender")
+		-- 	render.RenderView(g_VR.LeftView)
+		-- end
+		-- local function RenderRightEye()
+		-- 	g_VR.RightView.origin = g_VR.eyePosRight
+		-- 	g_VR.RightView.fov = hfovRight
+		-- 	g_VR.RightView.aspectratio = aspectRight
+		-- 	hook.Call("VRMod_PreRenderRight")
+		-- 	render.RenderView(g_VR.RightView)
+		-- end
 		hook.Add(
 			"RenderScene",
 			"vrutil_hook_renderscene",
@@ -760,6 +831,8 @@ if CLIENT then
 				g_VR.eyePosLeft = g_VR.view.origin + g_VR.view.angles:Right() * -ipdeye
 				g_VR.eyePosRight = g_VR.view.origin + g_VR.view.angles:Right() * ipdeye
 				render.PushRenderTarget(g_VR.rt)
+				-- local rightEyeThread = coroutine.create(RenderRightEye)
+				-- local leftEyeThread = coroutine.create(RenderLeftEye)
 				-- left
 				g_VR.view.origin = g_VR.eyePosLeft
 				g_VR.view.x = 0
@@ -767,6 +840,9 @@ if CLIENT then
 				g_VR.view.aspectratio = aspectLeft
 				hook.Call("VRMod_PreRender")
 				render.RenderView(g_VR.view)
+				-- local rightEyeThread = coroutine.create(RenderRightEye)
+				-- coroutine.resume(rightEyeThread) 
+				--
 				-- right
 				g_VR.view.origin = g_VR.eyePosRight
 				g_VR.view.x = rtWidthright
@@ -774,6 +850,8 @@ if CLIENT then
 				g_VR.view.aspectratio = aspectRight
 				hook.Call("VRMod_PreRenderRight")
 				render.RenderView(g_VR.view)
+				-- local leftEyeThread = coroutine.create(RenderLeftEye)
+				-- coroutine.resume(leftEyeThread)
 				--
 				if not LocalPlayer():Alive() then
 					cam.Start2D()
@@ -896,8 +974,8 @@ if CLIENT then
 		g_VR.tracking = {}
 		g_VR.threePoints = false
 		g_VR.sixPoints = false
-		VRMOD_Shutdown()
 		g_VR.active = false
+		VRMOD_Shutdown()
 	end
 
 	hook.Add(
