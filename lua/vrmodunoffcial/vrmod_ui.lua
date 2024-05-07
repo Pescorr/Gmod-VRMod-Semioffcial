@@ -12,6 +12,7 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, nil, "", 0, 1, tonumber)
 	local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+	local uikeyboard = CreateClientConVar("vrmod_keyboard_uichatkey", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 	local rt_beam = GetRenderTarget("vrmod_rt_beam", 64, 64, false)
 	local mat_beam = CreateMaterial(
 		"vrmod_mat_beam",
@@ -269,7 +270,31 @@ if CLIENT then
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 
-			if g_VR.menuFocus and action == "boolean_sprint" then
+			if g_VR.menuFocus and action == "boolean_back" then
+				if pressed then
+					gui.InternalMouseWheeled(-2)
+					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
+				else
+					gui.InternalMouseWheeled(-2)
+					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
+				end
+
+				VRUtilMenuRenderPanel(g_VR.menuFocus)
+			end
+
+			if g_VR.menuFocus and action == "boolean_forword" then
+				if pressed then
+					gui.InternalMouseWheeled(2)
+					gui.InternalMousePressed(MOUSE_WHEEL_UP)
+				else
+					gui.InternalMouseWheeled(2)
+					gui.InternalMousePressed(MOUSE_WHEEL_UP)
+				end
+
+				VRUtilMenuRenderPanel(g_VR.menuFocus)
+			end
+
+			if g_VR.menuFocus and action == "boolean_mouse3" then
 				if pressed then
 					-- キー入力イベントをフックする
 					gui.InternalMousePressed(MOUSE_MIDDLE)
@@ -302,28 +327,18 @@ if CLIENT then
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 
-			if g_VR.menuFocus and action == "boolean_back" then
+			if g_VR.menuFocus and action == "boolean_chat" then
+				-- キー入力イベントをフックする
 				if pressed then
-					gui.InternalMouseWheeled(-2)
-					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
-				else
-					gui.InternalMouseWheeled(-2)
-					gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
+					-- キー入力イベントをフックする
+					if uikeyboard:GetBool() then
+						RunConsoleCommand("vrmod_keyboard")
+					end
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
-			end
 
-			if g_VR.menuFocus and action == "boolean_forword" then
-				if pressed then
-					gui.InternalMouseWheeled(2)
-					gui.InternalMousePressed(MOUSE_WHEEL_UP)
-				else
-					gui.InternalMouseWheeled(2)
-					gui.InternalMousePressed(MOUSE_WHEEL_UP)
-				end
-
-				VRUtilMenuRenderPanel(g_VR.menuFocus)
+				
 			end
 		end
 	)

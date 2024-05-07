@@ -9,7 +9,7 @@ local vrmod_cmd_contextmenu_close = CreateClientConVar("vrmod_cmd_contextmenu_cl
 local vr_mapbrowser_enable = CreateClientConVar("vrmod_quickmenu_mapbrowser_enable", "1")
 local shutdownbutton = CreateClientConVar("vrmod_quickmenu_exit", "1")
 local seated_menu = CreateClientConVar("vrmod_quickmenu_seated_menu", "1")
-local vguireset = CreateClientConVar("vrmod_quickmenu_vgui_reset_menu", "1")
+local vguireset = CreateClientConVar("vrmod_quickmenu_vgui_reset_menu", "0")
 local vre_gbradial_menu = CreateClientConVar("vrmod_quickmenu_vre_gbradial_menu", "1")
 local vrmod_quickmenu_chat = CreateClientConVar("vrmod_quickmenu_chat", "1")
 local vrmod_togglemirror = CreateClientConVar("vrmod_quickmenu_togglemirror", "1")
@@ -17,7 +17,7 @@ local vrmod_quickmenu_togglevehiclemode = CreateClientConVar("vrmod_quickmenu_to
 local vrmod_quickmenu_noclip = CreateClientConVar("vrmod_quickmenu_noclip", "1")
 local spawn_menu = CreateClientConVar("vrmod_quickmenu_spawn_menu", "1")
 local context_menu = CreateClientConVar("vrmod_quickmenu_context_menu", "1")
-local vrmod_quickmenu_arccw = CreateClientConVar("vrmod_quickmenu_arccw", "1")
+local vrmod_quickmenu_arccw = CreateClientConVar("vrmod_quickmenu_arccw", "0")
 local button1on = 0
 local button2on = 0
 hook.Add(

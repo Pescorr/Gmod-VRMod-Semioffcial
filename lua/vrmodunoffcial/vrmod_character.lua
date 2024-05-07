@@ -360,7 +360,6 @@ if CLIENT then
 			b_spine = "ValveBiped.Bip01_Spine",
 		}
 
-		-- b_neck ="ValveBiped.Bip01_Neck1",
 		characterInfo[steamid].bones = {
 			fingers = {cm:LookupBone("ValveBiped.Bip01_L_Finger0") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger01") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger02") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger1") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger11") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger12") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger2") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger21") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger22") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger3") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger31") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger32") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger4") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger41") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger42") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger0") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger01") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger02") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger1") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger11") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger12") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger2") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger21") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger22") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger3") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger31") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger32") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger4") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger41") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger42") or -1,}
 		}
@@ -418,11 +417,11 @@ if CLIENT then
 			--"自分以外のVRModユーザー行うように変更"
 			if eyes and eyes.Pos.z > 10 then
 				characterInfo[steamid].characterEyeHeight = eyes.Pos.z
-				characterInfo[steamid].characterHeadToHmdDist = (eyes.Pos.z / 5 - 6.3)
+				characterInfo[steamid].characterHeadToHmdDist = eyes.Pos.z / 5 - 6.3
 			else
 				headPos = headPos - cm:GetPos()
 				characterInfo[steamid].characterEyeHeight = headPos.z
-				characterInfo[steamid].characterHeadToHmdDist = (headPos.z / 5 - 6.3)
+				characterInfo[steamid].characterHeadToHmdDist = headPos.z / 5 - 6.3
 			end
 
 			characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
@@ -434,7 +433,8 @@ if CLIENT then
 	------------------------------------------------------------------------
 	local function BoneCallbackFunc(ply, numbones)
 		local steamid = ply:SteamID()
-		if not activePlayers[steamid] or not g_VR.net[steamid].lerpedFrame then return end
+		if activePlayers[steamid] == nil then return end
+		if g_VR.net[steamid].lerpedFrame == nil then return end
 		if ply:InVehicle() and ply:GetVehicle():GetClass() ~= "prop_vehicle_prisoner_pod" then return end
 		if ply:GetBoneMatrix(characterInfo[steamid].bones.b_rightHand) then
 			ply:SetBonePosition(characterInfo[steamid].bones.b_rightHand, g_VR.net[steamid].lerpedFrame.righthandPos, g_VR.net[steamid].lerpedFrame.righthandAng + Angle(0, 0, 180))
@@ -486,13 +486,13 @@ if CLIENT then
 	local updatedPlayers = {}
 	local function PrePlayerDrawFunc(ply)
 		local steamid = ply:SteamID()
-		if not activePlayers[steamid] or not g_VR.net[steamid].lerpedFrame then return end
+		if activePlayers[steamid] == nil then return end
+		if g_VR.net[steamid].lerpedFrame == nil then return end
 		--hide head in first person
 		if ply == LocalPlayer() then
 			local ep = EyePos()
 			local hide = (ep == g_VR.eyePosLeft or ep == g_VR.eyePosRight) and ply:GetViewEntity() == ply
 			ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, hide and zeroVec or Vector(1, 1, 1))
-			-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_neck, hide and zerovec or Vector(-128, 128, 0))
 		end
 
 		characterInfo[steamid].preRenderPos = ply:GetPos()
@@ -530,7 +530,10 @@ if CLIENT then
 	-------------------------------------------------------------
 	local function PostPlayerDrawFunc(ply)
 		local steamid = ply:SteamID()
-		if not activePlayers[steamid] or not g_VR.net[steamid].lerpedFrame or ply:InVehicle() then return end
+		if activePlayers[steamid] == nil then return end
+		if g_VR.net[steamid] == nil then return end
+		if g_VR.net[steamid].lerpedFrame == nil then return end
+		if ply:InVehicle() then return end
 		ply:SetPos(characterInfo[steamid].preRenderPos)
 	end
 
@@ -580,7 +583,7 @@ if CLIENT then
 	end
 
 	function g_VR.StopCharacterSystem(steamid)
-		if not activePlayers[steamid] then return end
+		if activePlayers[steamid] == nil then return end
 		local ply = player.GetBySteamID(steamid)
 		if characterInfo[steamid] then
 			if IsValid(ply) then
@@ -593,13 +596,12 @@ if CLIENT then
 				if ply == LocalPlayer() then
 					hook.Remove("VRMod_PreRender", "vrutil_hook_calcplyrenderpos")
 					ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, Vector(1, 1, 1))
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_head, vector_origin)
 				end
 			end
-
-			activePlayers[steamid] = nil
 		end
 
+		-- characterInfo[steamid]がnilの場合の処理を追加
+		activePlayers[steamid] = nil
 		if table.Count(activePlayers) == 0 then
 			hook.Remove("PrePlayerDraw", "vrutil_hook_preplayerdraw")
 			hook.Remove("PostPlayerDraw", "vrutil_hook_postplayerdraw")
@@ -624,4 +626,94 @@ if CLIENT then
 			g_VR.StopCharacterSystem(steamid)
 		end
 	)
+	-- else
+	-- 	local function CreateCharacterColliders(ply)
+	-- 		local steamid = ply:SteamID()
+	-- 		local charinfo = characterInfo[steamid]
+	-- 		-- 各部位のボーンに対応するコライダーを作成
+	-- 		charinfo.colliders = {}
+	-- 		for boneName, boneId in pairs(charinfo.bones) do
+	-- 			if boneId >= 0 then
+	-- 				local collider = ents.Create("prop_physics")
+	-- 				collider:SetModel("models/props_junk/PopCan01a.mdl")
+	-- 				collider:SetPos(ply:GetPos())
+	-- 				collider:SetAngles(ply:GetAngles())
+	-- 				collider:SetMoveType(MOVETYPE_NONE)
+	-- 				collider:SetSolid(SOLID_BBOX)
+	-- 				collider:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+	-- 				collider:SetNotSolid(true)
+	-- 				collider:SetNoDraw(true)
+	-- 				collider:DrawShadow(false)
+	-- 				collider:Spawn()
+	-- 				collider:Activate()
+	-- 				collider:SetParent(ply, boneId)
+	-- 				charinfo.colliders[boneId] = collider
+	-- 			end
+	-- 		end
+	-- 	end
+	-- 	local function RemoveCharacterColliders(ply)
+	-- 		local steamid = ply:SteamID()
+	-- 		local charinfo = characterInfo[steamid]
+	-- 		if charinfo and charinfo.colliders then
+	-- 			for _, collider in pairs(charinfo.colliders) do
+	-- 				if IsValid(collider) then
+	-- 					collider:Remove()
+	-- 				end
+	-- 			end
+	-- 			charinfo.colliders = {}
+	-- 		end
+	-- 	end
+	-- 	hook.Add(
+	-- 		"VRMod_Start",
+	-- 		"vrmod_character_colliders_init",
+	-- 		function(ply)
+	-- 			CreateCharacterColliders(ply)
+	-- 		end
+	-- 	)
+	-- 	hook.Add(
+	-- 		"PlayerSpawn",
+	-- 		"vrmod_character_colliders_spawn",
+	-- 		function(ply)
+	-- 			if vrmod.IsPlayerInVR(ply) then
+	-- 				CreateCharacterColliders(ply)
+	-- 			end
+	-- 		end
+	-- 	)
+	-- 	hook.Add(
+	-- 		"PlayerDeath",
+	-- 		"vrmod_character_colliders_death",
+	-- 		function(ply)
+	-- 			RemoveCharacterColliders(ply)
+	-- 		end
+	-- 	)
+	-- 	hook.Add(
+	-- 		"VRMod_Exit",
+	-- 		"vrmod_character_colliders_exit",
+	-- 		function(ply)
+	-- 			RemoveCharacterColliders(ply)
+	-- 		end
+	-- 	)
+	-- 	hook.Add(
+	-- 		"PlayerTick",
+	-- 		"vrmod_character_colliders_tick",
+	-- 		function(ply)
+	-- 			if vrmod.IsPlayerInVR(ply) then
+	-- 				local steamid = ply:SteamID()
+	-- 				local charinfo = characterInfo[steamid]
+	-- 				if charinfo and charinfo.colliders then
+	-- 					for boneId, collider in pairs(charinfo.colliders) do
+	-- 						if IsValid(collider) then
+	-- 							local bonePos, boneAng = ply:GetBonePosition(boneId)
+	-- 							local targetPos, targetAng = LocalToWorld(Vector(0, 0, 0), Angle(0, 0, 0), bonePos, boneAng)
+	-- 							local targetVel = (targetPos - collider:GetPos()) * 30
+	-- 							collider:GetPhysicsObject():SetVelocity(targetVel)
+	-- 							local _, tempAng = WorldToLocal(Vector(), targetAng, Vector(), collider:GetAngles())
+	-- 							local targetAngVel = Vector(tempAng.p, tempAng.y, tempAng.r) * 30
+	-- 							collider:GetPhysicsObject():AddAngleVelocity(targetAngVel - collider:GetPhysicsObject():GetAngleVelocity())
+	-- 						end
+	-- 					end
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	)
 end
