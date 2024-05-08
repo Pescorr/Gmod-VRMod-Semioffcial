@@ -3,7 +3,6 @@
 EN
 VRMod for Garrysmod Semi-official GitHub, prototype public version.
 
-
 --
 
 
