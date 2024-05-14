@@ -68,8 +68,6 @@ hook.Add(
 		gmod_mcore_test.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
 		--DButton end
-
-
 		--DCheckBoxLabel Start
 		local vrmod_open_menu_auto_optimization = MenuTab01:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_open_menu_auto_optimization:SetPos(20, 250) -- Set the position
@@ -282,7 +280,6 @@ hook.Add(
 		vrmod_quickmenu_vre_gbradial_menu:SetConVar("vrmod_quickmenu_vre_gbradial_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_vre_gbradial_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_chat = MenuTab03:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_chat:SetPos(20, 115) -- Set the position
@@ -290,7 +287,6 @@ hook.Add(
 		vrmod_quickmenu_chat:SetConVar("vrmod_quickmenu_chat") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_chat:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-		
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_seated_menu = MenuTab03:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_seated_menu:SetPos(20, 140) -- Set the position
@@ -298,7 +294,6 @@ hook.Add(
 		vrmod_quickmenu_seated_menu:SetConVar("vrmod_quickmenu_seated_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_seated_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_togglemirror = MenuTab03:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_togglemirror:SetPos(20, 165) -- Set the position
@@ -306,7 +301,6 @@ hook.Add(
 		vrmod_quickmenu_togglemirror:SetConVar("vrmod_quickmenu_togglemirror") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_togglemirror:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_spawn_menu = MenuTab03:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_spawn_menu:SetPos(20, 190) -- Set the position
@@ -314,7 +308,6 @@ hook.Add(
 		vrmod_quickmenu_spawn_menu:SetConVar("vrmod_quickmenu_spawn_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_spawn_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_noclip = MenuTab03:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_noclip:SetPos(20, 215) -- Set the position
@@ -322,7 +315,6 @@ hook.Add(
 		vrmod_quickmenu_noclip:SetConVar("vrmod_quickmenu_noclip") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_noclip:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_context_menu = MenuTab03:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_context_menu:SetPos(20, 240) -- Set the position
@@ -330,7 +322,6 @@ hook.Add(
 		vrmod_quickmenu_context_menu:SetConVar("vrmod_quickmenu_context_menu") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_context_menu:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_arccw = MenuTab03:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_arccw:SetPos(20, 265) -- Set the position
@@ -338,7 +329,6 @@ hook.Add(
 		vrmod_quickmenu_arccw:SetConVar("vrmod_quickmenu_arccw") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_arccw:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
 		--DCheckBoxLabel Start
 		local vrmod_quickmenu_vehiclemode = MenuTab03:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_quickmenu_vehiclemode:SetPos(20, 290) -- Set the position
@@ -346,8 +336,6 @@ hook.Add(
 		vrmod_quickmenu_vehiclemode:SetConVar("vrmod_quickmenu_togglevehiclemode") -- Change a ConVar when the box it ticked/unticked
 		vrmod_quickmenu_vehiclemode:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
-
 		--DButton Start
 		--character_restart
 		local UI_defaultbutton = vgui.Create("DButton", MenuTab03) -- Create the button and parent it to the frame
@@ -369,11 +357,9 @@ hook.Add(
 			RunConsoleCommand("vre_ui_attachtohand", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_ui_outline", "0") -- Run the console command "say hi" when you click it ( command, args )
 		end
+
 		UI_defaultbutton.DoRightClick = function() end
 		--DButton end
-
-
-
 		--MenuTab03 "1" end
 		-- MenuTab04  Start
 		local MenuTab04 = vgui.Create("DPanel", sheet)
@@ -452,7 +438,6 @@ hook.Add(
 		vrmod_hud_visible_quickmenukey:SetConVar("vrmod_hud_visible_quickmenukey") -- Change a ConVar when the box it ticked/unticked
 		vrmod_hud_visible_quickmenukey:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel 
-		
 		--vrmod_attach_quickmenu
 		local attach_quickmenu = vgui.Create("DComboBox", MenuTab04)
 		attach_quickmenu:SetPos(20, 215) -- Set the position (X,Y)
@@ -509,7 +494,6 @@ hook.Add(
 		vrmod_ui_outline:SetConVar("vrmod_ui_outline") -- Change a ConVar when the box it ticked/unticked
 		vrmod_ui_outline:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
-
 		-- --DLabel&DTextEntry Start
 		-- local vrmod_hudblacklist = MenuTab04:Add("DLabel")
 		-- vrmod_hudblacklist:SetPos(10, 330) -- Set the position of the label
@@ -525,11 +509,7 @@ hook.Add(
 		-- vrmod_hudblacklist.OnEnter = function(self)
 		-- 	vrmod_hudblacklist:UpdateConvarValue("vrmod_hudblacklist") -- Change a ConVar when the box it ticked/unticked
 		-- end
-
 		--DLabel&DTextEntry end
-
-
-
 		--DButton Start
 		--HUD_defaultbutton
 		local HUD_defaultbutton = vgui.Create("DButton", MenuTab04) -- Create the button and parent it to the frame
@@ -825,7 +805,6 @@ hook.Add(
 		-- cv_vehicle_steer_source.OnSelect = function(self, index, value)
 		-- 	LocalPlayer():ConCommand("vrmod_vehicle_steer_source " .. value)
 		-- end
-
 		-- --DComboBox End
 		-- --DComboBox Start  
 		-- local cv_weapon_aim_source = vgui.Create("DComboBox", MenuTab11)
@@ -838,7 +817,6 @@ hook.Add(
 		-- cv_weapon_aim_source.OnSelect = function(self, index, value)
 		-- 	LocalPlayer():ConCommand("vrmod_weapon_aim_source " .. value)
 		-- end
-
 		-- --DComboBox End
 		-- --DCheckBoxLabel Start
 		-- local cv_analog_move_only = MenuTab11:Add("DCheckBoxLabel")
@@ -891,7 +869,6 @@ hook.Add(
 		-- 	RunConsoleCommand("vrmod_test_Righthandle", "0")
 		-- 	RunConsoleCommand("vrmod_test_lefthandle", "0")
 		-- end
-
 		-- --DButton End
 		-- --MenuTab11 (Locomotion) End
 		--MenuTab07  Start
@@ -1001,6 +978,17 @@ hook.Add(
 		manualpickup:SetConVar("vrmod_manualpickups") -- Change a ConVar when the box it ticked/unticked
 		manualpickup:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
+
+			--gmod_optimization
+			local vrmod_data_vmt_generate_test = vgui.Create("DButton", MenuTab08) -- Create the button and parent it to the frame
+			vrmod_data_vmt_generate_test:SetText("Config Data Generate\n") -- Set the text on the button
+			vrmod_data_vmt_generate_test:SetPos(20, 210) -- Set the position on the frame
+			vrmod_data_vmt_generate_test:SetSize(160, 30) -- Set the size
+			-- A custom function run when clicked ( note the . instead of : )
+			vrmod_data_vmt_generate_test.DoClick = function()
+				RunConsoleCommand("vrmod_data_vmt_generate_test") -- Run the console command "say hi" when you click it ( command, args )
+			end
+	
 		--DCheckBoxLabel Start
 		local vrmod_error_check_method = MenuTab08:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_error_check_method:SetPos(20, 250) -- Set the position
@@ -1015,8 +1003,6 @@ hook.Add(
 		error_hard:SetConVar("vrmod_error_hard")
 		error_hard:SizeToContents()
 		-- DCheckBoxLabel End
-
-
 		--fov_desired
 		local fov_desired = vgui.Create("DNumSlider", MenuTab08)
 		fov_desired:SetPos(20, 320) -- Set the position (X,Y)
@@ -1030,6 +1016,7 @@ hook.Add(
 		fov_desired.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
 		-- MenuTab08  End
+
 		--MenuTab09  Start
 		local MenuTab09 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Misc02", MenuTab09, "icon16/computer_edit.png")
@@ -1072,7 +1059,6 @@ hook.Add(
 		-- If not using convars, you can use this hook + Panel.SetValue()
 		cameraoverride.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
-
 		-- DCheckBoxLabel Start
 		local lvs_pickup_handle = MenuTab09:Add("DCheckBoxLabel")
 		lvs_pickup_handle:SetPos(20, 210)
@@ -1088,20 +1074,24 @@ hook.Add(
 		pmchange:SizeToContents()
 		-- DCheckBoxLabel End
 		-- DCheckBoxLabel Start
+		local vrmod_keyboard_uichatkey = MenuTab09:Add("DCheckBoxLabel")
+		vrmod_keyboard_uichatkey:SetPos(20, 250)
+		vrmod_keyboard_uichatkey:SetText("vrmod_keyboard_uichatkey")
+		vrmod_keyboard_uichatkey:SetConVar("vrmod_keyboard_uichatkey")
+		vrmod_keyboard_uichatkey:SizeToContents()
+		-- DCheckBoxLabel End
+		-- DCheckBoxLabel Start
 		local pickup_disable_client = MenuTab09:Add("DCheckBoxLabel")
 		pickup_disable_client:SetPos(20, 270)
 		pickup_disable_client:SetText("Disable Pickup Client")
 		pickup_disable_client:SetConVar("vr_pickup_disable_client")
 		pickup_disable_client:SizeToContents()
 		-- DCheckBoxLabel End
-
 		-- MenuTab09  End	
 		-- MenuTab13 (Miscellaneous) Start
 		local MenuTab13 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Misc03", MenuTab13, "icon16/wrench.png")
 		MenuTab13.Paint = function(self, w, h) end
-
-
 		--DNumSlider Start
 		local vrmod_rtWidth_Multiplier = vgui.Create("DNumSlider", MenuTab13)
 		vrmod_rtWidth_Multiplier:SetPos(20, 10) -- Set the position (X,Y)
@@ -1114,7 +1104,6 @@ hook.Add(
 		-- If not using convars, you can use this hook + Panel.SetValue()
 		vrmod_rtWidth_Multiplier.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
-
 		--DNumSlider Start
 		local vrmod_rtHeight_Multiplier = vgui.Create("DNumSlider", MenuTab13)
 		vrmod_rtHeight_Multiplier:SetPos(20, 50) -- Set the position (X,Y)
@@ -1127,27 +1116,46 @@ hook.Add(
 		-- If not using convars, you can use this hook + Panel.SetValue()
 		vrmod_rtHeight_Multiplier.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
-
-
-				-- DCheckBoxLabel Start
-				local vrmod_keyboard_uichatkey = MenuTab13:Add("DCheckBoxLabel")
-				vrmod_keyboard_uichatkey:SetPos(20, 90)
-				vrmod_keyboard_uichatkey:SetText("vrmod_keyboard_uichatkey")
-				vrmod_keyboard_uichatkey:SetConVar("vrmod_keyboard_uichatkey")
-				vrmod_keyboard_uichatkey:SizeToContents()
-				-- DCheckBoxLabel End
-		
 		--DButton Start
-		--gmod_optimization
-		local vrmod_data_vmt_generate_test = vgui.Create("DButton", MenuTab13) -- Create the button and parent it to the frame
-		vrmod_data_vmt_generate_test:SetText("vrmod_data_vmt_generate_test") -- Set the text on the button
-		vrmod_data_vmt_generate_test:SetPos(20, 270) -- Set the position on the frame
-		vrmod_data_vmt_generate_test:SetSize(160, 30) -- Set the size
+
+		--DButton Start
+		--character_restart
+		local vrmod_reset_render_targets = vgui.Create("DButton", MenuTab13) -- Create the button and parent it to the frame
+		vrmod_reset_render_targets:SetText("reset_render") -- Set the text on the button
+		vrmod_reset_render_targets:SetPos(20, 280) -- Set the position on the frame
+		vrmod_reset_render_targets:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
-		vrmod_data_vmt_generate_test.DoClick = function()
-			RunConsoleCommand("vrmod_data_vmt_generate_test") -- Run the console command "say hi" when you click it ( command, args )
+		vrmod_reset_render_targets.DoClick = function()
+			RunConsoleCommand("vrmod_reset_render_targets") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
+		--DButton Start
+		--character_restart
+		local vrmod_update_render_targets = vgui.Create("DButton", MenuTab13) -- Create the button and parent it to the frame
+		vrmod_update_render_targets:SetText("update_render") -- Set the text on the button
+		vrmod_update_render_targets:SetPos(190, 280) -- Set the position on the frame
+		vrmod_update_render_targets:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		vrmod_update_render_targets.DoClick = function()
+			RunConsoleCommand("vrmod_update_render_targets") -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+
+		--DButton Start
+		--character_restart
+		local Height_Beta = vgui.Create("DButton", MenuTab13) -- Create the button and parent it to the frame
+		Height_Beta:SetText("Width&Height\nCustom (Quest2&VirtualDesktop)") -- Set the text on the button
+		Height_Beta:SetPos(20, 315) -- Set the position on the frame
+		Height_Beta:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		Height_Beta.DoClick = function()
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_character_restart") -- Run the console command "say hi" when you click it ( command, args )
+		end
+
+		Height_Beta.DoRightClick = function() end
+		--DButton end
 		--DButton Start
 		--character_restart
 		local misc3_defaultbutton = vgui.Create("DButton", MenuTab13) -- Create the button and parent it to the frame
@@ -1157,15 +1165,12 @@ hook.Add(
 		-- A custom function run when clicked ( note the . instead of : )
 		misc3_defaultbutton.DoClick = function()
 			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.5") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_character_restart" )-- Run the console command "say hi" when you click it ( command, args )
+		end
 
-		end
-		misc3_defaultbutton.DoRightClick = function()
-		
-		end
+		misc3_defaultbutton.DoRightClick = function() end
 		--DButton end
-
-		
 		-- MenuTab13 (Miscellaneous) End
 		--MenuTab10  Start
 		local MenuTab10 = vgui.Create("DPanel", sheet)
@@ -1178,7 +1183,7 @@ hook.Add(
 		vrmod_ScrH:SetSize(330, 25) -- Set the size (X,Y)
 		vrmod_ScrH:SetText("[VR_UI Height]") -- Set the text above the slider
 		vrmod_ScrH:SetMin(480) -- Set the minimum number you can slide to
-		vrmod_ScrH:SetMax((ScrH()*2)) -- Set the maximum number you can slide to
+		vrmod_ScrH:SetMax(ScrH() * 2) -- Set the maximum number you can slide to
 		vrmod_ScrH:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		vrmod_ScrH:SetConVar("vrmod_ScrH") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()
@@ -1191,7 +1196,7 @@ hook.Add(
 		vrmod_ScrW:SetSize(330, 25) -- Set the size (X,Y)
 		vrmod_ScrW:SetText("[VR_UI Weight]") -- Set the text above the slider
 		vrmod_ScrW:SetMin(640) -- Set the minimum number you can slide to
-		vrmod_ScrW:SetMax((ScrW()*2)) -- Set the maximum number you can slide to
+		vrmod_ScrW:SetMax(ScrW() * 2) -- Set the maximum number you can slide to
 		vrmod_ScrW:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		vrmod_ScrW:SetConVar("vrmod_ScrW") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()
@@ -1204,7 +1209,7 @@ hook.Add(
 		vrmod_hud_ScrH:SetSize(330, 25) -- Set the size (X,Y)
 		vrmod_hud_ScrH:SetText("[VR_HUD Height]") -- Set the text above the slider
 		vrmod_hud_ScrH:SetMin(480) -- Set the minimum number you can slide to
-		vrmod_hud_ScrH:SetMax(ScrH()*2) -- Set the maximum number you can slide to
+		vrmod_hud_ScrH:SetMax(ScrH() * 2) -- Set the maximum number you can slide to
 		vrmod_hud_ScrH:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		vrmod_hud_ScrH:SetConVar("vrmod_ScrH_hud") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()
@@ -1217,7 +1222,7 @@ hook.Add(
 		vrmod_ScrW_hud:SetSize(330, 25) -- Set the size (X,Y)
 		vrmod_ScrW_hud:SetText("[VR_HUD Weight]") -- Set the text above the slider
 		vrmod_ScrW_hud:SetMin(640) -- Set the minimum number you can slide to
-		vrmod_ScrW_hud:SetMax(ScrW()*2) -- Set the maximum number you can slide to
+		vrmod_ScrW_hud:SetMax(ScrW() * 2) -- Set the maximum number you can slide to
 		vrmod_ScrW_hud:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
 		vrmod_ScrW_hud:SetConVar("vrmod_ScrW_hud") -- Changes the ConVar when you slide
 		-- If not using convars, you can use this hook + Panel.SetValue()
