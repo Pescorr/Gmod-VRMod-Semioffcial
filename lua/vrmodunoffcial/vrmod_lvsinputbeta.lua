@@ -44,6 +44,10 @@ if CLIENT then
         ["cl_simfphys_key_air_reverse"] = false,
         ["cl_simfphys_key_air_right"] = false,
         ["cl_simfphys_key_turnmenu"] = false,
+        ["SELECTWEAPON#1"] = false,
+        ["SELECTWEAPON#2"] = false,
+        ["SELECTWEAPON#3"] = false,
+        ["SELECTWEAPON#4"] = false,
     }
 
     local function updateServer()
@@ -61,6 +65,8 @@ if CLIENT then
     local usePressedTime = 0
     local pickuphandle = CreateClientConVar("vrmod_lvs_pickup_handle", "1", true)
     local useTimerRunning = false
+    -- 追加: lvsselectwep変数の定義と初期化
+    local lvsselectwep = 0
     hook.Add(
         "VRMod_Input",
         "vrmod_LVSconcommand",
@@ -85,7 +91,6 @@ if CLIENT then
                 actionStates["ZOOM"] = pressed
             end
 
-
             if action == "vector1_forward" then
                 local throttleValue = vrmod.GetInput("vector1_forward") -- vector1_forward の現在の値を取得
                 if throttleValue > 0 then
@@ -106,7 +111,6 @@ if CLIENT then
                 local throttleValue = vrmod.GetInput("vector1_reverse") -- vector1_forward の現在の値を取得
                 actionStates["CAR_BRAKE"] = throttleValue > 0 -- throttleValue が 0 より大きい場合、CAR_THROTTLE を有効にする
             end
-
 
             if action == "boolean_sprint" then
                 actionStates["HELI_HOVER"] = pressed
@@ -209,6 +213,32 @@ if CLIENT then
 
                     actionStates["EXIT"] = false
                     updateServer() -- 追加: サーバーへの即時更新
+                end
+            end
+
+            -- 追加: boolean_changeweaponアクションの処理
+            if action == "boolean_changeweapon" then
+                if pressed then
+                    if lvsselectwep == 0 then
+                        actionStates["~SELECT~WEAPON#1"] = true
+                        lvsselectwep = 1
+                    elseif lvsselectwep == 1 then
+                        actionStates["~SELECT~WEAPON#2"] = true
+                        lvsselectwep = 2
+                    elseif lvsselectwep == 2 then
+                        actionStates["~SELECT~WEAPON#3"] = true
+                        lvsselectwep = 3
+                    elseif lvsselectwep == 3 then
+                        actionStates["~SELECT~WEAPON#4"] = true
+                        lvsselectwep = 4
+                    elseif lvsselectwep == 4 then
+                        lvsselectwep = 0
+                    end
+                else
+                    actionStates["~SELECT~WEAPON#1"] = false
+                    actionStates["~SELECT~WEAPON#2"] = false
+                    actionStates["~SELECT~WEAPON#3"] = false
+                    actionStates["~SELECT~WEAPON#4"] = false
                 end
             end
 

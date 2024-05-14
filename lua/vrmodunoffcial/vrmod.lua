@@ -21,7 +21,7 @@ if CLIENT then
 	local errorout = CreateClientConVar("vrmod_error_check_method", 1, true)
 	local vrScrH = CreateClientConVar("vrmod_ScrH", ScrH(), true, FCVAR_ARCHIVE)
 	local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
-	local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.5", true, FCVAR_ARCHIVE)
+	local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
 	local vrScrW = CreateClientConVar("vrmod_ScrW", ScrW(), true, FCVAR_ARCHIVE)
 	local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun", 1, true, FCVAR_ARCHIVE)
 	g_VR.scale = 0
@@ -392,8 +392,12 @@ if CLIENT then
 	end
 
 	function VRUtilClientStart()
+		if g_VR.rt then
+			g_VR.rt = nil
+		end
+
 		local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
-		local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.5", true, FCVAR_ARCHIVE)
+		local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
 		local error = vrmod.GetStartupError()
 		if error then
 			print("VRMod failed to start: " .. error)
@@ -417,7 +421,6 @@ if CLIENT then
 		-- if system.IsLinux() then
 		-- 	rtWidth, rtHeight = math.min(4096, pow2ceil(rtWidth)), math.min(4096, pow2ceil(rtHeight)) --todo pow2ceil might not be necessary
 		-- end
-
 		VRMOD_ShareTextureBegin()
 		g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
 		VRMOD_ShareTextureFinish()
@@ -953,6 +956,11 @@ if CLIENT then
 			g_VR.viewModel:Remove()
 		end
 
+		if g_VR.rt then
+			g_VR.rt = nil
+		end
+
+		g_VR.rt = nil
 		g_VR.viewModel = nil
 		g_VR.viewModelMuzzle = nil
 		LocalPlayer():GetViewModel().RenderOverride = nil
@@ -985,6 +993,55 @@ if CLIENT then
 			if IsValid(LocalPlayer()) and g_VR.net[LocalPlayer():SteamID()] then
 				VRUtilClientExit()
 			end
+		end
+	)
+
+	-- g_VR.rtとg_VR.viewをリセットするconcommandを追加
+	concommand.Add(
+		"vrmod_reset_render_targets",
+		function(ply, cmd, args)
+			if g_VR.active then
+				VRUtilClientExit()
+			end
+
+			-- 現在のg_VR.rtを削除
+			if g_VR.rt then
+				render.ReleaseRenderTarget(g_VR.rt)
+				g_VR.rt = nil
+			end
+
+			-- 新しいg_VR.rtを作成
+			local rtWidth, rtHeight = g_VR.view.w * 2, g_VR.view.h
+			g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
+			-- g_VR.viewの設定をリセット
+			g_VR.view.w = rtWidth / 2
+			g_VR.view.h = rtHeight
+			g_VR.view.aspectratio = g_VR.view.w / g_VR.view.h
+			g_VR.view.fov = g_VR.defaultFOV
+			g_VR.view.znear = convarValues.vrmod_znear
+			g_VR.view.dopostprocess = convarValues.vrmod_postprocess
+			print("VRMod render targets and view settings have been reset.")
+		end
+	)
+
+	-- g_VR.rtとg_VR.viewを現在の設定で更新するconcommandを追加
+	concommand.Add(
+		"vrmod_update_render_targets",
+		function(ply, cmd, args)
+			if g_VR.active then
+				VRUtilClientExit()
+			end
+
+			-- 現在のg_VR.rtを削除
+			if g_VR.rt then
+				render.ReleaseRenderTarget(g_VR.rt)
+				g_VR.rt = nil
+			end
+
+			-- 新しいg_VR.rtを作成
+			local rtWidth, rtHeight = g_VR.view.w * 2, g_VR.view.h
+			g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
+			print("VRMod render targets have been updated with current settings.")
 		end
 	)
 elseif SERVER then
