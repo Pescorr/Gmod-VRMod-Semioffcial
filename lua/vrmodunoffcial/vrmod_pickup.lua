@@ -183,17 +183,19 @@ elseif SERVER then
 			if not WorldToLocal(pickupPoint - v:GetPos(), Angle(), Vector(), v:GetAngles()):WithinAABox(v:OBBMins() * convarValues.vrmod_pickup_range, v:OBBMaxs() * convarValues.vrmod_pickup_range) then continue end
 			if hook.Call("VRMod_Pickup", nil, ply, v) == false then return end
 			-- Ragdoll pickup modification
-			if IsValid(v:GetPhysicsObject()) and v:GetClass() == "prop_ragdoll" then
-				local offset = handPos - v:GetPos()
-				for i = 0, v:GetPhysicsObjectCount() - 1 do
-					local phys = v:GetPhysicsObjectNum(i)
-					if IsValid(phys) then
-						phys:SetPos(phys:GetPos() - offset)
-					end
-				end
+			-- if convarValues.vrmod_pickup_limit == 1 then
+			-- 	if IsValid(v:GetPhysicsObject()) and v:GetClass() == "prop_ragdoll" then
+			-- 		local offset = handPos - v:GetPos()
+			-- 		for i = 0, v:GetPhysicsObjectCount() - 1 do
+			-- 			local phys = v:GetPhysicsObjectNum(i)
+			-- 			if IsValid(phys) then
+			-- 				phys:SetPos(phys:GetPos() - offset)
+			-- 			end
+			-- 		end
 
-				v:SetAngles(handAng)
-			end
+			 		v:SetAngles(handAng)
+			-- 	end
+			-- end
 
 			if pickupController == nil then
 				--print("created controller")
@@ -292,6 +294,7 @@ elseif SERVER then
 					pickupController:AddToMotionController(v:GetPhysicsObject())
 					v:PhysWake()
 				else
+
 					ply:DropObject()
 				end
 			end
@@ -402,3 +405,11 @@ elseif CLIENT then
 		end
 	)
 end
+
+--[gmod-vrmod-semioffcial] addons/gmod-vrmod-semioffcial/lua/vrmodunoffcial/vrmod_pickup.lua:294: Tried to use a NULL entity!
+--  1. AddToMotionController - [C]:-1
+--   2. pickup - addons/gmod-vrmod-semioffcial/lua/vrmodunoffcial/vrmod_pickup.lua:294
+--    3. TeleportEntityToHand - addons/vr_foregripandmagsystem_test_3165136102/lua/vrmodunoffcial/3/vrmod_test_pickup_entteleport.lua:36
+--     4. func - addons/vr_foregripandmagsystem_test_3165136102/lua/vrmodunoffcial/3/vrmod_test_pickup_entteleport.lua:71
+--      5. unknown - lua/includes/extensions/net.lua:38
+

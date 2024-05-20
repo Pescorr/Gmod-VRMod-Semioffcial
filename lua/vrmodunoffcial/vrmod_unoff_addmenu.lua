@@ -121,6 +121,47 @@ hook.Add(
 		end
 
 		--DButton end
+		-- MenuTab11  Start
+		local MenuTab11 = vgui.Create("DPanel", sheet)
+		sheet:AddSheet("Optimization", MenuTab11, "icon16/cog_add.png")
+		MenuTab11.Paint = function(self, w, h) end
+		local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_drawsprites", "1"}, {"mat_alphacoverage", "0"}, {"r_maxdlights", "0.00"}, {"r_shadowmaxrendered", "0.00"}, {"gmod_mcore_test", "1"}}
+		for _, convar in ipairs(optimizeconvar) do
+			local name, value = unpack(convar)
+			local optcheckbox = MenuTab11:Add("DCheckBoxLabel")
+			optcheckbox:SetPos(20, 20 * (_ - 1) + 10)
+			optcheckbox:SetText(name)
+			optcheckbox:SetConVar(name)
+			optcheckbox:SizeToContents()
+		end
+
+		local optimizebutton = vgui.Create("DButton", MenuTab11)
+		optimizebutton:SetText("Optimize")
+		optimizebutton:SetPos(20, 20 * #optimizeconvar + 10)
+		optimizebutton:SetSize(100, 30)
+		optimizebutton.DoClick = function()
+			for _, convar in ipairs(optimizeconvar) do
+				local name, value = unpack(convar)
+				RunConsoleCommand(name, value)
+			end
+		end
+
+		-- MenuTab11  end
+		-- MenuTab11  Start
+		local MenuTab12 = vgui.Create("DPanel", sheet)
+		sheet:AddSheet("Optimization2", MenuTab12, "icon16/cog_add.png")
+		MenuTab12.Paint = function(self, w, h) end
+		local optimizeconvar2 = {{"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "500"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawparticles", "1"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"ai_strong_optimizations", "1"}, {"r_radiosity", "2"}, {"ai_strong_optimizations_no_checkstand", "1"}, {"ai_expression_optimization", "1"}, {"r_flashlightdepthres", "256"}, {"spawnicon_queue", "1"}}
+		for _, convar in ipairs(optimizeconvar2) do
+			local name, value = unpack(convar)
+			local optcheckbox2 = MenuTab12:Add("DCheckBoxLabel")
+			optcheckbox2:SetPos(20, 20 * (_ - 1) + 10)
+			optcheckbox2:SetText(name)
+			optcheckbox2:SetConVar(name)
+			optcheckbox2:SizeToContents()
+		end
+
+		-- MenuTab11  end
 		-- MenuTab02  Start
 		local MenuTab02 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("GamePlay", MenuTab02, "icon16/joystick.png")
@@ -978,17 +1019,16 @@ hook.Add(
 		manualpickup:SetConVar("vrmod_manualpickups") -- Change a ConVar when the box it ticked/unticked
 		manualpickup:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
+		--gmod_optimization
+		local vrmod_data_vmt_generate_test = vgui.Create("DButton", MenuTab08) -- Create the button and parent it to the frame
+		vrmod_data_vmt_generate_test:SetText("Config Data Generate\n") -- Set the text on the button
+		vrmod_data_vmt_generate_test:SetPos(20, 210) -- Set the position on the frame
+		vrmod_data_vmt_generate_test:SetSize(160, 30) -- Set the size
+		-- A custom function run when clicked ( note the . instead of : )
+		vrmod_data_vmt_generate_test.DoClick = function()
+			RunConsoleCommand("vrmod_data_vmt_generate_test") -- Run the console command "say hi" when you click it ( command, args )
+		end
 
-			--gmod_optimization
-			local vrmod_data_vmt_generate_test = vgui.Create("DButton", MenuTab08) -- Create the button and parent it to the frame
-			vrmod_data_vmt_generate_test:SetText("Config Data Generate\n") -- Set the text on the button
-			vrmod_data_vmt_generate_test:SetPos(20, 210) -- Set the position on the frame
-			vrmod_data_vmt_generate_test:SetSize(160, 30) -- Set the size
-			-- A custom function run when clicked ( note the . instead of : )
-			vrmod_data_vmt_generate_test.DoClick = function()
-				RunConsoleCommand("vrmod_data_vmt_generate_test") -- Run the console command "say hi" when you click it ( command, args )
-			end
-	
 		--DCheckBoxLabel Start
 		local vrmod_error_check_method = MenuTab08:Add("DCheckBoxLabel") -- Create the checkbox
 		vrmod_error_check_method:SetPos(20, 250) -- Set the position
@@ -1016,7 +1056,6 @@ hook.Add(
 		fov_desired.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
 		-- MenuTab08  End
-
 		--MenuTab09  Start
 		local MenuTab09 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Misc02", MenuTab09, "icon16/computer_edit.png")
@@ -1117,7 +1156,6 @@ hook.Add(
 		vrmod_rtHeight_Multiplier.OnValueChanged = function(self, value) end -- Called when the slider value changes
 		--DNumSlider end
 		--DButton Start
-
 		--DButton Start
 		--character_restart
 		local vrmod_reset_render_targets = vgui.Create("DButton", MenuTab13) -- Create the button and parent it to the frame
@@ -1139,7 +1177,6 @@ hook.Add(
 		vrmod_update_render_targets.DoClick = function()
 			RunConsoleCommand("vrmod_update_render_targets") -- Run the console command "say hi" when you click it ( command, args )
 		end
-
 
 		--DButton Start
 		--character_restart
@@ -1166,7 +1203,7 @@ hook.Add(
 		misc3_defaultbutton.DoClick = function()
 			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.0") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_character_restart" )-- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_character_restart") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
 		misc3_defaultbutton.DoRightClick = function() end
