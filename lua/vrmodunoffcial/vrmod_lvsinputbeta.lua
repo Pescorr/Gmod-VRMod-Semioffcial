@@ -216,31 +216,31 @@ if CLIENT then
                 end
             end
 
-            -- 追加: boolean_changeweaponアクションの処理
-            if action == "boolean_changeweapon" then
-                if pressed then
-                    if lvsselectwep == 0 then
-                        actionStates["~SELECT~WEAPON#1"] = true
-                        lvsselectwep = 1
-                    elseif lvsselectwep == 1 then
-                        actionStates["~SELECT~WEAPON#2"] = true
-                        lvsselectwep = 2
-                    elseif lvsselectwep == 2 then
-                        actionStates["~SELECT~WEAPON#3"] = true
-                        lvsselectwep = 3
-                    elseif lvsselectwep == 3 then
-                        actionStates["~SELECT~WEAPON#4"] = true
-                        lvsselectwep = 4
-                    elseif lvsselectwep == 4 then
-                        lvsselectwep = 0
-                    end
-                else
-                    actionStates["~SELECT~WEAPON#1"] = false
-                    actionStates["~SELECT~WEAPON#2"] = false
-                    actionStates["~SELECT~WEAPON#3"] = false
-                    actionStates["~SELECT~WEAPON#4"] = false
-                end
-            end
+            -- -- 追加: boolean_changeweaponアクションの処理
+            -- if action == "boolean_changeweapon" then
+            --     if pressed then
+            --         if lvsselectwep == 0 then
+            --             actionStates["~SELECT~WEAPON#1"] = true
+            --             lvsselectwep = 1
+            --         elseif lvsselectwep == 1 then
+            --             actionStates["~SELECT~WEAPON#2"] = true
+            --             lvsselectwep = 2
+            --         elseif lvsselectwep == 2 then
+            --             actionStates["~SELECT~WEAPON#3"] = true
+            --             lvsselectwep = 3
+            --         elseif lvsselectwep == 3 then
+            --             actionStates["~SELECT~WEAPON#4"] = true
+            --             lvsselectwep = 4
+            --         elseif lvsselectwep == 4 then
+            --             lvsselectwep = 0
+            --         end
+            --     else
+            --         actionStates["~SELECT~WEAPON#1"] = false
+            --         actionStates["~SELECT~WEAPON#2"] = false
+            --         actionStates["~SELECT~WEAPON#3"] = false
+            --         actionStates["~SELECT~WEAPON#4"] = false
+            --     end
+            -- end
 
             -- Update the server with the latest states
             updateServer()
