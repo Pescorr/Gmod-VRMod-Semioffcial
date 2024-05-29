@@ -216,18 +216,18 @@ if CLIENT then
 		"vrmod_gmod_optimization",
 		function(ply, cmd, args)
 			-- Gmodのluaコード
-			-- local function setConvars()
-			-- 	local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"mat_queue_mode", "1"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"fov_desired", "100"}, {"SyntHud_max_ap", "0"}}
-			-- 	for _, optimizeconvar in ipairs(optimizeconvar) do
-			-- 		local name, value = unpack(optimizeconvar)
-			-- 		LocalPlayer():ConCommand(name .. " " .. value)
-			-- 		if CLIENT then
-			-- 			print(name .. " " .. value)
-			-- 		end
-			-- 	end
-			-- end
+			local function setConvars()
+				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"mat_queue_mode", "1"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"fov_desired", "100"}}
+				for _, optimizeconvar in ipairs(optimizeconvar) do
+					local name, value = unpack(optimizeconvar)
+					LocalPlayer():ConCommand(name .. " " .. value)
+					if CLIENT then
+						print(name .. " " .. value)
+					end
+				end
+			end
 
-			--setConvars()
+			setConvars()
 			timer.Simple(
 				1,
 				function()

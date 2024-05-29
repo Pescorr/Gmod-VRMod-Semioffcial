@@ -183,19 +183,19 @@ elseif SERVER then
 			if not WorldToLocal(pickupPoint - v:GetPos(), Angle(), Vector(), v:GetAngles()):WithinAABox(v:OBBMins() * convarValues.vrmod_pickup_range, v:OBBMaxs() * convarValues.vrmod_pickup_range) then continue end
 			if hook.Call("VRMod_Pickup", nil, ply, v) == false then return end
 			-- Ragdoll pickup modification
-			-- if convarValues.vrmod_pickup_limit == 1 then
-			-- 	if IsValid(v:GetPhysicsObject()) and v:GetClass() == "prop_ragdoll" then
-			-- 		local offset = handPos - v:GetPos()
-			-- 		for i = 0, v:GetPhysicsObjectCount() - 1 do
-			-- 			local phys = v:GetPhysicsObjectNum(i)
-			-- 			if IsValid(phys) then
-			-- 				phys:SetPos(phys:GetPos() - offset)
-			-- 			end
-			-- 		end
+			if convarValues.vrmod_pickup_limit == 1 then
+				if IsValid(v:GetPhysicsObject()) and v:GetClass() == "prop_ragdoll" then
+					local offset = handPos - v:GetPos()
+					for i = 0, v:GetPhysicsObjectCount() - 1 do
+						local phys = v:GetPhysicsObjectNum(i)
+						if IsValid(phys) then
+							phys:SetPos(phys:GetPos() - offset)
+						end
+					end
 
 			 		v:SetAngles(handAng)
-			-- 	end
-			-- end
+				end
+			end
 
 			if pickupController == nil then
 				--print("created controller")

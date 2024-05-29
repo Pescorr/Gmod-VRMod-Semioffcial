@@ -239,21 +239,6 @@ if CLIENT then
 	)
 
 	concommand.Add(
-		"vrmod_reset",
-		function(ply, cmd, args)
-			for k, v in pairs(vrmod.GetConvars()) do
-				pcall(
-					function()
-						v:Revert()
-					end
-				)
-			end
-
-			hook.Call("VRMod_Reset")
-		end
-	)
-
-	concommand.Add(
 		"vrmod_info",
 		function(ply, cmd, args)
 			print("========================================================================")
@@ -318,36 +303,53 @@ if CLIENT then
 		end
 	)
 
+	local function CopyVMTsToTXT()
+		-- "materials/vrmod/data/"フォルダのパスを指定
+		local vmtFolderPath = "materials/vrmod/data/"
+		-- "data/vrmod"フォルダが存在しない場合は作成
+		if not file.Exists("vrmod", "GAME") then
+			file.CreateDir("vrmod")
+		end
+
+		-- vmtファイルを検索
+		local vmtFiles = file.Find(vmtFolderPath .. "*.vmt", "GAME")
+		-- 各vmtファイルを処理
+		for _, vmtFileName in ipairs(vmtFiles) do
+			-- vmtファイルのフルパスを取得
+			local vmtFilePath = vmtFolderPath .. vmtFileName
+			-- vmtファイルをテキストとして読み込む
+			local vmtText = file.Read(vmtFilePath, "GAME")
+			-- txtファイル名を生成（.vmtを.txtに変更）
+			local txtFileName = string.gsub(vmtFileName, "%.vmt$", ".txt")
+			-- txtファイルのフルパスを生成
+			local txtFilePath = "vrmod/" .. txtFileName
+			-- txtファイルにvmtテキストを書き込む
+			file.Write(txtFilePath, vmtText)
+		end
+		print("vrmod: CopyVMTsTotxt Active")
+	end
+
 	concommand.Add(
 		"vrmod_data_vmt_generate_test",
 		function(ply, cmd, args)
-			local function CopyVMTsToTXT()
-				-- "materials/vrmod/data/"フォルダのパスを指定
-				local vmtFolderPath = "materials/vrmod/data/"
-				-- "data/vrmod"フォルダが存在しない場合は作成
-				if not file.Exists("vrmod", "GAME") then
-					file.CreateDir("vrmod")
-				end
+			CopyVMTsToTXT()
+		end
+	)
 
-				-- vmtファイルを検索
-				local vmtFiles = file.Find(vmtFolderPath .. "*.vmt", "GAME")
-				-- 各vmtファイルを処理
-				for _, vmtFileName in ipairs(vmtFiles) do
-					-- vmtファイルのフルパスを取得
-					local vmtFilePath = vmtFolderPath .. vmtFileName
-					-- vmtファイルをテキストとして読み込む
-					local vmtText = file.Read(vmtFilePath, "GAME")
-					-- txtファイル名を生成（.vmtを.txtに変更）
-					local txtFileName = string.gsub(vmtFileName, "%.vmt$", ".txt")
-					-- txtファイルのフルパスを生成
-					local txtFilePath = "vrmod/" .. txtFileName
-					-- txtファイルにvmtテキストを書き込む
-					file.Write(txtFilePath, vmtText)
-				end
+	-- 関数を呼び出してvmtをtxtにコピー
+	concommand.Add(
+		"vrmod_reset",
+		function(ply, cmd, args)
+			for k, v in pairs(vrmod.GetConvars()) do
+				pcall(
+					function()
+						v:Revert()
+					end
+				)
 			end
 
-			-- 関数を呼び出してvmtをtxtにコピー
 			CopyVMTsToTXT()
+			hook.Call("VRMod_Reset")
 		end
 	)
 
