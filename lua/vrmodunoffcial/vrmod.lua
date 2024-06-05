@@ -20,9 +20,10 @@ end
 if CLIENT then
 	local errorout = CreateClientConVar("vrmod_error_check_method", 1, true)
 	local vrScrH = CreateClientConVar("vrmod_ScrH", ScrH(), true, FCVAR_ARCHIVE)
+	local vrScrW = CreateClientConVar("vrmod_ScrW", ScrW(), true, FCVAR_ARCHIVE)
 	local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
 	local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
-	local vrScrW = CreateClientConVar("vrmod_ScrW", ScrW(), true, FCVAR_ARCHIVE)
+
 	local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun", 1, true, FCVAR_ARCHIVE)
 	g_VR.scale = 0
 	g_VR.origin = Vector(0, 0, 0)
@@ -883,7 +884,6 @@ if CLIENT then
 		--return true to override default scene rendering
 		g_VR.usingWorldModels = convars.vrmod_useworldmodels:GetBool()
 		if not g_VR.usingWorldModels then
-			overrideConvar("viewmodel_fov", GetConVar("fov_desired"):GetString())
 			hook.Add("CalcViewModelView", "vrutil_hook_calcviewmodelview", function(wep, vm, oldPos, oldAng, pos, ang) return g_VR.viewModelPos, g_VR.viewModelAng end)
 			local blockViewModelDraw = true
 			g_VR.allowPlayerDraw = false

@@ -42,6 +42,9 @@ if menutype1:GetBool() then
 				RunConsoleCommand("vrmod_gmod_optimization_03")
 			end
 
+			local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, false, "Show optimization tabs in VR settings menu")
+			local showopttabs = graphicsSettings:CheckBox("Show Manual Optimization Tabs")
+			showopttabs:SetConVar("vrmod_showmanualoptimizationtabs")
 			local gfxdefault = graphicsSettings:Button("Restore Default Graphics Settings")
 			gfxdefault.DoClick = function()
 				RunConsoleCommand("vrmod_gmod_optimization_reset")
@@ -51,9 +54,6 @@ if menutype1:GetBool() then
 				RunConsoleCommand("vrmod_gmod_optimization_reset")
 			end
 
-			local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, false, "Show optimization tabs in VR settings menu")
-			local showopttabs = graphicsSettings:CheckBox("Show Manual Optimization Tabs")
-			showopttabs:SetConVar("vrmod_showmanualoptimizationtabs")
 			local MenuTab11 = nil
 			if showoptimizationtabs:GetBool() then
 				MenuTab11 = vgui.Create("DPanel", sheet)
@@ -117,8 +117,8 @@ if menutype1:GetBool() then
 			end
 
 			local pickupweight = gameplaySettings:NumSlider("Pickup Weight (Server)", "vrmod_pickup_weight", 0, 1000, 0)
-			local pickuprange = gameplaySettings:NumSlider("Pickup Range (Server)", "vrmod_pickup_range", 0, 200, 1)
-			local pickuplimit = gameplaySettings:NumSlider("Pickup Limit (Server)", "vrmod_pickup_limit", 0, 10, 0)
+			local pickuprange = gameplaySettings:NumSlider("Pickup Range (Server)", "vrmod_pickup_range", 0, 5, 2)
+			local pickuplimit = gameplaySettings:NumSlider("Pickup Limit (Server)", "vrmod_pickup_limit", 0, 3, 0)
 			local manualpickups = gameplaySettings:CheckBox("Manual Pickups (Server)")
 			manualpickups:SetConVar("vrmod_manualpickups")
 			local gameplaydefault = gameplaySettings:Button("Restore Default Gameplay Settings")
@@ -126,21 +126,21 @@ if menutype1:GetBool() then
 				RunConsoleCommand("vrmod_allow_teleport_client", "0")
 				RunConsoleCommand("vrmod_flashlight_attachment", "0")
 				RunConsoleCommand("vrmod_pickup_weight", "100")
-				RunConsoleCommand("vrmod_pickup_range", "100")
-				RunConsoleCommand("vrmod_pickup_limit", "0")
+				RunConsoleCommand("vrmod_pickup_range", "1.1")
+				RunConsoleCommand("vrmod_pickup_limit", "1")
 				RunConsoleCommand("vrmod_manualpickups", "0")
 			end
 
 			local vrSettings = vgui.Create("DForm", sheet)
-			sheet:AddSheet("VR Settings", vrSettings, "icon16/vrgoggles.png")
+			sheet:AddSheet("VR Settings", vrSettings, "icon16/eye.png")
 			vrSettings:DockPadding(0, 0, 0, 0)
 			local characterScale = vgui.Create("DPanel", vrSettings)
 			characterScale:Dock(TOP)
-			characterScale:DockMargin(0, 0, 0, 10)
-			characterScale:SetTall(30)
+			characterScale:DockMargin(0, 0, 0, 0)
+			characterScale:SetTall(22)
 			local scaleLabel = vgui.Create("DLabel", characterScale)
 			scaleLabel:Dock(LEFT)
-			scaleLabel:SetText("Scale")
+			scaleLabel:SetText(convars.vrmod_scale:GetFloat())
 			scaleLabel:SetWidth(50)
 			local scaleUpButton = vgui.Create("DButton", characterScale)
 			scaleUpButton:Dock(RIGHT)
@@ -247,9 +247,12 @@ if menutype1:GetBool() then
 			generalSettings:DockPadding(0, 0, 0, 0)
 			local showonstartup = generalSettings:CheckBox("VRMod Menu Show on Startup")
 			showonstartup:SetConVar("vrmod_showonstartup")
+			local errorcheck = generalSettings:CheckBox("Error Check Method")
+			errorcheck:SetConVar("vrmod_error_check_method")
+			local errorlock = generalSettings:CheckBox("ModuleError VRMod Lock")
+			errorlock:SetConVar("vrmod_error_hard")
 			local autores = generalSettings:CheckBox("Automatic Resolution Set")
 			autores:SetConVar("vrmod_scr_alwaysautosetting")
-			local fov = generalSettings:NumSlider("Field of View", "fov_desired", 60, 120, 0)
 			local pmchange = generalSettings:CheckBox("Enable Player Model Change")
 			pmchange:SetConVar("vrmod_pmchange")
 			local vrdisablepickup = generalSettings:CheckBox("VR Disable Pickup (Client)")
@@ -341,6 +344,12 @@ if menutype1:GetBool() then
 			advancedSettings:DockPadding(0, 0, 0, 0)
 			local rtwidth = advancedSettings:NumSlider("Render Target Width Multiplier", "vrmod_rtWidth_Multiplier", 0.1, 10, 1)
 			local rtheight = advancedSettings:NumSlider("Render Target Height Multiplier", "vrmod_rtHeight_Multiplier", 0.1, 10, 1)
+			-- local testui = advancedSettings:CheckBox("Test UI")
+			-- testui:SetConVar("vrmod_test_ui_testver")
+			local uiheight = advancedSettings:NumSlider("VR UI Height", "vrmod_ScrH", 480, ScrH() * 2, 0)
+			local uiwidth = advancedSettings:NumSlider("VR UI Width", "vrmod_ScrW", 640, ScrW() * 2, 0)
+			local hudheight = advancedSettings:NumSlider("VR HUD Height", "vrmod_ScrH_hud", 480, ScrH() * 2, 0)
+			local hudwidth = advancedSettings:NumSlider("VR HUD Width", "vrmod_ScrW_hud", 640, ScrW() * 2, 0)
 			local customres = advancedSettings:Button("Custom Width & Height (Quest 2 / Virtual Desktop)")
 			customres.DoClick = function()
 				RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5")
@@ -348,31 +357,6 @@ if menutype1:GetBool() then
 				RunConsoleCommand("vrmod_character_restart")
 			end
 
-			local errorcheck = advancedSettings:CheckBox("Error Check Method")
-			errorcheck:SetConVar("vrmod_error_check_method")
-			local errorlock = advancedSettings:CheckBox("ModuleError VRMod Lock")
-			errorlock:SetConVar("vrmod_error_hard")
-			local configdata = advancedSettings:Button("Generate Config Data")
-			configdata.DoClick = function()
-				RunConsoleCommand("vrmod_data_vmt_generate_test")
-			end
-
-			local resetrender = advancedSettings:Button("Reset Render Targets")
-			resetrender.DoClick = function()
-				RunConsoleCommand("vrmod_reset_render_targets")
-			end
-
-			local updaterender = advancedSettings:Button("Update Render Targets")
-			updaterender.DoClick = function()
-				RunConsoleCommand("vrmod_update_render_targets")
-			end
-
-			local testui = advancedSettings:CheckBox("Test UI")
-			testui:SetConVar("vrmod_test_ui_testver")
-			local uiheight = advancedSettings:NumSlider("VR UI Height", "vrmod_ScrH", 480, ScrH() * 2, 0)
-			local uiwidth = advancedSettings:NumSlider("VR UI Width", "vrmod_ScrW", 640, ScrW() * 2, 0)
-			local hudheight = advancedSettings:NumSlider("VR HUD Height", "vrmod_ScrH_hud", 480, ScrH() * 2, 0)
-			local hudwidth = advancedSettings:NumSlider("VR HUD Width", "vrmod_ScrW_hud", 640, ScrW() * 2, 0)
 			local advanceddefault = advancedSettings:Button("Restore Default Advanced Settings")
 			advanceddefault.DoClick = function()
 				RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0")
@@ -1492,18 +1476,6 @@ if not menutype1:GetBool() then
 			error_hard:SetConVar("vrmod_error_hard")
 			error_hard:SizeToContents()
 			-- DCheckBoxLabel End
-			--fov_desired
-			local fov_desired = vgui.Create("DNumSlider", MenuTab08)
-			fov_desired:SetPos(20, 320) -- Set the position (X,Y)
-			fov_desired:SetSize(370, 50) -- Set the size (X,Y)
-			fov_desired:SetText("[fov_desired]") -- Set the text above the slider
-			fov_desired:SetMin(72) -- Set the minimum number you can slide to
-			fov_desired:SetMax(100) -- Set the maximum number you can slide to
-			fov_desired:SetDecimals(0) -- Decimal places - zero for whole number (set 2 -> 0.00)
-			fov_desired:SetConVar("fov_desired") -- Changes the ConVar when you slide
-			-- If not using convars, you can use this hook + Panel.SetValue()
-			fov_desired.OnValueChanged = function(self, value) end -- Called when the slider value changes
-			--DNumSlider end
 			-- MenuTab08  End
 			--MenuTab09  Start
 			local MenuTab09 = vgui.Create("DPanel", sheet)
