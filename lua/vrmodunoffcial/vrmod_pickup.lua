@@ -184,7 +184,7 @@ elseif SERVER then
 			if hook.Call("VRMod_Pickup", nil, ply, v) == false then return end
 			-- Ragdoll pickup modification
 			if convarValues.vrmod_pickup_limit == 1 then
-				if IsValid(v:GetPhysicsObject()) and v:GetClass() == "prop_ragdoll" then
+				if IsValid(v:GetPhysicsObject())  then
 					local offset = handPos - v:GetPos()
 					for i = 0, v:GetPhysicsObjectCount() - 1 do
 						local phys = v:GetPhysicsObjectNum(i)
