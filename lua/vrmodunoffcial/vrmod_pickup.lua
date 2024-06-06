@@ -9,6 +9,7 @@ scripted_ents.Register(
 
 local _, convarValues = vrmod.GetConvars()
 vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 0, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 3, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+vrmod.AddCallbackedConvar("vrmod_pickup_centered", nil, 0, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_dev_pickup_limit_droptest", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 2, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 100, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 99999, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
@@ -80,18 +81,6 @@ elseif SERVER then
 	local pickupController = nil
 	local pickupList = {}
 	local pickupCount = 0
-	-- local function attackAtHandPosition(handPos)
-	--     -- ここで、手の位置にダミーの攻撃を発生させます。
-	--     -- この攻撃はダメージを与えませんが、ピックアップの前にエンティティへのインタラクションを示します。
-	--     local dmgInfo = DamageInfo()
-	--     dmgInfo:SetDamage(0)
-	--     dmgInfo:SetDamageType(DMG_GENERIC)
-	--     util.TraceLine({
-	--         start = handPos,
-	--         endpos = handPos + Vector(0, 0, -1), -- 1ユニット下向きにトレース
-	--         filter = function(ent) return false end -- 何もヒットしないようにフィルター
-	--     }):GetEntity():TakeDamageInfo(dmgInfo)
-	-- end
 	function drop(steamid, bLeftHand, handPos, handAng, handVel, handAngVel)
 		for i = 1, pickupCount do
 			local t = pickupList[i]
@@ -183,7 +172,7 @@ elseif SERVER then
 			if not WorldToLocal(pickupPoint - v:GetPos(), Angle(), Vector(), v:GetAngles()):WithinAABox(v:OBBMins() * convarValues.vrmod_pickup_range, v:OBBMaxs() * convarValues.vrmod_pickup_range) then continue end
 			if hook.Call("VRMod_Pickup", nil, ply, v) == false then return end
 			-- Ragdoll pickup modification
-			if convarValues.vrmod_pickup_limit == 1 then
+			if convarValues.vrmod_pickup_centered == 1 then
 				if IsValid(v:GetPhysicsObject())  then
 					local offset = handPos - v:GetPos()
 					for i = 0, v:GetPhysicsObjectCount() - 1 do

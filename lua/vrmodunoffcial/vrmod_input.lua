@@ -5,7 +5,6 @@ local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", 1, true, FC
 local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", 0, true, FCVAR_ARCHIVE)
 if SERVER then return end
 local ply = LocalPlayer()
-
 hook.Add(
 	"VRMod_EnterVehicle",
 	"vrmod_switchactionset",
@@ -39,6 +38,7 @@ hook.Add(
 
 		if action == "boolean_secondaryfire" then
 			LocalPlayer():ConCommand(pressed and "+attack2" or "-attack2")
+
 			return
 		end
 
@@ -67,15 +67,15 @@ hook.Add(
 		end
 
 		if action == "boolean_left_pickup" then
-			if cl_pickupdisable:GetBool() then return end
-			vrmod.Pickup(true, not pressed)
+				if cl_pickupdisable:GetBool() then return end
+				vrmod.Pickup(true, not pressed)
 			-- DropItemsHeldByPlayer(LocalPlayer(), true)
 			return
 		end
 
 		if action == "boolean_right_pickup" then
-			if cl_pickupdisable:GetBool() then return end
-			vrmod.Pickup(false, not pressed)
+				if cl_pickupdisable:GetBool() then return end
+				vrmod.Pickup(false, not pressed)
 			-- DropItemsHeldByPlayer(LocalPlayer(), false)
 			return
 		end
@@ -134,6 +134,7 @@ hook.Add(
 
 		if action == "boolean_flashlight" and pressed then
 			LocalPlayer():ConCommand("impulse 100")
+
 			return
 		end
 
@@ -169,11 +170,13 @@ hook.Add(
 
 		if action == "boolean_chat" then
 			LocalPlayer():ConCommand(pressed and "+zoom" or "-zoom")
+
 			return
 		end
 
 		if action == "boolean_walkkey" then
 			LocalPlayer():ConCommand(pressed and "+walk" or "-walk")
+
 			return
 		end
 
@@ -243,8 +246,6 @@ hook.Add(
 			return
 		end
 
-
-
 		for i = 1, #g_VR.CustomActions do
 			if action == g_VR.CustomActions[i][1] then
 				local commands = string.Explode(";", g_VR.CustomActions[i][pressed and 2 or 3], false)
@@ -256,7 +257,6 @@ hook.Add(
 		end
 	end
 )
-
 -- VRMod_Input フックを追加し、入力アクションを監視します
 -- hook.Add(
 -- 	"VRMod_Input",
@@ -266,7 +266,6 @@ hook.Add(
 -- 		if action == "boolean_left_pickup" and not pressed then
 -- 			DropItemsHeldByPlayer(LocalPlayer(), true)
 -- 		end
-
 -- 		-- "boolean_right_pickup" アクションが離されたとき
 -- 		if action == "boolean_right_pickup" and not pressed then
 -- 			DropItemsHeldByPlayer(LocalPlayer(), false)
