@@ -97,10 +97,10 @@ function VRUtilOpenHeightMenu()
 			300,
 			512,
 			nil,
-			0,
-			Vector(),
-			Angle(),
-			0.1,
+			3,
+			Vector(50, 8, 10),
+			Angle(0, -90, 90),
+			0.05,
 			true,
 			function()
 				hook.Remove("PreDrawTranslucentRenderables", "vrmodheightmirror")
@@ -227,7 +227,7 @@ function VRUtilOpenHeightMenu()
 			text_y = 5,
 			enabled = true, -- このボタンは常に有効です
 			fn = function()
-				RunConsoleCommand("vrmod_character_restart")
+				RunConsoleCommand("vrmod_character_reset")
 			end
 		},
 		-- 新しいボタン「AutoTestver」の定義を追加
