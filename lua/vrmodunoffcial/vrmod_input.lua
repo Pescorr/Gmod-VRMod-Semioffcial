@@ -31,12 +31,14 @@ hook.Add(
 	function(action, pressed)
 		if hook.Call("VRMod_AllowDefaultAction", nil, action) == false then return end
 		if (action == "boolean_primaryfire" or action == "boolean_turret") and not g_VR.menuFocus then
+			if cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then return end
 			LocalPlayer():ConCommand(pressed and "+attack" or "-attack")
 
 			return
 		end
 
 		if action == "boolean_secondaryfire" then
+			if cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then return end
 			LocalPlayer():ConCommand(pressed and "+attack2" or "-attack2")
 
 			return
@@ -67,16 +69,18 @@ hook.Add(
 		end
 
 		if action == "boolean_left_pickup" then
-				if cl_pickupdisable:GetBool() then return end
-				vrmod.Pickup(true, not pressed)
+			if cl_pickupdisable:GetBool() then return end
+			vrmod.Pickup(true, not pressed)
 			-- DropItemsHeldByPlayer(LocalPlayer(), true)
+
 			return
 		end
 
 		if action == "boolean_right_pickup" then
-				if cl_pickupdisable:GetBool() then return end
-				vrmod.Pickup(false, not pressed)
+			if cl_pickupdisable:GetBool() then return end
+			vrmod.Pickup(false, not pressed)
 			-- DropItemsHeldByPlayer(LocalPlayer(), false)
+
 			return
 		end
 
