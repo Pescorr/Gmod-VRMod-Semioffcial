@@ -19,7 +19,7 @@ if CLIENT then
 		-- 解像度を動的に調整する
 		local function adjustReflectionResolution()
 			local currentFPS = 1 / FrameTime()
-			local targetFPS = 42 -- 目標のFPS
+			local targetFPS = 62 -- 目標のFPS
 			local resolutionScale = math.sqrt(currentFPS / targetFPS)
 			resolutionScale = math.Clamp(resolutionScale, 0.5, 1)
 			-- 解像度を設定
