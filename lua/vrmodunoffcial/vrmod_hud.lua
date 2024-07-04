@@ -86,7 +86,7 @@ end
 local function AddHUD()
 	RemoveHUD()
 	if not g_VR.active or not convarValues.vrmod_hud then return end
-		local mtx = Matrix()
+	local mtx = Matrix()
 	mtx:Translate(Vector(0, 0, vrScrH:GetInt() * convarValues.vrmod_hudscale / 2))
 	mtx:Rotate(Angle(0, -90, -90))
 	local meshName = convarValues.vrmod_hudscale .. "_" .. convarValues.vrmod_hudcurve

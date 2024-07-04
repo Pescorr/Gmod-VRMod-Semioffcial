@@ -4,6 +4,10 @@ if CLIENT then
 	local convars, convarValues = vrmod.GetConvars()
 	local cv_animation = CreateClientConVar("vrmod_animation_Enable", "1", true, FCVAR_ARCHIVE)
 	-- local charactereyelogic = CreateClientConVar("vrmod_characterlogic_alt", "0", true, FCVAR_ARCHIVE)
+	CreateClientConVar("vrmod_idle_act", "ACT_HL2MP_IDLE", true, FCVAR_ARCHIVE)
+	CreateClientConVar("vrmod_walk_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
+	CreateClientConVar("vrmod_run_act", "ACT_HL2MP_RUN", true, FCVAR_ARCHIVE)
+	CreateClientConVar("vrmod_jump_act", "ACT_HL2MP_JUMP_PASSIVE", true, FCVAR_ARCHIVE)
 	g_VR.defaultOpenHandAngles = {Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0),} --left hand --finger 0 --finger 1 --finger 2 --finger 3 --finger 4 --right hand
 	g_VR.defaultClosedHandAngles = {Angle(30, 0, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, -50, -10), Angle(0, -90, 0), Angle(0, -70, 0), Angle(0, -35. - 8, 0), Angle(0, -80, 0), Angle(0, -70, 0), Angle(0, -26.5, 4.8), Angle(0, -70, 0), Angle(0, -70, 0), Angle(0, -30, 12.7), Angle(0, -70, 0), Angle(0, -70, 0), Angle(-30, 0, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, -50, 10), Angle(0, -90, 0), Angle(0, -70, 0), Angle(0, -35.8, 0), Angle(0, -80, 0), Angle(0, -70, 0), Angle(0, -26.5, -4.8), Angle(0, -70, 0), Angle(0, -70, 0), Angle(0, -30, -12.7), Angle(0, -70, 0), Angle(0, -70, 0),} --
 	g_VR.zeroHandAngles = {Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0),}
@@ -484,6 +488,19 @@ if CLIENT then
 	-------------------------------------------------------------
 	local prevFrameNumber = 0
 	local updatedPlayers = {}
+	-- 再帰的にボーンとその子ボーンを非表示にする関数
+	local function HideBoneAndChildren(ply, boneID, hide)
+		local zeroVec = Vector(0, 0, 0)
+		local normalVec = Vector(1, 1, 1)
+		-- 現在のボーンを非表示にする
+		ply:ManipulateBoneScale(boneID, hide and zeroVec or normalVec)
+		-- 子ボーンを探索
+		local childrenBones = ply:GetChildBones(boneID)
+		for _, childBoneID in ipairs(childrenBones) do
+			HideBoneAndChildren(ply, childBoneID, hide)
+		end
+	end
+
 	local function PrePlayerDrawFunc(ply)
 		local steamid = ply:SteamID()
 		if activePlayers[steamid] == nil then return end
@@ -492,7 +509,12 @@ if CLIENT then
 		if ply == LocalPlayer() then
 			local ep = EyePos()
 			local hide = (ep == g_VR.eyePosLeft or ep == g_VR.eyePosRight) and ply:GetViewEntity() == ply
-			ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, hide and zeroVec or Vector(1, 1, 1))
+			if characterInfo[steamid] and characterInfo[steamid].bones and characterInfo[steamid].bones.b_head then
+				local headBoneID = characterInfo[steamid].bones.b_head
+				HideBoneAndChildren(ply, headBoneID, hide)
+			else
+				print("Error: characterInfo not properly set up")
+			end
 		end
 
 		characterInfo[steamid].preRenderPos = ply:GetPos()
@@ -512,7 +534,7 @@ if CLIENT then
 
 		if not updatedPlayers[steamid] then
 			UpdateIK(ply)
-			updatedPlayers[steamid] = 1
+			updatedPlayers[steamid] = true
 		end
 
 		--
@@ -538,27 +560,30 @@ if CLIENT then
 	end
 
 	-------------------------------------------------------------
+	-- CalcMainActivityFuncを修正
 	local function CalcMainActivityFunc(ply, vel)
 		if not activePlayers[ply:SteamID()] or ply:InVehicle() then return end
-		local act = ACT_HL2MP_IDLE
+		local act = GetConVar("vrmod_idle_act"):GetString()
 		if cv_animation:GetBool() then
 			if ply.m_bJumping then
-				act = ACT_HL2MP_JUMP_PASSIVE
+				act = GetConVar("vrmod_jump_act"):GetString()
 				if (CurTime() - ply.m_flJumpStartTime) > 0.2 and ply:OnGround() then
 					ply.m_bJumping = false
 				end
 			else
 				local len2d = vel:Length2DSqr()
 				if len2d > 22500 then
-					act = ACT_HL2MP_RUN
+					act = GetConVar("vrmod_run_act"):GetString()
 				elseif len2d > 0.25 then
-					act = ACT_HL2MP_WALK
+					act = GetConVar("vrmod_walk_act"):GetString()
 				end
 			end
 		end
 
-		return act, -1
+		return _G[act] or -1, -1
 	end
+
+
 
 	-------------------------------------------------------------
 	local function DoAnimationEventFunc(ply, evt, data)
@@ -624,6 +649,7 @@ if CLIENT then
 		"vrmod_characterstop",
 		function(ply, steamid)
 			g_VR.StopCharacterSystem(steamid)
+			g_VR.StopCharacterSystem(ply:SteamID())
 		end
 	)
 	-- else

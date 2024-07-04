@@ -9,7 +9,7 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_attach_weaponmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_quickmenu", nil, 1, nil, "", 0, 4, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 1, nil, "", 0, 4, tonumber)
-	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1, nil, "", 0, 4, tonumber)
+	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 0, nil, "", 0, 1, tonumber)
 	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, nil, "", 0, 1, tonumber)
 	local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 	local uikeyboard = CreateClientConVar("vrmod_keyboard_uichatkey", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
@@ -294,7 +294,7 @@ if CLIENT then
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
 			end
 
-			if g_VR.menuFocus and action == "boolean_mouse3" then
+			if g_VR.menuFocus and action == "boolean_reload" then
 				if pressed then
 					-- キー入力イベントをフックする
 					gui.InternalMousePressed(MOUSE_MIDDLE)

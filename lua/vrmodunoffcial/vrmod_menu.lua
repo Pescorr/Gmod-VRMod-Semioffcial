@@ -12,50 +12,22 @@ local contexticon = CreateClientConVar("vrmod_enable_contextmenu_button", 1, tru
 local autoscrsetting = CreateClientConVar("vrmod_scr_alwaysautosetting", 1, true, FCVAR_ARCHIVE)
 local autooptimize = CreateClientConVar("vrmod_gmod_optimization_auto", 1, true, FCVAR_ARCHIVE)
 local vrautobenchgun = CreateClientConVar("vrmod_auto_arc_benchgun", 1, true, FCVAR_ARCHIVE)
+local lvsautosetting = CreateClientConVar("vrmod_auto_lvs_keysetings", 1, true, FCVAR_ARCHIVE)
 -- local vrautogunsetting = CreateClientConVar("vrmod_auto_normalgunsetting", "1", true, FCVAR_ARCHIVE)
-
-
-
 local frame = nil
 local function OpenMenu()
-
 	-- if vrautogunsetting:GetBool() then
 	-- 	LocalPlayer():ConCommand("vrmod_normalgunsetting")	
 	-- end
-
-
-	if vrautobenchgun:GetBool() and  g_VR.active then
+	if vrautobenchgun:GetBool() and g_VR.active then
 		LocalPlayer():ConCommand("arc9_dev_benchgun 1")
-		-- LocalPlayer():ConCommand("arccw_dev_benchgun 1")
-		LocalPlayer():ConCommand("arc9_tpik 0")
-		LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_mode 0")
-		LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_passes 0")
-		LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_intensity 0")
-		LocalPlayer():ConCommand("cl_tfa_fx_ads_dof 0")
-		LocalPlayer():ConCommand("cl_tfa_fx_ads_dof_hd 0")
-		LocalPlayer():ConCommand("cl_tfa_3dscope_overlay 0")
-		LocalPlayer():ConCommand("sv_tfa_sprint_enabled 0")
-		LocalPlayer():ConCommand("cl_tfa_ironsights_toggle 0")
-		LocalPlayer():ConCommand("arccw_blur_toytown 0")
-		LocalPlayer():ConCommand("arccw_blur 0")
-		LocalPlayer():ConCommand("arc9_cheapscopes 0")
-		LocalPlayer():ConCommand("arc9_controller 1")
-		LocalPlayer():ConCommand("arc9_autolean 0")
-		LocalPlayer():ConCommand("arc9_never_ready 1")
-		LocalPlayer():ConCommand("arc9_vm_cambob 0")
-		LocalPlayer():ConCommand("arc9_vm_cambobwalk 0")
-		LocalPlayer():ConCommand("arc9_breath_pp 0")
-		LocalPlayer():ConCommand("arc9_fx_rtblur 0")
-		LocalPlayer():ConCommand("arc9_fx_adsblur 0")
-		LocalPlayer():ConCommand("arc9_fx_reloadblur 0")
-		LocalPlayer():ConCommand("arc9_fx_animblur 0")	
-	else
-		LocalPlayer():ConCommand("arc9_dev_benchgun 0")
-		-- LocalPlayer():ConCommand("arccw_dev_benchgun 0")
-		LocalPlayer():ConCommand("arc9_tpik 1")
-	
+
 	end
 
+	if lvsautosetting:GetBool() and g_VR.active then
+		LocalPlayer():ConCommand("vrmod_lfsmode")
+
+	end
 
 	if autoscrsetting:GetBool() then
 		LocalPlayer():ConCommand("vrmod_Scr_Auto")
@@ -65,8 +37,6 @@ local function OpenMenu()
 		LocalPlayer():ConCommand("vrmod_gmod_optimization")
 	end
 
-
-	
 	if IsValid(frame) then return frame end
 	frame = vgui.Create("DFrame")
 	frame:SetSize(400, 485)

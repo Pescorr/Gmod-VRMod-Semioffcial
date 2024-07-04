@@ -1,7 +1,7 @@
 if SERVER then return end
 local open = false
 -- ConVarを作成
-CreateClientConVar("vr_dummy_menu_toggle", 0, true,FCVAR_ARCHIVE)
+CreateClientConVar("vr_dummy_menu_toggle", 0, false)
 function VRUtilDummyMenuOpen()
 	if open then return end
 	open = true
