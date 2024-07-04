@@ -47,7 +47,7 @@ if CLIENT then
 	vrmod.AddCallbackedConvar("vrmod_heightmenu", nil, "1")
 	vrmod.AddCallbackedConvar("vrmod_floatinghands", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_desktopview", nil, "3")
-	vrmod.AddCallbackedConvar("vrmod_useworldmodels", nil, "0")
+	vrmod.AddCallbackedConvar("vrmod_useworldmodels", nil, "0", nil, nil, 0, 1, tobool, UpdateWorldModelSetting)
 	vrmod.AddCallbackedConvar("vrmod_laserpointer", nil, "0")
 	vrmod.AddCallbackedConvar("vrmod_characterEyeHeight", nil, "66.8", nil, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_characterHeadToHmdDist", nil, "6.3", nil, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
@@ -487,7 +487,6 @@ if CLIENT then
 		g_VR.leftControllerOffsetAng = g_VR.rightControllerOffsetAng
 		g_VR.active = true
 		-- overrideConvar("gmod_mcore_test", "0")
-		overrideConvar("lfs_hipster", "0")
 		overrideConvar("playerscaling_clientspeed", "0")
 		overrideConvar("playerscaling_clientjump", "0")
 		if autoarcbench:GetBool() then

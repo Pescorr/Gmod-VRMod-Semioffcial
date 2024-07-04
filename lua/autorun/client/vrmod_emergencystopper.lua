@@ -36,6 +36,7 @@ hook.Add("Think", "VRMod_EmergencyStop", function()
                 keyDownTime = CurTime()
             elseif CurTime() - keyDownTime >= GetConVar("vrmod_emergencystop_time"):GetFloat() then
                 VRUtilClientExit()
+                
                 print("VR mode has been emergency stopped.")
                 keyDownTime = nil
             end

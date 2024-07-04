@@ -1,4 +1,4 @@
-local cl_bothkey = CreateClientConVar("vrmod_vehicle_bothkeymode", 0, true, FCVAR_ARCHIVE)
+local cl_bothkey = CreateClientConVar("vrmod_vehicle_bothkeymode", 1, true, FCVAR_ARCHIVE)
 local cl_pickupdisable = CreateClientConVar("vr_pickup_disable_client", 0, true, FCVAR_ARCHIVE)
 local cl_lefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
 local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", 1, true, FCVAR_ARCHIVE)

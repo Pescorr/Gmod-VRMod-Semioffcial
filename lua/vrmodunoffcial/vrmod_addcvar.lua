@@ -19,7 +19,7 @@ if CLIENT then
 		-- 解像度を動的に調整する
 		local function adjustReflectionResolution()
 			local currentFPS = 1 / FrameTime()
-			local targetFPS = 62 -- 目標のFPS
+			local targetFPS = 42 -- 目標のFPS
 			local resolutionScale = math.sqrt(currentFPS / targetFPS)
 			resolutionScale = math.Clamp(resolutionScale, 0.5, 1)
 			-- 解像度を設定
@@ -149,19 +149,23 @@ if CLIENT then
 		end
 	)
 
+	--"pescorr_cvar_cl_default"
+	local CVars = {{"vrmod_characterEyeHeight", "vrmod_characterHeadToHmdDist", "vrmod_scale", "vrmod_seatedoffset"}}
 	concommand.Add(
 		"vrmod_character_reset",
 		function(ply, cmd, args)
-			LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
-			print("vrmod_characterEyeHeight 66.8")
-			LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
-			print("vrmod_characterHeadToHmdDist 6.3")
-			LocalPlayer():ConCommand("vrmod_scale 38.7")
-			print("vrmod_scale 38.7")
-			LocalPlayer():ConCommand("vrmod_crouchthreshold 40.0")
-			print("vrmod_crouchthreshold 40.0")
-			LocalPlayer():ConCommand("vrmod_seatedoffset  33.4")
-			print("vrmod_crouchthreshold 33.4")
+			for _, cvar in ipairs(CVars) do
+				if cvar ~= nil then
+					local name, value = unpack(cvar)
+					if GetConVar(name) ~= nil then
+						local value = GetConVar(name):GetDefault()
+						LocalPlayer():ConCommand(name .. " " .. value)
+						if CLIENT then
+							print(name .. " default: " .. value)
+						end
+					end
+				end
+			end
 		end
 	)
 
@@ -169,8 +173,6 @@ if CLIENT then
 		"vrmod_lfsmode",
 		function(ply, cmd, args)
 			LocalPlayer():ConCommand("vrmod_vehicle_reticlemode 1")
-			LocalPlayer():ConCommand("lfs_hipster 0")
-			LocalPlayer():ConCommand("weaponseats_enablecrosshair 0")
 		end
 	)
 
@@ -178,7 +180,6 @@ if CLIENT then
 		"vrmod_simfmode",
 		function(ply, cmd, args)
 			LocalPlayer():ConCommand("vrmod_vehicle_reticlemode 0")
-			LocalPlayer():ConCommand("weaponseats_enablecrosshair 0")
 		end
 	)
 
@@ -243,7 +244,7 @@ if CLIENT then
 			-- Gmodのluaコード
 			-- LocalPlayer():ConCommand("remove_reflective_glass")
 			local function setConvars()
-				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"mat_queue_mode", "1"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"},{"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"mat_use_compressed_hdr_textures", "1"},  {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawparticles", "1"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawsprites", "1"}, {"mat_alphacoverage", "0"}, {"gmod_mcore_test", "1"}, {"r_maxdlights", "0.00"}, {"r_shadowmaxrendered", "0.00"},  {"mat_compressedtextures", "1"}, {"ai_strong_optimizations", "1"}, {"r_radiosity", "2"}, {"ai_strong_optimizations_no_checkstand", "1"}, {"ai_expression_optimization", "1"}, {"r_flashlightdepthres", "256"}, {"spawnicon_queue", "1"}}
+				local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"mat_queue_mode", "1"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "400"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawparticles", "1"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"r_drawflecks", "0"}, {"r_drawrain", "0"}, {"r_drawropes", "0"}, {"r_drawsprites", "1"}, {"mat_alphacoverage", "0"}, {"gmod_mcore_test", "1"}, {"r_maxdlights", "0.00"}, {"r_shadowmaxrendered", "0.00"}, {"mat_compressedtextures", "1"}, {"ai_strong_optimizations", "1"}, {"r_radiosity", "2"}, {"ai_strong_optimizations_no_checkstand", "1"}, {"ai_expression_optimization", "1"}, {"r_flashlightdepthres", "256"}, {"spawnicon_queue", "1"}}
 				for _, optimizeconvar in ipairs(optimizeconvar) do
 					local name, value = unpack(optimizeconvar)
 					LocalPlayer():ConCommand(name .. " " .. value)

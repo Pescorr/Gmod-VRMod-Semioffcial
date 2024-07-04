@@ -1,5 +1,6 @@
 if CLIENT then
     if not LVS then return end
+    local lvsautosetting = CreateClientConVar("vrmod_auto_lvs_keysetings", 1, true, FCVAR_ARCHIVE)
     local actionStates = {
         ["ENGINE"] = false,
         ["EXIT"] = false,
@@ -161,14 +162,14 @@ if CLIENT then
                 actionStates["cl_simfphys_keyhandbrake"] = pressed
             end
 
-            if action == "boolean_walkkey" then
-                actionStates["FREELOOK"] = pressed
-            end
-
             if pickuphandle:GetBool() then
                 if action == "boolean_right_pickup" then
                     actionStates["FREELOOK"] = not pressed
                 end
+            end
+
+            if action == "boolean_walkkey" then
+                actionStates["FREELOOK"] = pressed
             end
 
             if action == "boolean_flashlight" then
@@ -176,13 +177,15 @@ if CLIENT then
                 actionStates["cl_simfphys_lights"] = pressed
             end
 
-            if action == "boolean_spawnmenu" and pressed then
-                -- ネットワークを介してサーバーにコマンドを送信
-                if LocalPlayer():InVehicle() then
-                    RunConsoleCommand("vr_dummy_menu_toggle", "1") -- メニューを閉じた時にConVarをリセット
+            if action == "boolean_spawnmenu" then
+                if pressed then
+                    -- ネットワークを介してサーバーにコマンドを送信
+                    if LocalPlayer():InVehicle() then
+                        RunConsoleCommand("vr_dummy_menu_toggle", "1") -- メニューを閉じた時にConVarをリセット
+                    end
+                else
+                    RunConsoleCommand("vr_dummy_menu_toggle", "0") -- メニューを閉じた時にConVarをリセット
                 end
-            else
-                RunConsoleCommand("vr_dummy_menu_toggle", "0") -- メニューを閉じた時にConVarをリセット
             end
 
             if action == "boolean_use" then
@@ -216,31 +219,35 @@ if CLIENT then
                 end
             end
 
-            -- -- 追加: boolean_changeweaponアクションの処理
-            -- if action == "boolean_changeweapon" then
-            --     if pressed then
-            --         if lvsselectwep == 0 then
-            --             actionStates["~SELECT~WEAPON#1"] = true
-            --             lvsselectwep = 1
-            --         elseif lvsselectwep == 1 then
-            --             actionStates["~SELECT~WEAPON#2"] = true
-            --             lvsselectwep = 2
-            --         elseif lvsselectwep == 2 then
-            --             actionStates["~SELECT~WEAPON#3"] = true
-            --             lvsselectwep = 3
-            --         elseif lvsselectwep == 3 then
-            --             actionStates["~SELECT~WEAPON#4"] = true
-            --             lvsselectwep = 4
-            --         elseif lvsselectwep == 4 then
-            --             lvsselectwep = 0
-            --         end
-            --     else
-            --         actionStates["~SELECT~WEAPON#1"] = false
-            --         actionStates["~SELECT~WEAPON#2"] = false
-            --         actionStates["~SELECT~WEAPON#3"] = false
-            --         actionStates["~SELECT~WEAPON#4"] = false
-            --     end
-            -- end
+            -- 追加: boolean_changeweaponアクションの処理
+            if action == "boolean_changeweapon" then
+                if pressed then
+                    if lvsselectwep == 0 then
+                        actionStates["~SELECT~WEAPON#1"] = true
+                        gui.InternalMousePressed(MOUSE_WHEEL_DOWN)
+                        lvsselectwep = 1
+                    elseif lvsselectwep == 1 then
+                        actionStates["~SELECT~WEAPON#2"] = true
+                        gui.InternalMousePressed(MOUSE_WHEEL_UP)
+                        lvsselectwep = 2
+                    elseif lvsselectwep == 2 then
+                        actionStates["~SELECT~WEAPON#3"] = true
+                        gui.InternalMousePressed(MOUSE_MIDDLE)
+                        lvsselectwep = 3
+                    elseif lvsselectwep == 3 then
+                        actionStates["~SELECT~WEAPON#4"] = true
+                        gui.InternalMousePressed(MOUSE_4)
+                        lvsselectwep = 4
+                    elseif lvsselectwep == 4 then
+                        lvsselectwep = 0
+                    end
+                else
+                    actionStates["~SELECT~WEAPON#1"] = false
+                    actionStates["~SELECT~WEAPON#2"] = false
+                    actionStates["~SELECT~WEAPON#3"] = false
+                    actionStates["~SELECT~WEAPON#4"] = false
+                end
+            end
 
             -- Update the server with the latest states
             updateServer()

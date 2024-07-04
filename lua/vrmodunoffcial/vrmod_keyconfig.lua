@@ -1,0 +1,78 @@
+-- -- vrmod_keyconfig.lua
+-- if CLIENT then
+--     local keyConfigMenu = nil
+--     local actionNames = {"boolean_primaryfire", "boolean_secondaryfire", "boolean_use", "boolean_jump", "boolean_sprint", "boolean_duck", "boolean_reload", "boolean_flashlight", "boolean_walk", "boolean_turnleft", "boolean_turnright",} -- 他のアクションを追加
+--     local function OpenKeyConfigMenu()
+--         if IsValid(keyConfigMenu) then
+--             keyConfigMenu:Remove()
+--         end
+
+--         keyConfigMenu = vgui.Create("DFrame")
+--         keyConfigMenu:SetSize(400, 600)
+--         keyConfigMenu:Center()
+--         keyConfigMenu:SetTitle("VRMod Key Configuration")
+--         keyConfigMenu:MakePopup()
+--         local scroll = vgui.Create("DScrollPanel", keyConfigMenu)
+--         scroll:Dock(FILL)
+--         for _, action in ipairs(actionNames) do
+--             local panel = scroll:Add("DPanel")
+--             panel:Dock(TOP)
+--             panel:SetHeight(40)
+--             panel:DockMargin(0, 0, 0, 5)
+--             local label = vgui.Create("DLabel", panel)
+--             label:SetText(action)
+--             label:Dock(LEFT)
+--             label:SetWidth(200)
+--             local button = vgui.Create("DButton", panel)
+--             button:Dock(FILL)
+--             button:SetText(GetConVar("vrmod_" .. action .. "_bind"):GetString() or "Unbound")
+--             function button:DoClick()
+--                 self:SetText("Press a button...")
+--                 hook.Add(
+--                     "VRMod_Input",
+--                     "KeyConfigBinding",
+--                     function(inputAction, pressed)
+--                         if pressed then
+--                             RunConsoleCommand("vrmod_" .. action .. "_bind", inputAction)
+--                             self:SetText(inputAction)
+--                             hook.Remove("VRMod_Input", "KeyConfigBinding")
+--                         end
+--                     end
+--                 )
+--             end
+--         end
+
+--         local saveButton = vgui.Create("DButton", keyConfigMenu)
+--         saveButton:Dock(BOTTOM)
+--         saveButton:SetText("Save and Close")
+--         saveButton.DoClick = function()
+--             keyConfigMenu:Close()
+--         end
+--     end
+
+--     concommand.Add("vrmod_keyconfig", OpenKeyConfigMenu)
+--     -- キーバインドを適用する関数
+--     local function ApplyKeyBindings()
+--         for _, action in ipairs(actionNames) do
+--             local bind = GetConVar("vrmod_" .. action .. "_bind"):GetString()
+--             if bind and bind ~= "" then
+--                 hook.Add(
+--                     "VRMod_Input",
+--                     "KeyBind_" .. action,
+--                     function(inputAction, pressed)
+--                         if inputAction == bind then
+--                             hook.Run("VRMod_Input", action, pressed)
+--                         end
+--                     end
+--                 )
+--             end
+--         end
+--     end
+
+--     -- VRModが開始されたときにキーバインドを適用
+--     hook.Add("VRMod_Start", "ApplyVRModKeyBindings", ApplyKeyBindings)
+--     -- 各アクション用のConVarを作成
+--     for _, action in ipairs(actionNames) do
+--         CreateClientConVar("vrmod_" .. action .. "_bind", "", true, false, "VRMod key binding for " .. action)
+--     end
+-- end

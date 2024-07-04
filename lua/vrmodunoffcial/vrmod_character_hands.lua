@@ -187,10 +187,11 @@ hook.Add(
 	"vrmod_stophandsonly",
 	function(ply, steamid)
 		if IsValid(hands) then
+			hands:AddEffects(EF_NODRAW) --note: this will block BuildBonePositions from running
 			hands:Remove()
 			LocalPlayer().RenderOverride = nil
 			hook.Remove("PreDrawTranslucentRenderables", "vrmod_floatinghands_dummymirror")
-			hook.Remove("VRMod_Start","vrmod_starthandsonly")
+			hook.Remove("VRMod_Start", "vrmod_starthandsonly")
 		end
 	end
 )
