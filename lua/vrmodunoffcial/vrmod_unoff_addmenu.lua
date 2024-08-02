@@ -407,14 +407,14 @@ hook.Add(
 		local hudwidth = advancedSettings:NumSlider("VR HUD Width", "vrmod_ScrW_hud", 640, ScrW() * 2, 0)
 		local customres = advancedSettings:Button("Custom Width & Height (Quest 2 / Virtual Desktop)")
 		customres.DoClick = function()
-			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5")
-			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2")
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "4.0")
+			RunConsoleCommand("vrmod_rtHeight_Multiplier", "2.5")
 			RunConsoleCommand("vrmod_character_restart")
 		end
 
 		local advanceddefault = advancedSettings:Button("Restore Default Advanced Settings")
 		advanceddefault.DoClick = function()
-			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0")
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "1.0")
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.0")
 			RunConsoleCommand("vrmod_error_check_method", "1")
 			RunConsoleCommand("vrmod_error_hard", "0")
@@ -1664,7 +1664,7 @@ hook.Add(
 		misc3_defaultbutton:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		misc3_defaultbutton.DoClick = function()
-			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "1.0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_character_restart") -- Run the console command "say hi" when you click it ( command, args )
 		end

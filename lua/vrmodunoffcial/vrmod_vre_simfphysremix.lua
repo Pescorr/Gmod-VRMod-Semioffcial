@@ -1,4 +1,4 @@
- if CLIENT then
+if CLIENT then
 	hook.Add("VRE_simphys_Overrides","vre_simfphysfix_override",function()
 		if LocalPlayer():InVehicle() then
 			hook.Remove("CreateMove","vre_simfphysfix")
@@ -41,7 +41,7 @@
 						net.WriteFloat(g_VR.tracking.pose_lefthand.ang.z*0.01)
 					end
 			else
-				net.WriteFloat(g_VR.input.vector2_steer.x)
+				net.WriteFloat(0.01)
 			end
 		net.SendToServer()
 

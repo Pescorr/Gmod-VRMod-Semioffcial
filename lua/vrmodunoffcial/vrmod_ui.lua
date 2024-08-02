@@ -38,7 +38,7 @@ if CLIENT then
 		render.Clear(0, 0, 0, 0, true, true)
 		local oldclip = DisableClipping(false)
 		render.SetWriteDepthToDestAlpha(false)
-		menus[uid].panel:PaintManual()
+        menus[uid].panel:PaintManual()
 		render.SetWriteDepthToDestAlpha(true)
 		DisableClipping(oldclip)
 		cam.End2D()
