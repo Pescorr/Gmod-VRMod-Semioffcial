@@ -23,7 +23,7 @@ local function netReadFrame()
 		
 		hmdPos = net.ReadVector(),
 		hmdAng = net.ReadAngle(),
-		lefthandPos =net.ReadVector(),
+		lefthandPos = net.ReadVector(),
 		lefthandAng = net.ReadAngle(),
 		righthandPos = net.ReadVector(),
 		righthandAng = net.ReadAngle(),

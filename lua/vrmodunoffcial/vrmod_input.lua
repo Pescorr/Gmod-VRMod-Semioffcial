@@ -5,6 +5,20 @@ local cl_lefthandfire = CreateClientConVar("vrmod_lefthandleftfire", 1, true, FC
 local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", 0, true, FCVAR_ARCHIVE)
 if SERVER then return end
 local ply = LocalPlayer()
+local VRKeyStates = {}
+-- VRの入力状態をシミュレートするための関数
+local function SimulateKeyPress(key, pressed)
+	VRKeyStates[key] = pressed
+end
+
+-- input.IsKeyDown をオーバーライド
+local original_IsKeyDown = input.IsKeyDown
+function input.IsKeyDown(key)
+	if key == KEY_K then return VRKeyStates[KEY_K] or false end
+
+	return original_IsKeyDown(key)
+end
+
 hook.Add(
 	"VRMod_EnterVehicle",
 	"vrmod_switchactionset",
@@ -30,9 +44,12 @@ hook.Add(
 	"vrutil_hook_defaultinput",
 	function(action, pressed)
 		if hook.Call("VRMod_AllowDefaultAction", nil, action) == false then return end
-		if (action == "boolean_primaryfire" or action == "boolean_turret") and not g_VR.menuFocus then
-			if cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then return end
-			LocalPlayer():ConCommand(pressed and "+attack" or "-attack")
+		if action == "boolean_primaryfire" then
+			if not g_VR.menuFocus then
+				LocalPlayer():ConCommand(pressed and "+attack" or "-attack")
+				-- K キーのシミュレーション
+				SimulateKeyPress(KEY_K, pressed)
+			end
 
 			return
 		end

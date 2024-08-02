@@ -57,6 +57,101 @@ hook.Add(
     end
 )
 
+-- hook.Add(
+--     "VRMod_Menu",
+--     "VRMod_changesettings_menu",
+--     function(ply)
+--         if ply ~= LocalPlayer() then return end
+--         if lvsautosetting:GetBool() then
+--             -- 以前のコマンドで設定されたconvarのリスト
+--             local lvsconvar = {"lvs_mouseaim", "lvs_select_weapon1", "lvs_select_weapon2", "lvs_select_weapon3", "lvs_select_weapon4", "gred_cl_simfphys_key_togglezoom", "lvs_edit_hud"}
+--             -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
+--             if not LVS then return end
+--             for _, lvsname in ipairs(lvsconvar) do
+--                 local lvsdefault = GetConVar(lvsname):GetDefault()
+--                 LocalPlayer():ConCommand(lvsname .. " " .. lvsdefault)
+--             end
+--         end
+--         if vrautobenchgun:GetBool() then
+--             -- 以前のコマンドで設定されたconvarのリスト
+--             local arcconvar = {"arc9_dev_benchgun", "arc9_tpik", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
+--             -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
+--             if not arc then return end
+--             for _, arcname in ipairs(arcconvar) do
+--                 local arcdefault = GetConVar(arcname):GetDefault()
+--                 LocalPlayer():ConCommand(arcname .. " " .. arcdefault)
+--             end
+--         end
+--     end
+-- )
+concommand.Add(
+    "vrmod_autosetting_reset",
+    function(ply, cmd, args)
+        if ply ~= LocalPlayer() then return end
+        if lvsautosetting:GetBool() then
+            -- 以前のコマンドで設定されたconvarのリスト
+            local lvsconvar = {"lvs_mouseaim", "lvs_select_weapon1", "lvs_select_weapon2", "lvs_select_weapon3", "lvs_select_weapon4", "gred_cl_simfphys_key_togglezoom", "lvs_edit_hud"}
+            -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
+            if not LVS then return end
+            for _, lvsname in ipairs(lvsconvar) do
+                local lvsdefault = GetConVar(lvsname):GetDefault()
+                LocalPlayer():ConCommand(lvsname .. " " .. lvsdefault)
+            end
+        end
+
+        if vrautobenchgun:GetBool() then
+            -- 以前のコマンドで設定されたconvarのリスト
+            local arcconvar = {"arc9_dev_benchgun", "arc9_tpik", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
+            -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
+            if not arc then return end
+            for _, arcname in ipairs(arcconvar) do
+                local arcdefault = GetConVar(arcname):GetDefault()
+                LocalPlayer():ConCommand(arcname .. " " .. arcdefault)
+            end
+        end
+    end
+)
+
+if CLIENT then
+    hook.Add(
+        "CreateMove",
+        "vrmod_startup_setting_default",
+        function()
+            hook.Remove("CreateMove", "vrmod_startup_setting_default")
+            timer.Simple(
+                1,
+                function()
+                    if ply ~= LocalPlayer() then return end
+                    if lvsautosetting:GetBool() then
+                        -- 以前のコマンドで設定されたconvarのリスト
+                        local lvsconvar = {"lvs_mouseaim", "lvs_select_weapon1", "lvs_select_weapon2", "lvs_select_weapon3", "lvs_select_weapon4", "gred_cl_simfphys_key_togglezoom", "lvs_edit_hud"}
+                        -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
+                        if not LVS then return end
+                        for _, lvsname in ipairs(lvsconvar) do
+                            local lvsdefault = GetConVar(lvsname):GetDefault()
+                            LocalPlayer():ConCommand(lvsname .. " " .. lvsdefault)
+                        end
+                    end
+
+                    if vrautobenchgun:GetBool() then
+                        -- 以前のコマンドで設定されたconvarのリスト
+                        local arcconvar = {"arc9_dev_benchgun", "arc9_tpik", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
+                        -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
+                        if not arc then return end
+                        for _, arcname in ipairs(arcconvar) do
+                            local arcdefault = GetConVar(arcname):GetDefault()
+                            LocalPlayer():ConCommand(arcname .. " " .. arcdefault)
+                        end
+                    end
+
+                    LocalPlayer():ConCommand("vrmod_autosetting_reset")
+                    print("asoighbqio")
+                end
+            )
+        end
+    )
+end
+
 hook.Add(
     "VRMod_Exit",
     "VRMod_changesettings",

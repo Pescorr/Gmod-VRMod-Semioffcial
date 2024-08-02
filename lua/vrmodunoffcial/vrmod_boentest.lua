@@ -1,0 +1,114 @@
+-- if CLIENT then
+--     local touchedBones = {}
+--     local markedBones = {}
+--     local isMarking = false
+--     local isHolding = false
+--     local magazineBones = {"mag", "clip"}
+--     local scaledBones = {}
+--     local function IsMagazineBone(boneName)
+--         for _, name in ipairs(magazineBones) do
+--             if string.find(string.lower(boneName), name) then return true end
+--         end
+
+--         return false
+--     end
+
+--     local function IsValveBipedBone(boneName)
+--         return string.find(boneName, "ValveBiped") ~= nil
+--     end
+
+--     local function ResetBoneScales(viewModel)
+--         for boneIndex, _ in pairs(scaledBones) do
+--             viewModel:ManipulateBoneScale(boneIndex, Vector(1, 1, 1))
+--         end
+
+--         scaledBones = {}
+--     end
+
+--     hook.Add(
+--         "VRMod_Input",
+--         "VRLeftHandPickup",
+--         function(action, pressed)
+--             if action == "boolean_left_pickup" then
+--                 isHolding = pressed
+--                 if not pressed then
+--                     markedBones = {}
+--                 end
+--             end
+--         end
+--     )
+
+--     hook.Add(
+--         "VRMod_PreRender",
+--         "VRLeftHandViewModelInteraction",
+--         function()
+--             if not g_VR.active then return end
+--             local ply = LocalPlayer()
+--             local weapon = ply:GetActiveWeapon()
+--             local viewModel = ply:GetViewModel()
+--             if not IsValid(weapon) or not IsValid(viewModel) then
+--                 ResetBoneScales(viewModel)
+
+--                 return
+--             end
+
+--             local leftHandPos = g_VR.tracking.pose_lefthand.pos
+--             -- Check if left hand is touching the view model
+--             local isTouching = false
+--             touchedBones = {}
+--             for i = 0, viewModel:GetBoneCount() - 1 do
+--                 local bonePos = viewModel:GetBonePosition(i)
+--                 -- 5 units distance threshold
+--                 if bonePos:DistToSqr(leftHandPos) < 25 then
+--                     local boneName = viewModel:GetBoneName(i)
+--                     table.insert(touchedBones, boneName)
+--                     isTouching = true
+--                     if isHolding and not IsValveBipedBone(boneName) then
+--                         markedBones[boneName] = i
+--                         if IsMagazineBone(boneName) and not scaledBones[i] then
+--                             viewModel:ManipulateBoneScale(i, Vector(0.01, 0.01, 0.01))
+--                             scaledBones[i] = true
+--                         end
+--                     end
+--                 end
+--             end
+
+--             -- Start or stop marking
+--             if isTouching and not isMarking then
+--                 isMarking = true
+--                 print("Touched bones:")
+--                 for _, boneName in ipairs(touchedBones) do
+--                     print("- " .. boneName)
+--                 end
+--             elseif not isTouching and isMarking then
+--                 isMarking = false
+--                 print("No longer touching view model")
+--             end
+
+--             -- Update marked bone positions
+--             if isHolding then
+--                 for boneName, boneIndex in pairs(markedBones) do
+--                     local boneMatrix = viewModel:GetBoneMatrix(boneIndex)
+--                     if boneMatrix then
+--                         local bonePos = boneMatrix:GetTranslation()
+--                         local offsetPos = bonePos - viewModel:GetPos()
+--                         local worldPos = ply:GetShootPos() + offsetPos
+--                         -- Move the bone to the left hand position
+--                         boneMatrix:SetTranslation(leftHandPos)
+--                         viewModel:SetBoneMatrix(boneIndex, boneMatrix)
+--                     end
+--                 end
+--             end
+--         end
+--     )
+
+--     concommand.Add(
+--         "vrmod_magre",
+--         function()
+--             local viewModel = LocalPlayer():GetViewModel()
+--             if IsValid(viewModel) then
+--                 ResetBoneScales(viewModel)
+--             end
+--         end
+--     )
+-- end
