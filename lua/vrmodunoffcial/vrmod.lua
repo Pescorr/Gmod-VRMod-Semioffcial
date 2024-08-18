@@ -19,7 +19,7 @@ function vrmod_lua()
 	end
 
 	if CLIENT then
-		local errorout = CreateClientConVar("vrmod_error_check_method", 1, true)
+		local errorout = CreateClientConVar("vrmod_error_check_method", 1, true,FCVAR_ARCHIVE)
 		local vrScrH = CreateClientConVar("vrmod_ScrH", ScrH(), true, FCVAR_ARCHIVE)
 		local vrScrW = CreateClientConVar("vrmod_ScrW", ScrW(), true, FCVAR_ARCHIVE)
 		local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
@@ -41,35 +41,35 @@ function vrmod_lua()
 		g_VR.changedInputs = {}
 		g_VR.errorText = ""
 		--todo move some of these to the files where they belong
-		vrmod.AddCallbackedConvar("vrmod_althead", nil, "1")
-		vrmod.AddCallbackedConvar("vrmod_autostart", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_scale", nil, "38.7")
-		vrmod.AddCallbackedConvar("vrmod_heightmenu", nil, "1")
-		vrmod.AddCallbackedConvar("vrmod_floatinghands", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_desktopview", nil, "3")
+		vrmod.AddCallbackedConvar("vrmod_althead", nil, "1",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_autostart", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_scale", nil, "38.7",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_heightmenu", nil, "1",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_floatinghands", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_desktopview", nil, "3",FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_useworldmodels", nil, "0", nil, nil, 0, 1, tobool, UpdateWorldModelSetting)
-		vrmod.AddCallbackedConvar("vrmod_laserpointer", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_characterEyeHeight", nil, "66.8", nil, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-		vrmod.AddCallbackedConvar("vrmod_characterHeadToHmdDist", nil, "6.3", nil, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-		vrmod.AddCallbackedConvar("vrmod_oldcharacteryaw", nil, "1")
-		vrmod.AddCallbackedConvar("vrmod_controlleroffset_x", nil, "-15")
-		vrmod.AddCallbackedConvar("vrmod_controlleroffset_y", nil, "-1")
-		vrmod.AddCallbackedConvar("vrmod_controlleroffset_z", nil, "5")
-		vrmod.AddCallbackedConvar("vrmod_controlleroffset_pitch", nil, "50")
-		vrmod.AddCallbackedConvar("vrmod_controlleroffset_yaw", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_controlleroffset_roll", nil, "0")
+		vrmod.AddCallbackedConvar("vrmod_laserpointer", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_characterEyeHeight", nil, "66.8", FCVAR_ARCHIVE, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+		vrmod.AddCallbackedConvar("vrmod_characterHeadToHmdDist", nil, "6.3", FCVAR_ARCHIVE, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+		vrmod.AddCallbackedConvar("vrmod_oldcharacteryaw", nil, "1",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_controlleroffset_x", nil, "-15",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_controlleroffset_y", nil, "-1",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_controlleroffset_z", nil, "5",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_controlleroffset_pitch", nil, "50",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_controlleroffset_yaw", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_controlleroffset_roll", nil, "0",FCVAR_ARCHIVE)
 		-- ConVarの追加
-		vrmod.AddCallbackedConvar("vrmod_hmdoffset_x", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_hmdoffset_y", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_hmdoffset_z", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_hmdoffset_pitch", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_hmdoffset_yaw", nil, "0")
-		vrmod.AddCallbackedConvar("vrmod_hmdoffset_roll", nil, "0")
+		vrmod.AddCallbackedConvar("vrmod_hmdoffset_x", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_hmdoffset_y", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_hmdoffset_z", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_hmdoffset_pitch", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_hmdoffset_yaw", nil, "0",FCVAR_ARCHIVE)
+		vrmod.AddCallbackedConvar("vrmod_hmdoffset_roll", nil, "0",FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar(
 			"vrmod_znear",
 			nil,
 			"6.0",
-			nil,
+			FCVAR_ARCHIVE,
 			nil,
 			nil,
 			nil,
@@ -85,7 +85,7 @@ function vrmod_lua()
 			"vrmod_postprocess",
 			nil,
 			"0",
-			nil,
+			FCVAR_ARCHIVE,
 			nil,
 			nil,
 			nil,
@@ -1057,6 +1057,9 @@ vrmod_lua()
 concommand.Add(
 	"vrmod_lua_reset",
 	function(ply, cmd, args)
+		AddCSLuaFile("vrmodunoffcial/vrmod.lua")
+		include("vrmodunoffcial/vrmod.lua")
+
 		vrmod_lua()
 	end
 )

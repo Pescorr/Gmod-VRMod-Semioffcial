@@ -114,7 +114,7 @@ hook.Add(
 
 		local applybutton = vrSettings:Button("Apply VR Settings (Requires VRMod Restart)")
 		applybutton.DoClick = function()
-			RunConsoleCommand("vrmod_character_restart")
+			RunConsoleCommand("vrmod_restart")
 		end
 
 		local autoadjust = vrSettings:Button("Auto Adjust VR Settings (Requires VRMod Restart)")
@@ -130,7 +130,7 @@ hook.Add(
 			timer.Simple(
 				1,
 				function()
-					RunConsoleCommand("vrmod_character_restart")
+					RunConsoleCommand("vrmod_restart")
 				end
 			)
 		end
@@ -239,7 +239,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_gmod_optimization_03")
 		end
 
-		local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, false, "Show optimization tabs in VR settings menu")
+		local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, FCVAR_ARCHIVE, "Show optimization tabs in VR settings menu")
 		local showopttabs = graphicsSettings:CheckBox("Show Manual Optimization Tabs")
 		showopttabs:SetConVar("vrmod_showmanualoptimizationtabs")
 		local gfxdefault = graphicsSettings:Button("Restore Default Graphics Settings")
@@ -409,7 +409,7 @@ hook.Add(
 		customres.DoClick = function()
 			RunConsoleCommand("vrmod_rtWidth_Multiplier", "4.0")
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "2.5")
-			RunConsoleCommand("vrmod_character_restart")
+			RunConsoleCommand("vrmod_restart")
 		end
 
 		local advanceddefault = advancedSettings:Button("Restore Default Advanced Settings")
@@ -423,7 +423,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_ScrW", tostring(ScrW()))
 			RunConsoleCommand("vrmod_ScrH_hud", tostring(ScrH()))
 			RunConsoleCommand("vrmod_ScrW_hud", tostring(ScrW()))
-			RunConsoleCommand("vrmod_character_restart")
+			RunConsoleCommand("vrmod_restart")
 		end
 
 		local networkSettings = vgui.Create("DForm", sheet)
@@ -523,7 +523,7 @@ hook.Add(
 		vrmod_open_menu_auto_optimization:SizeToContents() -- Make its size the same as the contents
 		--DCheckBoxLabel end
 		--DCheckBoxLabel Start
-		local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, false, "Show optimization tabs in VR settings menu")
+		local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, FCVAR_ARCHIVE, "Show optimization tabs in VR settings menu")
 		local showopttabs = MenuTab01:Add("DCheckBoxLabel") -- Create the checkbox
 		showopttabs:SetPos(20, 320) -- Set the position
 		showopttabs:SetText("[Show Manual Optimization Tabs]") -- Set the text next to the box
@@ -1083,11 +1083,11 @@ hook.Add(
 		character_restart:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		character_restart.DoClick = function()
-			RunConsoleCommand("vrmod_character_restart") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_restart") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
 		character_restart.DoRightClick = function()
-			RunConsoleCommand("vrmod_character_restart") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_restart") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
 		--DButton end
@@ -1110,7 +1110,7 @@ hook.Add(
 			timer.Simple(
 				1,
 				function()
-					RunConsoleCommand("vrmod_character_restart") -- Run the console command "say hi" when you click it ( command, args )
+					RunConsoleCommand("vrmod_restart") -- Run the console command "say hi" when you click it ( command, args )
 				end
 			)
 		end
@@ -1651,7 +1651,7 @@ hook.Add(
 		Height_Beta.DoClick = function()
 			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_character_restart") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_restart") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
 		Height_Beta.DoRightClick = function() end
@@ -1666,7 +1666,7 @@ hook.Add(
 		misc3_defaultbutton.DoClick = function()
 			RunConsoleCommand("vrmod_rtWidth_Multiplier", "1.0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.0") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_character_restart") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_restart") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
 		misc3_defaultbutton.DoRightClick = function() end

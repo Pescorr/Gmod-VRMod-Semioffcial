@@ -9,8 +9,8 @@ function vrmod_pickup_lua()
 	)
 
 	local _, convarValues = vrmod.GetConvars()
-	vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 0, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 3, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-	vrmod.AddCallbackedConvar("vrmod_pickup_centered", nil, 0, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+	vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 1, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 3, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+	vrmod.AddCallbackedConvar("vrmod_pickup_centered", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_dev_pickup_limit_droptest", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 2, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 100, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 99999, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
@@ -175,15 +175,15 @@ function vrmod_pickup_lua()
 				-- Ragdoll pickup modification
 				if convarValues.vrmod_pickup_centered == 1 then
 					if IsValid(v:GetPhysicsObject()) then
-						local offset = handPos - v:GetPos()
+						local offset = handPos - v:GetPos() - Vector(3.5, 1.25, 0)
 						for i = 0, v:GetPhysicsObjectCount() - 1 do
 							local phys = v:GetPhysicsObjectNum(i)
 							if IsValid(phys) then
-								phys:SetPos(phys:GetPos() + offset)
+								phys:SetPos(phys:GetPos() - offset)
 							end
 						end
 
-						v:SetAngles(handAng + Angle(90,0,0))
+						v:SetAngles(handAng + Angle(0,0,-15))
 					end
 				end
 
@@ -191,13 +191,13 @@ function vrmod_pickup_lua()
 					--print("created controller")
 					pickupController = ents.Create("vrmod_pickup")
 					pickupController.ShadowParams = {
-						secondstoarrive = 0.0001, --1/cv_tickrate:GetInt()
+						secondstoarrive = 0.00005, --1/cv_tickrate:GetInt()
 						maxangular = 5000,
 						maxangulardamp = 5000,
-						maxspeed = 1000000,
-						maxspeeddamp = 10000,
-						dampfactor = 0.5,
-						teleportdistance = 0,
+						maxspeed = 2000000,
+						maxspeeddamp = 20000,
+						dampfactor = 0.3,
+						teleportdistance = 2000,
 						deltatime = 0,
 					}
 

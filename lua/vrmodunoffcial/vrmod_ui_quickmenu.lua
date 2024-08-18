@@ -95,8 +95,8 @@ function g_VR.MenuOpen()
 			end
 		)
 	elseif mode == 4 then
-		local newpos = pos+Vector(0,0,10)
-		local newang = ang+Angle(0,0,50)
+		local newpos = pos+Vector(0,0,0)
+		local newang = ang+Angle(0,0,0)
 		--forw, left, up
 		VRUtilMenuOpen(
 			"miscmenu",

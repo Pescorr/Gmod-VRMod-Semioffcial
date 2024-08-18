@@ -648,7 +648,7 @@ function vrmod_character_lua()
 			"vrmod_characterstop",
 			function(ply, steamid)
 				g_VR.StopCharacterSystem(steamid)
-				g_VR.StopCharacterSystem(ply:SteamID())
+				g_VR.StopCharacterSystem(ply)
 			end
 		)
 		-- else
@@ -747,6 +747,8 @@ vrmod_character_lua()
 concommand.Add(
 	"vrmod_lua_reset_character",
 	function(ply, cmd, args)
+		AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
+		include("vrmodunoffcial/vrmod_character.lua")
 		vrmod_character_lua()
 	end
 )

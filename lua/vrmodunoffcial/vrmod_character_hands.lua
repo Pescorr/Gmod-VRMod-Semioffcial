@@ -202,6 +202,8 @@ vrmod_character_hands_lua()
 concommand.Add(
 	"vrmod_lua_reset_character_hands",
 	function(ply, cmd, args)
+		AddCSLuaFile("vrmodunoffcial/vrmod_character_hands.lua")
+		include("vrmodunoffcial/vrmod_character_hands.lua")
 		vrmod_character_hands_lua()
 	end
 )

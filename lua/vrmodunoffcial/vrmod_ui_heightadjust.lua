@@ -228,6 +228,10 @@ function VRUtilOpenHeightMenu()
 			enabled = true, -- このボタンは常に有効です
 			fn = function()
 				RunConsoleCommand("vrmod_character_reset")
+				convars.vrmod_scale:SetFloat(33.7)
+				convars.vrmod_seatedoffset:SetFloat(0)
+				RunConsoleCommand("vrmod_restart")
+
 			end
 		},
 		-- 新しいボタン「AutoTestver」の定義を追加
@@ -242,12 +246,21 @@ function VRUtilOpenHeightMenu()
 			text_y = 5,
 			enabled = true, -- このボタンも常に有効
 			fn = function()
+				AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
+				include("vrmodunoffcial/vrmod_character.lua")		
 				RunConsoleCommand("vrmod_scale_auto")
 				RunConsoleCommand("vrmod_character_auto")
 				g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
 				convars.vrmod_scale:SetFloat(g_VR.scale)
 				convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
-				RunConsoleCommand("vrmod_character_restart")
+				RunConsoleCommand("vrmod_restart")
+				if convarValues.vrmod_seated then
+					convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+				else
+					g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+					convars.vrmod_scale:SetFloat(g_VR.scale)
+				end
+
 			end
 		},
 		-- 新しいボタン「AutoTestver」の定義を追加

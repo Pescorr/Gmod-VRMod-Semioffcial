@@ -36,10 +36,10 @@ function ENT:Initialize()
 
     local phys = self:GetPhysicsObject()
     if phys:IsValid() then
-        phys:SetMass(5) -- 質量の調整
+        phys:SetMass(1) -- 質量の調整
     end
 
     -- pickup成功率を向上させるための位置と角度の調整
     self:SetPos(self:GetPos() + Vector(0, 0, 0)) -- スポーン位置を少し上に調整
-    self:SetAngles(Angle(0, self:GetSpawnAngle().y, 0)) -- 事前に設定されたプレイヤーの向きに合わせて角度を調整
+    self:SetAngles(Angle(90, self:GetSpawnAngle().y, 90)) -- 事前に設定されたプレイヤーの向きに合わせて角度を調整
 end
