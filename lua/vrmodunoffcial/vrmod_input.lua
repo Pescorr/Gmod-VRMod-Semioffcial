@@ -267,6 +267,23 @@ hook.Add(
 			return
 		end
 
+		if action == "boolean_invnext" then
+			if pressed then
+				LocalPlayer():ConCommand("invnext")
+			end
+
+			return
+		end
+
+		if action == "boolean_invprev" then
+			if pressed then
+				LocalPlayer():ConCommand("invprev")
+			end
+
+			return
+		end
+
+
 		for i = 1, #g_VR.CustomActions do
 			if action == g_VR.CustomActions[i][1] then
 				local commands = string.Explode(";", g_VR.CustomActions[i][pressed and 2 or 3], false)

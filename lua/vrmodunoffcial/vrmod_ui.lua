@@ -4,15 +4,15 @@ if CLIENT then
 	g_VR.menuCursorX = 0
 	g_VR.menuCursorY = 0
 	local _, convarValues = vrmod.GetConvars()
-	vrmod.AddCallbackedConvar("vrmod_test_ui_testver", nil, 0, nil, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-	vrmod.AddCallbackedConvar("vrmod_ui_realtime", nil, 0, nil, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-	vrmod.AddCallbackedConvar("vrmod_attach_weaponmenu", nil, 1, nil, "", 0, 4, tonumber)
-	vrmod.AddCallbackedConvar("vrmod_attach_quickmenu", nil, 1, nil, "", 0, 4, tonumber)
-	vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 1, nil, "", 0, 4, tonumber)
-	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 0, nil, "", 0, 1, tonumber)
-	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, nil, "", 0, 1, tonumber)
+	vrmod.AddCallbackedConvar("vrmod_test_ui_testver", nil, 0, FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+	vrmod.AddCallbackedConvar("vrmod_ui_realtime", nil, 1, FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+	vrmod.AddCallbackedConvar("vrmod_attach_weaponmenu", nil, 4, FCVAR_ARCHIVE, "", 0, 4, tonumber)
+	vrmod.AddCallbackedConvar("vrmod_attach_quickmenu", nil, 4, FCVAR_ARCHIVE, "", 0, 4, tonumber)
+	vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 4, FCVAR_ARCHIVE, "", 0, 4, tonumber)
+	vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 1, FCVAR_ARCHIVE, "", 0, 1, tonumber)
+	vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, FCVAR_ARCHIVE, "", 0, 1, tonumber)
 	local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
-	local uikeyboard = CreateClientConVar("vrmod_keyboard_uichatkey", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+	local uikeyboard = CreateClientConVar("vrmod_keyboard_uichatkey", 0, true, FCVAR_ARCHIVE, nil, 0, 1)
 	local rt_beam = GetRenderTarget("vrmod_rt_beam", 64, 64, false)
 	local mat_beam = CreateMaterial(
 		"vrmod_mat_beam",
@@ -38,7 +38,7 @@ if CLIENT then
 		render.Clear(0, 0, 0, 0, true, true)
 		local oldclip = DisableClipping(false)
 		render.SetWriteDepthToDestAlpha(false)
-        menus[uid].panel:PaintManual()
+		menus[uid].panel:PaintManual()
 		render.SetWriteDepthToDestAlpha(true)
 		DisableClipping(oldclip)
 		cam.End2D()
@@ -337,8 +337,6 @@ if CLIENT then
 				end
 
 				VRUtilMenuRenderPanel(g_VR.menuFocus)
-
-				
 			end
 		end
 	)

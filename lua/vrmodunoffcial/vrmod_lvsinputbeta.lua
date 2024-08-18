@@ -64,7 +64,7 @@ if CLIENT then
     end
 
     local usePressedTime = 0
-    local pickuphandle = CreateClientConVar("vrmod_lvs_pickup_handle", "1", true)
+    local pickuphandle = CreateClientConVar("vrmod_lvs_pickup_handle", "1", true,FCVAR_ARCHIVE)
     local useTimerRunning = false
     -- 追加: lvsselectwep変数の定義と初期化
     local lvsselectwep = 0
