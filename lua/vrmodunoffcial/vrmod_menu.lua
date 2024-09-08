@@ -33,9 +33,9 @@ local function OpenMenu()
 		LocalPlayer():ConCommand("vrmod_Scr_Auto")
 	end
 
-	if autooptimize:GetBool() then
-		LocalPlayer():ConCommand("vrmod_gmod_optimization")
-	end
+	-- if autooptimize:GetBool() then
+	-- 	LocalPlayer():ConCommand("vrmod_gmod_optimization")
+	-- end
 
 	if IsValid(frame) then return frame end
 	frame = vgui.Create("DFrame")

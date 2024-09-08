@@ -1,6 +1,8 @@
---******************************************************************************************************************************
+-- テレポートモードのためのConVarを作成
+local cv_teleportMode = CreateClientConVar("vrmod_teleport_mode", "0", true, FCVAR_ARCHIVE, "テレポートモードを有効にする (0: 無効, 1: 有効)")
 local cv_allowtp = CreateClientConVar("vrmod_allow_teleport", 1, true, FCVAR_REPLICATED)
 local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client", 0, true, FCVAR_ARCHIVE)
+local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly", 0, false, FCVAR_ARCHIVE)
 if SERVER then
 	util.AddNetworkString("vrmod_teleport")
 	vrmod.NetReceiveLimited(
@@ -22,112 +24,125 @@ for i = 1, 17 do
 	tpBeamMatrices[i] = Matrix()
 end
 
+-- テレポート機能を処理する関数
+local function HandleTeleport(pressed)
+	if pressed then
+		tpBeamEnt = ClientsideModel("models/vrmod/tpbeam.mdl")
+		tpBeamEnt:SetRenderMode(RENDERMODE_TRANSCOLOR)
+		tpBeamEnt.RenderOverride = function(self)
+			render.SuppressEngineLighting(true)
+			self:SetupBones()
+			for i = 1, 17 do
+				self:SetBoneMatrix(i - 1, tpBeamMatrices[i])
+			end
+
+			self:DrawModel()
+			render.SetColorModulation(1, 1, 1)
+			render.SuppressEngineLighting(false)
+		end
+
+		hook.Add(
+			"VRMod_PreRender",
+			"teleport",
+			function()
+				local controllerPos, controllerDir = g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang:Forward()
+				prevPos = controllerPos
+				local hit = false
+				for i = 2, 17 do
+					local d = i - 1
+					local nextPos = controllerPos + controllerDir * 50 * d + Vector(0, 0, -d * d * 3)
+					local v = nextPos - prevPos
+					if not hit then
+						local tr = util.TraceLine(
+							{
+								start = prevPos,
+								endpos = prevPos + v,
+								filter = LocalPlayer(),
+								mask = MASK_PLAYERSOLID
+							}
+						)
+
+						hit = tr.Hit
+						if hit then
+							tpBeamMatrices[1] = Matrix()
+							tpBeamMatrices[1]:Translate(tr.HitPos + tr.HitNormal)
+							tpBeamMatrices[1]:Rotate(tr.HitNormal:Angle() + Angle(90, 0, 90))
+							if tr.HitNormal.z < 0.7 then
+								tpBeamMatrices[1]:Scale(Vector(0.5, 0.5, 0.5))
+								tpBeamEnt:SetColor(Color(255, 100, 100, 150))
+								tpBeamHitPos = nil
+							else
+								tpBeamEnt:SetColor(Color(100, 255, 100, 150))
+								tpBeamHitPos = tr.HitPos
+							end
+
+							tpBeamEnt:SetPos(tr.HitPos)
+						end
+					end
+
+					tpBeamMatrices[i] = Matrix()
+					tpBeamMatrices[i]:Translate(prevPos + v * 0.5)
+					tpBeamMatrices[i]:Rotate(v:Angle() + Angle(-90, 0, 0))
+					tpBeamMatrices[i]:Scale(Vector(0.5, 0.5, v:Length()))
+					prevPos = nextPos
+				end
+
+				if not hit then
+					tpBeamEnt:SetColor(Color(0, 0, 0, 0))
+					tpBeamHitPos = nil
+				end
+			end
+		)
+	else
+		tpBeamEnt:Remove()
+		hook.Remove("VRMod_PreRender", "teleport")
+		if tpBeamHitPos then
+			net.Start("vrmod_teleport")
+			net.WriteVector(tpBeamHitPos)
+			net.SendToServer()
+		end
+	end
+end
+
+-- 入力処理を変更
 hook.Add(
 	"VRMod_Input",
 	"teleport",
 	function(action, pressed)
-		if action == "boolean_teleport" and not LocalPlayer():InVehicle() and cv_allowtp:GetBool() and cv_usetp:GetBool() then
-			if pressed then
-				tpBeamEnt = ClientsideModel("models/vrmod/tpbeam.mdl")
-				tpBeamEnt:SetRenderMode(RENDERMODE_TRANSCOLOR)
-				tpBeamEnt.RenderOverride = function(self)
-					render.SuppressEngineLighting(true)
-					self:SetupBones()
-					for i = 1, 17 do
-						self:SetBoneMatrix(i - 1, tpBeamMatrices[i])
-					end
+		-- プレイヤーが車や椅子に乗っているかチェック
+		local ply = LocalPlayer()
+		if ply:InVehicle() then return end
+		-- テレポートモードが有効な場合
+		if cv_teleportMode:GetBool() then
+			if action == "boolean_walk" or action == "boolean_jump" or action == "boolean_sprint" then
+				HandleTeleport(pressed)
+				-- 他の処理を中断
 
-					self:DrawModel()
-					render.SetColorModulation(1, 1, 1)
-					render.SuppressEngineLighting(false)
-				end
-
-				hook.Add(
-					"VRMod_PreRender",
-					"teleport",
-					function()
-						local controllerPos, controllerDir = g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang:Forward()
-						prevPos = controllerPos
-						local hit = false
-						for i = 2, 17 do
-							local d = i - 1
-							local nextPos = controllerPos + controllerDir * 50 * d + Vector(0, 0, -d * d * 3)
-							local v = nextPos - prevPos
-							if not hit then
-								local tr = util.TraceLine(
-									{
-										start = prevPos,
-										endpos = prevPos + v,
-										filter = LocalPlayer(),
-										mask = MASK_PLAYERSOLID
-									}
-								)
-
-								hit = tr.Hit
-								if hit then
-									tpBeamMatrices[1] = Matrix()
-									tpBeamMatrices[1]:Translate(tr.HitPos + tr.HitNormal)
-									tpBeamMatrices[1]:Rotate(tr.HitNormal:Angle() + Angle(90, 0, 90))
-									if tr.HitNormal.z < 0.7 then
-										tpBeamMatrices[1]:Scale(Vector(0.5, 0.5, 0.5))
-										tpBeamEnt:SetColor(Color(255, 100, 100, 150))
-										tpBeamHitPos = nil
-									else
-										tpBeamEnt:SetColor(Color(100, 255, 100, 150))
-										tpBeamHitPos = tr.HitPos
-									end
-
-									tpBeamEnt:SetPos(tr.HitPos)
-								end
-							end
-
-							tpBeamMatrices[i] = Matrix()
-							tpBeamMatrices[i]:Translate(prevPos + v * 0.5)
-							tpBeamMatrices[i]:Rotate(v:Angle() + Angle(-90, 0, 0))
-							tpBeamMatrices[i]:Scale(Vector(0.5, 0.5, v:Length()))
-							prevPos = nextPos
-						end
-
-						if not hit then
-							tpBeamEnt:SetColor(Color(0, 0, 0, 0))
-							tpBeamHitPos = nil
-						end
-					end
-				)
-			else
-				tpBeamEnt:Remove()
-				hook.Remove("VRMod_PreRender", "teleport")
-				if tpBeamHitPos then
-					net.Start("vrmod_teleport")
-					net.WriteVector(tpBeamHitPos)
-					net.SendToServer()
-				end
+				return false
+			end
+		else
+			-- 従来のテレポート機能
+			if action == "boolean_teleport" and not LocalPlayer():InVehicle() and cv_allowtp:GetBool() and cv_usetp:GetBool() then
+				HandleTeleport(pressed)
 			end
 		end
 	end
 )
 
---******************************************************************************************************************************
-if SERVER then
-	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle", 0, false, FCVAR_ARCHIVE)
-	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle", 0, false, FCVAR_ARCHIVE)
-
-	return
-end
-
-local convars, convarValues = vrmod.AddCallbackedConvar("vrmod_controlleroriented", "controllerOriented", 0, nil, nil, nil, nil, tobool)
-vrmod.AddCallbackedConvar("vrmod_smoothturn", "smoothTurn", 0, nil, nil, nil, nil, tobool)
+if SERVER then return end
+local convars, convarValues = vrmod.AddCallbackedConvar("vrmod_controlleroriented", "controllerOriented", "0", nil, nil, nil, nil, tobool)
+vrmod.AddCallbackedConvar("vrmod_smoothturn", "smoothTurn", "0", nil, nil, nil, nil, tobool)
 vrmod.AddCallbackedConvar("vrmod_smoothturnrate", "smoothTurnRate", "180", nil, nil, nil, nil, tonumber)
 vrmod.AddCallbackedConvar("vrmod_crouchthreshold", "crouchThreshold", "40", nil, nil, nil, nil, tonumber)
-local cv_cargunmode = CreateClientConVar("vrmod_vehicle_reticlemode", 1, FCVAR_ARCHIVE)
+local cv_cargunmode = CreateClientConVar("vrmod_vehicle_reticlemode", 1, false, FCVAR_ARCHIVE)
 local cv_sight = CreateClientConVar("vrmod_sight_bodypart", 1, false, FCVAR_ARCHIVE)
 local jumpduck = CreateClientConVar("vrmod_autojumpduck", 1, true, FCVAR_ARCHIVE)
 local zeroVec, zeroAng = Vector(), Angle()
 local upVec = Vector(0, 0, 1)
 local function start()
 	local ply = LocalPlayer()
-	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle", 0, false, FCVAR_ARCHIVE)
-	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle", 0, false, FCVAR_ARCHIVE)
+	local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle", "0", false, FCVAR_ARCHIVE)
+	local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle", "0", false, FCVAR_ARCHIVE)
 	local followVec = zeroVec
 	local originVehicleLocalPos, originVehicleLocalAng = zeroVec, zeroAng
 	vrmod.AddInGameMenuItem(
@@ -148,9 +163,9 @@ local function start()
 				local v = ply:GetVehicle()
 				local attachment = v:GetAttachment(v:LookupAttachment("vehicle_driver_eyes"))
 				if not originVehicleLocalPos then
-					local originHmdRelV, originHmdRelA = WorldToLocal(g_VR.origin, g_VR.originAngle, g_VR.tracking.hmd.pos, Angle(0, g_VR.tracking.hmd.ang.yaw, 0)) --where the origin is relative to the hmd				
-					g_VR.origin, g_VR.originAngle = LocalToWorld(originHmdRelV + Vector(7, 0, 2), originHmdRelA, attachment.Pos, attachment.Ang) --where the origin would be if the attachment was the hmd
-					originVehicleLocalPos, originVehicleLocalAng = WorldToLocal(g_VR.origin, g_VR.originAngle, attachment.Pos, attachment.Ang) --new origin relative to the attachment
+					local originHmdRelV, originHmdRelA = WorldToLocal(g_VR.origin, g_VR.originAngle, g_VR.tracking.hmd.pos, Angle(0, g_VR.tracking.hmd.ang.yaw, 0))
+					g_VR.origin, g_VR.originAngle = LocalToWorld(originHmdRelV + Vector(7, 0, 2), originHmdRelA, attachment.Pos, attachment.Ang)
+					originVehicleLocalPos, originVehicleLocalAng = WorldToLocal(g_VR.origin, g_VR.originAngle, attachment.Pos, attachment.Ang)
 				end
 
 				g_VR.origin, g_VR.originAngle = LocalToWorld(originVehicleLocalPos, originVehicleLocalAng, attachment.Pos, attachment.Ang)
@@ -170,10 +185,8 @@ local function start()
 				g_VR.originAngle.yaw = g_VR.originAngle.yaw + turnAmount
 			end
 
-			--make the player follow the hmd
 			local plyTargetPos = g_VR.tracking.hmd.pos + upVec:Cross(g_VR.tracking.hmd.ang:Right()) * -10
 			followVec = (ply:GetMoveType() == MOVETYPE_NOCLIP) and zeroVec or Vector((plyTargetPos.x - plyPos.x) * 8, (plyPos.y - plyTargetPos.y) * -8, 0)
-			--teleport view if further than 64 units from target
 			if followVec:LengthSqr() > 262144 then
 				local prevOrigin = g_VR.origin
 				g_VR.origin = g_VR.origin + (plyPos - plyTargetPos)
@@ -196,7 +209,6 @@ local function start()
 		end
 	)
 
-	--Pickup Convar Start
 	hook.Add(
 		"VRMod_Input",
 		"vrmod_locomotion_action",
@@ -215,16 +227,14 @@ local function start()
 		end
 	)
 
-	--Pickup Convar End
 	hook.Add(
 		"CreateMove",
 		"vrmod_locomotion",
-		function(cmd, action)
+		function(cmd)
 			if not g_VR.threePoints then return end
 			local moveType = ply:GetMoveType()
 			local cv_righthandle = CreateClientConVar("vrmod_test_Righthandle", "0", false, FCVAR_ARCHIVE)
 			local cv_lefthandle = CreateClientConVar("vrmod_test_lefthandle", "0", false, FCVAR_ARCHIVE)
-			--vehicle behaviour
 			if ply:InVehicle() and not cv_cargunmode:GetBool() then
 				local rhandreAng = ply:GetVehicle():GetAngles()
 				cmd:SetForwardMove((g_VR.input.vector1_forward - g_VR.input.vector1_reverse) * 400)
@@ -238,54 +248,66 @@ local function start()
 				end
 
 				local _, relativeAng = WorldToLocal(Vector(0, 0, 0), g_VR.tracking.pose_righthand.ang, Vector(0, 0, 0), rhandreAng)
-				cmd:SetViewAngles(relativeAng) --turret aiming
+				cmd:SetViewAngles(relativeAng)
 				cmd:SetButtons(bit.bor(cmd:GetButtons(), g_VR.input.boolean_turbo and IN_SPEED or 0, g_VR.input.boolean_handbrake and IN_JUMP or 0))
 
 				return
 			end
 
-			if jumpduck:GetBool() then
-				cmd:SetButtons(bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP + IN_DUCK or 0, g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < (g_VR.origin.z + convarValues.crouchThreshold)) and IN_DUCK or 0))
-			else
-				cmd:SetButtons(bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP or 0, g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < (g_VR.origin.z + convarValues.crouchThreshold)) and IN_DUCK or 0))
-			end
-
-			--set view angles to viewmodel muzzle angles for engine weapon support, note: movement is relative to view angles
-			local viewAngles = g_VR.currentvmi and g_VR.currentvmi.wrongMuzzleAng and g_VR.tracking.pose_righthand.ang or g_VR.viewModelMuzzle and g_VR.viewModelMuzzle.Ang or g_VR.tracking.pose_righthand.ang
-			viewAngles = viewAngles:Forward():Angle()
-			cmd:SetViewAngles(viewAngles)
-			--noclip behaviour
-			if moveType == MOVETYPE_NOCLIP then
-				cmd:SetForwardMove(math.abs(g_VR.input.vector2_walkdirection.y) > 0.5 and g_VR.input.vector2_walkdirection.y or 0)
-				cmd:SetSideMove(math.abs(g_VR.input.vector2_walkdirection.x) > 0.5 and g_VR.input.vector2_walkdirection.x or 0)
-				originVelocity = ply:GetVelocity()
-
-				return
-			end
-
-			--
-			local joystickVec = LocalToWorld(Vector(g_VR.input.vector2_walkdirection.y * math.abs(g_VR.input.vector2_walkdirection.y), (-g_VR.input.vector2_walkdirection.x) * math.abs(g_VR.input.vector2_walkdirection.x), 0) * ply:GetMaxSpeed() * 0.9, Angle(0, 0, 0), Vector(0, 0, 0), Angle(0, convarValues.controllerOriented and g_VR.tracking.pose_lefthand.ang.yaw or g_VR.tracking.hmd.ang.yaw, 0))
-			--
-			local walkDirViewAngRelative = WorldToLocal(followVec + joystickVec, zeroAng, zeroVec, Angle(0, viewAngles.yaw, 0))
-			cmd:SetForwardMove(walkDirViewAngRelative.x)
-			cmd:SetSideMove(-walkDirViewAngRelative.y)
-			if ply:InVehicle() and cv_cargunmode:GetBool() then
-				local rhandreAng = ply:GetVehicle():GetAngles()
-				cmd:SetForwardMove((g_VR.input.vector1_forward - g_VR.input.vector1_reverse) * 400)
-				cmd:SetSideMove(g_VR.input.vector2_steer.x * 400)
-				if cv_righthandle:GetBool() then
-					cmd:SetSideMove(g_VR.tracking.pose_righthand.ang.z * 5)
+			-- テレポートモードが有効でない場合のみ、通常の移動処理を行う
+			if not cv_teleportMode:GetBool() then
+				if jumpduck:GetBool() then
+					cmd:SetButtons(bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP + IN_DUCK or 0, g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < (g_VR.origin.z + convarValues.crouchThreshold)) and IN_DUCK or 0))
+				else
+					cmd:SetButtons(bit.bor(cmd:GetButtons(), g_VR.input.boolean_jump and IN_JUMP or 0, g_VR.input.boolean_sprint and IN_SPEED or 0, moveType == MOVETYPE_LADDER and IN_FORWARD or 0, (g_VR.tracking.hmd.pos.z < (g_VR.origin.z + convarValues.crouchThreshold)) and IN_DUCK or 0))
 				end
 
-				if cv_lefthandle:GetBool() then
-					cmd:SetSideMove(g_VR.tracking.pose_lefthand.ang.z * 5)
+				local viewAngles = g_VR.currentvmi and g_VR.currentvmi.wrongMuzzleAng and g_VR.tracking.pose_righthand.ang or g_VR.viewModelMuzzle and g_VR.viewModelMuzzle.Ang or g_VR.tracking.pose_righthand.ang
+				viewAngles = viewAngles:Forward():Angle()
+				cmd:SetViewAngles(viewAngles)
+				--noclip behaviour
+				if moveType == MOVETYPE_NOCLIP then
+					-- ノークリップモードの場合の処理
+					if cl_analogmoveonly:GetBool() then
+						LocalPlayer():ConCommand("vrmod_test_analogmoveonly 1")
+					end
+
+					-- アナログスティックの入力に基づいて移動を設定
+					cmd:SetForwardMove(math.abs(g_VR.input.vector2_walkdirection.y) > 0.5 and g_VR.input.vector2_walkdirection.y or 0)
+					cmd:SetSideMove(math.abs(g_VR.input.vector2_walkdirection.x) > 0.5 and g_VR.input.vector2_walkdirection.x or 0)
+					originVelocity = ply:GetVelocity()
+
+					return
+				else
+					if cl_analogmoveonly:GetBool() then
+						LocalPlayer():ConCommand("vrmod_test_analogmoveonly 0")
+					end
 				end
 
-				local _, relativeAng = WorldToLocal(Vector(0, 0, 0), g_VR.tracking.pose_righthand.ang, Vector(0, 0, 0), rhandreAng)
-				cmd:SetViewAngles(relativeAng) --turret aiming
-				cmd:SetButtons(bit.bor(cmd:GetButtons(), g_VR.input.boolean_turbo and IN_SPEED or 0, g_VR.input.boolean_handbrake and IN_JUMP or 0))
+				-- 通常の移動処理
+				local joystickVec = LocalToWorld(Vector(g_VR.input.vector2_walkdirection.y * math.abs(g_VR.input.vector2_walkdirection.y), (-g_VR.input.vector2_walkdirection.x) * math.abs(g_VR.input.vector2_walkdirection.x), 0) * ply:GetMaxSpeed() * 0.9, Angle(0, 0, 0), Vector(0, 0, 0), Angle(0, convarValues.controllerOriented and g_VR.tracking.pose_lefthand.ang.yaw or g_VR.tracking.hmd.ang.yaw, 0))
+				local walkDirViewAngRelative = WorldToLocal(followVec + joystickVec, zeroAng, zeroVec, Angle(0, viewAngles.yaw, 0))
+				cmd:SetForwardMove(walkDirViewAngRelative.x)
+				cmd:SetSideMove(-walkDirViewAngRelative.y)
+				-- 車両内での処理
+				if ply:InVehicle() and cv_cargunmode:GetBool() then
+					local rhandreAng = ply:GetVehicle():GetAngles()
+					cmd:SetForwardMove((g_VR.input.vector1_forward - g_VR.input.vector1_reverse) * 400)
+					cmd:SetSideMove(g_VR.input.vector2_steer.x * 400)
+					if cv_righthandle:GetBool() then
+						cmd:SetSideMove(g_VR.tracking.pose_righthand.ang.z * 5)
+					end
 
-				return
+					if cv_lefthandle:GetBool() then
+						cmd:SetSideMove(g_VR.tracking.pose_lefthand.ang.z * 5)
+					end
+
+					local _, relativeAng = WorldToLocal(Vector(0, 0, 0), g_VR.tracking.pose_righthand.ang, Vector(0, 0, 0), rhandreAng)
+					cmd:SetViewAngles(relativeAng)
+					cmd:SetButtons(bit.bor(cmd:GetButtons(), g_VR.input.boolean_turbo and IN_SPEED or 0, g_VR.input.boolean_handbrake and IN_JUMP or 0))
+
+					return
+				end
 			end
 		end
 	)

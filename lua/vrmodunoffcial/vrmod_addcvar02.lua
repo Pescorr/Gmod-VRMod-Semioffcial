@@ -1,4 +1,17 @@
 if CLIENT then
+
+
+
+
+
+
+
+
+
+
+
+
+
 	hook.Add(
 		"VRMod_Input",
 		"vrutil_novrweapon",
@@ -16,6 +29,8 @@ if CLIENT then
 			end
 		end
 	)
+
+
 
 	-- -- 依存するConVarを事前に定義
 	-- local convars = {
