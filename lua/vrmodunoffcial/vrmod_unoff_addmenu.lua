@@ -1,7 +1,7 @@
 --------[vrmod_unoff_addmenu.lua]Start--------
 if SERVER then return end
 local convars, convarValues = vrmod.GetConvars()
-local menutype1 = CreateClientConVar("vrmod_menu_type", 0, true, FCVAR_ARCHIVE, "1 = type1 0 = type2", 0, 1)
+local menutype1 = CreateClientConVar("vrmod_menu_type", 1, true, FCVAR_ARCHIVE, "1 = type1 0 = type2", 0, 1)
 hook.Add(
 	"VRMod_Menu",
 	"addsettings",
@@ -34,8 +34,10 @@ hook.Add(
 		local pickuplimit = gameplaySettings:NumSlider("Pickup Limit (Server)", "vrmod_pickup_limit", 0, 3, 0)
 		local manualpickups = gameplaySettings:CheckBox("Manual Pickups (Server)")
 		manualpickups:SetConVar("vrmod_manualpickups")
-		local gameplaydefault = gameplaySettings:Button("Restore Default Gameplay Settings")
-		gameplaydefault.DoClick = function()
+		-- GamePlay設定のデフォルト値
+		local GamePlay_defaultbutton = gameplaySettings:Button("Restore Default Gameplay Settings")
+		GamePlay_defaultbutton.DoClick = function()
+			RunConsoleCommand("vrmod_autojumpduck", "1")
 			RunConsoleCommand("vrmod_allow_teleport_client", "0")
 			RunConsoleCommand("vrmod_flashlight_attachment", "0")
 			RunConsoleCommand("vrmod_pickup_weight", "100")
@@ -160,9 +162,9 @@ hook.Add(
 		uiSettings:DockPadding(0, 0, 0, 0)
 		local hudenable = uiSettings:CheckBox("HUD Enable")
 		hudenable:SetConVar("vrmod_hud")
-		local hudcurve = uiSettings:NumSlider("HUD Curve", "vrmod_hudcurve", 0, 100, 0)
-		local huddistance = uiSettings:NumSlider("HUD Distance", "vrmod_huddistance", 0, 200, 0)
-		local hudscale = uiSettings:NumSlider("HUD Scale", "vrmod_hudscale", 0.01, 1, 2)
+		local hudcurve = uiSettings:NumSlider("HUD Curve", "vrmod_hudcurve", 1, 100, 0)
+		local huddistance = uiSettings:NumSlider("HUD Distance", "vrmod_huddistance", 1, 200, 0)
+		local hudscale = uiSettings:NumSlider("HUD Scale", "vrmod_hudscale", 0.01, 0.20, 2)
 		local hudalpha = uiSettings:NumSlider("HUD Alpha", "vrmod_hudtestalpha", 0, 255, 0)
 		local hudonlykey = uiSettings:CheckBox("HUD Only While Pressing Menu Key")
 		hudonlykey:SetConVar("vrmod_hud_visible_quickmenukey")
@@ -189,6 +191,7 @@ hook.Add(
 		keyboarduichat:SetConVar("vrmod_keyboard_uichatkey")
 		local VRElefthand = uiSettings:CheckBox("VRE Attach Left Hands")
 		VRElefthand:SetConVar("vre_ui_attachtohand")
+		-- UI設定のデフォルト値
 		local uidefault = uiSettings:Button("Restore Default UI Settings")
 		uidefault.DoClick = function()
 			RunConsoleCommand("vrmod_hud", "1")
@@ -197,14 +200,14 @@ hook.Add(
 			RunConsoleCommand("vrmod_hudscale", "0.05")
 			RunConsoleCommand("vrmod_hudtestalpha", "0")
 			RunConsoleCommand("vrmod_hud_visible_quickmenukey", "0")
-			RunConsoleCommand("vrmod_attach_quickmenu", "3")
+			RunConsoleCommand("vrmod_attach_quickmenu", "4")
 			RunConsoleCommand("vrmod_attach_weaponmenu", "3")
-			RunConsoleCommand("vrmod_attach_popup", "3")
-			RunConsoleCommand("vre_ui_attachtohand", "0")
-			RunConsoleCommand("vrmod_ui_outline", "0")
+			RunConsoleCommand("vrmod_attach_popup", "4")
+			RunConsoleCommand("vre_ui_attachtohand", "1")
+			RunConsoleCommand("vrmod_ui_outline", "1")
 			RunConsoleCommand("vrmod_ui_realtime", "0")
 			RunConsoleCommand("vrmod_cameraoverride", "1")
-			RunConsoleCommand("vrmod_keyboard_uichatkey", "1")
+			RunConsoleCommand("vrmod_keyboard_uichatkey", "0")
 		end
 
 		local graphicsSettings = vgui.Create("DForm", sheet)
@@ -216,47 +219,29 @@ hook.Add(
 		shadows:SetConVar("r_shadows")
 		local farz = graphicsSettings:NumSlider("Visible Range of Map", "r_farz", 0, 16384, 0)
 		farz:SetTooltip("sv_cheats 1 is required")
-		local matqueuemode = graphicsSettings:NumSlider("Mat Queue Mode", "mat_queue_mode", -1, 2, 0)
-		matqueuemode:SetTooltip("Setting to 2 will enable multi-core and increase FPS but may cause eye strain")
-		local mcore = graphicsSettings:NumSlider("GMod MCore Test", "gmod_mcore_test", -1, 1, 0)
-		local autooptimize = graphicsSettings:CheckBox("Auto Basic Optimization on VRMenu Open")
-		autooptimize:SetConVar("vrmod_gmod_optimization_auto")
-		local gmodoptimize = graphicsSettings:Button("Basic VRMod Optimization")
-		gmodoptimize.DoClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization")
+		local optimizationLevel = graphicsSettings:NumSlider("VRMod Optimization Level", "vrmod_gmod_optimization", 0, 4, 0)
+		optimizationLevel:SetTooltip("0: No optimization\n1: Basic optimization\n2: Medium optimization\n3: Strong optimization (may affect visual quality)\n3: Extreme optimization (Eye Flash WARNING)")
+		local optimizationDescription = graphicsSettings:Help("Optimization Levels:\n" .. "0: No optimization applied\n" .. "1: Basic - Disables gmod_mcore_test\n" .. "2: Medium - Disables water reflections and refractions\n" .. "3: Strong - Applies mirror optimizations and disables reflective surfaces\n" .. "4: Extreme - gmod_mcore_test Enable (!!Eye Flash WARNING!!)")
+		optimizationDescription:SetAutoStretchVertical(true)
+		local optSaveButton = graphicsSettings:Button("opt SAVE")
+		optSaveButton.DoClick = function()
+			RunConsoleCommand("vrmod_gmod_optimize_save")
 		end
 
-		gmodoptimize.DoRightClick = function()
-			RunConsoleCommand("remove_reflective_glass")
+		local optLoadButton = graphicsSettings:Button("opt LOAD")
+		optLoadButton.DoClick = function()
+			RunConsoleCommand("vrmod_gmod_optimize_load")
 		end
 
-		local gmodoptimize2 = graphicsSettings:Button("Strong VRMod Optimization (Buggy)")
-		gmodoptimize2.DoClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization_02")
-		end
-
-		gmodoptimize2.DoRightClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization_03")
-		end
-
+		local showOptTabs = graphicsSettings:CheckBox("Show Manual Optimization Tabs")
+		showOptTabs:SetConVar("vrmod_showmanualoptimizationtabs")
 		local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, FCVAR_ARCHIVE, "Show optimization tabs in VR settings menu")
-		local showopttabs = graphicsSettings:CheckBox("Show Manual Optimization Tabs")
-		showopttabs:SetConVar("vrmod_showmanualoptimizationtabs")
-		local gfxdefault = graphicsSettings:Button("Restore Default Graphics Settings")
-		gfxdefault.DoClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization_reset")
-		end
-
-		gfxdefault.DoRightClick = function()
-			RunConsoleCommand("vrmod_gmod_optimization_reset")
-		end
-
 		local MenuTab11 = nil
 		if showoptimizationtabs:GetBool() then
 			MenuTab11 = vgui.Create("DPanel", sheet)
 			sheet:AddSheet("Opt.1", MenuTab11, "icon16/cog_add.png")
 			MenuTab11.Paint = function(self, w, h) end
-			local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_drawsprites", "1"}, {"mat_alphacoverage", "0"}, {"r_maxdlights", "0.00"}, {"r_shadowmaxrendered", "0.00"}, {"gmod_mcore_test", "1"}}
+			local optimizeconvar = {{"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"vrmod_mirror_optimization", "0"}, {"vrmod_reflective_glass_toggle", "1"}, {"vrmod_disable_mirrors", "0"}, {"mat_alphacoverage", "0"}, {"r_shadowrendertotexture", "0"},{"cl_drawownshadow", "0"}, {"gmod_mcore_test", "1"}, {"mat_filterlightmaps", "0"}}
 			for _, convar in ipairs(optimizeconvar) do
 				local name, value = unpack(convar)
 				local optcheckbox = MenuTab11:Add("DCheckBoxLabel")
@@ -272,7 +257,7 @@ hook.Add(
 			MenuTab12 = vgui.Create("DPanel", sheet)
 			sheet:AddSheet("Opt.2", MenuTab12, "icon16/cog_add.png")
 			MenuTab12.Paint = function(self, w, h) end
-			local optimizeconvar2 = {{"r_projectedtexture_filter", "0"}, {"cl_detaildist", "500"}, {"cl_detailfade", "500"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_ambientboost", "0"}, {"r_decals", "60.00"}, {"r_drawparticles", "1"}, {"g_ragdoll_maxcount", "0"}, {"gmod_physiterations", "1"}, {"ai_strong_optimizations", "1"}, {"r_radiosity", "2"}, {"ai_strong_optimizations_no_checkstand", "1"}, {"ai_expression_optimization", "1"}, {"r_flashlightdepthres", "256"}, {"spawnicon_queue", "1"}}
+			local optimizeconvar2 = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"},{"r_projectedtexture_filter", "0"}, {"mat_use_compressed_hdr_textures", "1"}, {"r_ambientboost", "0"}, {"r_drawparticles", "0"}, {"gmod_physiterations", "1"}, {"ai_expression_optimization", "1"},  {"ai_expression_frametime", "1.00"}, {"prop_disable_distance_fade", "1"},{"r_shadowrendertotexture", "0"}, {"mat_bumpmap", "0"}, {"mat_specular", "0"}}
 			for _, convar in ipairs(optimizeconvar2) do
 				local name, value = unpack(convar)
 				local optcheckbox2 = MenuTab12:Add("DCheckBoxLabel")
@@ -407,14 +392,15 @@ hook.Add(
 		local hudwidth = advancedSettings:NumSlider("VR HUD Width", "vrmod_ScrW_hud", 640, ScrW() * 2, 0)
 		local customres = advancedSettings:Button("Custom Width & Height (Quest 2 / Virtual Desktop)")
 		customres.DoClick = function()
-			RunConsoleCommand("vrmod_rtWidth_Multiplier", "4.0")
-			RunConsoleCommand("vrmod_rtHeight_Multiplier", "2.5")
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5")
+			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2")
 			RunConsoleCommand("vrmod_restart")
 		end
 
+		-- Advanced設定のデフォルト値
 		local advanceddefault = advancedSettings:Button("Restore Default Advanced Settings")
 		advanceddefault.DoClick = function()
-			RunConsoleCommand("vrmod_rtWidth_Multiplier", "1.0")
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0")
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.0")
 			RunConsoleCommand("vrmod_error_check_method", "1")
 			RunConsoleCommand("vrmod_error_hard", "0")
@@ -423,6 +409,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_ScrW", tostring(ScrW()))
 			RunConsoleCommand("vrmod_ScrH_hud", tostring(ScrH()))
 			RunConsoleCommand("vrmod_ScrW_hud", tostring(ScrW()))
+			RunConsoleCommand("vrmod_scr_alwaysautosetting", "1")
 			RunConsoleCommand("vrmod_restart")
 		end
 
@@ -581,7 +568,7 @@ hook.Add(
 			MenuTab11 = vgui.Create("DPanel", sheet)
 			sheet:AddSheet("Opt.1", MenuTab11, "icon16/cog_add.png")
 			MenuTab11.Paint = function(self, w, h) end
-			local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_drawsprites", "1"}, {"mat_alphacoverage", "0"}, {"r_maxdlights", "0.00"}, {"r_shadowmaxrendered", "0.00"}, {"gmod_mcore_test", "1"}}
+			local optimizeconvar = {{"mat_motion_blur_enabled", "0"}, {"mat_motion_blur_falling_intensity", "0"}, {"mat_motion_blur_falling_min", "0"}, {"mat_motion_blur_falling_max", "0"}, {"mat_motion_blur_rotation_intensity", "0"}, {"mat_motion_blur_strength", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}, {"engine_no_focus_sleep", "0"}, {"r_drawsprites", "1"}, {"mat_alphacoverage", "0"}, {"r_maxdlights", "0.00"}, {"r_shadowmaxrendered", "0.00"}, {"gmod_mcore_test", "1"}, {"mat_specular", "1"}}
 			for _, convar in ipairs(optimizeconvar) do
 				local name, value = unpack(convar)
 				local optcheckbox = MenuTab11:Add("DCheckBoxLabel")
@@ -1006,14 +993,14 @@ hook.Add(
 		HUD_defaultbutton:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		HUD_defaultbutton.DoClick = function()
-			RunConsoleCommand("vrmod_hud", "1") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_hudcurve", "60") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_huddistance", "60") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_hudscale", "0.05") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_hudtestalpha", "0") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_test_ui_testver", "0") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_hudblacklist", "") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vrmod_hud_visible_quickmenukey", "0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_hud", "1")
+			RunConsoleCommand("vrmod_hudcurve", "60")
+			RunConsoleCommand("vrmod_huddistance", "60")
+			RunConsoleCommand("vrmod_hudscale", "0.05")
+			RunConsoleCommand("vrmod_hudtestalpha", "0")
+			RunConsoleCommand("vrmod_test_ui_testver", "0")
+			RunConsoleCommand("vrmod_hudblacklist", "")
+			RunConsoleCommand("vrmod_hud_visible_quickmenukey", "0")
 		end
 
 		HUD_defaultbutton.DoRightClick = function() end
@@ -1146,6 +1133,14 @@ hook.Add(
 		character_reset:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		character_reset.DoClick = function()
+			RunConsoleCommand("vrmod_characterEyeHeight", "66.8")
+			RunConsoleCommand("vrmod_crouchthreshold", "40")
+			RunConsoleCommand("vrmod_characterHeadToHmdDist", "6.3")
+			RunConsoleCommand("vrmod_znear", "6.0")
+			RunConsoleCommand("vrmod_scale", "38.7")
+			RunConsoleCommand("vrmod_seated", "0")
+			RunConsoleCommand("vrmod_seatedoffset", "0")
+			RunConsoleCommand("vrmod_oldcharacteryaw", "1")
 			RunConsoleCommand("vrmod_character_reset") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
@@ -1258,6 +1253,14 @@ hook.Add(
 		character_reset:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		character_reset.DoClick = function()
+			RunConsoleCommand("vrmod_characterEyeHeight", "66.8")
+			RunConsoleCommand("vrmod_crouchthreshold", "40")
+			RunConsoleCommand("vrmod_characterHeadToHmdDist", "6.3")
+			RunConsoleCommand("vrmod_znear", "6.0")
+			RunConsoleCommand("vrmod_scale", "38.7")
+			RunConsoleCommand("vrmod_seated", "0")
+			RunConsoleCommand("vrmod_seatedoffset", "0")
+			RunConsoleCommand("vrmod_oldcharacteryaw", "1")
 			RunConsoleCommand("vrmod_character_reset") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
@@ -1664,7 +1667,7 @@ hook.Add(
 		misc3_defaultbutton:SetSize(160, 30) -- Set the size
 		-- A custom function run when clicked ( note the . instead of : )
 		misc3_defaultbutton.DoClick = function()
-			RunConsoleCommand("vrmod_rtWidth_Multiplier", "1.0") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_restart") -- Run the console command "say hi" when you click it ( command, args )
 		end

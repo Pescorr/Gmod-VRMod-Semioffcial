@@ -28,8 +28,13 @@ function VRUtilOpenHeightMenu()
 
 			local mirrorPos = Vector(g_VR.tracking.hmd.pos.x, g_VR.tracking.hmd.pos.y, g_VR.origin.z + 45) + Angle(0, mirrorYaw, 0):Forward() * 50
 			local mirrorAng = Angle(0, mirrorYaw - 90, 90)
-			-- g_VR.menus.heightmenu.pos = mirrorPos + Vector(0,0,30) + mirrorAng:Forward()*-15
-			-- g_VR.menus.heightmenu.ang = mirrorAng
+			local moded = GetConVar("vrmod_attach_heightmenu"):GetInt()
+			if moded == 2 then
+				g_VR.menus.heightmenu.pos = mirrorPos + Vector(0, 0, 30) + mirrorAng:Forward() * -15
+				g_VR.menus.heightmenu.ang = mirrorAng
+	
+			end
+
 			local camPos = LocalToWorld(WorldToLocal(EyePos(), Angle(), mirrorPos, mirrorAng) * Vector(1, 1, -1), Angle(), mirrorPos, mirrorAng)
 			local camAng = EyeAngles()
 			camAng = Angle(camAng.pitch, mirrorAng.yaw + (mirrorAng.yaw - camAng.yaw), 180 - camAng.roll)
@@ -107,7 +112,7 @@ function VRUtilOpenHeightMenu()
 				hook.Remove("VRMod_Input", "vrmodheightmenuinput")
 			end
 		)
-	else
+	elseif mode == 1 then
 		VRUtilMenuOpen(
 			"heightmenu",
 			300,
@@ -117,6 +122,23 @@ function VRUtilOpenHeightMenu()
 			Vector(4, 6, 15.5),
 			Angle(0, -90, 60),
 			0.03,
+			true,
+			function()
+				hook.Remove("PreDrawTranslucentRenderables", "vrmodheightmirror")
+				hook.Remove("VRMod_Input", "vrmodheightmenuinput")
+			end
+		)
+	else
+		--create controls
+		VRUtilMenuOpen(
+			"heightmenu",
+			300,
+			512,
+			nil,
+			0,
+			Vector(),
+			Angle(),
+			0.1,
 			true,
 			function()
 				hook.Remove("PreDrawTranslucentRenderables", "vrmodheightmirror")
@@ -231,7 +253,6 @@ function VRUtilOpenHeightMenu()
 				convars.vrmod_scale:SetFloat(33.7)
 				convars.vrmod_seatedoffset:SetFloat(0)
 				RunConsoleCommand("vrmod_restart")
-
 			end
 		},
 		-- 新しいボタン「AutoTestver」の定義を追加
@@ -240,14 +261,15 @@ function VRUtilOpenHeightMenu()
 			y = 450, -- 「Reset」ボタンの下に配置
 			w = 50,
 			h = 50,
-			text = "Auto\nTestVer",
+			text = "Auto\nSet",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
 			enabled = true, -- このボタンも常に有効
 			fn = function()
+				convars.vrmod_scale:SetFloat(33.7)
 				AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
-				include("vrmodunoffcial/vrmod_character.lua")		
+				include("vrmodunoffcial/vrmod_character.lua")
 				RunConsoleCommand("vrmod_scale_auto")
 				RunConsoleCommand("vrmod_character_auto")
 				g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
@@ -260,6 +282,20 @@ function VRUtilOpenHeightMenu()
 					g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
 					convars.vrmod_scale:SetFloat(g_VR.scale)
 				end
+				timer.Create(
+					"vrmod_heightautoscale",
+					2.0,
+					5,
+					function()
+						if convarValues.vrmod_seated then
+							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+						else
+							g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+							convars.vrmod_scale:SetFloat(g_VR.scale)
+						end
+					end
+				)
+
 
 			end
 		},
