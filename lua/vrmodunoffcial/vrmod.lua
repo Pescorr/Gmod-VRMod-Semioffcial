@@ -24,7 +24,7 @@
 			local vrScrW = CreateClientConVar("vrmod_ScrW", ScrW(), true, FCVAR_ARCHIVE)
 			local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
 			local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
-			local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun", 1, true, FCVAR_ARCHIVE)
+			local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun", "1", true, FCVAR_ARCHIVE)
 			g_VR.scale = 0
 			g_VR.origin = Vector(0, 0, 0)
 			g_VR.originAngle = Angle(0, 0, 0)

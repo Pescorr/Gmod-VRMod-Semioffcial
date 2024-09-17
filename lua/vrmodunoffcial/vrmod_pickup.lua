@@ -251,7 +251,7 @@ function vrmod_pickup_lua()
 					--print("new pickup")
 					ply:PickupObject(v) --this is done to trigger map logic
 					timer.Simple(
-						0.01,
+						0,
 						function()
 							ply:DropObject()
 						end

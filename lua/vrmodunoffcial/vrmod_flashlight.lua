@@ -1,7 +1,7 @@
 
 if CLIENT then
 
-	local convars, convarValues = vrmod.AddCallbackedConvar("vrmod_flashlight_attachment", nil, "0", nil, nil, 0, 2, function(val) return math.floor(tonumber(val) or 0) end)
+	local convars, convarValues = vrmod.AddCallbackedConvar("vrmod_flashlight_attachment", nil, "0", FCVAR_ARCHIVE, nil, 0, 2, function(val) return math.floor(tonumber(val) or 0) end)
 	
 	local attachments = {
 		"pose_righthand",
