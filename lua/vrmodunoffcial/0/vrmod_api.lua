@@ -418,7 +418,7 @@ if CLIENT then
 	end
 
 	--
-	vrmod.AddCallbackedConvar("vrmod_locomotion", nil, "1")
+	vrmod.AddCallbackedConvar("vrmod_locomotion", nil, "1",FCVAR_ARCHIVE)
 	function vrmod.AddLocomotionOption(name, startfunc, stopfunc, buildcpanelfunc)
 		g_VR.locomotionOptions[#g_VR.locomotionOptions + 1] = {
 			name = name,

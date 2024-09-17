@@ -156,7 +156,7 @@ concommand.Add(
 	end
 )
 
-local convars = vrmod.AddCallbackedConvar("vrmod_showonstartup", nil, 0)
+local convars = vrmod.AddCallbackedConvar("vrmod_showonstartup", nil, "0",FCVAR_ARCHIVE) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 if contexticon:GetBool() then
 	list.Set(
 		"DesktopWindows",

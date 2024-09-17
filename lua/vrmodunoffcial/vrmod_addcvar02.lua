@@ -1,17 +1,4 @@
 if CLIENT then
-
-
-
-
-
-
-
-
-
-
-
-
-
 	hook.Add(
 		"VRMod_Input",
 		"vrutil_novrweapon",
@@ -21,7 +8,7 @@ if CLIENT then
 			-- 	LocalPlayer():ConCommand(pressed and "arccw_dev_benchgun 1" or "arccw_dev_benchgun 0")
 			-- 	return
 			-- end
-			if action == "boolean_chat" and pressed then
+			if action == "boolean_flashlight" and pressed then
 				LocalPlayer():ConCommand("arccw_firemode")
 				LocalPlayer():ConCommand("arccw_toggle_ubgl")
 
@@ -29,9 +16,6 @@ if CLIENT then
 			end
 		end
 	)
-
-
-
 	-- -- 依存するConVarを事前に定義
 	-- local convars = {
 	-- 	vrmod_seatedoffset = GetConVar("vrmod_seatedoffset"),
