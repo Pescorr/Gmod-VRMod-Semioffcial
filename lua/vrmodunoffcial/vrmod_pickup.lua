@@ -190,6 +190,28 @@ function vrmod_pickup_lua()
 				if pickupController == nil then
 					pickupController = ents.Create("vrmod_pickup")
 					pickupController:Spawn()
+					pickupController.ShadowParams = {
+						secondstoarrive = 0.00005, --1/cv_tickrate:GetInt()
+						maxangular = 5000,
+						maxangulardamp = 5000,
+						maxspeed = 2000000,
+						maxspeeddamp = 20000,
+						dampfactor = 0.3,
+						teleportdistance = 2000,
+						deltatime = 0,
+					}
+
+					function pickupController:PhysicsSimulate(phys, deltatime)
+						phys:Wake()
+						local t = phys:GetEntity().vrmod_pickup_info
+						local frame = g_VR[t.steamid] and g_VR[t.steamid].latestFrame
+						if not frame then return end
+						local handPos, handAng = LocalToWorld(t.left and frame.lefthandPos or frame.righthandPos, t.left and frame.lefthandAng or frame.righthandAng, t.ply:GetPos(), Angle()) --frame is relative to ply pos when on foot
+						self.ShadowParams.pos, self.ShadowParams.angle = LocalToWorld(t.localPos, t.localAng, handPos, handAng)
+						--this doesn't have to be inside PhysicsSimulate, we could potentially get rid of the motion controller entirely (as a micro optimization) and do this from the tick hook, but it seems to work better from here
+						phys:ComputeShadowControl(self.ShadowParams)
+					end
+
 					pickupController:StartMotionController()
 					hook.Add(
 						"Tick",

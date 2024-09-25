@@ -398,6 +398,8 @@ local VR_CONVARS = {
     "vrmod_weppouch_weapon_Spine",
     "vrmod_znear"
     }
+
+    
     -- VR関連のConVarを取得
 local function GetVRConVars()
     local vr_convars = {}

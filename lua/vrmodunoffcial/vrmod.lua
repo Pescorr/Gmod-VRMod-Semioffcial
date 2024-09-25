@@ -399,6 +399,9 @@
 				if g_VR.rt then
 					g_VR.rt = nil
 				end
+				if GetConVar("godsenttools_gpu_saver") then
+					overrideConvar("godsenttools_gpu_saver", "0")
+				end
 
 				local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
 				local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
@@ -618,6 +621,12 @@
 				local uselefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
 				local lefthandmode = CreateClientConVar("vrmod_LeftHandmode", 0, true, FCVAR_ARCHIVE)
 				local foregripmode = CreateClientConVar("vrmod_Foregripmode", 0, false)
+				local cv_foregrip_disable_rotation = CreateClientConVar("vrmod_foregrip_disable_rotation", "0", true, FCVAR_ARCHIVE)
+				local cv_foregrip_rotation_sensitivity = CreateClientConVar("vrmod_foregrip_rotation_sensitivity", "1", true, FCVAR_ARCHIVE)
+				local cv_foregrip_disable_pitch = CreateClientConVar("vrmod_foregrip_disable_pitch", "0", true, FCVAR_ARCHIVE)
+				local cv_foregrip_disable_yaw = CreateClientConVar("vrmod_foregrip_disable_yaw", "0", true, FCVAR_ARCHIVE)
+				local cv_foregrip_disable_roll = CreateClientConVar("vrmod_foregrip_disable_roll", "0", true, FCVAR_ARCHIVE)
+				
 				-- RenderScene フック内でHMDの位置と角度を調整
 				-- g_VR.LeftView = {
 				-- 	x = 0,
@@ -686,20 +695,33 @@
 						--gripmode start
 						if foregripmode:GetBool() then
 							local netFrame = VRUtilNetUpdateLocalPly()
-							--update viewmodel position
 							if g_VR.currentvmi then
 								local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_lefthand.ang)
 								local posl, angl = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_lefthand.ang)
-								g_VR.viewModelPos = pos
-								g_VR.viewModelAng = angl
+								
+								-- 感度調整と軸ごとの無効化を適用
+								local sensitivity = cv_foregrip_rotation_sensitivity:GetFloat()
+								local adjustedAngle = Angle(
+									cv_foregrip_disable_pitch:GetBool() and 0 or angl.p * sensitivity,
+									cv_foregrip_disable_yaw:GetBool() and 0 or angl.y * sensitivity,
+									cv_foregrip_disable_roll:GetBool() and 0 or angl.r * sensitivity
+								)
+				
+								if cv_foregrip_disable_rotation:GetBool() then
+									-- 回転を無視して位置のみ適用
+									g_VR.viewModelPos = pos
+								else
+									-- 調整された角度を適用
+									g_VR.viewModelPos = pos
+									g_VR.viewModelAng = adjustedAngle
+								end
 							end
-
+				
 							if IsValid(g_VR.viewModel) then
 								if not g_VR.usingWorldModels then
 									g_VR.viewModel:SetPos(g_VR.viewModelPos)
 									g_VR.viewModel:SetAngles(g_VR.viewModelAng)
 									g_VR.viewModel:SetupBones()
-									--override hand pose in net frame
 									if netFrame then
 										local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
 										if b then
@@ -707,7 +729,6 @@
 											netFrame.righthandPos = mtx:GetTranslation()
 											netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
 										end
-
 										local c = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
 										if c then
 											local mtxl = g_VR.viewModel:GetBoneMatrix(c)
@@ -716,12 +737,9 @@
 										end
 									end
 								end
-
 								g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 							end
-							--gripmode end
-						else
-							--lefthandmode start
+						else							--lefthandmode start
 							if uselefthand:GetBool() then
 								if lefthandmode:GetBool() then
 									--lefthand-Type2(RhandSimurate) Start
@@ -955,9 +973,10 @@
 					overrideConvar("arccw_dev_benchgun", "0")
 					overrideConvar("arccw_hud_size", "1")
 					overrideConvar("arc9_dev_benchgun", "0")
-		
+	
 				end
 
+				overrideConvar("godsenttools_gpu_saver", "1")
 
 				if IsValid(g_VR.viewModel) and g_VR.viewModel:GetClass() == "class C_BaseFlex" then
 					g_VR.viewModel:Remove()
@@ -1051,6 +1070,8 @@
 					print("VRMod render targets have been updated with current settings.")
 				end
 			)
+
+			
 		elseif SERVER then
 			CreateClientConVar("vrmod_version", vrmod.GetVersion(), false, FCVAR_NOTIFY)
 		end
@@ -1066,3 +1087,4 @@
 			vrmod_lua()
 		end
 	)
+
