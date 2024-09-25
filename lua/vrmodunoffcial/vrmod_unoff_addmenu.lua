@@ -96,12 +96,12 @@ hook.Add(
 		GamePlay_defaultbutton:SetText("Restore Default Gameplay Settings")
 		GamePlay_defaultbutton.DoClick = function()
 			RunConsoleCommand("vrmod_autojumpduck", "1")
-			RunConsoleCommand("vrmod_allow_teleport_client", "0")
+			RunConsoleCommand("vrmod_allow_teleport_client", "1")
 			RunConsoleCommand("vrmod_flashlight_attachment", "0")
 			RunConsoleCommand("vrmod_pickup_weight", "100")
 			RunConsoleCommand("vrmod_pickup_range", "1.1")
 			RunConsoleCommand("vrmod_pickup_limit", "1")
-			RunConsoleCommand("vrmod_manualpickups", "0")
+			RunConsoleCommand("vrmod_manualpickups", "1")
 		end
 		AddControl(GamePlay_defaultbutton)
 
@@ -314,7 +314,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_ui_outline", "1")
 			RunConsoleCommand("vrmod_ui_realtime", "0")
 			RunConsoleCommand("vrmod_cameraoverride", "1")
-			RunConsoleCommand("vrmod_keyboard_uichatkey", "0")
+			RunConsoleCommand("vrmod_keyboard_uichatkey", "1")
 		end
 		local graphicsSettings = vgui.Create("DForm", sheet)
 		sheet:AddSheet("Optimize", graphicsSettings, "icon16/picture.png")
@@ -351,7 +351,7 @@ hook.Add(
 			MenuTab11.Paint = function(self, w, h) end
 			local scroll = vgui.Create("DScrollPanel", MenuTab11)
 			scroll:Dock(FILL)
-			local optimizeconvar = {{"r_WaterDrawReflection", 0, 1, "Draw water reflections", 1}, {"r_WaterDrawRefraction", 0, 1, "Draw water refractions", 1}, {"r_waterforceexpensive", 0, 1, "Force expensive water", 0}, {"r_waterforcereflectentities", 0, 1, "Force water to reflect entities", 0}, {"vrmod_mirror_optimization", 0, 1, "Optimize VR mirrors", 0}, {"vrmod_reflective_glass_toggle", 0, 1, "Toggle reflective glass", 1}, {"vrmod_disable_mirrors", 0, 1, "Disable mirrors", 0}, {"gmod_mcore_test", 0, 1, "Enable multi-core rendering", 1}}
+			local optimizeconvar = {{"r_WaterDrawReflection", 0, 1, "Draw water reflections", 1}, {"r_WaterDrawRefraction", 0, 1, "Draw water refractions", 1}, {"r_waterforceexpensive", 0, 1, "Force expensive water", 0}, {"r_waterforcereflectentities", 0, 1, "Force water to reflect entities", 0}, {"vrmod_mirror_optimization", 0, 1, "Optimize VR mirrors", 0}, {"vrmod_reflective_glass_toggle", 0, 1, "Toggle reflective glass", 0}, {"vrmod_disable_mirrors", 0, 1, "Disable mirrors", 0}, {"gmod_mcore_test", 0, 1, "Enable multi-core rendering", 1}}
 			local changedValues = {}
 			for i, convar in ipairs(optimizeconvar) do
 				local name, min, max, description, default = unpack(convar)
@@ -414,7 +414,7 @@ hook.Add(
 			MenuTab12.Paint = function(self, w, h) end
 			local scroll = vgui.Create("DScrollPanel", MenuTab12)
 			scroll:Dock(FILL)
-			local optimizeconvar2 = {{"r_shadowmaxrendered", 0, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 0, 8000, "Distance at which details are visible", 1200}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
+			local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 0, 8000, "Distance at which details are visible", 1200}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
 			local changedValues = {}
 			for i, convar in ipairs(optimizeconvar2) do
 				local name, min, max, description, default = unpack(convar)
@@ -575,8 +575,8 @@ hook.Add(
 		defaultButton.DoClick = function()
 			RunConsoleCommand("vrmod_idle_act", "ACT_HL2MP_IDLE")
 			RunConsoleCommand("vrmod_walk_act", "ACT_HL2MP_WALK")
-			RunConsoleCommand("vrmod_run_act", "ACT_HL2MP_RUN")
-			RunConsoleCommand("vrmod_jump_act", "ACT_HL2MP_JUMP_PASSIVE")
+			RunConsoleCommand("vrmod_run_act", "ACT_HL2MP_WALK")
+			RunConsoleCommand("vrmod_jump_act", "ACT_HL2MP_WALK")
 		end
 
 		local advancedSettings = vgui.Create("DForm", sheet)
@@ -1031,7 +1031,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_attach_weaponmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_attach_quickmenu", "1") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_attach_popup", "1") -- Run the console command "say hi" when you click it ( command, args )
-			RunConsoleCommand("vre_ui_attachtohand", "1") -- Run the console command "say hi" when you click it ( command, args )
+			RunConsoleCommand("vre_ui_attachtohand", "0") -- Run the console command "say hi" when you click it ( command, args )
 			RunConsoleCommand("vrmod_ui_outline", "0") -- Run the console command "say hi" when you click it ( command, args )
 		end
 
