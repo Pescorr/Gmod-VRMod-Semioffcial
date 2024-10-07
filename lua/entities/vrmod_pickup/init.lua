@@ -6,8 +6,8 @@ function ENT:Initialize()
     self:SetModel("models/props_junk/watermelon01.mdl")
     self:SetNoDraw(true)
     self:DrawShadow(false)
-    self:SetSolid(SOLID_NONE)
-    self:SetMoveType(MOVETYPE_NONE)
+    self:SetSolid(SOLID_VPHYSICS)
+    self:SetMoveType(MOVETYPE_VPHYSICS)
 
     self.ShadowParams = {
         secondstoarrive = 0.00005,
