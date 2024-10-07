@@ -414,7 +414,7 @@ hook.Add(
 			MenuTab12.Paint = function(self, w, h) end
 			local scroll = vgui.Create("DScrollPanel", MenuTab12)
 			scroll:Dock(FILL)
-			local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 0, 8000, "Distance at which details are visible", 1200}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
+			local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 1, 8000, "Distance at which details are visible", 1200},{"mat_fastspecular", 0, 1, "Distance at which details are visible", 1},{"mat_wateroverlaysize", 2, 1200, "Distance at which details are visible", 256}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
 			local changedValues = {}
 			for i, convar in ipairs(optimizeconvar2) do
 				local name, min, max, description, default = unpack(convar)
