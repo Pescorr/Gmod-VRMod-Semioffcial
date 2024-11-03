@@ -1,4 +1,4 @@
- if SERVER then return end
+if SERVER then return end
 local open = false
 
 function g_VR.MenuOpen()
@@ -48,11 +48,7 @@ function g_VR.MenuOpen()
 	local pos, ang = WorldToLocal(g_VR.tracking.pose_righthand.pos + g_VR.tracking.pose_righthand.ang:Forward() * 9 + tmp:Right() * -7.68 + tmp:Forward() * -6.45, tmp, g_VR.origin, g_VR.originAngle)
 	--uid, width, height, panel, attachment, pos, ang, scale, cursorEnabled, closeFunc
 	local mode = convarValues.vrmod_attach_quickmenu
-
 	-- vrmod.RemoveInGameMenuItem("ArcCW Customize")
-
-
-
 	--add button end
 	if mode == 1 then
 		VRUtilMenuOpen(
@@ -95,8 +91,8 @@ function g_VR.MenuOpen()
 			end
 		)
 	elseif mode == 4 then
-		local newpos = pos+Vector(0,0,0)
-		local newang = ang+Angle(0,0,0)
+		local newpos = pos + Vector(0, 0, 0)
+		local newang = ang + Angle(0, 0, 0)
 		--forw, left, up
 		VRUtilMenuOpen(
 			"miscmenu",

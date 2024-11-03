@@ -4,11 +4,18 @@ function vrmod_character_lua()
 	g_VR.characterYaw = 0
 	local convars, convarValues = vrmod.GetConvars()
 	local cv_animation = CreateClientConVar("vrmod_animation_Enable", "1", true, FCVAR_ARCHIVE)
-	-- local charactereyelogic = CreateClientConVar("vrmod_characterlogic_alt", "0", true, FCVAR_ARCHIVE)
-	CreateClientConVar("vrmod_idle_act", "ACT_HL2MP_IDLE", true, FCVAR_ARCHIVE)
-	CreateClientConVar("vrmod_walk_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
-	CreateClientConVar("vrmod_run_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
-	CreateClientConVar("vrmod_jump_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
+	if CLIENT then
+		-- local charactereyelogic = CreateClientConVar("vrmod_characterlogic_alt", "0", true, FCVAR_ARCHIVE)
+		CreateClientConVar("vrmod_idle_act", "ACT_HL2MP_IDLE", true, FCVAR_ARCHIVE)
+		CreateClientConVar("vrmod_walk_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
+		CreateClientConVar("vrmod_run_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
+		CreateClientConVar("vrmod_jump_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
+		CreateClientConVar("vrmod_hide_head", "0", true, FCVAR_ARCHIVE, "Hide player's head in VR")
+		CreateClientConVar("vrmod_hide_body", "0", true, FCVAR_ARCHIVE, "Hide player's body in VR")
+		CreateClientConVar("vrmod_hide_arms", "0", true, FCVAR_ARCHIVE, "Hide player's arms in VR")
+		CreateClientConVar("vrmod_hide_legs", "0", true, FCVAR_ARCHIVE, "Hide player's legs in VR")
+	end
+
 	g_VR.defaultOpenHandAngles = {Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0),} --left hand --finger 0 --finger 1 --finger 2 --finger 3 --finger 4 --right hand
 	g_VR.defaultClosedHandAngles = {Angle(30, 0, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, -50, -10), Angle(0, -90, 0), Angle(0, -70, 0), Angle(0, -35. - 8, 0), Angle(0, -80, 0), Angle(0, -70, 0), Angle(0, -26.5, 4.8), Angle(0, -70, 0), Angle(0, -70, 0), Angle(0, -30, 12.7), Angle(0, -70, 0), Angle(0, -70, 0), Angle(-30, 0, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, -50, 10), Angle(0, -90, 0), Angle(0, -70, 0), Angle(0, -35.8, 0), Angle(0, -80, 0), Angle(0, -70, 0), Angle(0, -26.5, -4.8), Angle(0, -70, 0), Angle(0, -70, 0), Angle(0, -30, -12.7), Angle(0, -70, 0), Angle(0, -70, 0),} --
 	g_VR.zeroHandAngles = {Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0),}
@@ -510,12 +517,62 @@ function vrmod_character_lua()
 		--hide head in first person
 		if ply == LocalPlayer() then
 			local ep = EyePos()
+
 			local hide = (ep == g_VR.eyePosLeft or ep == g_VR.eyePosRight) and ply:GetViewEntity() == ply
 			if characterInfo[steamid] and characterInfo[steamid].bones and characterInfo[steamid].bones.b_head then
 				local headBoneID = characterInfo[steamid].bones.b_head
 				HideBoneAndChildren(ply, headBoneID, hide)
-			else
-				print("Error: characterInfo not properly set up")
+			end
+			
+			local isFirstPerson = (ep == g_VR.eyePosLeft or ep == g_VR.eyePosRight) and ply:GetViewEntity() == ply
+			if characterInfo[steamid] and characterInfo[steamid].bones then
+				local bones = characterInfo[steamid].bones
+
+				local function SetBoneVisibility(boneID, hide)
+					if boneID then
+						ply:ManipulateBonePosition(boneID, hide and Vector(-1500, 1500, -15) or Vector(1, 1, 1), false)
+					end
+				end
+
+
+
+				if g_VR.active and GetConVar("vrmod_hide_head"):GetBool() and isFirstPerson then
+					SetBoneVisibility(bones.b_head, true)
+				else
+					SetBoneVisibility(bones.b_head, false)
+				end
+
+				if g_VR.active and GetConVar("vrmod_hide_body"):GetBool() and isFirstPerson then
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightWrist, true)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftWrist, true)
+				else
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightWrist, false)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftWrist, false)
+				end
+
+				if g_VR.active and GetConVar("vrmod_hide_arms"):GetBool() and isFirstPerson then
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftUpperarm, true)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightUpperarm, true)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftForearm, true)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightForearm, true)
+				else
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftUpperarm, false)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightUpperarm, false)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftForearm, false)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightForearm, false)
+				end
+
+				if g_VR.active and GetConVar("vrmod_hide_legs"):GetBool() and isFirstPerson then
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftThigh, true)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightThigh, true)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftCalf, true)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightCalf, true)
+				else
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftThigh, false)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightThigh, false)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_leftCalf, false)
+					HideBoneAndChildren(ply,characterInfo[steamid].bones.b_rightCalf, false)
+				end
 			end
 		end
 
@@ -594,7 +651,7 @@ function vrmod_character_lua()
 	-------------------------------------------------------------
 	function g_VR.StartCharacterSystem(ply)
 		local steamid = ply:SteamID()
-				if not g_VR.net[steamid] or CharacterInit(ply) == false then return end
+		if not g_VR.net[steamid] or CharacterInit(ply) == false then return end
 		characterInfo[steamid].boneCallback = ply:AddCallback("BuildBonePositions", BoneCallbackFunc)
 		if ply == LocalPlayer() then
 			hook.Add("VRMod_PreRender", "vrutil_hook_calcplyrenderpos", PreRenderFunc)
@@ -618,9 +675,18 @@ function vrmod_character_lua()
 				end
 
 				ply:RemoveCallback("BuildBonePositions", characterInfo[steamid].boneCallback)
-				if ply == LocalPlayer() then
+				if  ply == LocalPlayer() then
 					hook.Remove("VRMod_PreRender", "vrutil_hook_calcplyrenderpos")
 					ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, Vector(1, 1, 1))
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_head, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightWrist, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftWrist, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftUpperarm, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightUpperarm, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftForearm, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightThigh, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftCalf, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightCalf, Vector(1, 1, 1), false)
 				end
 			end
 		end
@@ -648,8 +714,9 @@ function vrmod_character_lua()
 		"VRMod_Exit",
 		"vrmod_characterstop",
 		function(ply, steamid)
-			g_VR.StopCharacterSystem(steamid)
 			g_VR.StopCharacterSystem(ply)
+			g_VR.StopCharacterSystem(steamid)
+			g_VR.StopCharacterSystem(ply:SteamID())
 		end
 	)
 	-- else

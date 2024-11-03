@@ -219,13 +219,13 @@ function vrmod_lua()
 
 				timer.Create(
 					"vrmod_start",
-					0.1,
+					3.1,
 					0,
 					function()
 						if not vgui.CursorVisible() then
 							timer.Remove("vrmod_start")
 							VRUtilClientStart()
-						end
+			end
 					end
 				)
 			end
@@ -238,6 +238,21 @@ function vrmod_lua()
 				VRUtilClientExit()
 			end
 		)
+
+	concommand.Add(
+		"vrmod_reset",
+		function(ply, cmd, args)
+			for k, v in pairs(vrmod.GetConvars()) do
+				pcall(
+					function()
+						v:Revert()
+					end
+				)
+			end
+
+			hook.Call("VRMod_Reset")
+		end
+	)
 
 		concommand.Add(
 			"vrmod_info",
@@ -409,6 +424,8 @@ function vrmod_lua()
 			end
 
 
+
+
 			local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
 			local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
 			local error = vrmod.GetStartupError()
@@ -423,7 +440,7 @@ function vrmod_lua()
 			end
 
 			if VRMOD_Init() == false then
-				print("vr module load failed! Please Try again...")
+			print("vr init failed")
 
 				return
 			end
@@ -431,11 +448,12 @@ function vrmod_lua()
 			local displayInfo = VRMOD_GetDisplayInfo(1, 10)
 			local rtWidth, rtHeight = displayInfo.RecommendedWidth * rtWidthMul:GetFloat(), displayInfo.RecommendedHeight * rtHeightMul:GetFloat()
 			local rtWidthright = rtWidth / 2
-			-- if system.IsLinux() then
-			-- 	rtWidth, rtHeight = math.min(4096, pow2ceil(rtWidth)), math.min(4096, pow2ceil(rtHeight)) --todo pow2ceil might not be necessary
-			-- end
-			VRMOD_ShareTextureBegin()
-			g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
+			
+			if system.IsLinux() then
+				rtWidth, rtHeight = math.min(4096, pow2ceil(rtWidth)), math.min(4096, pow2ceil(rtHeight)) --todo pow2ceil might not be necessary
+			end
+				VRMOD_ShareTextureBegin()
+		g_VR.rt = GetRenderTarget("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight)
 			VRMOD_ShareTextureFinish()
 			--
 			local displayCalculations = {
@@ -496,7 +514,7 @@ function vrmod_lua()
 			g_VR.rightControllerOffsetAng = Angle(convars.vrmod_controlleroffset_pitch:GetFloat(), convars.vrmod_controlleroffset_yaw:GetFloat(), convars.vrmod_controlleroffset_roll:GetFloat())
 			g_VR.leftControllerOffsetAng = g_VR.rightControllerOffsetAng
 			g_VR.active = true
-			-- overrideConvar("gmod_mcore_test", "0")
+		overrideConvar("engine_no_focus_sleep", "0")
 			overrideConvar("playerscaling_clientspeed", "0")
 			overrideConvar("playerscaling_clientjump", "0")
 			if autoarcbench:GetBool() then
@@ -578,18 +596,6 @@ function vrmod_lua()
 					if #simulate == 0 then
 						hook.Remove("VRMod_Tracking", "simulatehands")
 					end
-				end
-			)
-
-			-- HMDの追跡データ更新時にオフセットを適用
-			hook.Add(
-				"VRMod_Tracking",
-				"vrmod_apply_hmdoffset",
-				function()
-					local hmdOffsetPos = Vector(convars.vrmod_hmdoffset_x:GetFloat(), convars.vrmod_hmdoffset_y:GetFloat(), convars.vrmod_hmdoffset_z:GetFloat())
-					local hmdOffsetAng = Angle(convars.vrmod_hmdoffset_pitch:GetFloat(), convars.vrmod_hmdoffset_yaw:GetFloat(), convars.vrmod_hmdoffset_roll:GetFloat())
-					local hmdPose = g_VR.tracking.hmd
-					hmdPose.pos, hmdPose.ang = LocalToWorld(hmdOffsetPos, hmdOffsetAng, hmdPose.pos, hmdPose.ang)
 				end
 			)
 
@@ -903,6 +909,7 @@ function vrmod_lua()
 			--return true to override default scene rendering
 			g_VR.usingWorldModels = convars.vrmod_useworldmodels:GetBool()
 			if not g_VR.usingWorldModels then
+			overrideConvar("viewmodel_fov", GetConVar("fov_desired"):GetString())
 				hook.Add("CalcViewModelView", "vrutil_hook_calcviewmodelview", function(wep, vm, oldPos, oldAng, pos, ang) return g_VR.viewModelPos, g_VR.viewModelAng end)
 				local blockViewModelDraw = true
 				g_VR.allowPlayerDraw = false
@@ -974,6 +981,9 @@ function vrmod_lua()
 				overrideConvar("arc9_dev_benchgun", "0")
 			end
 
+			
+			RunConsoleCommand("vrmod_character_stop")
+
 			overrideConvar("godsenttools_gpu_saver", "1")
 			overrideConvar("lithium_enable_gpusaver", "1")
 
@@ -1007,8 +1017,9 @@ function vrmod_lua()
 			g_VR.tracking = {}
 			g_VR.threePoints = false
 			g_VR.sixPoints = false
-			g_VR.active = false
 			VRMOD_Shutdown()
+
+			g_VR.active = false
 		end
 
 		hook.Add(

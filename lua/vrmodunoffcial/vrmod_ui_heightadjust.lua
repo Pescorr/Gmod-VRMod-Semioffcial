@@ -2,9 +2,101 @@ if SERVER then return end
 g_VR = g_VR or {}
 g_VR.characterYaw = 0
 local convars, convarValues = vrmod.GetConvars()
+local seatedOffset, crouchOffset = Vector(), Vector()
+local function updateOffsetHook()
+	seatedOffset.z = convarValues.vrmod_seated and convarValues.vrmod_seatedoffset or 0
+	if seatedOffset.z == 0 and crouchOffset.z == 0 then
+		hook.Remove("VRMod_Tracking", "seatedmode")
+
+		return
+	end
+
+	hook.Add(
+		"VRMod_Tracking",
+		"seatedmode",
+		function()
+			g_VR.tracking.hmd.pos = g_VR.tracking.hmd.pos + seatedOffset + crouchOffset
+			g_VR.tracking.pose_lefthand.pos = g_VR.tracking.pose_lefthand.pos + seatedOffset + crouchOffset
+			g_VR.tracking.pose_righthand.pos = g_VR.tracking.pose_righthand.pos + seatedOffset + crouchOffset
+		end
+	)
+end
+
+vrmod.AddCallbackedConvar(
+	"vrmod_seatedoffset",
+	nil,
+	"0",
+	FCVAR_ARCHIVE,
+	nil,
+	nil,
+	nil,
+	tonumber,
+	function(val)
+		updateOffsetHook()
+	end
+)
+
+vrmod.AddCallbackedConvar(
+	"vrmod_seated",
+	nil,
+	"0",
+	FCVAR_ARCHIVE,
+	nil,
+	nil,
+	nil,
+	tobool,
+	function(val)
+		updateOffsetHook()
+	end
+)
+
+hook.Add(
+	"VRMod_Menu",
+	"vrmod_n_seated",
+	function(frame)
+		frame.SettingsForm:CheckBox("Enable seated offset", "vrmod_seated")
+		frame.SettingsForm:ControlHelp("Adjust from height adjustment menu")
+	end
+)
+
+hook.Add(
+	"VRMod_Start",
+	"seatedmode",
+	function(ply)
+		if ply ~= LocalPlayer() then return end
+		updateOffsetHook()
+	end
+)
+
+local crouchTarget = 0
+hook.Add(
+	"VRMod_Input",
+	"crouching",
+	function(action, pressed)
+		if action == "boolean_crouch" and pressed then
+			crouchTarget = (crouchTarget == 0) and math.min(0, 38 - (g_VR.tracking.hmd.pos.z - g_VR.origin.z)) or 0
+			local speed = (crouchTarget == 0 and 36 or -36) * (1 / LocalPlayer():GetDuckSpeed())
+			hook.Add(
+				"PreRender",
+				"vrmod_crouch",
+				function()
+					crouchOffset.z = crouchOffset.z + speed * FrameTime()
+					if crouchOffset.z > 0 or crouchTarget < 0 and crouchOffset.z < crouchTarget then
+						crouchOffset.z = crouchTarget
+						hook.Remove("PreRender", "vrmod_crouch")
+						updateOffsetHook()
+					end
+				end
+			)
+
+			crouchOffset.z = crouchOffset.z + 0.01
+			updateOffsetHook()
+		end
+	end
+)
+
 function VRUtilOpenHeightMenu()
 	if not g_VR.threePoints or VRUtilIsMenuOpen("heightmenu") then return end
-	--create mirror
 	rt_mirror = GetRenderTarget("rt_vrmod_heightcalmirror", 2048, 2048)
 	mat_mirror = CreateMaterial(
 		"mat_vrmod_heightcalmirror",
@@ -32,7 +124,6 @@ function VRUtilOpenHeightMenu()
 			if moded == 2 then
 				g_VR.menus.heightmenu.pos = mirrorPos + Vector(0, 0, 30) + mirrorAng:Forward() * -15
 				g_VR.menus.heightmenu.ang = mirrorAng
-	
 			end
 
 			local camPos = LocalToWorld(WorldToLocal(EyePos(), Angle(), mirrorPos, mirrorAng) * Vector(1, 1, -1), Angle(), mirrorPos, mirrorAng)
@@ -94,7 +185,6 @@ function VRUtilOpenHeightMenu()
 		end
 	)
 
-	--create controls
 	local mode = convarValues.vrmod_attach_heightmenu
 	if mode == 0 then
 		VRUtilMenuOpen(
@@ -129,7 +219,6 @@ function VRUtilOpenHeightMenu()
 			end
 		)
 	else
-		--create controls
 		VRUtilMenuOpen(
 			"heightmenu",
 			300,
@@ -237,51 +326,50 @@ function VRUtilOpenHeightMenu()
 				renderControls()
 			end
 		},
-		-- 新しいボタン「Reset」の定義を追加
 		{
 			x = 250,
-			y = 395, -- これは前のボタンの下に配置するためのY位置です
+			y = 395,
 			w = 50,
 			h = 50,
 			text = "Reset\nConfig",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
-			enabled = true, -- このボタンは常に有効です
+			enabled = true,
 			fn = function()
 				RunConsoleCommand("vrmod_character_reset")
-				convars.vrmod_scale:SetFloat(33.7)
+				convars.vrmod_scale:SetFloat(38.7)
 				convars.vrmod_seatedoffset:SetFloat(0)
 				RunConsoleCommand("vrmod_restart")
 			end
 		},
-		-- 新しいボタン「AutoTestver」の定義を追加
 		{
 			x = 250,
-			y = 450, -- 「Reset」ボタンの下に配置
+			y = 450,
 			w = 50,
 			h = 50,
 			text = "Auto\nSet",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
-			enabled = true, -- このボタンも常に有効
+			enabled = true,
 			fn = function()
-				convars.vrmod_scale:SetFloat(33.7)
+				RunConsoleCommand("vrmod_hide_head", 0)
+				RunConsoleCommand("vrmod_hide_body", 0)
+				RunConsoleCommand("vrmod_hide_arms", 0)
+				RunConsoleCommand("vrmod_hide_legs", 0)
+
+				RunConsoleCommand("vrmod_scale", 38.7)
+				RunConsoleCommand("vrmod_characterHeadToHmdDist", 6.3)
+				RunConsoleCommand("vrmod_characterEyeHeight", 66.8)
+				RunConsoleCommand("vrmod_seatedoffset", 0.0)
+
 				AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
 				include("vrmodunoffcial/vrmod_character.lua")
-				RunConsoleCommand("vrmod_scale_auto")
 				RunConsoleCommand("vrmod_character_auto")
-				g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
-				convars.vrmod_scale:SetFloat(g_VR.scale)
-				convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+				RunConsoleCommand("vrmod_scale_auto")
+				RunConsoleCommand("vrmod_seatedoffset_auto")
 				RunConsoleCommand("vrmod_restart")
-				if convarValues.vrmod_seated then
-					convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
-				else
-					g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
-					convars.vrmod_scale:SetFloat(g_VR.scale)
-				end
 				timer.Simple(
 					2.0,
 					function()
@@ -293,39 +381,117 @@ function VRUtilOpenHeightMenu()
 						end
 					end
 				)
-		
-
+				timer.Simple(
+					2.0,
+					function()
+						if convarValues.vrmod_seated then
+							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+						else
+							g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+							convars.vrmod_scale:SetFloat(g_VR.scale)
+						end
+					end
+				)
+				timer.Simple(
+					2.0,
+					function()
+						if convarValues.vrmod_seated then
+							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+						else
+							g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+							convars.vrmod_scale:SetFloat(g_VR.scale)
+						end
+					end
+				)
 
 			end
 		},
-		-- 新しいボタン「AutoTestver」の定義を追加
 		{
 			x = 0,
-			y = 450, -- 「Reset」ボタンの下に配置
+			y = 450,
 			w = 50,
 			h = 50,
 			text = "HideNear\nHMD\n-",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
-			enabled = g_VR.view.znear >= 0.5, -- このボタンも常に有効
+			enabled = g_VR.view.znear >= 0.5,
 			fn = function()
 				g_VR.view.znear = g_VR.view.znear - 0.5
 			end
 		},
-		-- 新しいボタン「AutoTestver」の定義を追加
 		{
 			x = 100,
-			y = 450, -- 「Reset」ボタンの下に配置
+			y = 450,
 			w = 50,
 			h = 50,
 			text = "HideNear\nHMD\n+",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
-			enabled = g_VR.view.znear <= 20.0, -- このボタンも常に有効
+			enabled = g_VR.view.znear <= 20.0,
 			fn = function()
 				g_VR.view.znear = g_VR.view.znear + 0.5
+			end
+		},
+		{
+			x = 0,
+			y = 350,
+			w = 50,
+			h = 50,
+			text = "Hide\nHead",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = true,
+			fn = function()
+				local current = GetConVar("vrmod_hide_head"):GetBool()
+				RunConsoleCommand("vrmod_hide_head", current and "0" or "1")
+			end
+		},
+		{
+			x = 100,
+			y = 350,
+			w = 50,
+			h = 50,
+			text = "Hide\nBody",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = true,
+			fn = function()
+				local current = GetConVar("vrmod_hide_body"):GetBool()
+				RunConsoleCommand("vrmod_hide_body", current and "0" or "1")
+			end
+		},
+		{
+			x = 0,
+			y = 405,
+			w = 50,
+			h = 50,
+			text = "Hide\nArms",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = true,
+			fn = function()
+				local current = GetConVar("vrmod_hide_arms"):GetBool()
+				RunConsoleCommand("vrmod_hide_arms", current and "0" or "1")
+			end
+		},
+		{
+			x = 100,
+			y = 405,
+			w = 50,
+			h = 50,
+			text = "Hide\nLegs",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 5,
+			enabled = true,
+			fn = function()
+				local current = GetConVar("vrmod_hide_legs"):GetBool()
+				RunConsoleCommand("vrmod_hide_legs", current and "0" or "1")
 			end
 		},
 	}
@@ -334,7 +500,8 @@ function VRUtilOpenHeightMenu()
 		VRUtilMenuRenderStart("heightmenu")
 		surface.SetDrawColor(0, 0, 0, 255)
 		for k, v in ipairs(buttons) do
-			surface.SetDrawColor(0, 0, 0, v.enabled and 255 or 128)
+			local color = v.enabled and 255 or 128
+			surface.SetDrawColor(0, 0, 0, color)
 			surface.DrawRect(v.x, v.y, v.w, v.h)
 			draw.DrawText(v.text, v.font, v.x + v.text_x, v.y + v.text_y, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
