@@ -138,9 +138,6 @@ end
 concommand.Add(
 	"vrmod",
 	function(ply, cmd, args)
-		if vgui.CursorVisible() then
-			print("vrmod: menu will open when game is unpaused")
-		end
 
 		timer.Create(
 			"vrmod_open_menu",

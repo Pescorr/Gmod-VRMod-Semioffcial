@@ -102,6 +102,9 @@ if CLIENT then
 						local value = GetConVar(name):GetDefault()
 						LocalPlayer():ConCommand(name .. " " .. value)
 						LocalPlayer():ConCommand("vrmod_scale 38.7")
+						LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
+						LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
+
 						if CLIENT then
 							print(name .. " default: " .. value)
 						end

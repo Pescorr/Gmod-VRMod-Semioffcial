@@ -710,7 +710,6 @@ if SERVER then
 			ply:SetActiveWeapon(ply:GetWeapon("weapon_vrmod_empty"))
 			net.Start("vrutil_net_entervehicle")
 			net.Send(ply)
-			ply:SetAllowWeaponsInVehicle(1)
 		end
 	end)
 	

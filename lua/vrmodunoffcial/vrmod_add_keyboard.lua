@@ -47,7 +47,7 @@ if CLIENT then
 			key:SetSize(selectedCase[i] == " " and 250 or selectedCase[i] == "\2" and 65 or selectedCase[i] == "\4" and 50 or 45, 45) -- chatボタンのサイズを50に変更
 			key:SetTextColor(Color(255, 255, 255, 255))
 			key:SetFont((selectedCase[i] == "\1" or selectedCase[i] == "\2" or selectedCase[i] == "\3" or selectedCase[i] == "\4") and "HudSelectionText" or "vrmod_Verdana37")
-			key:SetText(selectedCase[i] == "\1" and "Back" or selectedCase[i] == "\2" and "Enter" or selectedCase[i] == "\4" and "Shift" or selectedCase[i] == "\3" and "exit" or selectedCase[i])
+			key:SetText(selectedCase[i] == "\1" and "Back" or selectedCase[i] == "\2" and "Enter" or selectedCase[i] == "\4" and "Shift" or selectedCase[i])
 			key:SetMouseInputEnabled(true)
 			key:SetContentAlignment(5)
 			key.OnMousePressed = function()
@@ -67,8 +67,8 @@ if CLIENT then
 				elseif key:GetText() == "Shift" then
 					selectedCase = (selectedCase == lowerCase) and upperCase or lowerCase
 					updateKeyboard()
-				elseif key:GetText() == "exit" then
-					VRUtilMenuClose("keyboard_only")
+				-- elseif key:GetText() == "exit" then
+				-- 	VRUtilMenuClose("keyboard_only")
 					-- LocalPlayer():ConCommand("vrmod_chatmode")
 				else
 					local activeTextEntry = vgui.GetKeyboardFocus()
