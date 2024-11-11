@@ -21,7 +21,6 @@ meta.MakePopup = function(...)
 		0.1,
 		function()
 			if not IsValid(panel) then return end
-			panel:SetPaintedManually(true)
 			if panel:GetName() == "DMenu" then
 				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
@@ -43,6 +42,37 @@ meta.MakePopup = function(...)
 
 				popupCount = popupCount + 1
 			end
+
+			if panel:GetName() == "DPanel" then
+				panel = panel:GetChildren()[1]
+				panel.Paint = function(self, w, h)
+					surface.SetDrawColor(175, 174, 187)
+					surface.DrawRect(0, 0, w, h)
+				end
+
+				popupCount = popupCount + 1
+
+			end
+
+			hook.Add(
+				"HUDPaint",
+				"CustomHUDPaint",
+				function()
+					local meta = vgui.GetWorldPanel() -- 大元のPanelを取得
+					-- rootPanelで手動ペイントを設定
+					meta:SetPaintedManually(true)
+					-- RenderTargetを設定してVGUIを描画
+					render.RenderHUD(0, 0, ScrW(), ScrH())
+					meta:PaintManual()
+					-- 念のためレイアウトを無効化（必要に応じて）
+					meta:InvalidateLayout(true)
+					-- 描画後に手動ペイントを解除
+					meta:SetPaintedManually(false)
+				end
+			)
+			hook.Remove("HUDPaint", "CustomHUDPaint")
+
+		
 
 			if popupCount == 0 then
 				local ang = Angle(0, g_VR.tracking.hmd.ang.yaw - 90, 45)
