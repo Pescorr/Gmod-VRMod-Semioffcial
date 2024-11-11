@@ -51,17 +51,17 @@ hook.Add(
             LocalPlayer():ConCommand("vrmod_Scr_Auto")
         end
 
-        if autooptimize:GetBool() and g_VR.active then
-            LocalPlayer():ConCommand("vrmod_character_stop")
-            LocalPlayer():ConCommand("vrmod_seated 1")
-            timer.Simple(
-                4.0,
-                function()
-                    LocalPlayer():ConCommand("vrmod_character_start")
-                    LocalPlayer():ConCommand("vrmod_seated 0")
-                end
-            )
-        end
+        -- if autooptimize:GetBool() and g_VR.active then
+        --     LocalPlayer():ConCommand("vrmod_seatedoffset -100000")
+        --     LocalPlayer():ConCommand("vrmod_seated 1")
+        --     timer.Simple(
+        --         10.0,
+        --         function()
+        --             LocalPlayer():ConCommand("vrmod_seatedoffset 0")
+        --             LocalPlayer():ConCommand("vrmod_seated 0")
+        --         end
+        --     )
+        -- end
     end
 )
 

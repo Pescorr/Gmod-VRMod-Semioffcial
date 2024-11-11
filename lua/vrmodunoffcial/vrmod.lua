@@ -214,18 +214,18 @@ function vrmod_lua()
 			function(ply, cmd, args)
 				if vgui.CursorVisible() then
 					print("vrmod: attempting startup when game is unpaused")
-					VRUtilClientStart()
+					--VRUtilClientStart()
 				end
 
 				timer.Create(
 					"vrmod_start",
-					3.1,
+					0.1,
 					0,
 					function()
 						if not vgui.CursorVisible() then
 							timer.Remove("vrmod_start")
 							VRUtilClientStart()
-			end
+						end
 					end
 				)
 			end
@@ -239,20 +239,20 @@ function vrmod_lua()
 			end
 		)
 
-	concommand.Add(
-		"vrmod_reset",
-		function(ply, cmd, args)
-			for k, v in pairs(vrmod.GetConvars()) do
-				pcall(
-					function()
-						v:Revert()
-					end
-				)
-			end
+		concommand.Add(
+			"vrmod_reset",
+			function(ply, cmd, args)
+				for k, v in pairs(vrmod.GetConvars()) do
+					pcall(
+						function()
+							v:Revert()
+						end
+					)
+				end
 
-			hook.Call("VRMod_Reset")
-		end
-	)
+				hook.Call("VRMod_Reset")
+			end
+		)
 
 		concommand.Add(
 			"vrmod_info",
@@ -411,9 +411,9 @@ function vrmod_lua()
 		end
 
 		function VRUtilClientStart()
-			if g_VR.rt then
-				g_VR.rt = nil
-			end
+			-- if g_VR.rt then
+			-- 		g_VR.rt = nil
+			-- end
 
 			if GetConVar("godsenttools_gpu_saver") then
 				overrideConvar("godsenttools_gpu_saver", "0")
@@ -422,9 +422,6 @@ function vrmod_lua()
 			if GetConVar("lithium_enable_gpusaver") then
 				overrideConvar("lithium_enable_gpusaver", "0")
 			end
-
-
-
 
 			local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
 			local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
@@ -440,20 +437,20 @@ function vrmod_lua()
 			end
 
 			if VRMOD_Init() == false then
-			print("vr init failed")
+				print("vr init failed")
 
 				return
 			end
 
-			local displayInfo = VRMOD_GetDisplayInfo(1, 10)
+			local displayInfo = VRMOD_GetDisplayInfo(1, 3)
 			local rtWidth, rtHeight = displayInfo.RecommendedWidth * rtWidthMul:GetFloat(), displayInfo.RecommendedHeight * rtHeightMul:GetFloat()
 			local rtWidthright = rtWidth / 2
-			
 			if system.IsLinux() then
 				rtWidth, rtHeight = math.min(4096, pow2ceil(rtWidth)), math.min(4096, pow2ceil(rtHeight)) --todo pow2ceil might not be necessary
 			end
-				VRMOD_ShareTextureBegin()
-		g_VR.rt = GetRenderTarget("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight)
+
+			VRMOD_ShareTextureBegin()
+			g_VR.rt = GetRenderTarget("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight)
 			VRMOD_ShareTextureFinish()
 			--
 			local displayCalculations = {
@@ -514,7 +511,7 @@ function vrmod_lua()
 			g_VR.rightControllerOffsetAng = Angle(convars.vrmod_controlleroffset_pitch:GetFloat(), convars.vrmod_controlleroffset_yaw:GetFloat(), convars.vrmod_controlleroffset_roll:GetFloat())
 			g_VR.leftControllerOffsetAng = g_VR.rightControllerOffsetAng
 			g_VR.active = true
-		overrideConvar("engine_no_focus_sleep", "0")
+			overrideConvar("engine_no_focus_sleep", "1")
 			overrideConvar("playerscaling_clientspeed", "0")
 			overrideConvar("playerscaling_clientjump", "0")
 			if autoarcbench:GetBool() then
@@ -636,7 +633,6 @@ function vrmod_lua()
 			local cv_foregrip_pitch_blend = CreateClientConVar("vrmod_foregrip_pitch_blend", "1.0", true, FCVAR_ARCHIVE)
 			local cv_foregrip_yaw_blend = CreateClientConVar("vrmod_foregrip_yaw_blend", "1.0", true, FCVAR_ARCHIVE)
 			local cv_foregrip_roll_blend = CreateClientConVar("vrmod_foregrip_roll_blend", "0.05", true, FCVAR_ARCHIVE)
-
 			-- g_VR.LeftView = {
 			-- 	x = 0,
 			-- 	y = 0,
@@ -909,7 +905,7 @@ function vrmod_lua()
 			--return true to override default scene rendering
 			g_VR.usingWorldModels = convars.vrmod_useworldmodels:GetBool()
 			if not g_VR.usingWorldModels then
-			overrideConvar("viewmodel_fov", GetConVar("fov_desired"):GetString())
+				overrideConvar("viewmodel_fov", GetConVar("fov_desired"):GetString())
 				hook.Add("CalcViewModelView", "vrutil_hook_calcviewmodelview", function(wep, vm, oldPos, oldAng, pos, ang) return g_VR.viewModelPos, g_VR.viewModelAng end)
 				local blockViewModelDraw = true
 				g_VR.allowPlayerDraw = false
@@ -981,12 +977,9 @@ function vrmod_lua()
 				overrideConvar("arc9_dev_benchgun", "0")
 			end
 
-			
 			RunConsoleCommand("vrmod_character_stop")
-
 			overrideConvar("godsenttools_gpu_saver", "1")
 			overrideConvar("lithium_enable_gpusaver", "1")
-
 			if IsValid(g_VR.viewModel) and g_VR.viewModel:GetClass() == "class C_BaseFlex" then
 				g_VR.viewModel:Remove()
 			end
@@ -994,7 +987,6 @@ function vrmod_lua()
 			if g_VR.rt then
 				g_VR.rt = nil
 			end
-
 			g_VR.rt = nil
 			g_VR.viewModel = nil
 			g_VR.viewModelMuzzle = nil
@@ -1018,7 +1010,6 @@ function vrmod_lua()
 			g_VR.threePoints = false
 			g_VR.sixPoints = false
 			VRMOD_Shutdown()
-
 			g_VR.active = false
 		end
 
@@ -1085,7 +1076,8 @@ function vrmod_lua()
 	end
 end
 
-vrmod_lua()
+	vrmod_lua()
+
 concommand.Add(
 	"vrmod_lua_reset",
 	function(ply, cmd, args)

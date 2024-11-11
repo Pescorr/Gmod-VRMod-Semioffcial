@@ -367,20 +367,8 @@ function VRUtilOpenHeightMenu()
 				AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
 				include("vrmodunoffcial/vrmod_character.lua")
 				RunConsoleCommand("vrmod_character_auto")
-				RunConsoleCommand("vrmod_scale_auto")
 				RunConsoleCommand("vrmod_seatedoffset_auto")
 				RunConsoleCommand("vrmod_restart")
-				timer.Simple(
-					2.0,
-					function()
-						if convarValues.vrmod_seated then
-							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
-						else
-							g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
-							convars.vrmod_scale:SetFloat(g_VR.scale)
-						end
-					end
-				)
 				timer.Simple(
 					2.0,
 					function()

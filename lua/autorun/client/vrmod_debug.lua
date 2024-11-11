@@ -1,0 +1,136 @@
+-- if CLIENT then
+--     -- デバッグ情報表示用のフォント作成
+--     surface.CreateFont(
+--         "VRDebugFont",
+--         {
+--             font = "Arial",
+--             size = 20,
+--             weight = 800,
+--         }
+--     )
+
+--     -- デバッグ情報を格納するテーブル
+--     local debugInfo = {
+--         moduleVersion = 0,
+--         isHMDPresent = false,
+--         vrActive = false,
+--         trackingPoints = 0,
+--         renderTarget = nil,
+--         displayInfo = {},
+--         errors = {},
+--     }
+
+--     -- デバッグ情報の更新
+--     local function UpdateDebugInfo()
+--         if not g_VR then return end
+--         debugInfo.moduleVersion = g_VR.moduleVersion or 0
+--         debugInfo.vrActive = g_VR.active or false
+--         debugInfo.trackingPoints = (g_VR.threePoints and "3" or "0") .. (g_VR.sixPoints and "+3" or "")
+--         debugInfo.renderTarget = g_VR.rt and "Valid" or "Invalid"
+--         if VRMOD_GetDisplayInfo then
+--             debugInfo.displayInfo = VRMOD_GetDisplayInfo(1, 10) or {}
+--         end
+
+--         if VRMOD_IsHMDPresent then
+--             debugInfo.isHMDPresent = VRMOD_IsHMDPresent()
+--         end
+--     end
+
+--     -- エラー情報の追加
+--     local function AddError(err)
+--         table.insert(
+--             debugInfo.errors,
+--             {
+--                 message = err,
+--                 time = CurTime()
+--             }
+--         )
+
+--         -- 最大10件まで保持
+--         if #debugInfo.errors > 10 then
+--             table.remove(debugInfo.errors, 1)
+--         end
+--     end
+
+--     -- デバッグ情報の描画
+--     local function DrawDebugInfo()
+--         if not g_VR then return end
+--         local x = 10
+--         local y = 10
+--         local lineHeight = 25
+--         surface.SetFont("VRDebugFont")
+--         surface.SetTextColor(255, 255, 255, 255)
+--         -- 基本情報の描画
+--         local function DrawLine(text)
+--             surface.SetTextPos(x, y)
+--             surface.DrawText(text)
+--             y = y + lineHeight
+--         end
+
+--         DrawLine("VRMod Debug Information:")
+--         DrawLine(string.format("Module Version: %s", debugInfo.moduleVersion))
+--         DrawLine(string.format("HMD Present: %s", debugInfo.isHMDPresent and "Yes" or "No"))
+--         DrawLine(string.format("VR Active: %s", debugInfo.vrActive and "Yes" or "No"))
+--         DrawLine(string.format("Tracking Points: %s", debugInfo.trackingPoints))
+--         DrawLine(string.format("Render Target: %s", debugInfo.renderTarget))
+--         -- HMD情報の描画
+--         if g_VR.tracking and g_VR.tracking.hmd then
+--             DrawLine(string.format("HMD Pos: %.2f, %.2f, %.2f", g_VR.tracking.hmd.pos.x, g_VR.tracking.hmd.pos.y, g_VR.tracking.hmd.pos.z))
+--             DrawLine(string.format("HMD Ang: %.2f, %.2f, %.2f", g_VR.tracking.hmd.ang.p, g_VR.tracking.hmd.ang.y, g_VR.tracking.hmd.ang.r))
+--         end
+
+--         -- ディスプレイ情報の描画
+--         if debugInfo.displayInfo.RecommendedWidth then
+--             DrawLine(string.format("Display Resolution: %dx%d", debugInfo.displayInfo.RecommendedWidth, debugInfo.displayInfo.RecommendedHeight))
+--         end
+
+--         -- エラー履歴の描画
+--         y = y + lineHeight
+--         DrawLine("Recent Errors:")
+--         for _, err in ipairs(debugInfo.errors) do
+--             surface.SetTextColor(255, 100, 100, 255)
+--             DrawLine(string.format("[%.1fs ago] %s", CurTime() - err.time, err.message))
+--         end
+--     end
+
+--     -- フック追加
+--     -- エラー捕捉
+--     hook.Add(
+--         "VRMod_Start",
+--         "VRDebugStart",
+--         function(ply)
+--             if ply == LocalPlayer() then
+--                 AddError("VR Start Attempted")
+--                 hook.Add("HUDPaint", "VRDebugDisplay", DrawDebugInfo)
+--                 hook.Add("Think", "VRDebugUpdate", UpdateDebugInfo)            
+--             end
+--         end
+--     )
+
+--     hook.Add(
+--         "VRMod_Exit",
+--         "VRDebugExit",
+--         function(ply)
+--             if ply == LocalPlayer() then
+--                 AddError("VR Exit")
+--             end
+--         end
+--     )
+
+--     -- コマンド追加
+--     concommand.Add(
+--         "vr_debug_info",
+--         function()
+--             local info = string.format([[
+-- VR Debug Information Dump:
+-- Module Version: %s
+-- HMD Present: %s
+-- VR Active: %s
+-- Tracking Points: %s
+-- Render Target: %s
+-- ]], debugInfo.moduleVersion, debugInfo.isHMDPresent and "Yes" or "No", debugInfo.vrActive and "Yes" or "No", debugInfo.trackingPoints, debugInfo.renderTarget)
+--             print(info)
+--             file.Write("vr_debug_info.txt", info)
+--         end
+--     )
+-- end
