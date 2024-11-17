@@ -442,14 +442,13 @@ function VRUtilOpenHeightMenu()
 			y = 350,
 			w = 50,
 			h = 50,
-			text = "Hide\nBody",
+			text = "STOP\nPMInt",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
 			enabled = true,
 			fn = function()
-				local current = GetConVar("vrmod_hide_body"):GetBool()
-				RunConsoleCommand("vrmod_hide_body", current and "0" or "1")
+				RunConsoleCommand("vrmod_character_stop")
 			end
 		},
 		{
@@ -457,31 +456,30 @@ function VRUtilOpenHeightMenu()
 			y = 405,
 			w = 50,
 			h = 50,
-			text = "Hide\nArms",
+			text = "Start\nPMInt",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
 			enabled = true,
 			fn = function()
-				local current = GetConVar("vrmod_hide_arms"):GetBool()
-				RunConsoleCommand("vrmod_hide_arms", current and "0" or "1")
+				RunConsoleCommand("vrmod_character_start")
 			end
-		},
-		{
-			x = 100,
-			y = 405,
-			w = 50,
-			h = 50,
-			text = "Hide\nLegs",
-			font = "Trebuchet18",
-			text_x = 25,
-			text_y = 5,
-			enabled = true,
-			fn = function()
-				local current = GetConVar("vrmod_hide_legs"):GetBool()
-				RunConsoleCommand("vrmod_hide_legs", current and "0" or "1")
-			end
-		},
+		}
+		-- {
+		-- 	x = 100,
+		-- 	y = 405,
+		-- 	w = 50,
+		-- 	h = 50,
+		-- 	text = "Hide\nLegs",
+		-- 	font = "Trebuchet18",
+		-- 	text_x = 25,
+		-- 	text_y = 5,
+		-- 	enabled = true,
+		-- 	fn = function()
+		-- 		local current = GetConVar("vrmod_hide_legs"):GetBool()
+		-- 		RunConsoleCommand("vrmod_hide_legs", current and "0" or "1")
+		-- 	end
+		-- },
 	}
 
 	renderControls = function()
