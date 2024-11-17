@@ -214,7 +214,7 @@ function vrmod_lua()
 			function(ply, cmd, args)
 				if vgui.CursorVisible() then
 					print("vrmod: attempting startup when game is unpaused")
-					--VRUtilClientStart()
+					VRUtilClientStart()
 				end
 
 				timer.Create(
@@ -223,8 +223,9 @@ function vrmod_lua()
 					0,
 					function()
 						if not vgui.CursorVisible() then
-							timer.Remove("vrmod_start")
 							VRUtilClientStart()
+							timer.Remove("vrmod_start")
+
 						end
 					end
 				)
@@ -418,6 +419,9 @@ function vrmod_lua()
 			if GetConVar("godsenttools_gpu_saver") then
 				overrideConvar("godsenttools_gpu_saver", "0")
 			end
+
+			overrideConvar("vrmod_hide_head", "0")
+
 
 			if GetConVar("lithium_enable_gpusaver") then
 				overrideConvar("lithium_enable_gpusaver", "0")
@@ -987,6 +991,7 @@ function vrmod_lua()
 			if g_VR.rt then
 				g_VR.rt = nil
 			end
+
 			g_VR.rt = nil
 			g_VR.viewModel = nil
 			g_VR.viewModelMuzzle = nil
@@ -1076,8 +1081,7 @@ function vrmod_lua()
 	end
 end
 
-	vrmod_lua()
-
+vrmod_lua()
 concommand.Add(
 	"vrmod_lua_reset",
 	function(ply, cmd, args)
