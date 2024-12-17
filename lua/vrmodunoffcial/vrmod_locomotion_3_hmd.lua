@@ -264,7 +264,7 @@ local function start()
 			end
 
 			--
-			local joystickVec = LocalToWorld(Vector(g_VR.input.vector2_walkdirection.y * math.abs(g_VR.input.vector2_walkdirection.y), (-g_VR.input.vector2_walkdirection.x) * math.abs(g_VR.input.vector2_walkdirection.x), 0) * ply:GetMaxSpeed() * 0.9, Angle(0, 0, 0), Vector(0, 0, 0), Angle(0, convarValues.controllerOriented and g_VR.tracking.pose_lefthand.ang.yaw or g_VR.tracking.hmd.ang.yaw, 0))
+			local joystickVec = LocalToWorld(Vector(g_VR.input.vector2_walkdirection.y * math.abs(g_VR.input.vector2_walkdirection.y), (-g_VR.input.vector2_walkdirection.x) * math.abs(g_VR.input.vector2_walkdirection.x), 0) * ply:GetMaxSpeed() * 0.9, Angle(0, 0, 0), Vector(0, 0, 0), Angle(0, convarValues.controllerOriented and g_VR.tracking.pose_hmd.ang.yaw or g_VR.tracking.hmd.ang.yaw, 0))
 			--
 			local walkDirViewAngRelative = WorldToLocal(followVec + joystickVec, zeroAng, zeroVec, Angle(0, viewAngles.yaw, 0))
 			cmd:SetForwardMove(walkDirViewAngRelative.x)

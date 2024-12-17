@@ -1,5 +1,5 @@
 if SERVER then return end
-local haloenable = CreateClientConVar("vrmod_halo_enable","1",true,FCVAR_ARCHIVE,"vrmod halo",0,1)
+local haloenable = CreateClientConVar("vrmod_halo_enable","0",true,FCVAR_ARCHIVE,"vrmod halo",0,1)
 -- ハローのデータを保存するテーブル
 local halos = {}
 local haloCount = 0

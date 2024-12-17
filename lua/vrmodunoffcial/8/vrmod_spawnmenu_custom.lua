@@ -1,0 +1,249 @@
+
+
+
+-- local function DetectSystemSpecs()
+--     return {
+--         ram = collectgarbage("count") / 1024,
+--         gpu = render.GetVendorString(),
+--         fps = 1 / FrameTime(),
+--         vram = render.GetDXLevel()
+--     }
+-- end
+
+-- local function AutoOptimizeSettings()
+--     local specs = DetectSystemSpecs()
+--     -- FPSに基づく最適化
+--     if specs.fps < 80 then
+--         RunConsoleCommand("vrmod_rtWidth_Multiplier", "1.0")
+--         RunConsoleCommand("vrmod_rtHeight_Multiplier", "0.8")
+--         RunConsoleCommand("r_shadows", "0")
+--     end
+
+--     -- GPUベンダーに基づく最適化
+--     if string.find(specs.gpu:lower(), "nvidia") then
+--         RunConsoleCommand("mat_queue_mode", "2")
+--     end
+
+--     -- メモリ使用量に基づく最適化
+--     if specs.ram < 8192 then
+--         RunConsoleCommand("r_WaterDrawReflection", "0")
+--         RunConsoleCommand("r_WaterDrawRefraction", "0")
+--     end
+-- end
+
+-- local function DiagnoseVRSystem()
+--     local issues = {}
+--     local perfMetrics = {}
+--     -- FPS監視
+--     local fpsCounter = 0
+--     local fpsTimer = 0
+--     hook.Add(
+--         "Think",
+--         "VR_Performance_Monitor",
+--         function()
+--             fpsCounter = fpsCounter + 1
+--             if CurTime() - fpsTimer >= 1 then
+--                 perfMetrics.averageFPS = fpsCounter
+--                 fpsCounter = 0
+--                 fpsTimer = CurTime()
+--                 if perfMetrics.averageFPS < 80 then
+--                     table.insert(
+--                         issues,
+--                         {
+--                             severity = "warning",
+--                             message = "Low FPS detected: " .. perfMetrics.averageFPS,
+--                             suggestion = "Consider lowering render quality"
+--                         }
+--                     )
+--                 end
+--             end
+--         end
+--     )
+
+--     -- VRシステムチェック
+--     if g_VR.moduleVersion < requiredModuleVersion then
+--         table.insert(
+--             issues,
+--             {
+--                 severity = "error",
+--                 message = "Outdated VR module version",
+--                 suggestion = "Please update VRMod"
+--             }
+--         )
+--     end
+
+--     return issues, perfMetrics
+-- end
+
+-- local function StartVRCalibration()
+--     local steps = {
+--         {
+--             instruction = "Stand in a neutral position",
+--             action = function()
+--                 -- 初期位置を記録
+--                 local initialPos = g_VR.tracking.hmd.pos
+
+--                 return initialPos
+--             end
+--         },
+--         {
+--             instruction = "Reach forward with your right hand",
+--             action = function()
+--                 -- コントローラーの範囲をキャリブレート
+--                 local reachDistance = g_VR.tracking.pose_righthand.pos:Distance(g_VR.tracking.hmd.pos)
+--                 RunConsoleCommand("vrmod_pickup_range", tostring(reachDistance / 40))
+--             end
+--         }
+--     }
+
+--     local currentStep = 1
+--     timer.Create(
+--         "VRCalibrationAssistant",
+--         5,
+--         #steps,
+--         function()
+--             if steps[currentStep] then
+--                 -- ステップの実行
+--                 steps[currentStep].action()
+--                 currentStep = currentStep + 1
+--             end
+--         end
+--     )
+-- end
+
+
+-- GmodVR-Semiofficial Menu UI
+-- -- Inspired by Gmod's spawn menu
+-- local PANEL = {}
+-- function PANEL:Init()
+--     self:SetSize(800, 600)
+--     self:Center()
+--     self:SetTitle("GmodVR-Semiofficial Menu")
+--     self:MakePopup()
+--     -- Main content area
+--     self.ContentPanel = vgui.Create("DPanel", self)
+--     self.ContentPanel:Dock(FILL)
+--     -- Left sidebar for categories
+--     self.Sidebar = vgui.Create("DScrollPanel", self)
+--     self.Sidebar:Dock(LEFT)
+--     self.Sidebar:SetWidth(200)
+--     -- Create category buttons
+--     local categories = {"General", "VR Settings", "Controls", "Performance", "Advanced"}
+--     for _, category in ipairs(categories) do
+--         local button = self.Sidebar:Add("DButton")
+--         button:Dock(TOP)
+--         button:SetText(category)
+--         button:SetTall(40)
+--         button.DoClick = function()
+--             self:LoadCategory(category)
+--         end
+--     end
+
+--     -- Initialize with the General category
+--     self:LoadCategory("General")
+-- end
+
+-- function PANEL:LoadCategory(category)
+--     self.ContentPanel:Clear()
+--     local content = vgui.Create("DScrollPanel", self.ContentPanel)
+--     content:Dock(FILL)
+--     if category == "General" then
+--         self:AddSettingCheckbox(content, "Enable VR Mode", "gmodvr_enable")
+--         self:AddSettingSlider(content, "Player Height", "gmodvr_player_height", 0, 200, 0)
+--         self:AddSettingComboBox(content, "Locomotion Type", "gmodvr_locomotion_type", {"Teleport", "Smooth", "Dash"})
+--     elseif category == "VR Settings" then
+--         self:AddSettingCheckbox(content, "Show VR Hands", "gmodvr_show_hands")
+--         self:AddSettingCheckbox(content, "Enable Room Scale", "gmodvr_room_scale")
+--         self:AddSettingSlider(content, "FOV", "gmodvr_fov", 90, 120, 0)
+--     elseif category == "Controls" then
+--         self:AddSettingComboBox(content, "Left Hand Main", "gmodvr_left_hand_main", {"Move", "Interact", "Weapon"})
+--         self:AddSettingComboBox(content, "Right Hand Main", "gmodvr_right_hand_main", {"Move", "Interact", "Weapon"})
+--         self:AddSettingCheckbox(content, "Invert Y-Axis", "gmodvr_invert_y")
+--     elseif category == "Performance" then
+--         self:AddSettingSlider(content, "Render Scale", "gmodvr_render_scale", 0.5, 2, 2)
+--         self:AddSettingComboBox(content, "Anti-Aliasing", "gmodvr_aa_mode", {"None", "FXAA", "MSAA 2x", "MSAA 4x"})
+--         self:AddSettingCheckbox(content, "Enable Async Reprojection", "gmodvr_async_reprojection")
+--     elseif category == "Advanced" then
+--         self:AddSettingCheckbox(content, "Debug Mode", "gmodvr_debug_mode")
+--         self:AddSettingTextEntry(content, "Custom VR DLL Path", "gmodvr_custom_dll_path")
+--         self:AddSettingButton(
+--             content,
+--             "Reset All Settings",
+--             function()
+--                 -- Implement reset functionality here
+--                 print("Resetting all GmodVR settings")
+--             end
+--         )
+--     end
+-- end
+
+-- function PANEL:AddSettingCheckbox(parent, label, convar)
+--     local checkbox = vgui.Create("DCheckBoxLabel", parent)
+--     checkbox:SetText(label)
+--     checkbox:SetConVar(convar)
+--     checkbox:Dock(TOP)
+--     checkbox:DockMargin(10, 5, 10, 5)
+-- end
+
+-- function PANEL:AddSettingSlider(parent, label, convar, min, max, decimals)
+--     local slider = vgui.Create("DNumSlider", parent)
+--     slider:SetText(label)
+--     slider:SetMin(min)
+--     slider:SetMax(max)
+--     slider:SetDecimals(decimals)
+--     slider:SetConVar(convar)
+--     slider:Dock(TOP)
+--     slider:DockMargin(10, 5, 10, 5)
+-- end
+
+-- function PANEL:AddSettingComboBox(parent, label, convar, options)
+--     local container = vgui.Create("DPanel", parent)
+--     container:Dock(TOP)
+--     container:SetTall(30)
+--     container:DockMargin(10, 5, 10, 5)
+--     local lbl = vgui.Create("DLabel", container)
+--     lbl:SetText(label)
+--     lbl:Dock(LEFT)
+--     lbl:SetWide(150)
+--     local combo = vgui.Create("DComboBox", container)
+--     combo:Dock(FILL)
+--     combo:SetConVar(convar)
+--     for _, option in ipairs(options) do
+--         combo:AddChoice(option)
+--     end
+-- end
+
+-- function PANEL:AddSettingTextEntry(parent, label, convar)
+--     local container = vgui.Create("DPanel", parent)
+--     container:Dock(TOP)
+--     container:SetTall(30)
+--     container:DockMargin(10, 5, 10, 5)
+--     local lbl = vgui.Create("DLabel", container)
+--     lbl:SetText(label)
+--     lbl:Dock(LEFT)
+--     lbl:SetWide(150)
+--     local entry = vgui.Create("DTextEntry", container)
+--     entry:Dock(FILL)
+--     entry:SetConVar(convar)
+-- end
+
+-- function PANEL:AddSettingButton(parent, label, func)
+--     local button = vgui.Create("DButton", parent)
+--     button:SetText(label)
+--     button:Dock(TOP)
+--     button:DockMargin(10, 5, 10, 5)
+--     button.DoClick = func
+-- end
+
+-- vgui.Register("GmodVRSemiofficalMenu", PANEL, "DFrame")
+-- -- Function to open the menu
+-- function OpenGmodVRSemiofficalMenu()
+--     if IsValid(GmodVRMenu) then
+--         GmodVRMenu:Remove()
+--     end
+
+--     GmodVRMenu = vgui.Create("GmodVRSemiofficalMenu")
+-- end
+
+-- -- Console command to open the menu
+-- concommand.Add("gmodvr_menu", OpenGmodVRSemiofficalMenu)
