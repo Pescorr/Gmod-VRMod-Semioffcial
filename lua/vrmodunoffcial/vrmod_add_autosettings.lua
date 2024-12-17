@@ -35,6 +35,8 @@ hook.Add(
             LocalPlayer():ConCommand("arc9_fx_adsblur 0")
             LocalPlayer():ConCommand("arc9_fx_reloadblur 0")
             LocalPlayer():ConCommand("arc9_fx_animblur 0")
+            LocalPlayer():ConCommand("tacrp_quicknade 1")
+
         end
 
         if lvsautosetting:GetBool() then
@@ -169,7 +171,7 @@ hook.Add(
         if ply ~= LocalPlayer() then return end
         if lvsautosetting:GetBool() then
             -- 以前のコマンドで設定されたconvarのリスト
-            local lvsconvar = {"lvs_mouseaim", "lvs_select_weapon1", "lvs_select_weapon2", "lvs_select_weapon3", "lvs_select_weapon4", "lvs_edit_hud"}
+            local lvsconvar = {"lvs_mouseaim", "lvs_select_weapon1", "lvs_select_weapon2", "lvs_select_weapon3", "lvs_select_weapon4", "lvs_edit_hud","tacrp_quicknade"}
             -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
             if not LVS then return end
             for _, lvsname in ipairs(lvsconvar) do
