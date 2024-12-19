@@ -1,4 +1,5 @@
 --------[vrmod_holstersystem_type2.txt]Start--------
+function vrholstersystem2()
 AddCSLuaFile()
 if CLIENT then
     local convars, convarValues = vrmod.GetConvars()
@@ -74,6 +75,7 @@ if CLIENT then
         function()
             local pouch = InitializeHolsterSystem()
             if not IsVRReady() then return end
+            RunConsoleCommand("vrmod_lua_reset_holster2") -- It even removes spawnmenu, so we need to reload it
         end
     )
 
@@ -336,3 +338,13 @@ if SERVER then
         end
     )
 end
+end
+vrholstersystem2()
+concommand.Add(
+	"vrmod_lua_reset_holster2",
+	function(ply, cmd, args)
+		AddCSLuaFile("vrmodunoffcial/2/vrmod_holstarsystem_type2.lua")
+		include("vrmodunoffcial/2/vrmod_holstarsystem_type2.lua")
+		vrholstersystem2()
+	end
+)
