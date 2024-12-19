@@ -47,8 +47,23 @@ if CLIENT then
 		wrongMuzzleAng = true
 	}
 
+	g_VR.viewModelInfo.weapon_mp_powersuit = {
+		--modelOverride = "models/weapons/w_toolgun.mdl",
+		offsetPos = Vector(-14.5, 6, 8.5), --forw, left, up
+		offsetAng = Angle(0, 0, 0),
+	}
+
+
 	g_VR.swepOriginalFovs = g_VR.swepOriginalFovs or {}
 	g_VR.lastUpdatedWeapon = ""
+	local function ResetViewmodelInfo()
+		g_VR.viewModel = nil
+		g_VR.openHandAngles = g_VR.defaultOpenHandAngles
+		g_VR.closedHandAngles = g_VR.defaultClosedHandAngles
+		g_VR.currentvmi = nil
+		g_VR.viewModelMuzzle = nil
+	end
+
 	function vrmod.UpdateViewmodelInfo(wep, force)
 		if not IsValid(wep) then
 			ResetViewmodelInfo()
