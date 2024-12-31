@@ -127,18 +127,18 @@ hook.Add(
             vrmod.RemoveInGameMenuItem("Mirror Toggle")
         end
 
-        if vre_gbradial_menu:GetBool() then
-            vrmod.AddInGameMenuItem(
-                "VRE addmenu",
-                0,
-                2,
-                function()
-                    LocalPlayer():ConCommand("vre_addvrmenu")
-                end
-            )
-        else
-            vrmod.RemoveInGameMenuItem("VRE addmenu")
-        end
+        -- if vre_gbradial_menu:GetBool() then
+        --     vrmod.AddInGameMenuItem(
+        --         "VRE addmenu",
+        --         0,
+        --         2,
+        --         function()
+        --             LocalPlayer():ConCommand("vre_addvrmenu")
+        --         end
+        --     )
+        -- else
+        --     vrmod.RemoveInGameMenuItem("VRE addmenu")
+        -- end
 
         --add button start
         if vre_gbradial_menu:GetBool() then

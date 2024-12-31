@@ -34,6 +34,7 @@ hook.Add(
             LocalPlayer():ConCommand("arc9_fx_rtblur 0")
             LocalPlayer():ConCommand("arc9_fx_adsblur 0")
             LocalPlayer():ConCommand("arc9_fx_reloadblur 0")
+            LocalPlayer():ConCommand("arc9_dtap_sights 1")
             LocalPlayer():ConCommand("arc9_fx_animblur 0")
             LocalPlayer():ConCommand("tacrp_quicknade 1")
 
@@ -85,7 +86,7 @@ hook.Add(
 
         if vrautobenchgun:GetBool() then
             -- 以前のコマンドで設定されたconvarのリスト
-            local arcconvar = {"arc9_dev_benchgun", "arc9_tpik", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
+            local arcconvar = {"arc9_dev_benchgun", "arc9_tpik","arc9_dtap_sights", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
             -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
             if not arc then return end
             for _, arcname in ipairs(arcconvar) do
@@ -113,7 +114,7 @@ concommand.Add(
 
         if vrautobenchgun:GetBool() then
             -- 以前のコマンドで設定されたconvarのリスト
-            local arcconvar = {"arc9_dev_benchgun", "arc9_tpik", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
+            local arcconvar = {"arc9_dev_benchgun", "arc9_tpik","arc9_dtap_sights", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
             -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
             if not arc then return end
             for _, arcname in ipairs(arcconvar) do
@@ -147,7 +148,7 @@ if CLIENT then
 
                     if vrautobenchgun:GetBool() then
                         -- 以前のコマンドで設定されたconvarのリスト
-                        local arcconvar = {"arc9_dev_benchgun", "arc9_tpik", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
+                        local arcconvar = {"arc9_dev_benchgun", "arc9_tpik","arc9_dtap_sights", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_blur"}
                         -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
                         if not arc then return end
                         for _, arcname in ipairs(arcconvar) do
@@ -171,20 +172,18 @@ hook.Add(
         if ply ~= LocalPlayer() then return end
         if lvsautosetting:GetBool() then
             -- 以前のコマンドで設定されたconvarのリスト
-            local lvsconvar = {"lvs_mouseaim", "lvs_select_weapon1", "lvs_select_weapon2", "lvs_select_weapon3", "lvs_select_weapon4", "lvs_edit_hud","tacrp_quicknade"}
-            -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
+            local lvsconvar = {"lvs_mouseaim", "lvs_select_weapon1", "lvs_select_weapon2", "lvs_select_weapon3", "lvs_select_weapon4", "lvs_edit_hud"}
             if not LVS then return end
             for _, lvsname in ipairs(lvsconvar) do
                 local lvsdefault = GetConVar(lvsname):GetDefault()
                 LocalPlayer():ConCommand(lvsname .. " " .. lvsdefault)
             end
 
-            LocalPlayer():ConCommand("vrmod_character_stop")
         end
 
         if vrautobenchgun:GetBool() then
             -- 以前のコマンドで設定されたconvarのリスト
-            local arcconvar = {"arc9_dev_benchgun", "arc9_tpik", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_hud_size", "arccw_blur"}
+            local arcconvar = {"arc9_dev_benchgun", "arc9_tpik","arc9_dtap_sights", "arc9_cheapscopes", "arc9_controller", "arc9_autolean", "arc9_never_ready", "arc9_vm_cambob", "arc9_vm_cambobwalk", "arc9_breath_pp", "arc9_fx_rtblur", "arc9_fx_adsblur", "arc9_fx_reloadblur", "arc9_fx_animblur", "cl_tfa_fx_rtscopeblur_mode", "cl_tfa_fx_rtscopeblur_passes", "cl_tfa_fx_rtscopeblur_intensity", "cl_tfa_fx_ads_dof", "cl_tfa_fx_ads_dof_hd", "cl_tfa_3dscope_overlay", "sv_tfa_sprint_enabled", "cl_tfa_ironsights_toggle", "arccw_blur_toytown", "arccw_hud_size", "arccw_blur","tacrp_quicknade"}
             -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
             if not arc then return end
             for _, arcname in ipairs(arcconvar) do
@@ -192,5 +191,7 @@ hook.Add(
                 LocalPlayer():ConCommand(arcname .. " " .. arcdefault)
             end
         end
+        LocalPlayer():ConCommand("vrmod_character_stop")
+
     end
 )

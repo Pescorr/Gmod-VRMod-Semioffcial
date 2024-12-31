@@ -150,7 +150,7 @@ hook.Add(
     "VRMod_Input",
     "vrutil_hook_weppouchinput_spine",
     function(action, pressed)
-        local weppouchbone_spine = "ValveBiped.Bip01_Spine"
+        local weppouchbone_spine = "ValveBiped.Bip01_Neck1"
         local weppouchdist = g_VR.eyePosLeft
         if weppouch_spine:GetBool() then
             if LocalPlayer():LookupBone(weppouchbone_spine) and LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone(weppouchbone_spine)) then
@@ -215,8 +215,8 @@ hook.Add(
         end
 
         if weppouch_spine:GetBool() and vrmod_weppouch_visiblerange:GetBool() then
-            if LocalPlayer():LookupBone("ValveBiped.Bip01_Spine") and LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Spine")) then
-                local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Spine")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
+            if LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1") and LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1")) then
+                local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
                 render.SetColorMaterial()
                 render.DrawSphere(pos, weppouchsize_spine:GetFloat(), 16, 50, Color(0, 0, 255))
             end
@@ -264,7 +264,7 @@ hook.Add(
         end
 
         if weppouch_spine:GetBool() and vrmod_weppouch_visiblename:GetBool() then
-            local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Spine")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
+            local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
             if g_VR.tracking.pose_righthand.pos:DistToSqr(pos) < (weppouchsize_spine:GetFloat() * weppouchsize_spine:GetFloat()) then
                 local wepclass = weppouch_weapon_spine:GetString()
                 local wep = LocalPlayer():GetWeapon(wepclass)
@@ -323,7 +323,7 @@ hook.Add(
 --             local wepclass = weppouch_weapon_spine:GetString()
 --             local wep = LocalPlayer():GetWeapon(wepclass)
 --             if IsValid(wep) then
---                 local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Spine")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
+--                 local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
 --                 local ang = (pos - EyePos()):Angle()
 --                 ang:RotateAroundAxis(ang:Right(), 90)
 --                 cam.Start3D2D(pos, ang, 0.1)

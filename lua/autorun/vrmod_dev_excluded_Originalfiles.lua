@@ -2,7 +2,10 @@ AddCSLuaFile()
 
 function VRMod_Offcial_Include()
     local paths = {}
-    local operation = CreateClientConVar("vrmod_dev_vrmod_original_folder_file_operation", "1", true, FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons", 1, 2)
+    local operation = CreateClientConVar("vrmod_dev_vrmod_original_folder_file_operation", "1", true, FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons", 0, 2)
+
+    if operation:GetInt() == 0 then return end
+
     if operation:GetInt() == 1 then
         -- ConVarを作成
         CreateClientConVar("vrmod_dev_original_excluded_files", "", true, FCVAR_ARCHIVE, "Excluded Lua files separated by semicolons")
