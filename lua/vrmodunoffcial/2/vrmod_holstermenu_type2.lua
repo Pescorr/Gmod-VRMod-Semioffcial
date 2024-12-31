@@ -1,5 +1,4 @@
 --------[vrmod_holstermenu.txt]Start--------
-AddCSLuaFile()
 if SERVER then return end
 local convars, convarValues = vrmod.GetConvars()
 hook.Add(

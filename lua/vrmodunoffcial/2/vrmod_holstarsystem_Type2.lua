@@ -1,6 +1,5 @@
 --------[vrmod_holstersystem_type2.txt]Start--------
 function vrholstersystem2()
-AddCSLuaFile()
 if CLIENT then
     local convars, convarValues = vrmod.GetConvars()
     local pouch_slots = 5
