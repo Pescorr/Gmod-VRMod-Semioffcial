@@ -36,13 +36,12 @@ if CLIENT then
 
     -- 車両タイプを判定する関数を追加
     local function GetVehicleType()
-        local ply = LocalPlayer()
-        local vehicle = ply:lvsGetVehicle()
+        local vehicle = LocalPlayer():lvsGetVehicle()
         if not IsValid(vehicle) then return nil end
-        -- GetVehicleTypeはLVSの標準関数
-        if vehicle.GetVehicleType then return vehicle:GetVehicleType() end
+        -- エンティティ名に "wheeldrive" が含まれているかチェック
+        if string.find(string.lower(vehicle:GetClass()), "wheeldrive") then return true end
 
-        return nil
+        return false
     end
 
     local function updateServer()
@@ -94,14 +93,21 @@ if CLIENT then
                 actionStates["VSPEC"] = pressed
             end
 
-            if GetVehicleType() == "LandVehicle" then
-                if action == "boolean_secondaryfire" then
-                    actionStates["ATTACK"] = pressed
+            if GetVehicleType() == true then
+                if actionStates["FREELOOK"] then
+                    if action == "boolean_primaryfire" then
+                        actionStates["ATTACK"] = pressed
+                    end
                 end
             else
                 if action == "boolean_primaryfire" then
                     actionStates["ATTACK"] = pressed
                 end
+            end
+
+            if action == "boolean_secondaryfire" then
+                actionStates["CAR_SWAP_AMMO"] = pressed
+                actionStates["ZOOM"] = pressed
             end
 
             if action == "boolean_sprint" then

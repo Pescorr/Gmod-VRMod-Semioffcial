@@ -11,7 +11,7 @@ local isCrouched = false
 local previousHMDPos = Vector(0, 0, 0)
 local crouchStartPos = Vector(0, 0, 0)
 -- ConVarの作成
-local cv_enabled = CreateClientConVar("vrmod_dash_enabled", "1", true, false, "Enable VR dash movement")
+local cv_enabled = CreateClientConVar("vrmod_dash_enabled", "0", true, false, "Enable VR dash movement")
 local cv_debug = CreateClientConVar("vrmod_dash_debug", "0", true, false, "Show debug info for VR dash")
 -- デバッグ表示用関数
 local function DebugPrint(text)
