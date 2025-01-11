@@ -173,7 +173,7 @@ function vrmod_ui_lua()
 				ang = ang,
 				scale = scale,
 				cursorEnabled = cursorEnabled,
-				rt = GetRenderTarget("vrmod_rt_ui_" .. uid, width, height, false),
+				rt = GetRenderTargetEx("vrmod_rt_ui_" .. uid, width, height, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_NONE, 0, 0, IMAGE_FORMAT_RGBA8888),
 				width = width,
 				height = height,
 			}

@@ -1,5 +1,6 @@
 if CLIENT then
     if not LVS then return end
+    if not g_VR then return end
     local lvsautosetting = CreateClientConVar("vrmod_auto_lvs_keysetings", 1, true, FCVAR_ARCHIVE)
     local pickuphandle = CreateClientConVar("vrmod_lvs_pickup_handle", "1", true, FCVAR_ARCHIVE)
     local actionStates = {
@@ -36,6 +37,7 @@ if CLIENT then
 
     -- 車両タイプを判定する関数を追加
     local function GetVehicleType()
+        if not g_VR.active then return end
         local vehicle = LocalPlayer():lvsGetVehicle()
         if not IsValid(vehicle) then return nil end
         -- エンティティ名に "wheeldrive" が含まれているかチェック
@@ -57,6 +59,7 @@ if CLIENT then
 
     local function handleVectorInput()
         if not g_VR then return end
+        if not g_VR.active then return end
         if not g_VR.input then return end
         local forward = g_VR.input.vector1_forward or 0
         local reverse = g_VR.input.vector1_reverse or 0
@@ -94,7 +97,11 @@ if CLIENT then
             end
 
             if GetVehicleType() == true then
-                if actionStates["FREELOOK"] then
+                if action == "boolean_left_pickup" then
+                    actionStates["VSPEC"] = pressed
+                end
+
+                if actionStates["VSPEC"] then
                     if action == "boolean_primaryfire" then
                         actionStates["ATTACK"] = pressed
                     end

@@ -67,12 +67,14 @@ hook.Add(
         AddControl(resetButton, 25)
         resetButton:SetText("Reset Magazine Adjustments")
         resetButton.DoClick = function()
-            RunConsoleCommand("vrmod_mag_pos_x", "0")
-            RunConsoleCommand("vrmod_mag_pos_y", "0")
-            RunConsoleCommand("vrmod_mag_pos_z", "0")
-            RunConsoleCommand("vrmod_mag_ang_p", "0")
-            RunConsoleCommand("vrmod_mag_ang_y", "0")
-            RunConsoleCommand("vrmod_mag_ang_r", "0")
+            RunConsoleCommand("vrmod_mag_pos_x", "3.15")
+            RunConsoleCommand("vrmod_mag_pos_y", "0.31")
+            RunConsoleCommand("vrmod_mag_pos_z", "2.83")
+            RunConsoleCommand("vrmod_mag_ang_p", "-2.83")
+            RunConsoleCommand("vrmod_mag_ang_y", "90")
+            RunConsoleCommand("vrmod_mag_ang_r", "83")
+            RunConsoleCommand("vrmod_mag_ang_r", "83")
+
         end
 
         local magBonesLabel = vgui.Create("DLabel", MenuTab14)

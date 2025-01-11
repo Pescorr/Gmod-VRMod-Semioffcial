@@ -412,9 +412,9 @@ function vrmod_lua()
 		end
 
 		function VRUtilClientStart()
-			-- if g_VR.rt then
-			-- 		g_VR.rt = nil
-			-- end
+			if g_VR.rt then
+					g_VR.rt = nil
+			end
 
 			if GetConVar("godsenttools_gpu_saver") then
 				overrideConvar("godsenttools_gpu_saver", "0")
@@ -446,7 +446,7 @@ function vrmod_lua()
 				return
 			end
 
-			local displayInfo = VRMOD_GetDisplayInfo(1, 3)
+			local displayInfo = VRMOD_GetDisplayInfo(1, 10)
 			local rtWidth, rtHeight = displayInfo.RecommendedWidth * rtWidthMul:GetFloat(), displayInfo.RecommendedHeight * rtHeightMul:GetFloat()
 			local rtWidthright = rtWidth / 2
 			if system.IsLinux() then
@@ -454,7 +454,7 @@ function vrmod_lua()
 			end
 
 			VRMOD_ShareTextureBegin()
-			g_VR.rt = GetRenderTarget("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight)
+			g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
 			VRMOD_ShareTextureFinish()
 			--
 			local displayCalculations = {
@@ -515,7 +515,7 @@ function vrmod_lua()
 			g_VR.rightControllerOffsetAng = Angle(convars.vrmod_controlleroffset_pitch:GetFloat(), convars.vrmod_controlleroffset_yaw:GetFloat(), convars.vrmod_controlleroffset_roll:GetFloat())
 			g_VR.leftControllerOffsetAng = g_VR.rightControllerOffsetAng
 			g_VR.active = true
-			overrideConvar("engine_no_focus_sleep", "1")
+		overrideConvar("engine_no_focus_sleep", "0")
 			overrideConvar("playerscaling_clientspeed", "0")
 			overrideConvar("playerscaling_clientjump", "0")
 			if autoarcbench:GetBool() then
