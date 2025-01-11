@@ -1,4 +1,3 @@
-if CLIENT then return end
 -- コンソールコマンド 'remove_reflective_glass' を追加して、func_reflective_glass エンティティを削除する
 concommand.Add(
     "remove_reflective_glass",
@@ -6,7 +5,7 @@ concommand.Add(
         -- 実行者が管理者か確認
         if not IsValid(ply) or ply:IsAdmin() then
             -- func_reflective_glass エンティティを検索して削除
-            for ent in ipairs(ents.FindByClass("funcreflective_glass")) do
+            for ent in ipairs(ents.FindByClass("func_reflective_glass")) do
                 ent:Remove()
             end
 

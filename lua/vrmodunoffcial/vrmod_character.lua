@@ -502,7 +502,7 @@ function vrmod_character_lua()
 		local zeroVec = Vector(0, 0, 0)
 		local normalVec = Vector(1, 1, 1)
 		-- 現在のボーンを非表示にする
-		ply:ManipulateBoneScale(boneID, hide and zeroVec or normalVec)
+		ply:ManipulateBoneScale(boneID, hide and zeroVec or normalVec,false)
 		-- 子ボーンを探索
 		local childrenBones = ply:GetChildBones(boneID)
 		for _, childBoneID in ipairs(childrenBones) do
@@ -517,24 +517,20 @@ function vrmod_character_lua()
 		--hide head in first person
 		if ply == LocalPlayer() then
 			local ep = EyePos()
-
 			local hide = (ep == g_VR.eyePosLeft or ep == g_VR.eyePosRight) and ply:GetViewEntity() == ply
 			if characterInfo[steamid] and characterInfo[steamid].bones and characterInfo[steamid].bones.b_head then
 				local headBoneID = characterInfo[steamid].bones.b_head
 				HideBoneAndChildren(ply, headBoneID, hide)
 			end
-			
+
 			local isFirstPerson = (ep == g_VR.eyePosLeft or ep == g_VR.eyePosRight) and ply:GetViewEntity() == ply
 			if characterInfo[steamid] and characterInfo[steamid].bones then
 				local bones = characterInfo[steamid].bones
-
 				local function SetBoneVisibility(boneID, hide)
 					if boneID then
 						ply:ManipulateBonePosition(boneID, hide and Vector(-150, 0, 0) or Vector(1, 1, 1), false)
 					end
 				end
-
-
 
 				if g_VR.active and GetConVar("vrmod_hide_head"):GetBool() and isFirstPerson then
 					SetBoneVisibility(bones.b_head, true)
@@ -672,24 +668,24 @@ function vrmod_character_lua()
 				end
 
 				ply:RemoveCallback("BuildBonePositions", characterInfo[steamid].boneCallback)
-				if  ply == LocalPlayer() then
+				if ply == LocalPlayer() then
 					hook.Remove("VRMod_PreRender", "vrutil_hook_calcplyrenderpos")
-					ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, Vector(1, 1, 1))
+					ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, Vector(1, 1, 1),false)
 					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_head, Vector(1, 1, 1), false)
-				-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightWrist, Vector(1, 1, 1), false)
-				-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftWrist, Vector(1, 1, 1), false)
-				-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftUpperarm, Vector(1, 1, 1), false)
-				-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightUpperarm, Vector(1, 1, 1), false)
-				-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftForearm, Vector(1, 1, 1), false)
-				-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightThigh, Vector(1, 1, 1), false)
-				-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftCalf, Vector(1, 1, 1), false)
-				-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightCalf, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightWrist, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftWrist, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftUpperarm, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightUpperarm, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftForearm, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightThigh, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftCalf, Vector(1, 1, 1), false)
+					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightCalf, Vector(1, 1, 1), false)
+				end
 			end
-		end
 
-		-- characterInfo[steamid]がnilの場合の処理を追加
-		activePlayers[steamid] = nil
-	end
+			-- characterInfo[steamid]がnilの場合の処理を追加
+			activePlayers[steamid] = nil
+		end
 
 		if table.Count(activePlayers) == 0 then
 			hook.Remove("PrePlayerDraw", "vrutil_hook_preplayerdraw")
@@ -717,97 +713,6 @@ function vrmod_character_lua()
 			g_VR.StopCharacterSystem(ply:SteamID())
 		end
 	)
-	-- else
-	-- 	local function CreateCharacterColliders(ply)
-	-- 		local steamid = ply:SteamID()
-	-- 		local charinfo = characterInfo[steamid]
-	-- 		-- 各部位のボーンに対応するコライダーを作成
-	-- 		charinfo.colliders = {}
-	-- 		for boneName, boneId in pairs(charinfo.bones) do
-	-- 			if boneId >= 0 then
-	-- 				local collider = ents.Create("prop_physics")
-	-- 				collider:SetModel("models/props_junk/PopCan01a.mdl")
-	-- 				collider:SetPos(ply:GetPos())
-	-- 				collider:SetAngles(ply:GetAngles())
-	-- 				collider:SetMoveType(MOVETYPE_NONE)
-	-- 				collider:SetSolid(SOLID_BBOX)
-	-- 				collider:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-	-- 				collider:SetNotSolid(true)
-	-- 				collider:SetNoDraw(true)
-	-- 				collider:DrawShadow(false)
-	-- 				collider:Spawn()
-	-- 				collider:Activate()
-	-- 				collider:SetParent(ply, boneId)
-	-- 				charinfo.colliders[boneId] = collider
-	-- 			end
-	-- 		end
-	-- 	end
-	-- 	local function RemoveCharacterColliders(ply)
-	-- 		local steamid = ply:SteamID()
-	-- 		local charinfo = characterInfo[steamid]
-	-- 		if charinfo and charinfo.colliders then
-	-- 			for _, collider in pairs(charinfo.colliders) do
-	-- 				if IsValid(collider) then
-	-- 					collider:Remove()
-	-- 				end
-	-- 			end
-	-- 			charinfo.colliders = {}
-	-- 		end
-	-- 	end
-	-- 	hook.Add(
-	-- 		"VRMod_Start",
-	-- 		"vrmod_character_colliders_init",
-	-- 		function(ply)
-	-- 			CreateCharacterColliders(ply)
-	-- 		end
-	-- 	)
-	-- 	hook.Add(
-	-- 		"PlayerSpawn",
-	-- 		"vrmod_character_colliders_spawn",
-	-- 		function(ply)
-	-- 			if vrmod.IsPlayerInVR(ply) then
-	-- 				CreateCharacterColliders(ply)
-	-- 			end
-	-- 		end
-	-- 	)
-	-- 	hook.Add(
-	-- 		"PlayerDeath",
-	-- 		"vrmod_character_colliders_death",
-	-- 		function(ply)
-	-- 			RemoveCharacterColliders(ply)
-	-- 		end
-	-- 	)
-	-- 	hook.Add(
-	-- 		"VRMod_Exit",
-	-- 		"vrmod_character_colliders_exit",
-	-- 		function(ply)
-	-- 			RemoveCharacterColliders(ply)
-	-- 		end
-	-- 	)
-	-- 	hook.Add(
-	-- 		"PlayerTick",
-	-- 		"vrmod_character_colliders_tick",
-	-- 		function(ply)
-	-- 			if vrmod.IsPlayerInVR(ply) then
-	-- 				local steamid = ply:SteamID()
-	-- 				local charinfo = characterInfo[steamid]
-	-- 				if charinfo and charinfo.colliders then
-	-- 					for boneId, collider in pairs(charinfo.colliders) do
-	-- 						if IsValid(collider) then
-	-- 							local bonePos, boneAng = ply:GetBonePosition(boneId)
-	-- 							local targetPos, targetAng = LocalToWorld(Vector(0, 0, 0), Angle(0, 0, 0), bonePos, boneAng)
-	-- 							local targetVel = (targetPos - collider:GetPos()) * 30
-	-- 							collider:GetPhysicsObject():SetVelocity(targetVel)
-	-- 							local _, tempAng = WorldToLocal(Vector(), targetAng, Vector(), collider:GetAngles())
-	-- 							local targetAngVel = Vector(tempAng.p, tempAng.y, tempAng.r) * 30
-	-- 							collider:GetPhysicsObject():AddAngleVelocity(targetAngVel - collider:GetPhysicsObject():GetAngleVelocity())
-	-- 						end
-	-- 					end
-	-- 				end
-	-- 			end
-	-- 		end
-	-- 	)
-	-- end
 end
 
 vrmod_character_lua()

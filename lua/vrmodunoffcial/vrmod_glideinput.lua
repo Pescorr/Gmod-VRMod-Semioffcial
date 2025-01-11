@@ -1,4 +1,8 @@
+if not Glide then return end
+if not g_VR then return end
+
 if CLIENT then 
+
     -- 地上車両かどうかをチェックする関数
     local function isGroundVehicle(vehicle)
         if not IsValid(vehicle) then return false end
@@ -25,8 +29,8 @@ if CLIENT then
         ["boolean_left"] = "shift_neutral",         -- Aボタン - ニュートラル
         ["boolean_handbrake"] = "handbrake",          -- Bボタン - ハンドブレーキ
         ["boolean_flashlight"] = "headlights",      -- 左メニュー - ヘッドライト
-        ["boolean_chat"] = "horn",           -- 右メニュー - クラクション
-        ["boolean_turbo"] = "reduce_throttle", -- 左ショルダー - スロットル制限
+        ["boolean_turbo"] = "horn",           -- 右メニュー - クラクション
+        ["boolean_reload"] = "reduce_throttle", -- 左ショルダー - スロットル制限
         ["boolean_spawnmenu"] = "switch_weapon"   -- 右ショルダー - 武器切替
     }
 
@@ -43,6 +47,8 @@ if CLIENT then
 
     -- VR入力の更新処理
     hook.Add("Think", "glide_vr_update", function()
+
+        if not g_VR.active then return end
         local vehicle = LocalPlayer():GetNWEntity("GlideVehicle")
         if not isGroundVehicle(vehicle) or not g_VR.net[LocalPlayer():SteamID()] then return end
 

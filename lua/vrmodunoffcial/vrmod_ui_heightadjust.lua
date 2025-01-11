@@ -437,6 +437,10 @@ function VRUtilOpenHeightMenu()
 			fn = function()
 				local current = GetConVar("vrmod_hide_head"):GetBool()
 				RunConsoleCommand("vrmod_hide_head", current and "0" or "1")
+				RunConsoleCommand("vrmod_character_stop")
+				timer.Simple(2, function()
+					 RunConsoleCommand("vrmod_character_start")
+				end)
 			end
 		},
 		{
@@ -444,29 +448,41 @@ function VRUtilOpenHeightMenu()
 			y = 350,
 			w = 50,
 			h = 50,
-			text = "STOP\nPMInt",
+			text = "Hide\nBody",
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
 			enabled = true,
 			fn = function()
+				local current = GetConVar("vrmod_hide_body"):GetBool()
+				RunConsoleCommand("vrmod_hide_body", current and "0" or "1")
 				RunConsoleCommand("vrmod_character_stop")
+				timer.Simple(2, function()
+					 RunConsoleCommand("vrmod_character_start")
+				end)
+
 			end
 		},
-		{
-			x = 0,
-			y = 405,
-			w = 50,
-			h = 50,
-			text = "Start\nPMInt",
-			font = "Trebuchet18",
-			text_x = 25,
-			text_y = 5,
-			enabled = true,
-			fn = function()
-				RunConsoleCommand("vrmod_character_start")
-			end
-		}
+		-- {
+		-- 	x = 0,
+		-- 	y = 405,
+		-- 	w = 50,
+		-- 	h = 50,
+		-- 	text = "Hide\nArms",
+		-- 	font = "Trebuchet18",
+		-- 	text_x = 25,
+		-- 	text_y = 5,
+		-- 	enabled = true,
+		-- 	fn = function()
+		-- 		local current = GetConVar("vrmod_hide_arms"):GetBool()
+		-- 		RunConsoleCommand("vrmod_hide_arms", current and "0" or "1")
+		-- 		RunConsoleCommand("vrmod_character_stop")
+		-- 		timer.Simple(2, function()
+		-- 			 RunConsoleCommand("vrmod_character_start")
+		-- 		end)
+
+		-- 	end
+		-- },
 		-- {
 		-- 	x = 100,
 		-- 	y = 405,
@@ -480,6 +496,11 @@ function VRUtilOpenHeightMenu()
 		-- 	fn = function()
 		-- 		local current = GetConVar("vrmod_hide_legs"):GetBool()
 		-- 		RunConsoleCommand("vrmod_hide_legs", current and "0" or "1")
+		-- 		RunConsoleCommand("vrmod_character_stop")
+		-- 		timer.Simple(2, function()
+		-- 			 RunConsoleCommand("vrmod_character_start")
+		-- 		end)
+
 		-- 	end
 		-- },
 	}
