@@ -36,6 +36,7 @@ if CLIENT then
 
     -- VRのコントローラー入力処理
     hook.Add("VRMod_Input", "glide_vr_input", function(action, pressed)
+        if not g_VR.active then return end
         local vehicle = LocalPlayer():GetNWEntity("GlideVehicle")
         if not isGroundVehicle(vehicle) then return end
 
