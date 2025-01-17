@@ -84,7 +84,7 @@ if CLIENT then
             LocalPlayer():ConCommand("vrmelee_impact 0.01")
             LocalPlayer():ConCommand("vrmelee_delay 0.01")
             LocalPlayer():ConCommand("vrmelee_usegunmelee 1")
-            LocalPlayer():ConCommand("vrmelee_usefist 1")
+            LocalPlayer():ConCommand("vrmelee_usefist 0")
             LocalPlayer():ConCommand("vrmelee_usekick 0")
             LocalPlayer():ConCommand("vrmelee_fist_collision 0")
             LocalPlayer():ConCommand("vrmelee_fist_visible 0")
