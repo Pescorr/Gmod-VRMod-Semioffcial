@@ -19,7 +19,7 @@ SWEP.Secondary.ClipSize = -1
 SWEP.Secondary.DefaultClip = -1
 
 function SWEP:Initialize()
-	self:SetHoldType( "duel" )
+	self:SetHoldType( "pistol" )
 end
 
 function SWEP:PrimaryAttack()

@@ -3,7 +3,7 @@ local simphysHandbrake = {}
 
 -- コンバーの作成
 CreateClientConVar("vrmod_simphys_handbrake_enabled", "1", true, FCVAR_ARCHIVE)
-CreateClientConVar("vrmod_simphys_handbrake_button", "boolean_reload", true, FCVAR_ARCHIVE)
+CreateClientConVar("vrmod_simphys_handbrake_button", "boolean_back", true, FCVAR_ARCHIVE)
 
 -- ハンドブレーキの状態
 local handbrakeActive = false
