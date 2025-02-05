@@ -12,32 +12,24 @@ hook.Add(
 		sheet:Dock(FILL)
 		local scrollPanel = vgui.Create("DScrollPanel", sheet)
 		sheet:AddSheet("VR  ", scrollPanel, "icon16/basket.png")
-		
 		local gameplaySettings = vgui.Create("DPanel", scrollPanel)
 		gameplaySettings:Dock(TOP)
 		gameplaySettings:SetPaintBackground(false)
 		gameplaySettings:DockPadding(10, 10, 10, 10)
-		
 		local function AddControl(control)
 			control:Dock(TOP)
 			control:DockMargin(0, 0, 0, 5)
 			gameplaySettings:SetTall(gameplaySettings:GetTall() + control:GetTall() + 5)
 		end
-		
+
 		local jumpduck = vgui.Create("DCheckBoxLabel", gameplaySettings)
 		jumpduck:SetText("[Jumpkey Auto Duck]\nON => Jumpkey = IN_DUCK + IN_JUMP\nOFF => Jumpkey = IN_JUMP")
 		jumpduck:SetConVar("vrmod_autojumpduck")
 		AddControl(jumpduck)
-
 		local teleport = vgui.Create("DCheckBoxLabel", gameplaySettings)
 		teleport:SetText("[Teleport Enable]")
 		teleport:SetConVar("vrmod_allow_teleport_client")
 		AddControl(teleport)
-		
-
-
-		
-			
 		local flashlightattach = vgui.Create("DNumSlider", gameplaySettings)
 		flashlightattach:SetText("[Flashlight Attachment]\n0 = Right Hand 1 = Left Hand\n 2 = HMD")
 		flashlightattach:SetMin(0)
@@ -46,21 +38,20 @@ hook.Add(
 		flashlightattach:SetConVar("vrmod_flashlight_attachment")
 		flashlightattach:SetTooltip("0 = Right Hand, 1 = Left Hand, 2 = HMD")
 		AddControl(flashlightattach)
-		
 		local laserpointer = vgui.Create("DButton", gameplaySettings)
 		laserpointer:SetText("Toggle Laser Pointer")
 		laserpointer.DoClick = function()
 			RunConsoleCommand("vrmod_togglelaserpointer")
 		end
+
 		AddControl(laserpointer)
-		
 		local weaponconfig = vgui.Create("DButton", gameplaySettings)
 		weaponconfig:SetText("Weapon Viewmodel Setting")
 		weaponconfig.DoClick = function()
 			RunConsoleCommand("vrmod_weaponconfig")
 		end
+
 		AddControl(weaponconfig)
-		
 		local pickupweight = vgui.Create("DNumSlider", gameplaySettings)
 		pickupweight:SetText("Pickup Weight (Server)")
 		pickupweight:SetMin(0)
@@ -68,7 +59,6 @@ hook.Add(
 		pickupweight:SetDecimals(0)
 		pickupweight:SetConVar("vrmod_pickup_weight")
 		AddControl(pickupweight)
-		
 		local pickuprange = vgui.Create("DNumSlider", gameplaySettings)
 		pickuprange:SetText("Pickup Range (Server)")
 		pickuprange:SetMin(0)
@@ -76,7 +66,6 @@ hook.Add(
 		pickuprange:SetDecimals(2)
 		pickuprange:SetConVar("vrmod_pickup_range")
 		AddControl(pickuprange)
-		
 		local pickuplimit = vgui.Create("DNumSlider", gameplaySettings)
 		pickuplimit:SetText("Pickup Limit (Server)")
 		pickuplimit:SetMin(0)
@@ -84,13 +73,12 @@ hook.Add(
 		pickuplimit:SetDecimals(0)
 		pickuplimit:SetConVar("vrmod_pickup_limit")
 		AddControl(pickuplimit)
-		
 		if GetConVar("vrmod_manualpickups") ~= nil then
 			local manualpickups = vgui.Create("DCheckBoxLabel", gameplaySettings)
 			manualpickups:SetText("Manual Pickup (by Hugo)")
 			manualpickups:SetConVar("vrmod_manualpickups")
 			AddControl(manualpickups)
-		end	
+		end
 
 		local GamePlay_defaultbutton = vgui.Create("DButton", gameplaySettings)
 		GamePlay_defaultbutton:SetText("Restore Default Gameplay Settings")
@@ -103,17 +91,14 @@ hook.Add(
 			RunConsoleCommand("vrmod_pickup_limit", "1")
 			RunConsoleCommand("vrmod_manualpickups", "1")
 		end
+
 		AddControl(GamePlay_defaultbutton)
-
-
 		local scrollPanel = vgui.Create("DScrollPanel", sheet)
 		sheet:AddSheet("Character", scrollPanel, "icon16/user.png")
-
 		local vrSettings = vgui.Create("DPanel", scrollPanel)
 		vrSettings:Dock(TOP)
 		vrSettings:SetPaintBackground(false)
 		vrSettings:DockPadding(10, 10, 10, 10)
-
 		local function AddControl(control)
 			control:Dock(TOP)
 			control:DockMargin(0, 0, 0, 5)
@@ -124,12 +109,10 @@ hook.Add(
 		characterScale:Dock(TOP)
 		characterScale:SetTall(22)
 		AddControl(characterScale)
-
 		local scaleLabel = vgui.Create("DLabel", characterScale)
 		scaleLabel:Dock(LEFT)
 		scaleLabel:SetText(convars.vrmod_scale:GetFloat())
 		scaleLabel:SetWidth(50)
-
 		local scaleUpButton = vgui.Create("DButton", characterScale)
 		scaleUpButton:Dock(RIGHT)
 		scaleUpButton:SetText("+")
@@ -138,6 +121,7 @@ hook.Add(
 			g_VR.scale = g_VR.scale + 0.5
 			convars.vrmod_scale:SetFloat(g_VR.scale)
 		end
+
 		scaleUpButton.DoRightClick = function()
 			g_VR.scale = g_VR.scale + 1.0
 			convars.vrmod_scale:SetFloat(g_VR.scale)
@@ -151,6 +135,7 @@ hook.Add(
 			g_VR.scale = g_VR.scale - 0.5
 			convars.vrmod_scale:SetFloat(g_VR.scale)
 		end
+
 		scaleDownButton.DoRightClick = function()
 			g_VR.scale = g_VR.scale - 1.0
 			convars.vrmod_scale:SetFloat(g_VR.scale)
@@ -163,7 +148,6 @@ hook.Add(
 		eyeheight:SetDecimals(2)
 		eyeheight:SetConVar("vrmod_characterEyeHeight")
 		AddControl(eyeheight)
-
 		local crouchthreshold = vgui.Create("DNumSlider", vrSettings)
 		crouchthreshold:SetText("Crouch Threshold")
 		crouchthreshold:SetMin(0)
@@ -171,7 +155,6 @@ hook.Add(
 		crouchthreshold:SetDecimals(2)
 		crouchthreshold:SetConVar("vrmod_crouchthreshold")
 		AddControl(crouchthreshold)
-
 		local headtohmd = vgui.Create("DNumSlider", vrSettings)
 		headtohmd:SetText("Character Head to HMD Distance")
 		headtohmd:SetMin(-20)
@@ -179,7 +162,6 @@ hook.Add(
 		headtohmd:SetDecimals(2)
 		headtohmd:SetConVar("vrmod_characterHeadToHmdDist")
 		AddControl(headtohmd)
-
 		local znear = vgui.Create("DNumSlider", vrSettings)
 		znear:SetText("Z Near")
 		znear:SetMin(0)
@@ -188,12 +170,10 @@ hook.Add(
 		znear:SetConVar("vrmod_znear")
 		znear:SetTooltip("Objects closer than this will become transparent. Increase if you see parts of your head.")
 		AddControl(znear)
-
 		local seatedmode = vgui.Create("DCheckBoxLabel", vrSettings)
 		seatedmode:SetText("Enable Seated Mode")
 		seatedmode:SetConVar("vrmod_seated")
 		AddControl(seatedmode)
-
 		local seatedoffset = vgui.Create("DNumSlider", vrSettings)
 		seatedoffset:SetText("Seated Offset")
 		seatedoffset:SetMin(-100)
@@ -201,32 +181,26 @@ hook.Add(
 		seatedoffset:SetDecimals(2)
 		seatedoffset:SetConVar("vrmod_seatedoffset")
 		AddControl(seatedoffset)
-
 		local althead = vgui.Create("DCheckBoxLabel", vrSettings)
 		althead:SetText("Alternative Character Yaw")
 		althead:SetConVar("vrmod_oldcharacteryaw")
 		AddControl(althead)
-
 		local animationenable = vgui.Create("DCheckBoxLabel", vrSettings)
 		animationenable:SetText("Character Animation Enable (Client)")
 		animationenable:SetConVar("vrmod_animation_Enable")
 		AddControl(animationenable)
-
 		local lefthand = vgui.Create("DCheckBoxLabel", vrSettings)
 		lefthand:SetText("Left Hand (WIP)")
 		lefthand:SetConVar("vrmod_LeftHand")
 		AddControl(lefthand)
-
 		local lefthandfire = vgui.Create("DCheckBoxLabel", vrSettings)
 		lefthandfire:SetText("Left Hand Fire (WIP)")
 		lefthandfire:SetConVar("vrmod_lefthandleftfire")
 		AddControl(lefthandfire)
-
 		local lefthandhold = vgui.Create("DCheckBoxLabel", vrSettings)
 		lefthandhold:SetText("Left Hand Hold Mode (WIP)")
 		lefthandhold:SetConVar("vrmod_LeftHandmode")
 		AddControl(lefthandhold)
-
 		local togglemirror = vgui.Create("DButton", vrSettings)
 		togglemirror:SetText("Toggle Mirror")
 		togglemirror.DoClick = function()
@@ -238,31 +212,42 @@ hook.Add(
 				convars.vrmod_heightmenu:SetBool(true)
 			end
 		end
-		AddControl(togglemirror)
 
+		AddControl(togglemirror)
 		local applybutton = vgui.Create("DButton", vrSettings)
 		applybutton:SetText("Apply VR Settings (Requires VRMod Restart)")
 		applybutton.DoClick = function()
 			RunConsoleCommand("vrmod_restart")
 		end
-		AddControl(applybutton)
 
+		AddControl(applybutton)
 		local autoadjust = vgui.Create("DButton", vrSettings)
 		autoadjust:SetText("Auto Adjust VR Settings (Requires VRMod Restart)")
 		autoadjust.DoClick = function()
 			RunConsoleCommand("vrmod_character_auto")
-			timer.Simple(2, function() RunConsoleCommand("vrmod_scale_auto") end)
-			timer.Simple(1, function() RunConsoleCommand("vrmod_restart") end)
-		end
-		AddControl(autoadjust)
+			timer.Simple(
+				2,
+				function()
+					RunConsoleCommand("vrmod_scale_auto")
+				end
+			)
 
+			timer.Simple(
+				1,
+				function()
+					RunConsoleCommand("vrmod_restart")
+				end
+			)
+		end
+
+		AddControl(autoadjust)
 		local vrdefault = vgui.Create("DButton", vrSettings)
 		vrdefault:SetText("Restore Default VR Settings")
 		vrdefault.DoClick = function()
 			RunConsoleCommand("vrmod_character_reset")
 		end
-		AddControl(vrdefault)
 
+		AddControl(vrdefault)
 		-- UI Settings
 		local uiSettings = vgui.Create("DForm", sheet)
 		sheet:AddSheet("UI  ", uiSettings, "icon16/photos.png")
@@ -316,6 +301,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_cameraoverride", "1")
 			RunConsoleCommand("vrmod_keyboard_uichatkey", "1")
 		end
+
 		local graphicsSettings = vgui.Create("DForm", sheet)
 		sheet:AddSheet("Optimize", graphicsSettings, "icon16/picture.png")
 		graphicsSettings:DockPadding(0, 0, 0, 0)
@@ -333,17 +319,13 @@ hook.Add(
 		-- optSaveButton.DoClick = function()
 		-- 	RunConsoleCommand("vrmod_gmod_optimize_save")
 		-- end
-
 		-- local optLoadButton = graphicsSettings:Button("opt LOAD")
 		-- optLoadButton.DoClick = function()
 		-- 	RunConsoleCommand("vrmod_gmod_optimize_load")
 		-- end
-
 		local showOptTabs = graphicsSettings:CheckBox("Show Manual Optimization Tabs")
 		showOptTabs:SetConVar("vrmod_showmanualoptimizationtabs")
 		local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, FCVAR_ARCHIVE, "Show optimization tabs in VR settings menu")
-
-
 		local MenuTab11 = nil
 		if showoptimizationtabs:GetBool() then
 			MenuTab11 = vgui.Create("DPanel", sheet)
@@ -414,7 +396,7 @@ hook.Add(
 			MenuTab12.Paint = function(self, w, h) end
 			local scroll = vgui.Create("DScrollPanel", MenuTab12)
 			scroll:Dock(FILL)
-			local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 1, 8000, "Distance at which details are visible", 1200},{"mat_fastspecular", 0, 1, "Distance at which details are visible", 1},{"mat_wateroverlaysize", 2, 1200, "Distance at which details are visible", 256}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
+			local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 1, 8000, "Distance at which details are visible", 1200}, {"mat_fastspecular", 0, 1, "Distance at which details are visible", 1}, {"mat_wateroverlaysize", 2, 1200, "Distance at which details are visible", 256}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
 			local changedValues = {}
 			for i, convar in ipairs(optimizeconvar2) do
 				local name, min, max, description, default = unpack(convar)

@@ -15,7 +15,6 @@ if CLIENT then
 		end
 	)
 
-
 	concommand.Add(
 		"vrmod_keymode_restore",
 		function(ply, cmd, args)
@@ -74,6 +73,57 @@ if CLIENT then
 	)
 
 	concommand.Add(
+		"vrmod_character_autoset",
+		function(ply, cmd, args)
+			RunConsoleCommand("vrmod_hide_head", 0)
+			RunConsoleCommand("vrmod_scale", 38.7)
+			RunConsoleCommand("vrmod_characterHeadToHmdDist", 6.3)
+			RunConsoleCommand("vrmod_characterEyeHeight", 66.8)
+			RunConsoleCommand("vrmod_seatedoffset", 66.8)
+			AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
+			include("vrmodunoffcial/vrmod_character.lua")
+			RunConsoleCommand("vrmod_character_auto")
+			RunConsoleCommand("vrmod_seatedoffset_auto")
+			RunConsoleCommand("vrmod_restart")
+			timer.Simple(
+				2.0,
+				function()
+					if convarValues.vrmod_scale > 60 then
+						RunConsoleCommand("vrmod_seated", "1")
+						RunConsoleCommand("vrmod_scale", 38.7)
+						RunConsoleCommand("vrmod_seatedoffset", 66.8)
+					end
+
+					if convarValues.vrmod_seated then
+						convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+					else
+						g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+						convars.vrmod_scale:SetFloat(g_VR.scale)
+					end
+				end
+			)
+
+			timer.Simple(
+				5.0,
+				function()
+					if convarValues.vrmod_scale > 60 then
+						RunConsoleCommand("vrmod_seated", "1")
+						RunConsoleCommand("vrmod_scale", 38.7)
+						RunConsoleCommand("vrmod_seatedoffset", 66.8)
+					end
+
+					if convarValues.vrmod_seated then
+						convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
+					else
+						g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+						convars.vrmod_scale:SetFloat(g_VR.scale)
+					end
+				end
+			)
+		end
+	)
+
+	concommand.Add(
 		"vrmod_character_stop",
 		function(ply, cmd, args)
 			if not IsValid(ply) then return end
@@ -89,7 +139,6 @@ if CLIENT then
 		end
 	)
 
-
 	--"pescorr_cvar_cl_default"
 	local CVars = {{"vrmod_characterEyeHeight", "vrmod_characterHeadToHmdDist", "vrmod_scale", "vrmod_seatedoffset", "vrmod_seated"}}
 	concommand.Add(
@@ -104,7 +153,6 @@ if CLIENT then
 						LocalPlayer():ConCommand("vrmod_scale 38.7")
 						LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
 						LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
-
 						if CLIENT then
 							print(name .. " default: " .. value)
 						end
@@ -158,6 +206,9 @@ if CLIENT then
 		end
 	)
 
+	
+
+	
 
 	concommand.Add(
 		"vrmod_restart",
@@ -180,7 +231,6 @@ if CLIENT then
 			-- LocalPlayer():ConCommand("vrmod_lua_reset_pickup_arcvr")
 			-- LocalPlayer():ConCommand("vrmod_lua_reset_character")
 			-- LocalPlayer():ConCommand("vrmod_lua_reset_character_hands")
-
 			LocalPlayer():ConCommand("vrmod_start")
 			timer.Simple(
 				1,
@@ -192,10 +242,6 @@ if CLIENT then
 			)
 		end
 	)
-
-
-
-
 
 	concommand.Add(
 		"vrmod_character_auto",
@@ -261,7 +307,6 @@ if CLIENT then
 	-- 				end
 	-- 			end
 	-- 		end
-
 	-- 		timer.Simple(
 	-- 			1,
 	-- 			function()
@@ -272,7 +317,6 @@ if CLIENT then
 	-- 		)
 	-- 	end
 	-- )
-
 	concommand.Add(
 		"vrmod_gmod_optimization_02",
 		function(ply, cmd, args)
