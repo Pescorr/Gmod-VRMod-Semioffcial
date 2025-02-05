@@ -650,42 +650,8 @@ function vrmod_character_lua()
 	end
 
 	-------------------------------------------------------------
-	-- ボーン状態の管理用テーブル追加
-	local boneStates = {}
-
-	-- ボーン状態の保存/復元関数
-	local function SaveBoneState(ply, boneID)
-		if not IsValid(ply) then return end
-		local steamid = ply:SteamID()
-		
-		if not boneStates[steamid] then
-			boneStates[steamid] = {}
-		end
-		
-		boneStates[steamid][boneID] = {
-			pos = ply:GetManipulateBonePosition(boneID),
-			ang = ply:GetManipulateBoneAngles(boneID),
-			scale = ply:GetManipulateBoneScale(boneID)
-		}
-	end
-
-	local function RestoreBoneState(ply, boneID)
-		if not IsValid(ply) then return end
-		local steamid = ply:SteamID()
-		
-		if boneStates[steamid] and boneStates[steamid][boneID] then
-			local state = boneStates[steamid][boneID]
-			ply:ManipulateBonePosition(boneID, state.pos)
-			ply:ManipulateBoneAngles(boneID, state.ang) 
-			ply:ManipulateBoneScale(boneID, state.scale)
-		end
-	end
-
-	-- VR開始時の処理を改善
-	local originalStartCharacterSystem = g_VR.StartCharacterSystem
 	function g_VR.StartCharacterSystem(ply)
 		local steamid = ply:SteamID()
-		
 		-- 既存のボーン状態を保存
 		if characterInfo[steamid] and characterInfo[steamid].bones then
 			for _, boneID in pairs(characterInfo[steamid].bones) do
@@ -694,38 +660,39 @@ function vrmod_character_lua()
 				end
 			end
 		end
-		
-		return originalStartCharacterSystem(ply)
+
+		return StartCharacterSystem(ply)
 	end
 
 	-- VR終了時の処理を追加
-	hook.Add("VRMod_Exit", "vrmod_cleanup_bones", function(ply)
-		if not IsValid(ply) then return end
-		local steamid = ply:SteamID()
-		
-		-- ボーン状態を復元
-		if characterInfo[steamid] and characterInfo[steamid].bones then
-			for _, boneID in pairs(characterInfo[steamid].bones) do
-				if isnumber(boneID) then
-					RestoreBoneState(ply, boneID)
+	hook.Add(
+		"VRMod_Exit",
+		"vrmod_cleanup_bones",
+		function(ply)
+			if not IsValid(ply) then return end
+			local steamid = ply:SteamID()
+			-- ボーン状態を復元
+			if characterInfo[steamid] and characterInfo[steamid].bones then
+				for _, boneID in pairs(characterInfo[steamid].bones) do
+					if isnumber(boneID) then
+						RestoreBoneState(ply, boneID)
+					end
 				end
 			end
+
+			-- システムのクリーンアップ
+			g_VR.StopCharacterSystem(steamid)
+			characterInfo[steamid] = nil
+			boneStates[steamid] = nil
 		end
-		
-		-- システムのクリーンアップ
-		g_VR.StopCharacterSystem(steamid)
-		characterInfo[steamid] = nil
-		boneStates[steamid] = nil
-	end)
+	)
 
 	-- ボーンコールバック関数を改善 
 	local function BoneCallbackFunc(ply, numbones)
 		local steamid = ply:SteamID()
 		if not g_VR.net[steamid] or not g_VR.net[steamid].lerpedFrame then return end
-		
 		-- ボーン操作前の状態チェック
 		if not characterInfo[steamid] or not characterInfo[steamid].bones then return end
-		
 		-- 頭部ボーンの位置を正しく調整
 		if characterInfo[steamid].bones.b_head then
 			local headBone = characterInfo[steamid].bones.b_head
@@ -845,6 +812,19 @@ function vrmod_character_lua()
 		"vrmod_characterstart",
 		function(ply)
 			g_VR.StartCharacterSystem(ply)
+			timer.Simple(
+				2,
+				function()
+					RunConsoleCommand("vrmod_character_stop")
+				end
+			)
+
+			timer.Simple(
+				2,
+				function()
+					RunConsoleCommand("vrmod_character_start")
+				end
+			)
 		end
 	)
 

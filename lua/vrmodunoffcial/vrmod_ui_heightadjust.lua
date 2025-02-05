@@ -355,15 +355,10 @@ function VRUtilOpenHeightMenu()
 			enabled = true,
 			fn = function()
 				RunConsoleCommand("vrmod_hide_head", 0)
-				RunConsoleCommand("vrmod_hide_body", 0)
-				RunConsoleCommand("vrmod_hide_arms", 0)
-				RunConsoleCommand("vrmod_hide_legs", 0)
-
 				RunConsoleCommand("vrmod_scale", 38.7)
 				RunConsoleCommand("vrmod_characterHeadToHmdDist", 6.3)
 				RunConsoleCommand("vrmod_characterEyeHeight", 66.8)
 				RunConsoleCommand("vrmod_seatedoffset", 66.8)
-
 				AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
 				include("vrmodunoffcial/vrmod_character.lua")
 				RunConsoleCommand("vrmod_character_auto")
@@ -372,6 +367,12 @@ function VRUtilOpenHeightMenu()
 				timer.Simple(
 					2.0,
 					function()
+						if convarValues.vrmod_scale > 60 then
+							RunConsoleCommand("vrmod_seated", "1")
+							RunConsoleCommand("vrmod_scale", 38.7)
+							RunConsoleCommand("vrmod_seatedoffset", 66.8)
+						end
+
 						if convarValues.vrmod_seated then
 							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
 						else
@@ -380,9 +381,16 @@ function VRUtilOpenHeightMenu()
 						end
 					end
 				)
+
 				timer.Simple(
 					5.0,
 					function()
+						if convarValues.vrmod_scale > 60 then
+							RunConsoleCommand("vrmod_seated", "1")
+							RunConsoleCommand("vrmod_scale", 38.7)
+							RunConsoleCommand("vrmod_seatedoffset", 66.8)
+						end
+
 						if convarValues.vrmod_seated then
 							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
 						else
@@ -391,9 +399,6 @@ function VRUtilOpenHeightMenu()
 						end
 					end
 				)
-
-
-
 			end
 		},
 		{
@@ -438,9 +443,12 @@ function VRUtilOpenHeightMenu()
 				local current = GetConVar("vrmod_hide_head"):GetBool()
 				RunConsoleCommand("vrmod_hide_head", current and "0" or "1")
 				RunConsoleCommand("vrmod_character_stop")
-				timer.Simple(2, function()
-					 RunConsoleCommand("vrmod_character_start")
-				end)
+				timer.Simple(
+					2,
+					function()
+						RunConsoleCommand("vrmod_character_start")
+					end
+				)
 			end
 		},
 		{
@@ -457,54 +465,54 @@ function VRUtilOpenHeightMenu()
 				local current = GetConVar("vrmod_hide_body"):GetBool()
 				RunConsoleCommand("vrmod_hide_body", current and "0" or "1")
 				RunConsoleCommand("vrmod_character_stop")
-				timer.Simple(2, function()
-					 RunConsoleCommand("vrmod_character_start")
-				end)
-
+				timer.Simple(
+					2,
+					function()
+						RunConsoleCommand("vrmod_character_start")
+					end
+				)
 			end
 		},
-		-- {
-		-- 	x = 0,
-		-- 	y = 405,
-		-- 	w = 50,
-		-- 	h = 50,
-		-- 	text = "Hide\nArms",
-		-- 	font = "Trebuchet18",
-		-- 	text_x = 25,
-		-- 	text_y = 5,
-		-- 	enabled = true,
-		-- 	fn = function()
-		-- 		local current = GetConVar("vrmod_hide_arms"):GetBool()
-		-- 		RunConsoleCommand("vrmod_hide_arms", current and "0" or "1")
-		-- 		RunConsoleCommand("vrmod_character_stop")
-		-- 		timer.Simple(2, function()
-		-- 			 RunConsoleCommand("vrmod_character_start")
-		-- 		end)
-
-		-- 	end
-		-- },
-		-- {
-		-- 	x = 100,
-		-- 	y = 405,
-		-- 	w = 50,
-		-- 	h = 50,
-		-- 	text = "Hide\nLegs",
-		-- 	font = "Trebuchet18",
-		-- 	text_x = 25,
-		-- 	text_y = 5,
-		-- 	enabled = true,
-		-- 	fn = function()
-		-- 		local current = GetConVar("vrmod_hide_legs"):GetBool()
-		-- 		RunConsoleCommand("vrmod_hide_legs", current and "0" or "1")
-		-- 		RunConsoleCommand("vrmod_character_stop")
-		-- 		timer.Simple(2, function()
-		-- 			 RunConsoleCommand("vrmod_character_start")
-		-- 		end)
-
-		-- 	end
-		-- },
 	}
 
+	-- {
+	-- 	x = 0,
+	-- 	y = 405,
+	-- 	w = 50,
+	-- 	h = 50,
+	-- 	text = "Hide\nArms",
+	-- 	font = "Trebuchet18",
+	-- 	text_x = 25,
+	-- 	text_y = 5,
+	-- 	enabled = true,
+	-- 	fn = function()
+	-- 		local current = GetConVar("vrmod_hide_arms"):GetBool()
+	-- 		RunConsoleCommand("vrmod_hide_arms", current and "0" or "1")
+	-- 		RunConsoleCommand("vrmod_character_stop")
+	-- 		timer.Simple(2, function()
+	-- 			 RunConsoleCommand("vrmod_character_start")
+	-- 		end)
+	-- 	end
+	-- },
+	-- {
+	-- 	x = 100,
+	-- 	y = 405,
+	-- 	w = 50,
+	-- 	h = 50,
+	-- 	text = "Hide\nLegs",
+	-- 	font = "Trebuchet18",
+	-- 	text_x = 25,
+	-- 	text_y = 5,
+	-- 	enabled = true,
+	-- 	fn = function()
+	-- 		local current = GetConVar("vrmod_hide_legs"):GetBool()
+	-- 		RunConsoleCommand("vrmod_hide_legs", current and "0" or "1")
+	-- 		RunConsoleCommand("vrmod_character_stop")
+	-- 		timer.Simple(2, function()
+	-- 			 RunConsoleCommand("vrmod_character_start")
+	-- 		end)
+	-- 	end
+	-- },
 	renderControls = function()
 		VRUtilMenuRenderStart("heightmenu")
 		surface.SetDrawColor(0, 0, 0, 255)
