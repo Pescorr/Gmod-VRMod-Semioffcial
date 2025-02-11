@@ -25,6 +25,40 @@ function vrmod_character_lua()
 	local characterInfo = {}
 	local activePlayers = {}
 	local zeroVec, zeroAng = Vector(), Angle()
+	-- ファイル上部のグローバル変数定義部分に追加
+	local boneStates = {}
+
+	-- SaveBoneState関数の追加
+	local function SaveBoneState(ply, boneID)
+		if not IsValid(ply) then return end
+		local steamid = ply:SteamID()
+		
+		boneStates[steamid] = boneStates[steamid] or {}
+		boneStates[steamid][boneID] = {
+			pos = ply:GetManipulateBonePosition(boneID),
+			ang = ply:GetManipulateBoneAngles(boneID),
+			scale = ply:GetManipulateBoneScale(boneID)
+		}
+	end
+
+	-- RestoreBoneState関数の追加
+	local function RestoreBoneState(ply, boneID)
+		if not IsValid(ply) then return end
+		local steamid = ply:SteamID()
+		
+		if boneStates[steamid] and boneStates[steamid][boneID] then
+			local state = boneStates[steamid][boneID]
+			ply:ManipulateBonePosition(boneID, state.pos)
+			ply:ManipulateBoneAngles(boneID, state.ang)
+			ply:ManipulateBoneScale(boneID, state.scale)
+		else
+			-- 保存された状態がない場合はデフォルト値に戻す
+			ply:ManipulateBonePosition(boneID, Vector(0, 0, 0))
+			ply:ManipulateBoneAngles(boneID, Angle(0, 0, 0))
+			ply:ManipulateBoneScale(boneID, Vector(1, 1, 1))
+		end
+	end
+
 	local function RecursiveBoneTable2(ent, parentbone, infotab, ordertab, notfirst)
 		local bones = notfirst and ent:GetChildBones(parentbone) or {parentbone}
 		for k, v in pairs(bones) do
@@ -688,7 +722,7 @@ function vrmod_character_lua()
 	)
 
 	-- ボーンコールバック関数を改善 
-	local function BoneCallbackFunc(ply, numbones)
+	local function BoneCallendFunc(ply, numbones)
 		local steamid = ply:SteamID()
 		if not g_VR.net[steamid] or not g_VR.net[steamid].lerpedFrame then return end
 		-- ボーン操作前の状態チェック
@@ -725,7 +759,7 @@ function vrmod_character_lua()
 		if CharacterInit(ply) == false then return end
 		-- 既存のコードを安全に実行
 		if characterInfo[steamid] then
-			characterInfo[steamid].boneCallback = ply:AddCallback("BuildBonePositions", BoneCallbackFunc)
+			characterInfo[steamid].boneCallback = ply:AddCallback("BuildBonePositions", BoneCallendFunc)
 			if ply == LocalPlayer() then
 				hook.Add("VRMod_PreRender", "vrutil_hook_calcplyrenderpos", PreRenderFunc)
 			end

@@ -66,6 +66,7 @@ function vrmod_ui_lua()
 
 		function VRUtilRenderMenuSystem()
 			if menusExist == false then return end
+		render.DepthRange(0, 0.001)
 			g_VR.menuFocus = false
 			local menuFocusDist = 99999
 			local menuFocusPanel = nil
