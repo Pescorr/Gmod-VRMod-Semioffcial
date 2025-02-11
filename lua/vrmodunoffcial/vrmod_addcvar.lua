@@ -153,6 +153,9 @@ if CLIENT then
 						LocalPlayer():ConCommand("vrmod_scale 38.7")
 						LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
 						LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
+						LocalPlayer():ConCommand("vrmod_seatedoffset 66.8")
+						LocalPlayer():ConCommand("vrmod_crouchthreshold  40")
+						LocalPlayer():ConCommand("vrmod_znear 6.0")
 						if CLIENT then
 							print(name .. " default: " .. value)
 						end
@@ -206,10 +209,6 @@ if CLIENT then
 		end
 	)
 
-	
-
-	
-
 	concommand.Add(
 		"vrmod_restart",
 		function(ply, cmd, args)
@@ -252,6 +251,15 @@ if CLIENT then
 			if eyes then
 				local eyeHeight = eyes.Pos.z - feet.z
 				local crouchHeight = eyeHeight / 2
+				-- eyeHeightがnanかどうかをチェック
+				-- Luaでnanをチェックする方法
+				if eyeHeight ~= eyeHeight then
+					print("Eye height is NaN, resetting character settings...")
+					RunConsoleCommand("vrmod_character_reset")
+
+					return
+				end
+
 				print("Eye height for " .. steamid .. " is: " .. eyeHeight)
 				-- Store the eye height for later use
 				characterInfo = characterInfo or {}
@@ -262,7 +270,6 @@ if CLIENT then
 				crouchconvar:SetFloat(crouchHeight + 3)
 				local HeadToHmdDist = GetConVar("vrmod_characterHeadToHmdDist")
 				HeadToHmdDist:SetFloat(eyeHeight / 5 - 6.3)
-				-- convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z-convarValues.vrmod_seatedoffset-g_VR.origin.z)) 
 			end
 		end
 	)
