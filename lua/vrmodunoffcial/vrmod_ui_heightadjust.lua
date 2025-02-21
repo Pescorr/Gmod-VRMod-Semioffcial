@@ -354,26 +354,19 @@ function VRUtilOpenHeightMenu()
 			text_y = 5,
 			enabled = true,
 			fn = function()
-						RunConsoleCommand("vrmod_hide_head", 0)
-						RunConsoleCommand("vrmod_character_stop")
-						RunConsoleCommand("vrmod_scale", 38.7)
-						RunConsoleCommand("vrmod_characterHeadToHmdDist", 6.3)
-						RunConsoleCommand("vrmod_characterEyeHeight", 66.8)
-						RunConsoleCommand("vrmod_seatedoffset", 66.8)
-						AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
-						include("vrmodunoffcial/vrmod_character.lua")
-						RunConsoleCommand("vrmod_character_auto")
-						RunConsoleCommand("vrmod_seatedoffset_auto")
-
-						timer.Simple(
-							3.5,
-							function()
-								RunConsoleCommand("vrmod_character_start")
-							end
-						)
-		
+				-- RunConsoleCommand("vrmod_hide_head", 0)
+				RunConsoleCommand("vrmod_character_stop")
+				RunConsoleCommand("vrmod_scale", 38.7)
+				RunConsoleCommand("vrmod_characterHeadToHmdDist", 6.3)
+				RunConsoleCommand("vrmod_characterEyeHeight", 66.8)
+				RunConsoleCommand("vrmod_seatedoffset", 66.8)
+				AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
+				include("vrmodunoffcial/vrmod_character.lua")
+				RunConsoleCommand("vrmod_character_auto")
+				RunConsoleCommand("vrmod_seatedoffset_auto")
+				RunConsoleCommand("vrmod_restart")
 				timer.Simple(
-					3.0,
+					2.0,
 					function()
 						if convarValues.vrmod_seated then
 							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
@@ -384,10 +377,8 @@ function VRUtilOpenHeightMenu()
 					end
 				)
 
-
-
 				timer.Simple(
-					4.0,
+					5.0,
 					function()
 						if convarValues.vrmod_seated then
 							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
@@ -460,7 +451,7 @@ function VRUtilOpenHeightMenu()
 				RunConsoleCommand("vrmod_hide_head", current and "0" or "1")
 				RunConsoleCommand("vrmod_character_stop")
 				timer.Simple(
-					1,
+					2,
 					function()
 						RunConsoleCommand("vrmod_character_start")
 					end
@@ -482,7 +473,7 @@ function VRUtilOpenHeightMenu()
 				-- RunConsoleCommand("vrmod_hide_body", current and "0" or "1")
 				RunConsoleCommand("vrmod_character_stop")
 				timer.Simple(
-					1,
+					2,
 					function()
 						RunConsoleCommand("vrmod_character_start")
 					end

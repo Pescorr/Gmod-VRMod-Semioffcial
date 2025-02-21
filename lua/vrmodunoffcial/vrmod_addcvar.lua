@@ -75,7 +75,7 @@ if CLIENT then
 	concommand.Add(
 		"vrmod_character_autoset",
 		function(ply, cmd, args)
-			RunConsoleCommand("vrmod_hide_head", 0)
+			-- RunConsoleCommand("vrmod_hide_head", 0)
 			RunConsoleCommand("vrmod_scale", 38.7)
 			RunConsoleCommand("vrmod_characterHeadToHmdDist", 6.3)
 			RunConsoleCommand("vrmod_characterEyeHeight", 66.8)

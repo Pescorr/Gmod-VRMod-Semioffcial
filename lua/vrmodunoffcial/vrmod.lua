@@ -420,7 +420,7 @@ function vrmod_lua()
 				overrideConvar("godsenttools_gpu_saver", "0")
 			end
 
-			overrideConvar("vrmod_hide_head", "0")
+			-- overrideConvar("vrmod_hide_head", "0")
 
 
 			if GetConVar("lithium_enable_gpusaver") then
@@ -454,7 +454,7 @@ function vrmod_lua()
 			end
 
 			VRMOD_ShareTextureBegin()
-			g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
+			g_VR.rt = GetRenderTarget("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight)
 			VRMOD_ShareTextureFinish()
 			--
 			local displayCalculations = {
