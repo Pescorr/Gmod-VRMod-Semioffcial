@@ -62,7 +62,7 @@ local function CurvedPlane(w, h, segments, degrees, matrix)
 	return mesh
 end
 
-local rt = GetRenderTargetEx("vrmod_hud", vrScrW:GetInt(), vrScrH:GetInt(), RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, bit.bor(2, 256), 0, IMAGE_FORMAT_BGRA8888)
+	local rt = GetRenderTarget("vrmod_hud", vrScrW:GetInt(), vrScrH:GetInt(), false)
 local mat = Material("!vrmod_hud")
 mat = not mat:IsError() and mat or CreateMaterial(
 	"vrmod_hud",

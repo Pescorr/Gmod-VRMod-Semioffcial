@@ -1,10 +1,16 @@
 {
-  "title": "VRMod-Semioffcial(OPENBETA)",
+  "title": "[VRmod]VRMod-SemiOffcialVersion OPENBETA",
   "type": "tool",
   "tags": [
-    "roleplay",
     "fun",
+    "roleplay",
     "realism"
   ],
-  "ignore": []
+  "ignore": [
+    ".gitattributes",
+    "security.md",
+    ".md",
+    "code_of_conduct.md",
+    "contributing"
+  ]
 }

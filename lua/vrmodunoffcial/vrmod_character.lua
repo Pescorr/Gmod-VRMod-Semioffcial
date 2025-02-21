@@ -25,40 +25,6 @@ function vrmod_character_lua()
 	local characterInfo = {}
 	local activePlayers = {}
 	local zeroVec, zeroAng = Vector(), Angle()
-	-- ファイル上部のグローバル変数定義部分に追加
-	local boneStates = {}
-
-	-- SaveBoneState関数の追加
-	local function SaveBoneState(ply, boneID)
-		if not IsValid(ply) then return end
-		local steamid = ply:SteamID()
-		
-		boneStates[steamid] = boneStates[steamid] or {}
-		boneStates[steamid][boneID] = {
-			pos = ply:GetManipulateBonePosition(boneID),
-			ang = ply:GetManipulateBoneAngles(boneID),
-			scale = ply:GetManipulateBoneScale(boneID)
-		}
-	end
-
-	-- RestoreBoneState関数の追加
-	local function RestoreBoneState(ply, boneID)
-		if not IsValid(ply) then return end
-		local steamid = ply:SteamID()
-		
-		if boneStates[steamid] and boneStates[steamid][boneID] then
-			local state = boneStates[steamid][boneID]
-			ply:ManipulateBonePosition(boneID, state.pos)
-			ply:ManipulateBoneAngles(boneID, state.ang)
-			ply:ManipulateBoneScale(boneID, state.scale)
-		else
-			-- 保存された状態がない場合はデフォルト値に戻す
-			ply:ManipulateBonePosition(boneID, Vector(0, 0, 0))
-			ply:ManipulateBoneAngles(boneID, Angle(0, 0, 0))
-			ply:ManipulateBoneScale(boneID, Vector(1, 1, 1))
-		end
-	end
-
 	local function RecursiveBoneTable2(ent, parentbone, infotab, ordertab, notfirst)
 		local bones = notfirst and ent:GetChildBones(parentbone) or {parentbone}
 		for k, v in pairs(bones) do
@@ -567,8 +533,10 @@ function vrmod_character_lua()
 				end
 
 				if g_VR.active and GetConVar("vrmod_hide_head"):GetBool() and isFirstPerson then
+					HideBoneAndChildren(ply, characterInfo[steamid].bones.b_head, true)
 					SetBoneVisibility(bones.b_head, true)
 				else
+					HideBoneAndChildren(ply, characterInfo[steamid].bones.b_head, false)
 					SetBoneVisibility(bones.b_head, false)
 				end
 				-- if GetConVar("vrmod_hide_body"):GetBool() and isFirstPerson then

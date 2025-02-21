@@ -53,25 +53,6 @@ meta.MakePopup = function(...)
 				popupCount = popupCount + 1
 
 			end
-
-			hook.Add(
-				"HUDPaint",
-				"CustomHUDPaint",
-				function()
-					local meta = vgui.GetWorldPanel() -- 大元のPanelを取得
-					-- rootPanelで手動ペイントを設定
-					meta:SetPaintedManually(true)
-					-- RenderTargetを設定してVGUIを描画
-					render.RenderHUD(0, 0, ScrW(), ScrH())
-					meta:PaintManual()
-					-- 念のためレイアウトを無効化（必要に応じて）
-					meta:InvalidateLayout(true)
-					-- 描画後に手動ペイントを解除
-					meta:SetPaintedManually(false)
-				end
-			)
-			hook.Remove("HUDPaint", "CustomHUDPaint")
-
 		
 
 			if popupCount == 0 then
