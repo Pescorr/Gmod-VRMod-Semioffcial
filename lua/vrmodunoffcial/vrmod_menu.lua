@@ -82,7 +82,7 @@ local function OpenMenu()
 		tmp:SizeToContents()
 		tmp:SetPos(5, 5)
 	else
-		tmp:SetText("Addon version: " .. vrmod.GetVersion() .. "semioffcial" .. "\nModule version: " .. vrmod.GetModuleVersion())
+		tmp:SetText("Addon version: " .. vrmod.GetVersion() .. "semioffcial" .. "\nModule version: ")
 		tmp:SizeToContents()
 		tmp:SetPos(5, 5)
 	end
