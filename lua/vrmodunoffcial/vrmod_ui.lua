@@ -33,26 +33,24 @@ function vrmod_ui_lua()
 		local menusExist = false
 		local prevFocusPanel = nil
 		function VRUtilMenuRenderPanel(uid)
-			timer.Simple(
-				0.1,
-				function()
-					if menus[uid] == nil or menus[uid].panel == nil or not menus[uid].panel:IsValid() then return end
-					render.PushRenderTarget(menus[uid].rt)
-					cam.Start2D()
-					render.ClearDepth()
-					render.Clear(0, 0, 0, 0)
-					menus[uid].panel:PaintManual()
-					cam.End2D()
-					render.PopRenderTarget()
-				end
-			)
+			if not menus[uid] or not menus[uid].panel or not menus[uid].panel:IsValid() then return end
+			render.PushRenderTarget(menus[uid].rt)
+			cam.Start2D()
+			render.Clear(0, 0, 0, 0, true, true)
+			local oldclip = DisableClipping(false)
+			render.SetWriteDepthToDestAlpha(false)
+			menus[uid].panel:PaintManual()
+			render.SetWriteDepthToDestAlpha(true)
+			DisableClipping(oldclip)
+			cam.End2D()
+			render.PopRenderTarget()
 		end
 
 		function VRUtilMenuRenderStart(uid)
 			render.PushRenderTarget(menus[uid].rt)
 			cam.Start2D()
-			render.ClearDepth()
-			render.Clear(0, 0, 0, 0)
+			render.Clear(0, 0, 0, 0, true, true)
+			render.SetWriteDepthToDestAlpha(true)
 		end
 
 		function VRUtilMenuRenderEnd()
@@ -273,6 +271,15 @@ function vrmod_ui_lua()
 					VRUtilMenuRenderPanel(g_VR.menuFocus)
 				end
 
+				if action == "boolean_spawnmenu" then
+					if not pressed and not g_VR.menuFocus then
+						hook.Remove("PostDrawTranslucentRenderables", "vrutil_hook_drawmenus")
+						g_VR.menuFocus = false
+						menusExist = false
+						gui.EnableScreenClicker(false)
+					end
+				end
+
 				if g_VR.menuFocus and action == "boolean_back" then
 					if pressed then
 						gui.InternalMouseWheeled(-2)
@@ -351,5 +358,5 @@ concommand.Add(
 	"vrmod_lua_reset_ui",
 	function(ply, cmd, args)
 		vrmod_ui_lua()
-	end
+end
 )

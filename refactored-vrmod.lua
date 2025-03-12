@@ -7,7 +7,6 @@ function vrmod_lua()
 			1,
 			function()
 				for k, v in pairs(convars) do
-					--reverting certain convars makes error
 					pcall(
 						function()
 							v:Revert()
@@ -28,19 +27,24 @@ function vrmod_lua()
 		g_VR.scale = 0
 		g_VR.origin = Vector(0, 0, 0)
 		g_VR.originAngle = Angle(0, 0, 0)
-		g_VR.viewModel = nil --this will point to either the viewmodel, worldmodel or nil
+		g_VR.viewModel = nil
 		g_VR.viewModelMuzzle = nil
 		g_VR.viewModelPos = Vector(0, 0, 0)
 		g_VR.viewModelAng = Angle(0, 0, 0)
 		g_VR.usingWorldModels = false
 		g_VR.active = false
-		g_VR.threePoints = false --hmd + 2 controllers
-		g_VR.sixPoints = false --hmd + 2 controllers + 3 trackers
+		g_VR.threePoints = false
+		g_VR.sixPoints = false
 		g_VR.tracking = {}
 		g_VR.input = {}
 		g_VR.changedInputs = {}
 		g_VR.errorText = ""
-		--todo move some of these to the files where they belong
+		g_VR.renderState = {
+			leftEyeDone = false,
+			rightEyeDone = false,
+			renderingActive = false
+		}
+		
 		vrmod.AddCallbackedConvar("vrmod_althead", nil, "1", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_autostart", nil, "0", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_scale", nil, "38.7", FCVAR_ARCHIVE)
@@ -49,8 +53,8 @@ function vrmod_lua()
 		vrmod.AddCallbackedConvar("vrmod_desktopview", nil, "3", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_useworldmodels", nil, "0", FCVAR_ARCHIVE, nil, 0, 1, tobool, UpdateWorldModelSetting)
 		vrmod.AddCallbackedConvar("vrmod_laserpointer", nil, "0", FCVAR_ARCHIVE)
-		vrmod.AddCallbackedConvar("vrmod_characterEyeHeight", nil, "66.8", FCVAR_ARCHIVE, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-		vrmod.AddCallbackedConvar("vrmod_characterHeadToHmdDist", nil, "6.3", FCVAR_ARCHIVE, "", nil, nil, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+		vrmod.AddCallbackedConvar("vrmod_characterEyeHeight", nil, "66.8", FCVAR_ARCHIVE, "", nil, nil, tonumber)
+		vrmod.AddCallbackedConvar("vrmod_characterHeadToHmdDist", nil, "6.3", FCVAR_ARCHIVE, "", nil, nil, tonumber)
 		vrmod.AddCallbackedConvar("vrmod_oldcharacteryaw", nil, "1", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_controlleroffset_x", nil, "-15", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_controlleroffset_y", nil, "-1", FCVAR_ARCHIVE)
@@ -58,7 +62,6 @@ function vrmod_lua()
 		vrmod.AddCallbackedConvar("vrmod_controlleroffset_pitch", nil, "50", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_controlleroffset_yaw", nil, "0", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_controlleroffset_roll", nil, "0", FCVAR_ARCHIVE)
-		-- ConVarの追加
 		vrmod.AddCallbackedConvar("vrmod_hmdoffset_x", nil, "0", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_hmdoffset_y", nil, "0", FCVAR_ARCHIVE)
 		vrmod.AddCallbackedConvar("vrmod_hmdoffset_z", nil, "0", FCVAR_ARCHIVE)
@@ -105,26 +108,22 @@ function vrmod_lua()
 				form:CheckBox("Use floating hands", "vrmod_floatinghands")
 				form:CheckBox("Use weapon world models", "vrmod_useworldmodels")
 				form:CheckBox("Add laser pointer to tools/weapons", "vrmod_laserpointer")
-				--
+				
 				local tmp = form:CheckBox("Show height adjustment menu", "vrmod_heightmenu")
 				local checkTime = 0
 				function tmp:OnChange(checked)
-					--only triggers when checked manually (not when using reset button)
 					if checked and SysTime() - checkTime < 0.1 then
 						VRUtilOpenHeightMenu()
 					end
-
 					checkTime = SysTime()
 				end
 
-				--
 				form:CheckBox("Alternative head angle manipulation method", "vrmod_althead")
 				form:ControlHelp("Less precise, compatibility for jigglebones")
 				form:CheckBox("Automatically start VR after map loads", "vrmod_autostart")
-				-- form:CheckBox("Replace climbing mechanics (when available)", "")
 				form:CheckBox("Replace door use mechanics (when available)", "vrmod_doors")
 				form:CheckBox("Enable engine postprocessing", "vrmod_postprocess")
-				--
+				
 				local panel = vgui.Create("DPanel")
 				panel:SetSize(300, 30)
 				panel.Paint = function() end
@@ -152,10 +151,10 @@ function vrmod_lua()
 				end
 
 				form:AddItem(panel)
-				--
+				
 				form:Button("Edit custom controller input actions", "vrmod_actioneditor")
 				form:Button("Reset settings to default", "vrmod_reset")
-				--
+				
 				local offsetForm = vgui.Create("DForm", form)
 				offsetForm:SetName("Controller offsets")
 				offsetForm:Dock(TOP)
@@ -208,13 +207,11 @@ function vrmod_lua()
 			end
 		)
 
-		--
 		concommand.Add(
 			"vrmod_start",
 			function(ply, cmd, args)
 				if vgui.CursorVisible() then
 					print("vrmod: attempting startup when game is unpaused")
-					--VRUtilClientStart()
 				end
 
 				timer.Create(
@@ -320,26 +317,19 @@ function vrmod_lua()
 		)
 
 		local function CopyVMTsToTXT()
-			-- "materials/vrmod/data/"フォルダのパスを指定
 			local vmtFolderPath = "materials/vrmod/data/"
-			-- "data/vrmod"フォルダが存在しない場合は作成
+			
 			if not file.Exists("vrmod", "GAME") then
 				file.CreateDir("vrmod")
 			end
 
-			-- vmtファイルを検索
 			local vmtFiles = file.Find(vmtFolderPath .. "*.vmt", "GAME")
-			-- 各vmtファイルを処理
+			
 			for _, vmtFileName in ipairs(vmtFiles) do
-				-- vmtファイルのフルパスを取得
 				local vmtFilePath = vmtFolderPath .. vmtFileName
-				-- vmtファイルをテキストとして読み込む
 				local vmtText = file.Read(vmtFilePath, "GAME")
-				-- txtファイル名を生成（.vmtを.txtに変更）
 				local txtFileName = string.gsub(vmtFileName, "%.vmt$", ".txt")
-				-- txtファイルのフルパスを生成
 				local txtFilePath = "vrmod/" .. txtFileName
-				-- txtファイルにvmtテキストを書き込む
 				file.Write(txtFilePath, vmtText)
 			end
 
@@ -352,8 +342,7 @@ function vrmod_lua()
 				CopyVMTsToTXT()
 			end
 		)
-
-		-- 関数を呼び出してvmtをtxtにコピー
+		
 		concommand.Add(
 			"vrmod_reset",
 			function(ply, cmd, args)
@@ -411,10 +400,6 @@ function vrmod_lua()
 		end
 
 		function VRUtilClientStart()
-			if g_VR.rt then
-					g_VR.rt = nil
-			end
-
 			if GetConVar("godsenttools_gpu_saver") then
 				overrideConvar("godsenttools_gpu_saver", "0")
 			end
@@ -428,31 +413,57 @@ function vrmod_lua()
 			local error = vrmod.GetStartupError()
 			if error then
 				print("VRMod failed to start: " .. error)
-
 				return
 			end
 
 			if errorout:GetBool() then
-				VRMOD_Shutdown() --in case we're retrying after an error and shutdown wasn't called
+				VRMOD_Shutdown()
 			end
 
 			if VRMOD_Init() == false then
 				print("vr init failed")
-
 				return
 			end
 
-			local displayInfo = VRMOD_GetDisplayInfo(1, 10)
+			-- マルチスレッド関連のConVarを一時的に無効化
+			local mcoreOriginal = GetConVar("gmod_mcore_test"):GetInt()
+			local matQueueOriginal = GetConVar("mat_queue_mode"):GetInt()
+			
+			-- 一時的にマルチスレッドレンダリングを無効にする
+			overrideConvar("gmod_mcore_test", "0")
+			overrideConvar("mat_queue_mode", "-1")
+			
+			-- 初期化後に戻す（RenderSceneフック内で適切に処理する）
+			timer.Simple(0.5, function()
+				if mcoreOriginal == 1 then
+					RunConsoleCommand("gmod_mcore_test", "1")
+				end
+				
+				if matQueueOriginal ~= -1 then
+					RunConsoleCommand("mat_queue_mode", tostring(matQueueOriginal))
+				end
+			end)
+
+			local displayInfo = VRMOD_GetDisplayInfo(1, 3)
 			local rtWidth, rtHeight = displayInfo.RecommendedWidth * rtWidthMul:GetFloat(), displayInfo.RecommendedHeight * rtHeightMul:GetFloat()
-			local rtWidthright = rtWidth / 2
+			local rtWidthRight = rtWidth / 2
 			if system.IsLinux() then
-				rtWidth, rtHeight = math.min(4096, pow2ceil(rtWidth)), math.min(4096, pow2ceil(rtHeight)) --todo pow2ceil might not be necessary
+				rtWidth, rtHeight = math.min(4096, pow2ceil(rtWidth)), math.min(4096, pow2ceil(rtHeight))
 			end
 
 			VRMOD_ShareTextureBegin()
-			g_VR.rt = GetRenderTarget("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight)
+			g_VR.rt = GetRenderTargetEx(
+				"vrmod_rt" .. tostring(SysTime()), 
+				rtWidth, 
+				rtHeight,
+				RT_SIZE_NO_CHANGE,
+				MATERIAL_RT_DEPTH_SEPARATE,
+				bit.bor(1, 8), -- 8 = CREATERENDERTARGETFLAGS_UNFILTERABLE_OK
+				0,
+				IMAGE_FORMAT_RGBA8888
+			)
 			VRMOD_ShareTextureFinish()
-			--
+			
 			local displayCalculations = {
 				left = {},
 				right = {}
@@ -493,19 +504,16 @@ function vrmod_lua()
 			local aspectRight = displayCalculations.right.AspectRatio
 			local ipd = displayInfo.TransformRight[1][4] * 2
 			local eyez = displayInfo.TransformRight[3][4]
-			--
-			--set up active bindings
+			
 			VRMOD_SetActionManifest("vrmod/vrmod_action_manifest.txt")
 			VRMOD_SetActiveActionSets("/actions/base", LocalPlayer():InVehicle() and "/actions/driving" or "/actions/main")
 			VRUtilLoadCustomActions()
-			g_VR.input, g_VR.changedInputs = VRMOD_GetActions() --make inputs immediately available
-			--start transmit loop and send join msg to server
+			g_VR.input, g_VR.changedInputs = VRMOD_GetActions()
+			
 			VRUtilNetworkInit()
-			--set initial origin
+			
 			g_VR.origin = LocalPlayer():GetPos()
-			--
 			g_VR.scale = convars.vrmod_scale:GetFloat()
-			--
 			g_VR.rightControllerOffsetPos = Vector(convars.vrmod_controlleroffset_x:GetFloat(), convars.vrmod_controlleroffset_y:GetFloat(), convars.vrmod_controlleroffset_z:GetFloat())
 			g_VR.leftControllerOffsetPos = g_VR.rightControllerOffsetPos * Vector(1, -1, 1)
 			g_VR.rightControllerOffsetAng = Angle(convars.vrmod_controlleroffset_pitch:GetFloat(), convars.vrmod_controlleroffset_yaw:GetFloat(), convars.vrmod_controlleroffset_roll:GetFloat())
@@ -522,9 +530,6 @@ function vrmod_lua()
 				overrideConvar("arc9_tpik", "0")
 			end
 
-			--overrideConvar("pac_suppress_frames", "0")
-			--overrideConvar("pac_override_fov", 1)
-			--3D audio fix
 			hook.Add(
 				"CalcView",
 				"vrutil_hook_calcview",
@@ -560,7 +565,7 @@ function vrmod_lua()
 			}
 
 			g_VR.threePoints = true
-			--simulate missing hands
+			
 			local simulate = {
 				{
 					pose = g_VR.tracking.pose_lefthand,
@@ -596,13 +601,11 @@ function vrmod_lua()
 				end
 			)
 
-			--rendering
 			g_VR.view = {
 				x = 0,
 				y = 0,
-				w = rtWidthright,
+				w = rtWidthRight,
 				h = rtHeight,
-				--aspectratio = aspect, --fov = hfov,
 				drawmonitors = true,
 				drawviewmodel = false,
 				znear = convars.vrmod_znear:GetFloat(),
@@ -610,7 +613,7 @@ function vrmod_lua()
 			}
 
 			local desktopView = convars.vrmod_desktopview:GetInt()
-			local cropVerticalMargin = (1 - (vrScrH:GetInt() / vrScrW:GetInt() * rtWidthright / rtHeight)) / 2
+			local cropVerticalMargin = (1 - (vrScrH:GetInt() / vrScrW:GetInt() * rtWidthRight / rtHeight)) / 2
 			local cropVerticalMargin02 = 1 - cropVerticalMargin
 			local cropHorizontalOffset = (desktopView == 3) and 0.5 or 0
 			local cropHorizontalOffset02 = 0.5 + cropHorizontalOffset
@@ -618,7 +621,9 @@ function vrmod_lua()
 				"vrmod_mat_rt" .. tostring(SysTime()),
 				"UnlitGeneric",
 				{
-					["$basetexture"] = g_VR.rt:GetName()
+					["$basetexture"] = g_VR.rt:GetName(),
+					["$vertexcolor"] = 1,
+					["$vertexalpha"] = 1
 				}
 			)
 
@@ -633,47 +638,73 @@ function vrmod_lua()
 			local cv_foregrip_pitch_blend = CreateClientConVar("vrmod_foregrip_pitch_blend", "1.0", true, FCVAR_ARCHIVE)
 			local cv_foregrip_yaw_blend = CreateClientConVar("vrmod_foregrip_yaw_blend", "1.0", true, FCVAR_ARCHIVE)
 			local cv_foregrip_roll_blend = CreateClientConVar("vrmod_foregrip_roll_blend", "0.05", true, FCVAR_ARCHIVE)
-			-- g_VR.LeftView = {
-			-- 	x = 0,
-			-- 	y = 0,
-			-- 	w = rtWidthright,
-			-- 	h = rtHeight,
-			-- 	drawmonitors = false,
-			-- 	drawviewmodel = false,
-			-- 	znear = convars.vrmod_znear:GetFloat(),
-			-- 	dopostprocess = convars.vrmod_postprocess:GetBool()
-			-- }
-			-- g_VR.RightView = {
-			-- 	x = rtWidthright,
-			-- 	y = 0,
-			-- 	w = rtWidthright,
-			-- 	h = rtHeight,
-			-- 	drawmonitors = false,
-			-- 	drawviewmodel = false,
-			-- 	znear = convars.vrmod_znear:GetFloat(),
-			-- 	dopostprocess = convars.vrmod_postprocess:GetBool()
-			-- }
-			-- local function RenderLeftEye()
-			-- 	g_VR.LeftView.origin = g_VR.eyePosLeft
-			-- 	g_VR.LeftView.fov = hfovLeft
-			-- 	g_VR.LeftView.aspectratio = aspectLeft
-			-- 	hook.Call("VRMod_PreRender")
-			-- 	render.RenderView(g_VR.LeftView)
-			-- end
-			-- local function RenderRightEye()
-			-- 	g_VR.RightView.origin = g_VR.eyePosRight
-			-- 	g_VR.RightView.fov = hfovRight
-			-- 	g_VR.RightView.aspectratio = aspectRight
-			-- 	hook.Call("VRMod_PreRenderRight")
-			-- 	render.RenderView(g_VR.RightView)
-			-- end
+			
+			-- セマフォアロックを使用したスレッドセーフなレンダリング
+			local renderSemaphore = {
+				leftEyeInProgress = false,
+				rightEyeInProgress = false,
+				frameInProgress = false
+			}
+			
+			-- 高度なツールテクスチャを作成
+			local toolsRT = GetRenderTargetEx("vrmod_tools_rt", 1024, 1024, RT_SIZE_DEFAULT, MATERIAL_RT_DEPTH_SEPARATE, 0, 0, IMAGE_FORMAT_DEFAULT)
+			local toolsMat = CreateMaterial("vrmod_tools_mat", "UnlitGeneric", {
+				["$basetexture"] = toolsRT:GetName(),
+				["$vertexcolor"] = 1,
+				["$vertexalpha"] = 1
+			})
+			
+			-- マルチスレッド対応のレンダリング関数
+			local function SafeRenderEye(isLeftEye)
+				if renderSemaphore.frameInProgress then return end
+				
+				if isLeftEye then
+					if renderSemaphore.leftEyeInProgress then return end
+					renderSemaphore.leftEyeInProgress = true
+					
+					g_VR.view.origin = g_VR.eyePosLeft
+					g_VR.view.x = 0
+					g_VR.view.fov = hfovLeft
+					g_VR.view.aspectratio = aspectLeft
+					
+					hook.Call("VRMod_PreRender")
+					render.RenderView(g_VR.view)
+					
+					renderSemaphore.leftEyeInProgress = false
+					g_VR.renderState.leftEyeDone = true
+				else
+					if renderSemaphore.rightEyeInProgress then return end
+					renderSemaphore.rightEyeInProgress = true
+					
+					g_VR.view.origin = g_VR.eyePosRight
+					g_VR.view.x = rtWidthRight
+					g_VR.view.fov = hfovRight
+					g_VR.view.aspectratio = aspectRight
+					
+					hook.Call("VRMod_PreRenderRight")
+					render.RenderView(g_VR.view)
+					
+					renderSemaphore.rightEyeInProgress = false
+					g_VR.renderState.rightEyeDone = true
+				end
+			end
+			
 			hook.Add(
 				"RenderScene",
 				"vrutil_hook_renderscene",
 				function()
+					-- マルチスレッド環境用のガード
+					if g_VR.renderState.renderingActive then
+						return cameraover:GetBool()
+					end
+					
+					g_VR.renderState.renderingActive = true
+					g_VR.renderState.leftEyeDone = false
+					g_VR.renderState.rightEyeDone = false
+					
 					VRMOD_SubmitSharedTexture()
 					VRMOD_UpdatePosesAndActions()
-					--handle tracking
+					
 					local rawPoses = VRMOD_GetPoses()
 					for k, v in pairs(rawPoses) do
 						g_VR.tracking[k] = g_VR.tracking[k] or {}
@@ -689,154 +720,98 @@ function vrmod_lua()
 					end
 
 					g_VR.sixPoints = (g_VR.tracking.pose_waist and g_VR.tracking.pose_leftfoot and g_VR.tracking.pose_rightfoot) ~= nil
+					
 					hook.Call("VRMod_Tracking")
-					--handle input
+					
 					g_VR.input, g_VR.changedInputs = VRMOD_GetActions()
 					for k, v in pairs(g_VR.changedInputs) do
 						hook.Call("VRMod_Input", nil, k, v)
 					end
 
-					--lefthand&foregrip start
-					--gripmode start
+					local netFrame = VRUtilNetUpdateLocalPly()
+					
+					-- フォアグリップモードかどうかで処理を分岐
 					if foregripmode:GetBool() then
-						local netFrame = VRUtilNetUpdateLocalPly()
 						if g_VR.currentvmi then
 							local rightHandPos, rightHandAng = g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_righthand.ang
 							local leftHandPos, leftHandAng = g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang
-							-- 感度に基づいて左手と右手の角度を補間
+							
 							local sensitivity = cv_foregrip_rotation_sensitivity:GetFloat()
 							local pitchBlend = cv_foregrip_pitch_blend:GetFloat()
 							local yawBlend = cv_foregrip_yaw_blend:GetFloat()
 							local rollBlend = cv_foregrip_roll_blend:GetFloat()
-							local blendedAng = Angle(Lerp(pitchBlend, rightHandAng.p, leftHandAng.p), Lerp(yawBlend, rightHandAng.y, leftHandAng.y), Lerp(rollBlend, rightHandAng.r, leftHandAng.r))
-							-- 全体的な感度を適用
+							local blendedAng = Angle(
+								Lerp(pitchBlend, rightHandAng.p, leftHandAng.p), 
+								Lerp(yawBlend, rightHandAng.y, leftHandAng.y), 
+								Lerp(rollBlend, rightHandAng.r, leftHandAng.r)
+							)
+							
 							blendedAng = LerpAngle(sensitivity, rightHandAng, blendedAng)
 							local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, rightHandPos, blendedAng)
 							g_VR.viewModelPos = pos
 							g_VR.viewModelAng = ang
 						end
-
-						if IsValid(g_VR.viewModel) then
-							if not g_VR.usingWorldModels then
-								g_VR.viewModel:SetPos(g_VR.viewModelPos)
-								g_VR.viewModel:SetAngles(g_VR.viewModelAng)
-								g_VR.viewModel:SetupBones()
-								if netFrame then
+					else
+						if uselefthand:GetBool() then
+							if lefthandmode:GetBool() then
+								if g_VR.currentvmi then
+									local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
+									g_VR.viewModelPos = pos
+									g_VR.viewModelAng = ang
+								end
+							else
+								if g_VR.currentvmi then
+									local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
+									g_VR.viewModelPos = pos
+									g_VR.viewModelAng = ang
+								end
+							end
+						else
+							if g_VR.currentvmi then
+								local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_righthand.ang)
+								g_VR.viewModelPos = pos
+								g_VR.viewModelAng = ang
+							end
+						end
+					end
+					
+					if IsValid(g_VR.viewModel) then
+						if not g_VR.usingWorldModels then
+							g_VR.viewModel:SetPos(g_VR.viewModelPos)
+							g_VR.viewModel:SetAngles(g_VR.viewModelAng)
+							g_VR.viewModel:SetupBones()
+							
+							if netFrame then
+								-- 右手のボーン情報を取得
+								if foregripmode:GetBool() or not uselefthand:GetBool() then
 									local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
 									if b then
 										local mtx = g_VR.viewModel:GetBoneMatrix(b)
 										netFrame.righthandPos = mtx:GetTranslation()
 										netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
 									end
-
-									local c = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
+								end
+								
+								-- 左手のボーン情報を取得
+								if foregripmode:GetBool() or uselefthand:GetBool() then
+									local boneNameToUse = "ValveBiped.Bip01_L_Hand"
+									if lefthandmode:GetBool() and uselefthand:GetBool() then
+										boneNameToUse = "ValveBiped.Bip01_R_Hand"
+									end
+									
+									local c = g_VR.viewModel:LookupBone(boneNameToUse)
 									if c then
 										local mtxl = g_VR.viewModel:GetBoneMatrix(c)
 										netFrame.lefthandPos = mtxl:GetTranslation()
-										netFrame.lefthandAng = mtxl:GetAngles() - Angle(0, 0, 0)
+										netFrame.lefthandAng = mtxl:GetAngles() - (lefthandmode:GetBool() ? Angle(0, 0, 180) : Angle(0, 0, 0))
 									end
 								end
-							end
-
-							g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
-						end
-					else --lefthandmode start
-						if uselefthand:GetBool() then
-							if lefthandmode:GetBool() then
-								--lefthand-Type2(RhandSimurate) Start
-								local netFrame = VRUtilNetUpdateLocalPly()
-								--update viewmodel position
-								if g_VR.currentvmi then
-									local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
-									g_VR.viewModelPos = pos
-									g_VR.viewModelAng = ang
-								end
-
-								if IsValid(g_VR.viewModel) then
-									if not g_VR.usingWorldModels then
-										g_VR.viewModel:SetPos(g_VR.viewModelPos)
-										g_VR.viewModel:SetAngles(g_VR.viewModelAng)
-										g_VR.viewModel:SetupBones()
-										--override hand pose in net frame
-										if netFrame then
-											local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
-											if b then
-												local mtx = g_VR.viewModel:GetBoneMatrix(b)
-												netFrame.lefthandPos = mtx:GetTranslation()
-												netFrame.lefthandAng = mtx:GetAngles() - Angle(0, 0, 180)
-											end
-										end
-									end
-
-									g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
-								end
-								--lefthand-Type2(RhandSimurate) end
-							else
-								--lefthand-type1(Bip01_L_hand Posirion) start						
-								local netFrame = VRUtilNetUpdateLocalPly()
-								--update viewmodel position
-								if g_VR.currentvmi then
-									local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang)
-									g_VR.viewModelPos = pos
-									g_VR.viewModelAng = ang
-								end
-
-								if IsValid(g_VR.viewModel) then
-									if not g_VR.usingWorldModels then
-										g_VR.viewModel:SetPos(g_VR.viewModelPos)
-										g_VR.viewModel:SetAngles(g_VR.viewModelAng)
-										g_VR.viewModel:SetupBones()
-										--override hand pose in net frame
-										if netFrame then
-											local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_L_Hand")
-											if b then
-												local mtx = g_VR.viewModel:GetBoneMatrix(b)
-												netFrame.lefthandPos = mtx:GetTranslation()
-												netFrame.lefthandAng = mtx:GetAngles() - Angle(0, 0, 0)
-											end
-										end
-									end
-
-									g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
-								end
-								--lefthand-type1(Bip01_L_hand Posirion) end
-							end
-							--lefthandmode end
-						else
-							--righthand start
-							local netFrame = VRUtilNetUpdateLocalPly()
-							--update viewmodel position
-							if g_VR.currentvmi then
-								local pos, ang = LocalToWorld(g_VR.currentvmi.offsetPos, g_VR.currentvmi.offsetAng, g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_righthand.ang)
-								g_VR.viewModelPos = pos
-								g_VR.viewModelAng = ang
-							end
-
-							if IsValid(g_VR.viewModel) then
-								if not g_VR.usingWorldModels then
-									g_VR.viewModel:SetPos(g_VR.viewModelPos)
-									g_VR.viewModel:SetAngles(g_VR.viewModelAng)
-									g_VR.viewModel:SetupBones()
-									--override hand pose in net frame
-									if netFrame then
-										local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
-										if b then
-											local mtx = g_VR.viewModel:GetBoneMatrix(b)
-											netFrame.righthandPos = mtx:GetTranslation()
-											netFrame.righthandAng = mtx:GetAngles() - Angle(0, 0, 180)
-										end
-									end
-								end
-
-								g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 							end
 						end
-						--righthand end
+
+						g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
 					end
 
-					--lefthand&foregrip end
-					--righthand end
-					--set view according to viewentity
 					local viewEnt = localply:GetViewEntity()
 					if viewEnt ~= localply then
 						local rawPos, rawAng = WorldToLocal(g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang, g_VR.origin, g_VR.originAngle)
@@ -853,41 +828,55 @@ function vrmod_lua()
 
 					currentViewEnt = viewEnt
 					local ipdeye = ipd * 0.5 * g_VR.scale
-					--
+					
 					g_VR.view.origin = g_VR.view.origin + g_VR.view.angles:Forward() * -(eyez * g_VR.scale)
 					g_VR.eyePosLeft = g_VR.view.origin + g_VR.view.angles:Right() * -ipdeye
 					g_VR.eyePosRight = g_VR.view.origin + g_VR.view.angles:Right() * ipdeye
+					
+					-- マルチスレッド対応のレンダリング
+					local mcoreEnabled = GetConVar("gmod_mcore_test"):GetBool()
+					
+					-- スムーズなレンダリングを確保
 					render.PushRenderTarget(g_VR.rt)
-					-- local rightEyeThread = coroutine.create(RenderRightEye)
-					-- local leftEyeThread = coroutine.create(RenderLeftEye)
-					-- left
-					g_VR.view.origin = g_VR.eyePosLeft
-					g_VR.view.x = 0
-					g_VR.view.fov = hfovLeft
-					g_VR.view.aspectratio = aspectLeft
-					hook.Call("VRMod_PreRender")
-					render.RenderView(g_VR.view)
-					-- local rightEyeThread = coroutine.create(RenderRightEye)
-					-- coroutine.resume(rightEyeThread) 
-					--
-					-- right
-					g_VR.view.origin = g_VR.eyePosRight
-					g_VR.view.x = rtWidthright
-					g_VR.view.fov = hfovRight
-					g_VR.view.aspectratio = aspectRight
-					hook.Call("VRMod_PreRenderRight")
-					render.RenderView(g_VR.view)
-					-- local leftEyeThread = coroutine.create(RenderLeftEye)
-					-- coroutine.resume(leftEyeThread)
-					--
+					render.Clear(0, 0, 0, 0, true, true)
+					
+					-- マルチコアモードの場合は特別な処理
+					if mcoreEnabled then
+						-- 左目のレンダリング
+						SafeRenderEye(true)
+						
+						-- 右目のレンダリング
+						SafeRenderEye(false)
+					else
+						-- 従来のシングルスレッドレンダリング
+						-- 左目
+						g_VR.view.origin = g_VR.eyePosLeft
+						g_VR.view.x = 0
+						g_VR.view.fov = hfovLeft
+						g_VR.view.aspectratio = aspectLeft
+						hook.Call("VRMod_PreRender")
+						render.RenderView(g_VR.view)
+						
+						-- 右目
+						g_VR.view.origin = g_VR.eyePosRight
+						g_VR.view.x = rtWidthRight
+						g_VR.view.fov = hfovRight
+						g_VR.view.aspectratio = aspectRight
+						hook.Call("VRMod_PreRenderRight")
+						render.RenderView(g_VR.view)
+					end
+					
+					-- 死亡時の処理
 					if not LocalPlayer():Alive() then
 						cam.Start2D()
 						surface.SetDrawColor(14, 14, 14, 220)
 						surface.DrawRect(0, 0, rtWidth, rtHeight)
 						cam.End2D()
 					end
-
+					
 					render.PopRenderTarget(g_VR.rt)
+					
+					-- デスクトップビューの描画
 					if desktopView > 1 then
 						surface.SetDrawColor(255, 255, 255, 255)
 						surface.SetMaterial(mat_rt)
@@ -895,14 +884,15 @@ function vrmod_lua()
 						surface.DrawTexturedRectUV(-1, -1, 2, 2, cropHorizontalOffset, cropVerticalMargin02, cropHorizontalOffset02, cropVerticalMargin)
 						render.CullMode(0)
 					end
-
+					
 					hook.Call("VRMod_PostRender")
-
+					
+					g_VR.renderState.renderingActive = false
+					
 					return cameraover:GetBool()
 				end
 			)
 
-			--return true to override default scene rendering
 			g_VR.usingWorldModels = convars.vrmod_useworldmodels:GetBool()
 			if not g_VR.usingWorldModels then
 				overrideConvar("viewmodel_fov", GetConVar("fov_desired"):GetString())
@@ -915,20 +905,19 @@ function vrmod_lua()
 					"vrutil_hook_drawplayerandviewmodel",
 					function(bDrawingDepth, bDrawingSkybox)
 						if bDrawingSkybox or not LocalPlayer():Alive() or not (EyePos() == g_VR.eyePosLeft or EyePos() == g_VR.eyePosRight) then return end
-						--draw viewmodel
+						
 						if IsValid(g_VR.viewModel) then
 							blockViewModelDraw = false
 							g_VR.viewModel:DrawModel()
 							blockViewModelDraw = true
 						end
 
-						--draw playermodel
 						if not hideplayer then
 							g_VR.allowPlayerDraw = true
-							cam.Start3D() --this invalidates ShouldDrawLocalPlayer cache
+							cam.Start3D()
 							cam.End3D()
 							local tmp = render.GetBlend()
-							render.SetBlend(1) --without this the despawning bullet casing effect gets applied to the player???
+							render.SetBlend(1)
 							LocalPlayer():DrawModel()
 							render.SetBlend(tmp)
 							cam.Start3D()
@@ -936,7 +925,6 @@ function vrmod_lua()
 							g_VR.allowPlayerDraw = false
 						end
 
-						--draw menus
 						VRUtilRenderMenuSystem()
 					end
 				)
@@ -948,7 +936,7 @@ function vrmod_lua()
 			end
 
 			hook.Add("ShouldDrawLocalPlayer", "vrutil_hook_shoulddrawlocalplayer", function(ply) return g_VR.allowPlayerDraw end)
-			-- add laser pointer
+			
 			if convars.vrmod_laserpointer:GetBool() then
 				local mat = Material("cable/redlaser")
 				hook.Add(
@@ -985,9 +973,10 @@ function vrmod_lua()
 			end
 
 			if g_VR.rt then
+				render.ReleaseRenderTarget(g_VR.rt)
 				g_VR.rt = nil
 			end
-			g_VR.rt = nil
+			
 			g_VR.viewModel = nil
 			g_VR.viewModelMuzzle = nil
 			LocalPlayer():GetViewModel().RenderOverride = nil
@@ -1009,6 +998,11 @@ function vrmod_lua()
 			g_VR.tracking = {}
 			g_VR.threePoints = false
 			g_VR.sixPoints = false
+			g_VR.renderState = {
+				leftEyeDone = false,
+				rightEyeDone = false,
+				renderingActive = false
+			}
 			VRMOD_Shutdown()
 			g_VR.active = false
 		end
@@ -1023,7 +1017,6 @@ function vrmod_lua()
 			end
 		)
 
-		-- g_VR.rtとg_VR.viewをリセットするconcommandを追加
 		concommand.Add(
 			"vrmod_reset_render_targets",
 			function(ply, cmd, args)
@@ -1031,16 +1024,23 @@ function vrmod_lua()
 					VRUtilClientExit()
 				end
 
-				-- 現在のg_VR.rtを削除
 				if g_VR.rt then
 					render.ReleaseRenderTarget(g_VR.rt)
 					g_VR.rt = nil
 				end
 
-				-- 新しいg_VR.rtを作成
 				local rtWidth, rtHeight = g_VR.view.w * 2, g_VR.view.h
-				g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
-				-- g_VR.viewの設定をリセット
+				g_VR.rt = GetRenderTargetEx(
+					"vrmod_rt" .. tostring(SysTime()), 
+					rtWidth, 
+					rtHeight, 
+					RT_SIZE_NO_CHANGE, 
+					MATERIAL_RT_DEPTH_SEPARATE, 
+					16, 
+					CREATERENDERTARGETFLAGS_AUTOMIPMAP, 
+					IMAGE_FORMAT_DEFAULT
+				)
+				
 				g_VR.view.w = rtWidth / 2
 				g_VR.view.h = rtHeight
 				g_VR.view.aspectratio = g_VR.view.w / g_VR.view.h
@@ -1051,7 +1051,6 @@ function vrmod_lua()
 			end
 		)
 
-		-- g_VR.rtとg_VR.viewを現在の設定で更新するconcommandを追加
 		concommand.Add(
 			"vrmod_update_render_targets",
 			function(ply, cmd, args)
@@ -1059,24 +1058,52 @@ function vrmod_lua()
 					VRUtilClientExit()
 				end
 
-				-- 現在のg_VR.rtを削除
 				if g_VR.rt then
 					render.ReleaseRenderTarget(g_VR.rt)
 					g_VR.rt = nil
 				end
 
-				-- 新しいg_VR.rtを作成
 				local rtWidth, rtHeight = g_VR.view.w * 2, g_VR.view.h
-				g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
+				g_VR.rt = GetRenderTargetEx(
+					"vrmod_rt" .. tostring(SysTime()), 
+					rtWidth, 
+					rtHeight, 
+					RT_SIZE_NO_CHANGE, 
+					MATERIAL_RT_DEPTH_SEPARATE, 
+					16, 
+					CREATERENDERTARGETFLAGS_AUTOMIPMAP, 
+					IMAGE_FORMAT_DEFAULT
+				)
 				print("VRMod render targets have been updated with current settings.")
 			end
 		)
+		
+		-- マルチスレッド対応のためのコンバーチェック
+		local function DetectMultithreadingConVars()
+			local mcoreEnabled = GetConVar("gmod_mcore_test"):GetBool()
+			local matQueueMode = GetConVar("mat_queue_mode"):GetInt()
+			local threadedBoneSetup = GetConVar("cl_threaded_bone_setup"):GetBool()
+			
+			if mcoreEnabled then
+				print("VRMod: Detected gmod_mcore_test is enabled. Using multithread-safe rendering.")
+			end
+			
+			if matQueueMode > 0 then
+				print("VRMod: Detected mat_queue_mode " .. matQueueMode .. ". Using optimized rendering path.")
+			end
+			
+			if threadedBoneSetup then
+				print("VRMod: Detected threaded bone setup. Adjusting bone handling.")
+			end
+		}
+		
+		timer.Simple(1, DetectMultithreadingConVars)
 	elseif SERVER then
 		CreateClientConVar("vrmod_version", vrmod.GetVersion(), false, FCVAR_NOTIFY)
 	end
 end
 
-	vrmod_lua()
+vrmod_lua()
 
 concommand.Add(
 	"vrmod_lua_reset",

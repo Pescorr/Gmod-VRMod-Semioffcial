@@ -584,6 +584,17 @@ hook.Add(
 			RunConsoleCommand("vrmod_restart")
 		end
 
+		local plusres = advancedSettings:Button("2-5 1-2")
+		plusres.DoClick = function()
+			RunConsoleCommand("vrmod_scr_alwaysautosetting", "0")
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5")
+			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2")
+			RunConsoleCommand("vrmod_ScrW_hud", g_VR.rt:Width() / 2)
+			RunConsoleCommand("vrmod_ScrH_hud", g_VR.rt:Height())
+			RunConsoleCommand("vrmod_restart")
+		end
+
+
 		-- Advanced設定のデフォルト値
 		local advanceddefault = advancedSettings:Button("Restore Default Advanced Settings")
 		advanceddefault.DoClick = function()
