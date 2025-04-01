@@ -7,9 +7,9 @@ function vrmod_ui_lua()
 		local _, convarValues = vrmod.GetConvars()
 		vrmod.AddCallbackedConvar("vrmod_test_ui_testver", nil, 1, FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 		vrmod.AddCallbackedConvar("vrmod_ui_realtime", nil, 0, FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-		vrmod.AddCallbackedConvar("vrmod_attach_weaponmenu", nil, 3, FCVAR_ARCHIVE, "", 0, 4, tonumber)
-		vrmod.AddCallbackedConvar("vrmod_attach_quickmenu", nil, 4, FCVAR_ARCHIVE, "", 0, 4, tonumber)
-		vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 4, FCVAR_ARCHIVE, "", 0, 4, tonumber)
+		vrmod.AddCallbackedConvar("vrmod_attach_weaponmenu", nil, 1, FCVAR_ARCHIVE, "", 0, 4, tonumber)
+		vrmod.AddCallbackedConvar("vrmod_attach_quickmenu", nil, 1, FCVAR_ARCHIVE, "", 0, 4, tonumber)
+		vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 1, FCVAR_ARCHIVE, "", 0, 4, tonumber)
 		vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 2, FCVAR_ARCHIVE, "", 0, 2, tonumber)
 		vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 0, FCVAR_ARCHIVE, "", 0, 1, tonumber)
 		local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
@@ -269,15 +269,6 @@ function vrmod_ui_lua()
 					end
 
 					VRUtilMenuRenderPanel(g_VR.menuFocus)
-				end
-
-				if action == "boolean_spawnmenu" then
-					if not pressed and not g_VR.menuFocus then
-						hook.Remove("PostDrawTranslucentRenderables", "vrutil_hook_drawmenus")
-						g_VR.menuFocus = false
-						menusExist = false
-						gui.EnableScreenClicker(false)
-					end
 				end
 
 				if g_VR.menuFocus and action == "boolean_back" then

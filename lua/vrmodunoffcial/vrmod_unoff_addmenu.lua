@@ -576,24 +576,17 @@ hook.Add(
 		local hudheight = advancedSettings:NumSlider("VR HUD Height", "vrmod_ScrH_hud", 480, ScrH() * 2, 0)
 		local customres = advancedSettings:Button("Custom Width & Height (Quest 2 / Virtual Desktop)")
 		customres.DoClick = function()
-			RunConsoleCommand("vrmod_scr_alwaysautosetting", "0")
-			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.0")
-			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.0")
-			RunConsoleCommand("vrmod_ScrW_hud", g_VR.rt:Width() / 2)
-			RunConsoleCommand("vrmod_ScrH_hud", g_VR.rt:Height())
-			RunConsoleCommand("vrmod_restart")
-		end
-
-		local plusres = advancedSettings:Button("2-5 1-2")
-		plusres.DoClick = function()
-			RunConsoleCommand("vrmod_scr_alwaysautosetting", "0")
 			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5")
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2")
-			RunConsoleCommand("vrmod_ScrW_hud", g_VR.rt:Width() / 2)
-			RunConsoleCommand("vrmod_ScrH_hud", g_VR.rt:Height())
-			RunConsoleCommand("vrmod_restart")
 		end
-
+		customres.DoRightClick = function()
+			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5")
+			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2")
+			if g_VR.active then
+				RunConsoleCommand("vrmod_ScrW_hud", g_VR.rt:Width() / 2)
+				RunConsoleCommand("vrmod_ScrH_hud", g_VR.rt:Height())
+			end
+		end
 
 		-- Advanced設定のデフォルト値
 		local advanceddefault = advancedSettings:Button("Restore Default Advanced Settings")

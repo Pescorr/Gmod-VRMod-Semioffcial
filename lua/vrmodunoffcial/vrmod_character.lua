@@ -1,27 +1,20 @@
 function vrmod_character_lua()
-	-- if CLIENT then
 	g_VR = g_VR or {}
 	g_VR.characterYaw = 0
 	local convars, convarValues = vrmod.GetConvars()
 	local cv_animation = CreateClientConVar("vrmod_animation_Enable", "1", true, FCVAR_ARCHIVE)
 	if CLIENT then
-	-- local charactereyelogic = CreateClientConVar("vrmod_characterlogic_alt", "0", true, FCVAR_ARCHIVE)
 		CreateClientConVar("vrmod_idle_act", "ACT_HL2MP_IDLE", true, FCVAR_ARCHIVE)
 		CreateClientConVar("vrmod_walk_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
 		CreateClientConVar("vrmod_run_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
 		CreateClientConVar("vrmod_jump_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
-		-- CreateClientConVar("vrmod_hide_head", "0", true, FCVAR_ARCHIVE, "Hide player's head in VR")
-		-- CreateClientConVar("vrmod_hide_body", "0", true, FCVAR_ARCHIVE, "Hide player's body in VR")
-		-- CreateClientConVar("vrmod_hide_arms", "0", true, FCVAR_ARCHIVE, "Hide player's arms in VR")
-		-- CreateClientConVar("vrmod_hide_legs", "0", true, FCVAR_ARCHIVE, "Hide player's legs in VR")
 	end
 
-	g_VR.defaultOpenHandAngles = {Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0),} --left hand --finger 0 --finger 1 --finger 2 --finger 3 --finger 4 --right hand
-	g_VR.defaultClosedHandAngles = {Angle(30, 0, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, -50, -10), Angle(0, -90, 0), Angle(0, -70, 0), Angle(0, -35. - 8, 0), Angle(0, -80, 0), Angle(0, -70, 0), Angle(0, -26.5, 4.8), Angle(0, -70, 0), Angle(0, -70, 0), Angle(0, -30, 12.7), Angle(0, -70, 0), Angle(0, -70, 0), Angle(-30, 0, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, -50, 10), Angle(0, -90, 0), Angle(0, -70, 0), Angle(0, -35.8, 0), Angle(0, -80, 0), Angle(0, -70, 0), Angle(0, -26.5, -4.8), Angle(0, -70, 0), Angle(0, -70, 0), Angle(0, -30, -12.7), Angle(0, -70, 0), Angle(0, -70, 0),} --
+	g_VR.defaultOpenHandAngles = {Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0),}
+	g_VR.defaultClosedHandAngles = {Angle(30, 0, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, -50, -10), Angle(0, -90, 0), Angle(0, -70, 0), Angle(0, -35. - 8, 0), Angle(0, -80, 0), Angle(0, -70, 0), Angle(0, -26.5, 4.8), Angle(0, -70, 0), Angle(0, -70, 0), Angle(0, -30, 12.7), Angle(0, -70, 0), Angle(0, -70, 0), Angle(-30, 0, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, -50, 10), Angle(0, -90, 0), Angle(0, -70, 0), Angle(0, -35.8, 0), Angle(0, -80, 0), Angle(0, -70, 0), Angle(0, -26.5, -4.8), Angle(0, -70, 0), Angle(0, -70, 0), Angle(0, -30, -12.7), Angle(0, -70, 0), Angle(0, -70, 0),}
 	g_VR.zeroHandAngles = {Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, 0, 0),}
 	g_VR.openHandAngles = g_VR.defaultOpenHandAngles
 	g_VR.closedHandAngles = g_VR.defaultClosedHandAngles
-	----------------------------------------------------------------------------------------------------------------------------------------------------
 	local characterInfo = {}
 	local activePlayers = {}
 	local zeroVec, zeroAng = Vector(), Angle()
@@ -30,7 +23,7 @@ function vrmod_character_lua()
 		for k, v in pairs(bones) do
 			local n = ent:GetBoneName(v)
 			local boneparent = ent:GetBoneParent(v)
-			local parentmat = ent:GetBoneMatrix(boneparent) --getboneposition doesnt work for all bones! but matrix seems to
+			local parentmat = ent:GetBoneMatrix(boneparent)
 			local childmat = ent:GetBoneMatrix(v)
 			local parentpos, parentang = parentmat:GetTranslation(), parentmat:GetAngles()
 			local childpos, childang = childmat:GetTranslation(), childmat:GetAngles()
@@ -66,24 +59,20 @@ function vrmod_character_lua()
 			_, plyAng = LocalToWorld(zeroVec, Angle(0, 90, 0), zeroVec, plyAng)
 		end
 
-		--alt head
 		if net.characterAltHead then
 			local tmp1, tmp2 = WorldToLocal(zeroVec, frame.hmdAng, zeroVec, Angle(0, frame.characterYaw, 0))
 			ply:ManipulateBoneAngles(bones.b_head, Angle(-tmp2.roll, -tmp2.pitch, tmp2.yaw))
 		end
 
-		--****************** CROUCHING ******************
 		if not inVehicle then
 			local headHeight = frame.hmdPos.z + (frame.hmdAng:Forward() * -3).z
 			local cutAmount = math.Clamp(charinfo.preRenderPos.z + charinfo.characterEyeHeight - headHeight, 0, 40)
-			--spine
 			local spineTargetLen = charinfo.spineLen - cutAmount * 0.5
 			local a1 = math.acos(spineTargetLen / charinfo.spineLen)
 			charinfo.horizontalCrouchOffset = math.sin(a1) * charinfo.spineLen
 			ply:ManipulateBoneAngles(bones.b_spine, Angle(0, math.deg(a1), 0))
-			--legs
 			charinfo.verticalCrouchOffset = cutAmount * 0.5
-			local legTargetLen = charinfo.upperLegLen + charinfo.lowerLegLen - charinfo.verticalCrouchOffset * 0.8 --actually cut slightly less or it looks like the legs float with the player anim
+			local legTargetLen = charinfo.upperLegLen + charinfo.lowerLegLen - charinfo.verticalCrouchOffset * 0.8
 			local a1 = math.deg(math.acos((charinfo.upperLegLen * charinfo.upperLegLen + legTargetLen * legTargetLen - charinfo.lowerLegLen * charinfo.lowerLegLen) / (2 * charinfo.upperLegLen * legTargetLen)))
 			local a23 = 180 - a1 - math.deg(math.acos((charinfo.lowerLegLen * charinfo.lowerLegLen + legTargetLen * legTargetLen - charinfo.upperLegLen * charinfo.upperLegLen) / (2 * charinfo.lowerLegLen * legTargetLen)))
 			if a1 ~= a1 or a23 ~= a23 then
@@ -107,15 +96,13 @@ function vrmod_character_lua()
 			ply:ManipulateBoneAngles(bones.b_rightFoot, Angle(0, 0, 0))
 		end
 
-		--****************** LEFT ARM ******************
 		local L_TargetPos = frame.lefthandPos
 		local L_TargetAng = frame.lefthandAng
 		local mtx = ply:GetBoneMatrix(bones.b_leftClavicle)
 		local L_ClaviclePos = mtx and mtx:GetTranslation() or Vector()
 		charinfo.L_ClaviclePos = L_ClaviclePos
-		--Calculate LEFT clavicle target angle
-		local tmp1 = L_ClaviclePos + plyAng:Right() * -charinfo.clavicleLen --neutral shoulder position
-		local tmp2 = tmp1 + (L_TargetPos - tmp1) * 0.15 --desired shoulder position
+		local tmp1 = L_ClaviclePos + plyAng:Right() * -charinfo.clavicleLen
+		local tmp2 = tmp1 + (L_TargetPos - tmp1) * 0.15
 		local L_ClavicleTargetAng
 		if not inVehicle then
 			L_ClavicleTargetAng = (tmp2 - L_ClaviclePos):Angle()
@@ -124,7 +111,6 @@ function vrmod_character_lua()
 		end
 
 		L_ClavicleTargetAng:RotateAroundAxis(L_ClavicleTargetAng:Forward(), 90)
-		--
 		local L_UpperarmPos = L_ClaviclePos + L_ClavicleTargetAng:Forward() * charinfo.clavicleLen
 		local L_TargetVec = L_TargetPos - L_UpperarmPos
 		local L_TargetVecLen = L_TargetVec:Length()
@@ -136,8 +122,7 @@ function vrmod_character_lua()
 			_, L_TargetVecAng = LocalToWorld(Vector(), L_TargetVecAngLocal, zeroVec, plyAng)
 		end
 
-		--Calculate LEFT upperarm target angle
-		local L_UpperarmTargetAng = Angle(L_TargetVecAng.pitch, L_TargetVecAng.yaw, L_TargetVecAng.roll) --copy to avoid weirdness
+		local L_UpperarmTargetAng = Angle(L_TargetVecAng.pitch, L_TargetVecAng.yaw, L_TargetVecAng.roll)
 		local tmp
 		if not inVehicle then
 			tmp = Angle(L_TargetVecAng.pitch, frame.characterYaw, -90)
@@ -164,26 +149,22 @@ function vrmod_character_lua()
 		end
 
 		L_UpperarmTargetAng:RotateAroundAxis(L_TargetVec:GetNormalized(), 30 + test)
-		--Calculate LEFT forearm target angle
 		local L_ForearmTargetAng = Angle(L_UpperarmTargetAng.pitch, L_UpperarmTargetAng.yaw, L_UpperarmTargetAng.roll)
 		local a23 = 180 - a1 - math.deg(math.acos((charinfo.lowerArmLen * charinfo.lowerArmLen + L_TargetVecLen * L_TargetVecLen - charinfo.upperArmLen * charinfo.upperArmLen) / (2 * charinfo.lowerArmLen * L_TargetVecLen)))
 		if a23 == a23 then
 			L_ForearmTargetAng:RotateAroundAxis(L_ForearmTargetAng:Up(), 180 + a23)
 		end
 
-		--Calculate LEFT wrist and ulna angle
 		local tmp = Angle(L_TargetAng.pitch, L_TargetAng.yaw, L_TargetAng.roll - 90)
 		local tpos, tang = WorldToLocal(zeroVec, tmp, zeroVec, L_ForearmTargetAng)
 		local L_WristTargetAng = Angle(L_ForearmTargetAng.pitch, L_ForearmTargetAng.yaw, L_ForearmTargetAng.roll)
 		L_WristTargetAng:RotateAroundAxis(L_WristTargetAng:Forward(), tang.roll)
 		local L_UlnaTargetAng = LerpAngle(0.5, L_ForearmTargetAng, L_WristTargetAng)
-		--****************** RIGHT ARM ******************
 		local R_TargetPos = frame.righthandPos
 		local R_TargetAng = frame.righthandAng
 		local mtx = ply:GetBoneMatrix(bones.b_rightClavicle)
 		local R_ClaviclePos = mtx and mtx:GetTranslation() or Vector()
 		charinfo.R_ClaviclePos = R_ClaviclePos
-		--Calculate RIGHT clavicle target angle
 		local tmp1 = R_ClaviclePos + plyAng:Right() * charinfo.clavicleLen
 		local tmp2 = tmp1 + (R_TargetPos - tmp1) * 0.15
 		local R_ClavicleTargetAng
@@ -194,7 +175,6 @@ function vrmod_character_lua()
 		end
 
 		R_ClavicleTargetAng:RotateAroundAxis(R_ClavicleTargetAng:Forward(), 90)
-		--
 		local R_UpperarmPos = R_ClaviclePos + R_ClavicleTargetAng:Forward() * charinfo.clavicleLen
 		local R_TargetVec = R_TargetPos - R_UpperarmPos
 		local R_TargetVecLen = R_TargetVec:Length()
@@ -206,7 +186,6 @@ function vrmod_character_lua()
 			_, R_TargetVecAng = LocalToWorld(Vector(), R_TargetVecAngLocal, zeroVec, plyAng)
 		end
 
-		--Calculate RIGHT upperarm target angle
 		local R_UpperarmTargetAng = Angle(R_TargetVecAng.pitch, R_TargetVecAng.yaw, R_TargetVecAng.roll)
 		R_UpperarmTargetAng:RotateAroundAxis(R_TargetVec, 180)
 		local tmp
@@ -235,20 +214,17 @@ function vrmod_character_lua()
 		end
 
 		R_UpperarmTargetAng:RotateAroundAxis(R_TargetVec:GetNormalized(), -(30 + test))
-		--Calculate RIGHT forearm target angle
 		local R_ForearmTargetAng = Angle(R_UpperarmTargetAng.pitch, R_UpperarmTargetAng.yaw, R_UpperarmTargetAng.roll)
 		local a23 = 180 - a1 - math.deg(math.acos((charinfo.lowerArmLen * charinfo.lowerArmLen + R_TargetVecLen * R_TargetVecLen - charinfo.upperArmLen * charinfo.upperArmLen) / (2 * charinfo.lowerArmLen * R_TargetVecLen)))
 		if a23 == a23 then
 			R_ForearmTargetAng:RotateAroundAxis(R_ForearmTargetAng:Up(), 180 + a23)
 		end
 
-		--Calculate RIGHT wrist and ulna angle
 		local tmp = Angle(R_TargetAng.pitch, R_TargetAng.yaw, R_TargetAng.roll - 90)
 		local tpos, tang = WorldToLocal(zeroVec, tmp, zeroVec, R_ForearmTargetAng)
 		local R_WristTargetAng = Angle(R_ForearmTargetAng.pitch, R_ForearmTargetAng.yaw, R_ForearmTargetAng.roll)
 		R_WristTargetAng:RotateAroundAxis(R_WristTargetAng:Forward(), tang.roll)
 		local R_UlnaTargetAng = LerpAngle(0.5, R_ForearmTargetAng, R_WristTargetAng)
-		--set absolute override angles for the relevant bones
 		boneinfo[bones.b_leftClavicle].overrideAng = L_ClavicleTargetAng
 		boneinfo[bones.b_leftUpperarm].overrideAng = L_UpperarmTargetAng
 		boneinfo[bones.b_leftHand].overrideAng = L_TargetAng
@@ -267,13 +243,11 @@ function vrmod_character_lua()
 			boneinfo[bones.b_rightForearm].overrideAng = R_UlnaTargetAng
 		end
 
-		--set finger offset angles
 		for k, v in pairs(bones.fingers) do
 			if not boneinfo[v] then continue end
 			boneinfo[v].offsetAng = LerpAngle(frame["finger" .. math.floor((k - 1) / 3 + 1)], g_VR.openHandAngles[k], g_VR.closedHandAngles[k])
 		end
 
-		--calculate target matrices
 		for i = 1, #characterInfo[steamid].boneorder do
 			local bone = characterInfo[steamid].boneorder[i]
 			local parent = characterInfo[steamid].boneinfo[bone].parent
@@ -372,7 +346,6 @@ function vrmod_character_lua()
 			b_spine = "ValveBiped.Bip01_Spine",
 		}
 
-		-- b_neck ="ValveBiped.Bip01_Neck1",
 		characterInfo[steamid].bones = {
 			fingers = {cm:LookupBone("ValveBiped.Bip01_L_Finger0") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger01") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger02") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger1") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger11") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger12") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger2") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger21") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger22") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger3") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger31") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger32") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger4") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger41") or -1, cm:LookupBone("ValveBiped.Bip01_L_Finger42") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger0") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger01") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger02") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger1") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger11") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger12") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger2") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger21") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger22") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger3") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger31") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger32") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger4") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger41") or -1, cm:LookupBone("ValveBiped.Bip01_R_Finger42") or -1,}
 		}
@@ -407,64 +380,61 @@ function vrmod_character_lua()
 		local footPos = cm:GetBonePosition(characterInfo[steamid].bones.b_leftFoot)
 		local headPos = cm:GetBonePosition(characterInfo[steamid].bones.b_head)
 		local spinePos = cm:GetBonePosition(characterInfo[steamid].bones.b_spine)
-		-- local neckpos = cm:GetBonePosition(characterInfo[steamid].bones.b_neck)
 		characterInfo[steamid].clavicleLen = claviclePos:Distance(upperPos)
 		characterInfo[steamid].upperArmLen = upperPos:Distance(lowerPos)
 		characterInfo[steamid].lowerArmLen = lowerPos:Distance(handPos)
 		characterInfo[steamid].upperLegLen = thighPos:Distance(calfPos)
 		characterInfo[steamid].lowerLegLen = calfPos:Distance(footPos)
-		--spineLen is set after eye height
-		--
 		local eyes = cm:GetAttachment(cm:LookupAttachment("eyes"))
 		if eyes then
 			eyes.Pos = eyes.Pos - cm:GetPos()
 		end
 
-		--"VRmodを使用する自分自身に適用するように変更"
 		if ply == LocalPlayer() then
 			characterInfo[steamid].characterEyeHeight = convarValues.vrmod_characterEyeHeight
 			characterInfo[steamid].characterHeadToHmdDist = convarValues.vrmod_characterHeadToHmdDist
 			characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
 			cm:Remove()
 		else
-			--"自分以外のVRModユーザー行うように変更"
 			if eyes and eyes.Pos.z > 10 then
 				characterInfo[steamid].characterEyeHeight = eyes.Pos.z
-				characterInfo[steamid].characterHeadToHmdDist = (eyes.Pos.z / 5 - 6.3)
+				characterInfo[steamid].characterHeadToHmdDist = eyes.Pos.z / 5 - 6.3
 			else
 				headPos = headPos - cm:GetPos()
 				characterInfo[steamid].characterEyeHeight = headPos.z
-				characterInfo[steamid].characterHeadToHmdDist = (headPos.z / 5 - 6.3)
+				characterInfo[steamid].characterHeadToHmdDist = headPos.z / 5 - 6.3
 			end
 
 			characterInfo[steamid].spineLen = (cm:GetPos().z + characterInfo[steamid].characterEyeHeight) - spinePos.z
 			cm:Remove()
 		end
-		-- local seatset = convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z)
 	end
 
-	------------------------------------------------------------------------
 	local function BoneCallbackFunc(ply, numbones)
 		local steamid = ply:SteamID()
 		if not g_VR.net[steamid] or not g_VR.net[steamid].lerpedFrame then return end
 		if activePlayers[steamid] == nil then return end
 		if g_VR.net[steamid].lerpedFrame == nil then return end
 		if ply:InVehicle() and ply:GetVehicle():GetClass() ~= "prop_vehicle_prisoner_pod" then return end
+		local bones = characterInfo[steamid].bones
+		if not bones then return end
+		if not bones.b_rightHand then return end
 		if ply:GetBoneMatrix(characterInfo[steamid].bones.b_rightHand) then
 			ply:SetBonePosition(characterInfo[steamid].bones.b_rightHand, g_VR.net[steamid].lerpedFrame.righthandPos, g_VR.net[steamid].lerpedFrame.righthandAng + Angle(0, 0, 180))
 		end
 
 		if not g_VR.net[steamid].characterAltHead then
 			local _, targetAng = LocalToWorld(zeroVec, Angle(-80, 0, 90), zeroVec, g_VR.net[steamid].lerpedFrame.hmdAng)
-			local mtx = ply:GetBoneMatrix(characterInfo[steamid].bones.b_head)
-			if mtx then
-				mtx:SetAngles(targetAng)
-				ply:SetBoneMatrix(characterInfo[steamid].bones.b_head, mtx)
+			if bones.b_head and ply:GetBoneMatrix(characterInfo[steamid].bones.b_head) then
+				local mtx = ply:GetBoneMatrix(characterInfo[steamid].bones.b_head)
+				if mtx then
+					mtx:SetAngles(targetAng)
+					ply:SetBoneMatrix(characterInfo[steamid].bones.b_head, mtx)
+				end
 			end
 		end
 	end
 
-	-------------------------------------------------------------
 	local handYaw = 0
 	local up = Vector(0, 0, 1)
 	local function PreRenderFunc()
@@ -481,7 +451,6 @@ function vrmod_character_lua()
 			end
 		else
 			local leftPos, rightPos, hmdPos, hmdAng = g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_righthand.pos, g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang
-			--update handYaw if hands are not crossed
 			if WorldToLocal(leftPos, zeroAng, hmdPos, hmdAng).y > WorldToLocal(rightPos, zeroAng, hmdPos, hmdAng).y then
 				handYaw = Vector(rightPos.x - leftPos.x, rightPos.y - leftPos.y, 0):Angle().yaw + 90
 			end
@@ -495,18 +464,15 @@ function vrmod_character_lua()
 		end
 	end
 
-	-------------------------------------------------------------
 	local prevFrameNumber = 0
 	local updatedPlayers = {}
 	local function PrePlayerDrawFunc(ply)
 		local steamid = ply:SteamID()
 		if not activePlayers[steamid] or not g_VR.net[steamid].lerpedFrame then return end
-		--hide head in first person
 		if ply == LocalPlayer() then
 			local ep = EyePos()
 			local hide = (ep == g_VR.eyePosLeft or ep == g_VR.eyePosRight) and ply:GetViewEntity() == ply
 			ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, hide and zeroVec or Vector(1, 1, 1))
-			-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_neck, hide and zerovec or Vector(-128, 128, 0))
 		end
 
 		characterInfo[steamid].preRenderPos = ply:GetPos()
@@ -518,7 +484,6 @@ function vrmod_character_lua()
 		end
 
 		ply:SetupBones()
-		--update ik once per frame per player
 		if prevFrameNumber ~= FrameNumber() then
 			prevFrameNumber = FrameNumber()
 			updatedPlayers = {}
@@ -529,19 +494,15 @@ function vrmod_character_lua()
 			updatedPlayers[steamid] = 1
 		end
 
-		--
 		if ply:InVehicle() and ply:GetVehicle():GetClass() ~= "prop_vehicle_prisoner_pod" then return end
-		--manipulate arms
 		for i = 1, #characterInfo[steamid].boneorder do
 			local bone = characterInfo[steamid].boneorder[i]
-			--prevent unwritable bone errors (usually happens when someone opens pac editor while in vr and pac stuff in general)
 			if ply:GetBoneMatrix(bone) then
 				ply:SetBoneMatrix(bone, characterInfo[steamid].boneinfo[bone].targetMatrix)
 			end
 		end
 	end
 
-	-------------------------------------------------------------
 	local function PostPlayerDrawFunc(ply)
 		local steamid = ply:SteamID()
 		if activePlayers[steamid] == nil then return end
@@ -551,8 +512,6 @@ function vrmod_character_lua()
 		ply:SetPos(characterInfo[steamid].preRenderPos)
 	end
 
-	-------------------------------------------------------------
-	-- CalcMainActivityFuncを修正
 	local function CalcMainActivityFunc(ply, vel)
 		if not activePlayers[ply:SteamID()] or ply:InVehicle() then return end
 		local act = GetConVar("vrmod_idle_act"):GetString()
@@ -575,13 +534,11 @@ function vrmod_character_lua()
 		return _G[act] or -1, -1
 	end
 
-	-------------------------------------------------------------
 	local function DoAnimationEventFunc(ply, evt, data)
 		if not activePlayers[ply:SteamID()] or ply:InVehicle() then return end
 		if evt ~= PLAYERANIMEVENT_JUMP then return ACT_INVALID end
 	end
 
-	-------------------------------------------------------------
 	function g_VR.StartCharacterSystem(ply)
 		local steamid = ply:SteamID()
 		if not g_VR.net[steamid] or CharacterInit(ply) == false then return end
@@ -612,18 +569,9 @@ function vrmod_character_lua()
 					hook.Remove("VRMod_PreRender", "vrutil_hook_calcplyrenderpos")
 					ply:ManipulateBoneScale(characterInfo[steamid].bones.b_head, Vector(1, 1, 1))
 					ply:ManipulateBonePosition(characterInfo[steamid].bones.b_head, Vector(1, 1, 1), false)
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightWrist, Vector(1, 1, 1), false)
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftWrist, Vector(1, 1, 1), false)
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftUpperarm, Vector(1, 1, 1), false)
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightUpperarm, Vector(1, 1, 1), false)
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftForearm, Vector(1, 1, 1), false)
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightThigh, Vector(1, 1, 1), false)
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_leftCalf, Vector(1, 1, 1), false)
-					-- ply:ManipulateBonePosition(characterInfo[steamid].bones.b_rightCalf, Vector(1, 1, 1), false)
 				end
 			end
 
-			-- characterInfo[steamid]がnilの場合の処理を追加
 			activePlayers[steamid] = nil
 		end
 
@@ -651,97 +599,6 @@ function vrmod_character_lua()
 			g_VR.StopCharacterSystem(steamid)
 		end
 	)
-	-- else
-	-- 	local function CreateCharacterColliders(ply)
-	-- 		local steamid = ply:SteamID()
-	-- 		local charinfo = characterInfo[steamid]
-	-- 		-- 各部位のボーンに対応するコライダーを作成
-	-- 		charinfo.colliders = {}
-	-- 		for boneName, boneId in pairs(charinfo.bones) do
-	-- 			if boneId >= 0 then
-	-- 				local collider = ents.Create("prop_physics")
-	-- 				collider:SetModel("models/props_junk/PopCan01a.mdl")
-	-- 				collider:SetPos(ply:GetPos())
-	-- 				collider:SetAngles(ply:GetAngles())
-	-- 				collider:SetMoveType(MOVETYPE_NONE)
-	-- 				collider:SetSolid(SOLID_BBOX)
-	-- 				collider:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
-	-- 				collider:SetNotSolid(true)
-	-- 				collider:SetNoDraw(true)
-	-- 				collider:DrawShadow(false)
-	-- 				collider:Spawn()
-	-- 				collider:Activate()
-	-- 				collider:SetParent(ply, boneId)
-	-- 				charinfo.colliders[boneId] = collider
-	-- 			end
-	-- 		end
-	-- 	end
-	-- 	local function RemoveCharacterColliders(ply)
-	-- 		local steamid = ply:SteamID()
-	-- 		local charinfo = characterInfo[steamid]
-	-- 		if charinfo and charinfo.colliders then
-	-- 			for _, collider in pairs(charinfo.colliders) do
-	-- 				if IsValid(collider) then
-	-- 					collider:Remove()
-	-- 				end
-	-- 			end
-	-- 			charinfo.colliders = {}
-	-- 		end
-	-- 	end
-	-- 	hook.Add(
-	-- 		"VRMod_Start",
-	-- 		"vrmod_character_colliders_init",
-	-- 		function(ply)
-	-- 			CreateCharacterColliders(ply)
-	-- 		end
-	-- 	)
-	-- 	hook.Add(
-	-- 		"PlayerSpawn",
-	-- 		"vrmod_character_colliders_spawn",
-	-- 		function(ply)
-	-- 			if vrmod.IsPlayerInVR(ply) then
-	-- 				CreateCharacterColliders(ply)
-	-- 			end
-	-- 		end
-	-- 	)
-	-- 	hook.Add(
-	-- 		"PlayerDeath",
-	-- 		"vrmod_character_colliders_death",
-	-- 		function(ply)
-	-- 			RemoveCharacterColliders(ply)
-	-- 		end
-	-- 	)
-	-- 	hook.Add(
-	-- 		"VRMod_Exit",
-	-- 		"vrmod_character_colliders_exit",
-	-- 		function(ply)
-	-- 			RemoveCharacterColliders(ply)
-	-- 		end
-	-- 	)
-	-- 	hook.Add(
-	-- 		"PlayerTick",
-	-- 		"vrmod_character_colliders_tick",
-	-- 		function(ply)
-	-- 			if vrmod.IsPlayerInVR(ply) then
-	-- 				local steamid = ply:SteamID()
-	-- 				local charinfo = characterInfo[steamid]
-	-- 				if charinfo and charinfo.colliders then
-	-- 					for boneId, collider in pairs(charinfo.colliders) do
-	-- 						if IsValid(collider) then
-	-- 							local bonePos, boneAng = ply:GetBonePosition(boneId)
-	-- 							local targetPos, targetAng = LocalToWorld(Vector(0, 0, 0), Angle(0, 0, 0), bonePos, boneAng)
-	-- 							local targetVel = (targetPos - collider:GetPos()) * 30
-	-- 							collider:GetPhysicsObject():SetVelocity(targetVel)
-	-- 							local _, tempAng = WorldToLocal(Vector(), targetAng, Vector(), collider:GetAngles())
-	-- 							local targetAngVel = Vector(tempAng.p, tempAng.y, tempAng.r) * 30
-	-- 							collider:GetPhysicsObject():AddAngleVelocity(targetAngVel - collider:GetPhysicsObject():GetAngleVelocity())
-	-- 						end
-	-- 					end
-	-- 				end
-	-- 			end
-	-- 		end
-	-- 	)
-	-- end
 end
 
 vrmod_character_lua()

@@ -412,7 +412,7 @@ function vrmod_lua()
 
 		function VRUtilClientStart()
 			if g_VR.rt then
-					g_VR.rt = nil
+				g_VR.rt = nil
 			end
 
 			if GetConVar("godsenttools_gpu_saver") then
@@ -915,20 +915,18 @@ function vrmod_lua()
 					"vrutil_hook_drawplayerandviewmodel",
 					function(bDrawingDepth, bDrawingSkybox)
 						if bDrawingSkybox or not LocalPlayer():Alive() or not (EyePos() == g_VR.eyePosLeft or EyePos() == g_VR.eyePosRight) then return end
-						--draw viewmodel
 						if IsValid(g_VR.viewModel) then
 							blockViewModelDraw = false
 							g_VR.viewModel:DrawModel()
 							blockViewModelDraw = true
 						end
 
-						--draw playermodel
 						if not hideplayer then
 							g_VR.allowPlayerDraw = true
-							cam.Start3D() --this invalidates ShouldDrawLocalPlayer cache
+							cam.Start3D()
 							cam.End3D()
 							local tmp = render.GetBlend()
-							render.SetBlend(1) --without this the despawning bullet casing effect gets applied to the player???
+							render.SetBlend(1)
 							LocalPlayer():DrawModel()
 							render.SetBlend(tmp)
 							cam.Start3D()
@@ -936,7 +934,6 @@ function vrmod_lua()
 							g_VR.allowPlayerDraw = false
 						end
 
-						--draw menus
 						VRUtilRenderMenuSystem()
 					end
 				)
@@ -945,6 +942,14 @@ function vrmod_lua()
 				hook.Add("PreDrawViewModel", "vrutil_hook_predrawviewmodel", function(vm, ply, wep) return blockViewModelDraw or nil end)
 			else
 				g_VR.allowPlayerDraw = true
+				hook.Add(
+					"PostDrawTranslucentRenderables",
+					"vrutil_hook_drawplayerandviewmodel",
+					function(bDrawingDepth, bDrawingSkybox)
+						if bDrawingSkybox or not LocalPlayer():Alive() or not (EyePos() == g_VR.eyePosLeft or EyePos() == g_VR.eyePosRight) then return end
+						VRUtilRenderMenuSystem()
+					end
+				)
 			end
 
 			hook.Add("ShouldDrawLocalPlayer", "vrutil_hook_shoulddrawlocalplayer", function(ply) return g_VR.allowPlayerDraw end)
@@ -987,6 +992,7 @@ function vrmod_lua()
 			if g_VR.rt then
 				g_VR.rt = nil
 			end
+
 			g_VR.rt = nil
 			g_VR.viewModel = nil
 			g_VR.viewModelMuzzle = nil
@@ -1076,8 +1082,7 @@ function vrmod_lua()
 	end
 end
 
-	vrmod_lua()
-
+vrmod_lua()
 concommand.Add(
 	"vrmod_lua_reset",
 	function(ply, cmd, args)
