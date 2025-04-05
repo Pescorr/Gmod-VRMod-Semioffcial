@@ -1,10 +1,11 @@
---------[vrmod_ui_quickmenu.lua]Start--------
 if SERVER then return end
 local open = false
+
 function g_VR.MenuOpen()
 	if hook.Call("VRMod_OpenQuickMenu") == false then return end
 	if open then return end
 	open = true
+	--
 	local items = {}
 	for k, v in pairs(g_VR.menuItems) do
 		local slot, slotPos = v.slot, v.slotPos
@@ -38,53 +39,104 @@ function g_VR.MenuOpen()
 		actualSlotPos = actualSlotPos + 1
 	end
 
+	--
 	local prevHoveredItem = -2
 	local ply = LocalPlayer()
 	local renderCount = 0
 	local _, convarValues = vrmod.GetConvars()
-	local attachment = tonumber(convarValues.vrmod_attach_quickmenu) or 4 -- Default to Playspace
-	local pos, ang, scale
-	-- Left Hand
-	if attachment == 1 then
-		pos = Vector(4, 6, 5.5) -- Original offset
-		ang = Angle(0, -90, 10) -- Original angle
-		scale = 0.03
-	elseif attachment == 2 then
-		-- Right Hand
-		pos = Vector(13, 6, 10.5) -- Similar offset but on right hand
-		ang = Angle(0, -90, 90) -- Adjusted angle for right hand
-		scale = 0.03
-	elseif attachment == 3 then
-		-- HMD
-		pos = Vector(35, 0, -20) -- Slightly in front and below HMD
-		ang = Angle(0, 0, 0) -- Aligned with HMD yaw
-		scale = 0.03
-	else -- Playspace (Default/Fallback)
-		local hmdPosPlayspace, hmdAngPlayspace = WorldToLocal(g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang, g_VR.origin, g_VR.originAngle)
-		local forwardVec = Angle(0, hmdAngPlayspace.yaw, 0):Forward()
-		pos = hmdPosPlayspace + forwardVec * 35 + Vector(0, 0, -10) -- In front of HMD, slightly lower
-		ang = Angle(0, hmdAngPlayspace.yaw, 0) -- Horizontal, aligned with HMD yaw
-		scale = 0.03
-	end
+	local tmp = Angle(0, g_VR.tracking.hmd.ang.yaw - 90, 60) --Forward() = right, Right() = back, Up() = up (relative to panel, panel forward is looking at top of panel from middle of panel, up is normal)
+	local pos, ang = WorldToLocal(g_VR.tracking.pose_righthand.pos + g_VR.tracking.pose_righthand.ang:Forward() * 9 + tmp:Right() * -7.68 + tmp:Forward() * -6.45, tmp, g_VR.origin, g_VR.originAngle)
+	--uid, width, height, panel, attachment, pos, ang, scale, cursorEnabled, closeFunc
+	local mode = convarValues.vrmod_attach_quickmenu
 
-	VRUtilMenuOpen(
-		"miscmenu",
-		512,
-		512,
-		nil,
-		attachment,
-		pos,
-		ang,
-		scale,
-		true,
-		function()
-			hook.Remove("PreRender", "vrutil_hook_renderigm")
-			open = false
-			if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
-				g_VR.menuItems[items[prevHoveredItem].index].func()
+	-- vrmod.RemoveInGameMenuItem("ArcCW Customize")
+
+
+
+	--add button end
+	if mode == 1 then
+		VRUtilMenuOpen(
+			"miscmenu",
+			512,
+			512,
+			nil,
+			1,
+			Vector(4, 6, 5.5),
+			Angle(0, -90, 10),
+			0.03,
+			true,
+			function()
+				hook.Remove("PreRender", "vrutil_hook_renderigm")
+				open = false
+				if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
+					g_VR.menuItems[items[prevHoveredItem].index].func()
+				end
 			end
-		end
-	)
+		)
+		--
+	elseif mode == 3 then
+		--forw, left, up
+		VRUtilMenuOpen(
+			"miscmenu",
+			512,
+			512,
+			nil,
+			3,
+			Vector(35, 20, 0),
+			Angle(0, -90, 90),
+			0.03,
+			true,
+			function()
+				hook.Remove("PreRender", "vrutil_hook_renderigm")
+				open = false
+				if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
+					g_VR.menuItems[items[prevHoveredItem].index].func()
+				end
+			end
+		)
+	elseif mode == 4 then
+		local newpos = pos+Vector(0,0,0)
+		local newang = ang+Angle(0,0,0)
+		--forw, left, up
+		VRUtilMenuOpen(
+			"miscmenu",
+			512,
+			512,
+			nil,
+			4,
+			newpos,
+			newang,
+			0.03,
+			true,
+			function()
+				hook.Remove("PreRender", "vrutil_hook_renderigm") -- 
+				open = false
+				if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
+					g_VR.menuItems[items[prevHoveredItem].index].func()
+				end
+			end
+		)
+	else
+		-- --
+		VRUtilMenuOpen(
+			"miscmenu",
+			512,
+			512,
+			nil,
+			mode,
+			pos,
+			ang,
+			0.03,
+			true,
+			function()
+				hook.Remove("PreRender", "vrutil_hook_renderigm")
+				open = false
+				if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
+					g_VR.menuItems[items[prevHoveredItem].index].func()
+				end
+			end
+		)
+	end
 
 	hook.Add(
 		"PreRender",
@@ -107,6 +159,12 @@ function g_VR.MenuOpen()
 			prevHoveredItem = hoveredItem
 			if not changes then return end
 			VRUtilMenuRenderStart("miscmenu")
+			--debug
+			-- surface.SetDrawColor(Color(255,0,0,255))
+			-- surface.DrawOutlinedRect(0,0,512,512)
+			-- renderCount = renderCount + 1
+			-- draw.SimpleText( renderCount, "HudSelectionText", 0, 512, Color( 255, 250, 0, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM )
+			--buttons
 			local buttonWidth, buttonHeight = 82, 53
 			local gap = (512 - buttonWidth * 6) / 5
 			for i = 1, #items do
@@ -121,10 +179,9 @@ function g_VR.MenuOpen()
 			VRUtilMenuRenderEnd()
 		end
 	)
+	---
 end
 
 function g_VR.MenuClose()
 	VRUtilMenuClose("miscmenu")
 end
-
---------[vrmod_ui_quickmenu.lua]End--------
