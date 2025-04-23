@@ -14,13 +14,16 @@ meta.MakePopup = function(...)
 	if not g_VR.threePoints then return end
 	local panel = args[1]
 	local uid = "popup_" .. popupCount
+	-- Add the new popup to the list
 	table.insert(allPopups, uid)
+	--wait because makepopup might be called before menu is fully built
 	timer.Simple(
 		0.1,
 		function()
 			if not IsValid(panel) then return end
 			panel:SetPaintedManually(true)
 			if panel:GetName() == "DMenu" then
+				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
 				panel.Paint = function(self, w, h)
 					surface.SetDrawColor(150, 149, 160)
@@ -31,6 +34,7 @@ meta.MakePopup = function(...)
 			end
 
 			if panel:GetName() == "DImage" then
+				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]
 				panel.Paint = function(self, w, h)
 					surface.SetDrawColor(175, 174, 187)
@@ -45,10 +49,13 @@ meta.MakePopup = function(...)
 				basePos, baseAng = WorldToLocal(g_VR.tracking.hmd.pos + Vector(0, 0, -20) + Angle(0, g_VR.tracking.hmd.ang.yaw, 0):Forward() * 30 + ang:Forward() * vrScrW:GetInt() * -0.02 + ang:Right() * vrScrH:GetInt() * -0.02, ang, g_VR.origin, g_VR.originAngle)
 			end
 
+			--right = down, up = normal, forward = right
 			local ang = baseAng
-			local pos = basePos + ang:Up() * 10
+			local pos = basePos + ang:Up() * popupCount * 0.1
 			local mode = convarValues.vrmod_attach_popup
 			if mode == 1 then
+				--
+				--forw, left, up
 				VRUtilMenuOpen(
 					uid,
 					vrScrW:GetInt(),
@@ -64,13 +71,14 @@ meta.MakePopup = function(...)
 							0.1,
 							function()
 								if not g_VR.active and IsValid(panel) then
-									panel:MakePopup()
+									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
 									panel:RequestFocus()
 								end
 							end
 						)
 
 						popupCount = popupCount - 1
+						-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
@@ -82,7 +90,9 @@ meta.MakePopup = function(...)
 
 				popupCount = popupCount + 1
 				VRUtilMenuRenderPanel(uid)
+				--
 			elseif mode == 3 then
+				--forw, left, up
 				VRUtilMenuOpen(
 					uid,
 					vrScrW:GetInt(),
@@ -98,13 +108,14 @@ meta.MakePopup = function(...)
 							0.1,
 							function()
 								if not g_VR.active and IsValid(panel) then
-									panel:MakePopup()
+									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
 									panel:RequestFocus()
 								end
 							end
 						)
 
 						popupCount = popupCount - 1
+						-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
@@ -116,7 +127,8 @@ meta.MakePopup = function(...)
 
 				popupCount = popupCount + 1
 				VRUtilMenuRenderPanel(uid)
-			else
+			else --
+				--forw, left, up
 				VRUtilMenuOpen(
 					uid,
 					vrScrW:GetInt(),
@@ -132,13 +144,14 @@ meta.MakePopup = function(...)
 							0.1,
 							function()
 								if not g_VR.active and IsValid(panel) then
-									panel:MakePopup()
+									panel:MakePopup() --make sure we don't leave unclickable panels open when exiting vr
 									panel:RequestFocus()
 								end
 							end
 						)
 
 						popupCount = popupCount - 1
+						-- Remove the popup from the list when it closes
 						for i, v in ipairs(allPopups) do
 							if v == uid then
 								table.remove(allPopups, i)
