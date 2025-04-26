@@ -25,6 +25,7 @@ function vrmod_lua()
 		local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
 		local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
 		local autoarcbench = CreateClientConVar("vrmod_auto_arc_benchgun", "1", true, FCVAR_ARCHIVE)
+		local uirendertype = CreateClientConVar("vrmod_dev_vr_rendertype_ex", 0, true, FCVAR_ARCHIVE, nil, 0, 1)
 		g_VR.scale = 0
 		g_VR.origin = Vector(0, 0, 0)
 		g_VR.originAngle = Angle(0, 0, 0)
@@ -450,7 +451,12 @@ function vrmod_lua()
 			end
 
 			VRMOD_ShareTextureBegin()
-			g_VR.rt = GetRenderTarget("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight)
+			if uirendertype:GetBool() then
+				g_VR.rt = GetRenderTarget("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight)
+			else
+				g_VR.rt = GetRenderTargetEx("vrmod_rt" .. tostring(SysTime()), rtWidth, rtHeight, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT)
+			end
+
 			VRMOD_ShareTextureFinish()
 			--
 			local displayCalculations = {

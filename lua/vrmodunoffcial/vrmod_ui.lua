@@ -14,6 +14,7 @@ function vrmod_ui_lua()
 		vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 0, FCVAR_ARCHIVE, "", 0, 1, tonumber)
 		local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 		local uikeyboard = CreateClientConVar("vrmod_keyboard_uichatkey", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+		local uirendertype = CreateClientConVar("vrmod_dev_ui_rendertype_ex", 0, true, FCVAR_ARCHIVE, nil, 0, 1)
 		local rt_beam = GetRenderTarget("vrmod_rt_beam", 64, 64, false)
 		local mat_beam = CreateMaterial(
 			"vrmod_mat_beam",
@@ -162,19 +163,37 @@ function vrmod_ui_lua()
 
 		function VRUtilMenuOpen(uid, width, height, panel, attachment, pos, ang, scale, cursorEnabled, closeFunc)
 			if menus[uid] then return end
-			menus[uid] = {
-				uid = uid,
-				panel = panel,
-				closeFunc = closeFunc,
-				attachment = attachment,
-				pos = pos,
-				ang = ang,
-				scale = scale,
-				cursorEnabled = cursorEnabled,
-				rt = GetRenderTarget("vrmod_rt_ui_" .. uid, width, height, false),
-				width = width,
-				height = height,
-			}
+			if uirendertype:GetBool() then
+				menus[uid] = {
+					uid = uid,
+					panel = panel,
+					closeFunc = closeFunc,
+					attachment = attachment,
+					pos = pos,
+					ang = ang,
+					scale = scale,
+					cursorEnabled = cursorEnabled,
+					rt = GetRenderTargetEx("vrmod_rt_ui_" .. uid, width, height, RT_SIZE_NO_CHANGE, MATERIAL_RT_DEPTH_SEPARATE, 16, CREATERENDERTARGETFLAGS_AUTOMIPMAP, IMAGE_FORMAT_DEFAULT),
+					width = width,
+					height = height,
+				}
+			else
+				menus[uid] = {
+					uid = uid,
+					panel = panel,
+					closeFunc = closeFunc,
+					attachment = attachment,
+					pos = pos,
+					ang = ang,
+					scale = scale,
+					cursorEnabled = cursorEnabled,
+					rt = GetRenderTarget("vrmod_rt_ui_" .. uid, width, height, false),
+					width = width,
+					height = height,
+				}
+			end
+
+
 
 			menuOrder[#menuOrder + 1] = menus[uid]
 			local mat = Material("!vrmod_mat_ui_" .. uid)
@@ -349,5 +368,5 @@ concommand.Add(
 	"vrmod_lua_reset_ui",
 	function(ply, cmd, args)
 		vrmod_ui_lua()
-end
+	end
 )
