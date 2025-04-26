@@ -16,9 +16,9 @@ local lvsautosetting = CreateClientConVar("vrmod_auto_lvs_keysetings", 1, true, 
 -- local vrautogunsetting = CreateClientConVar("vrmod_auto_normalgunsetting", "1", true, FCVAR_ARCHIVE)
 local frame = nil
 local function OpenMenu()
-	-- if vrautogunsetting:GetBool() then
-	-- 	LocalPlayer():ConCommand("vrmod_normalgunsetting")	
-	-- end
+	if autooptimize:GetBool() then
+		LocalPlayer():ConCommand("vrmod_data_vmt_generate_test")	
+	end
 	if vrautobenchgun:GetBool() and g_VR.active then
 		LocalPlayer():ConCommand("arc9_dev_benchgun 1")
 		LocalPlayer():ConCommand("arc9_tpik 0")

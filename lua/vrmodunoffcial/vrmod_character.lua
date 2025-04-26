@@ -7,12 +7,12 @@ function vrmod_character_lua()
 	if CLIENT then
 		CreateClientConVar("vrmod_idle_act", "ACT_HL2MP_IDLE", true, FCVAR_ARCHIVE)
 		CreateClientConVar("vrmod_walk_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE)
-		CreateClientConVar("vrmod_run_act", "ACT_HL2MP_RUN", true, FCVAR_ARCHIVE) -- Type1では WALK だったが、より自然な RUN に変更
-		CreateClientConVar("vrmod_jump_act", "ACT_HL2MP_JUMP_PASSIVE", true, FCVAR_ARCHIVE) -- Type1では WALK だったが、より自然な JUMP_PASSIVE に変更
+		CreateClientConVar("vrmod_run_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE) -- Type1では WALK だったが、より自然な RUN に変更
+		CreateClientConVar("vrmod_jump_act", "ACT_HL2MP_WALK", true, FCVAR_ARCHIVE) -- Type1では WALK だったが、より自然な JUMP_PASSIVE に変更
 		CreateClientConVar("vrmod_hide_head", "0", true, FCVAR_ARCHIVE, "Hide player's head in VR (0=Scale, 1=Offset)", 0, 1) -- vrmod_hide_head ConVar を追加 (Type2から引用)
-		local hideHeadPosX = CreateClientConVar("vrmod_hide_head_pos_x", 0, true, FCVAR_ARCHIVE, "", -1000, 1000)
-		local hideHeadPosY = CreateClientConVar("vrmod_hide_head_pos_y", 0, true, FCVAR_ARCHIVE, "", -1000, 1000)
-		local hideHeadPosZ = CreateClientConVar("vrmod_hide_head_pos_z", 0, true, FCVAR_ARCHIVE, "", -1000, 1000)
+		local hideHeadPosX = CreateClientConVar("vrmod_hide_head_pos_x", 0, true, FCVAR_ARCHIVE, "up down", -1000, 1000)
+		local hideHeadPosY = CreateClientConVar("vrmod_hide_head_pos_y", 20, true, FCVAR_ARCHIVE, " front back ", -1000, 1000)
+		local hideHeadPosZ = CreateClientConVar("vrmod_hide_head_pos_z", 0, true, FCVAR_ARCHIVE, " left right", -1000, 1000)
 	end
 
 	g_VR.defaultOpenHandAngles = {Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 0, 0), Angle(0, -40, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0), Angle(0, 30, 0), Angle(0, 10, 0), Angle(0, 0, 0),}
@@ -561,9 +561,9 @@ function vrmod_character_lua()
 		end
 
 		local hideHeadSetting = GetConVar("vrmod_hide_head"):GetInt()
-		local hideHeadPosX = CreateClientConVar("vrmod_hide_head_pos_x", 0, true, FCVAR_ARCHIVE, "", -1000, 1000)
-		local hideHeadPosY = CreateClientConVar("vrmod_hide_head_pos_y", 0, true, FCVAR_ARCHIVE, "", -1000, 1000)
-		local hideHeadPosZ = CreateClientConVar("vrmod_hide_head_pos_z", 0, true, FCVAR_ARCHIVE, "", -1000, 1000)
+		local hideHeadPosX = CreateClientConVar("vrmod_hide_head_pos_x", 0, true, FCVAR_ARCHIVE, "up down", -1000, 1000)
+		local hideHeadPosY = CreateClientConVar("vrmod_hide_head_pos_y", 20, true, FCVAR_ARCHIVE, " front back ", -1000, 1000)
+		local hideHeadPosZ = CreateClientConVar("vrmod_hide_head_pos_z", 0, true, FCVAR_ARCHIVE, " left right", -1000, 1000)
 		local headBoneID = characterInfo[steamid].bones.b_head
 		if isFirstPerson then
 			if hideHeadSetting == 1 then
