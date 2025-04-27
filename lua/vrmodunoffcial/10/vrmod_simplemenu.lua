@@ -1,0 +1,194 @@
+-- if SERVER then return end
+-- -- Simple VR Settings Menu
+-- -- Provides an easy-to-use interface for basic VR settings
+-- local PANEL = {}
+-- function PANEL:Init()
+--     self.Tabs = vgui.Create("DPropertySheet", self)
+--     self.Tabs:Dock(FILL)
+--     -- Create Basic Settings Tab
+--     self:CreateBasicTab()
+--     -- Create Comfort Settings Tab  
+--     self:CreateComfortTab()
+--     -- Create Controls Tab
+--     self:CreateControlsTab()
+-- end
+
+-- function PANEL:CreateBasicTab()
+--     local basic = vgui.Create("DPanel", self.Tabs)
+--     basic:Dock(FILL)
+--     basic.Paint = function() end
+--     local scroll = vgui.Create("DScrollPanel", basic)
+--     scroll:Dock(FILL)
+--     -- Height Settings
+--     local heightLabel = scroll:Add("DLabel")
+--     heightLabel:SetText("Your Height in VR")
+--     heightLabel:SetTextColor(Color(0, 0, 0))
+--     heightLabel:Dock(TOP)
+--     heightLabel:DockMargin(10, 10, 10, 0)
+--     heightLabel:SetTooltip("Adjust this to match your real-world height")
+--     local heightSlider = scroll:Add("DNumSlider")
+--     heightSlider:SetText("")
+--     heightSlider:SetMin(40)
+--     heightSlider:SetMax(90)
+--     heightSlider:SetDecimals(0)
+--     heightSlider:SetConVar("vrmod_characterEyeHeight")
+--     heightSlider:Dock(TOP)
+--     heightSlider:DockMargin(10, 0, 10, 10)
+--     -- Scale Settings
+--     local scaleLabel = scroll:Add("DLabel")
+--     scaleLabel:SetText("World Scale")
+--     scaleLabel:SetTextColor(Color(0, 0, 0))
+--     scaleLabel:Dock(TOP)
+--     scaleLabel:DockMargin(10, 10, 10, 0)
+--     scaleLabel:SetTooltip("Make the world feel bigger or smaller")
+--     local scalePanel = scroll:Add("DPanel")
+--     scalePanel:Dock(TOP)
+--     scalePanel:SetHeight(30)
+--     scalePanel:DockMargin(10, 0, 10, 10)
+--     scalePanel.Paint = function() end
+--     local scaleDown = vgui.Create("DButton", scalePanel)
+--     scaleDown:SetText("-")
+--     scaleDown:Dock(LEFT)
+--     scaleDown:SetWidth(40)
+--     scaleDown.DoClick = function()
+--         RunConsoleCommand("vrmod_scale", tostring(math.max(1, GetConVarNumber("vrmod_scale") - 2)))
+--     end
+
+--     local scaleUp = vgui.Create("DButton", scalePanel)
+--     scaleUp:SetText("+")
+--     scaleUp:Dock(RIGHT)
+--     scaleUp:SetWidth(40)
+--     scaleUp.DoClick = function()
+--         RunConsoleCommand("vrmod_scale", tostring(GetConVarNumber("vrmod_scale") + 2))
+--     end
+
+--     -- HUD Settings
+--     local hudLabel = scroll:Add("DLabel")
+--     hudLabel:SetText("HUD Visibility")
+--     hudLabel:SetTextColor(Color(0, 0, 0))
+--     hudLabel:Dock(TOP)
+--     hudLabel:DockMargin(10, 10, 10, 0)
+--     local hudCheck = scroll:Add("DCheckBoxLabel")
+--     hudCheck:SetText("Show HUD")
+--     hudCheck:SetConVar("vrmod_hud")
+--     hudCheck:Dock(TOP)
+--     hudCheck:DockMargin(10, 0, 10, 10)
+--     hudCheck:SetTooltip("Toggle the game's HUD display")
+--     -- Auto Setup Button
+--     local autoSetup = scroll:Add("DButton")
+--     autoSetup:SetText("Auto Setup (Recommended)")
+--     autoSetup:Dock(TOP)
+--     autoSetup:DockMargin(10, 20, 10, 10)
+--     autoSetup:SetHeight(40)
+--     autoSetup.DoClick = function()
+--         RunConsoleCommand("vrmod_character_auto")
+--         timer.Simple(
+--             1,
+--             function()
+--                 RunConsoleCommand("vrmod_scale_auto")
+--                 RunConsoleCommand("vrmod_restart")
+--             end
+--         )
+--     end
+
+--     self.Tabs:AddSheet("Basic Settings", basic, "icon16/cog.png")
+-- end
+
+-- function PANEL:CreateComfortTab()
+--     local comfort = vgui.Create("DPanel", self.Tabs)
+--     comfort:Dock(FILL)
+--     comfort.Paint = function() end
+--     local scroll = vgui.Create("DScrollPanel", comfort)
+--     scroll:Dock(FILL)
+--     -- Seated Mode
+--     local seatedCheck = scroll:Add("DCheckBoxLabel")
+--     seatedCheck:SetText("Seated Mode")
+--     seatedCheck:SetConVar("vrmod_seated")
+--     seatedCheck:Dock(TOP)
+--     seatedCheck:DockMargin(10, 10, 10, 5)
+--     seatedCheck:SetTooltip("Enable if you want to play sitting down")
+--     -- Teleport Settings
+--     local teleportCheck = scroll:Add("DCheckBoxLabel")
+--     teleportCheck:SetText("Enable Teleport Movement")
+--     teleportCheck:SetConVar("vrmod_allow_teleport_client")
+--     teleportCheck:Dock(TOP)
+--     teleportCheck:DockMargin(10, 10, 10, 5)
+--     teleportCheck:SetTooltip("Use teleport movement to reduce motion sickness")
+--     -- Auto Duck When Jumping
+--     local duckCheck = scroll:Add("DCheckBoxLabel")
+--     duckCheck:SetText("Auto-Duck When Jumping")
+--     duckCheck:SetConVar("vrmod_autojumpduck")
+--     duckCheck:Dock(TOP)
+--     duckCheck:DockMargin(10, 10, 10, 5)
+--     duckCheck:SetTooltip("Automatically duck when you jump")
+--     self.Tabs:AddSheet("Comfort", comfort, "icon16/heart.png")
+-- end
+
+-- function PANEL:CreateControlsTab()
+--     local controls = vgui.Create("DPanel", self.Tabs)
+--     controls:Dock(FILL)
+--     controls.Paint = function() end
+--     local scroll = vgui.Create("DScrollPanel", controls)
+--     scroll:Dock(FILL)
+--     -- Controls Help Text
+--     local helpText = scroll:Add("DLabel")
+--     helpText:SetText([[
+-- Basic VR Controls:
+
+-- Menu Button: Open quick menu
+-- Trigger: Primary action/shoot
+-- Grip: Pick up objects
+-- Thumbstick: Movement
+
+-- Tips:
+-- - Use grip buttons to climb
+-- - Point and press trigger to use items
+-- - Use menu button for quick access to common actions
+--     ]])
+--     helpText:SetTextColor(Color(0, 0, 0))
+--     helpText:Dock(TOP)
+--     helpText:DockMargin(10, 10, 10, 10)
+--     helpText:SetWrap(true)
+--     helpText:SetAutoStretchVertical(true)
+--     self.Tabs:AddSheet("Controls Help", controls, "icon16/controller.png")
+-- end
+
+-- vgui.Register("VRModSimpleMenu", PANEL, "DFrame")
+-- -- Command to open the simple menu
+-- concommand.Add(
+--     "vrmod_simplemenu",
+--     function()
+--         local frame = vgui.Create("VRModSimpleMenu")
+--         frame:SetTitle("VR Settings (Simple Mode)")
+--         frame:SetSize(400, 500)
+--         frame:Center()
+--         frame:MakePopup()
+--         -- Add Advanced Settings button
+--         local advancedButton = vgui.Create("DButton", frame)
+--         advancedButton:SetText("Switch to Advanced Settings")
+--         advancedButton:Dock(BOTTOM)
+--         advancedButton:DockMargin(5, 5, 5, 5)
+--         advancedButton:SetHeight(30)
+--         advancedButton.DoClick = function()
+--             frame:Close()
+--             RunConsoleCommand("vrmod")
+--         end
+--     end
+-- )
+
+-- -- Add button to main VRMod menu
+-- hook.Add(
+--     "VRMod_Menu",
+--     "AddSimpleMenuButton",
+--     function(frame)
+--         local simpleButton = vgui.Create("DButton", frame)
+--         simpleButton:SetText("Switch to Simple Mode")
+--         simpleButton:Dock(TOP)
+--         simpleButton:DockMargin(5, 5, 5, 5)
+--         simpleButton:SetHeight(30)
+--         simpleButton.DoClick = function()
+--             frame:Close()
+--             RunConsoleCommand("vrmod_simplemenu")
+--         end
+--     end
+-- )

@@ -64,17 +64,16 @@ hook.Add(
 		instructions:SetPos(20, 215)
 		instructions:SetSize(370, 40)
 		instructions:SetWrap(true)
-		local leftbeammode = vgui.Create("DComboBox", MenuTab16)
-		leftbeammode:SetText("Beam Display Mode")
-		leftbeammode:SetPos(20, 245)
-		leftbeammode:SetSize(370, 20)
-		leftbeammode:AddChoice("Always On", 0)
-		leftbeammode:AddChoice("On Valid Hit/Grab", 1)
-		leftbeammode:SetConVar("vrmod_left_physgun_beam_mode")
-		leftbeammode.OnSelect = function(panel, index, value)
-			RunConsoleCommand("vrmod_left_physgun_beam_mode", value)
-		end
-
+        local leftbeammode = vgui.Create("DComboBox", MenuTab16) 
+        leftbeammode:SetText("Beam Display Mode")
+        leftbeammode:SetPos(20, 245) 
+        leftbeammode:SetSize(370, 20)
+        leftbeammode:AddChoice("Always On", 0)
+        leftbeammode:AddChoice("On Valid Hit/Grab", 1)
+        leftbeammode:SetConVar("vrmod_left_physgun_beam_mode") 
+        leftbeammode.OnSelect = function(panel, index, value)
+             RunConsoleCommand("vrmod_left_physgun_beam_mode", value)
+        end
 		local MenuTab17 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Physgun Right", MenuTab17, "icon16/brick_add.png")
 		MenuTab17.Paint = function(self, w, h) end
@@ -129,19 +128,18 @@ hook.Add(
 		instructions:SetPos(20, 215)
 		instructions:SetSize(370, 40)
 		instructions:SetWrap(true)
-		local rightbeammode = vgui.Create("DComboBox", MenuTab17)
-		rightbeammode:SetText("Beam Display Mode")
-		rightbeammode:SetPos(20, 245)
-		rightbeammode:SetSize(370, 20)
-		rightbeammode:AddChoice("Always On", 0)
-		rightbeammode:AddChoice("On Valid Hit/Grab", 1)
-		rightbeammode:SetConVar("vrmod_right_physgun_beam_mode")
-		rightbeammode.OnSelect = function(panel, index, value)
-			RunConsoleCommand("vrmod_right_physgun_beam_mode", value)
-		end
+        local rightbeammode = vgui.Create("DComboBox", MenuTab17) 
+        rightbeammode:SetText("Beam Display Mode")
+        rightbeammode:SetPos(20, 245) 
+        rightbeammode:SetSize(370, 20)
+        rightbeammode:AddChoice("Always On", 0)
+        rightbeammode:AddChoice("On Valid Hit/Grab", 1)
+        rightbeammode:SetConVar("vrmod_right_physgun_beam_mode") 
+        rightbeammode.OnSelect = function(panel, index, value)
+             RunConsoleCommand("vrmod_right_physgun_beam_mode", value)
+        end
 	end
 )
-
 hook.Remove("VRMod_Menu", "vrmod_physgun_menu_left")
 hook.Remove("VRMod_Menu", "vrmod_physgun_menu_right")
 --------[vrmod_addmenuphys.lua]End--------

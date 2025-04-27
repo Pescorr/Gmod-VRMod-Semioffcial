@@ -8,16 +8,16 @@ function CreateVRPhysgunSystem(prefix)
 			Type = "anim"
 		}, "vrmod_physgun_controller_" .. prefix
 	)
+
 	if CLIENT then
 		local beam_mat1 = Material("sprites/physbeam")
 		local beam_mat2 = Material("sprites/physbeama")
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_enable", "1", true, FCVAR_ARCHIVE, "")
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_range", physgunmaxrange:GetFloat(), true, FCVAR_ARCHIVE, "")
-		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_color_a", "0", true, FCVAR_ARCHIVE, "")
+		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_color_a", "0", false, false, "")
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_damage", "0.0001", true, FCVAR_ARCHIVE, "", 0, 1.000)
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_damage_enable", "1", true, FCVAR_ARCHIVE, "")
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_pull_enable", "1", true, FCVAR_ARCHIVE, "")
-		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_mode", "1", true, FCVAR_ARCHIVE, "") -- Add ConVar for beam mode
 		g_VR["physgunHeldEntity_" .. prefix] = nil
 		vrmod["PhysgunAction_" .. prefix] = function(bDrop)
 			if GetConVar("vrmod_" .. prefix .. "_physgun_beam_enable"):GetInt() == 0 then return end
@@ -32,8 +32,10 @@ function CreateVRPhysgunSystem(prefix)
 				net.WriteVector(pose.angvel)
 				g_VR["physgunHeldEntity_" .. prefix] = nil
 			end
+
 			net.SendToServer()
 		end
+
 		vrmod["PhysgunPull_" .. prefix] = function()
 			if not GetConVar("vrmod_" .. prefix .. "_physgun_pull_enable"):GetBool() then return end
 			local heldEntity = g_VR["physgunHeldEntity_" .. prefix]
@@ -44,6 +46,7 @@ function CreateVRPhysgunSystem(prefix)
 				heldEntity:EmitSound("weapons/physgun_off.wav")
 			end
 		end
+
 		local function GetPhysgunBeamColor()
 			local r, g, b = 0, 255, 255
 			local a = GetConVar("vrmod_" .. prefix .. "_physgun_beam_color_a"):GetInt()
@@ -53,12 +56,15 @@ function CreateVRPhysgunSystem(prefix)
 			if r_cvar then
 				r = r_cvar:GetInt()
 			end
+
 			if g_cvar then
 				g = g_cvar:GetInt()
 			end
+
 			if b_cvar then
 				b = b_cvar:GetInt()
 			end
+
 			if r == 0 and g == 255 and b == 255 then
 				local weaponColor = GetConVar("cl_weaponcolor")
 				if weaponColor then
@@ -71,26 +77,20 @@ function CreateVRPhysgunSystem(prefix)
 					end
 				end
 			end
+
 			return Color(r, g, b, a)
 		end
+
 		local function DrawPhysgunBeams()
 			if not g_VR.active then return end
+			if LocalPlayer():InVehicle() then return end
 			if not GetConVar("vrmod_" .. prefix .. "_physgun_beam_enable"):GetBool() then return end
-
-			-- Check if the corresponding pickup key is pressed
-			local pickupAction = "boolean_" .. (prefix == "left" and "left_pickup" or "right_pickup")
-			if not g_VR.input[pickupAction] then
-				return -- Don't draw the beam if the key is not pressed
-			end
-
 			local beamColor = GetPhysgunBeamColor()
 			local hand = prefix == "left" and "pose_lefthand" or "pose_righthand"
 			local heldEnt = g_VR["physgunHeldEntity_" .. prefix]
 			local startPos = g_VR.tracking[hand].pos
 			local forward = g_VR.tracking[hand].ang:Forward()
 			local beamRange = GetConVar("vrmod_" .. prefix .. "_physgun_beam_range"):GetFloat()
-			local beamMode = GetConVar("vrmod_" .. prefix .. "_physgun_beam_mode"):GetInt()
-
 			local tr = util.TraceLine(
 				{
 					start = startPos,
@@ -100,39 +100,23 @@ function CreateVRPhysgunSystem(prefix)
 			)
 
 			local endPos
-			local shouldDrawBeam = false
-
-			if beamMode == 0 then -- Always On
-				shouldDrawBeam = true
-				if heldEnt and IsValid(heldEnt) then
-					endPos = heldEnt:GetPos()
-				else
-					endPos = tr.HitPos
-				end
-			elseif beamMode == 1 then -- On Valid Hit/Grab
-				 if heldEnt and IsValid(heldEnt) then
-					 shouldDrawBeam = true
-					 endPos = heldEnt:GetPos()
-				 elseif tr.Hit and IsValid(tr.Entity) then
-					 shouldDrawBeam = true
-					 endPos = tr.HitPos
-				 end
+			if heldEnt and IsValid(heldEnt) then
+				endPos = heldEnt:GetPos()
+			else
+				endPos = tr.HitPos
 			end
 
-			if shouldDrawBeam then
-				local color = beamColor
-				if heldEnt and IsValid(heldEnt) then
-					color = Color(math.min(color.r + 50, 255), math.min(color.g + 50, 255), math.min(color.b + 50, 255), color.a)
-				end
-				render.SetMaterial(beam_mat1)
-				render.DrawBeam(startPos, endPos, 2, 0, 1, color)
-				render.SetMaterial(beam_mat2)
-				render.DrawBeam(startPos, endPos, 1, 0, 1, Color(color.r, color.g, color.b, color.a * 0.5))
-				local endSize = heldEnt and IsValid(heldEnt) and math.random(8, 12) or math.random(3, 6)
-				render.DrawSprite(endPos, endSize, endSize, color)
+			local color = beamColor
+			if heldEnt and IsValid(heldEnt) then
+				color = Color(math.min(color.r + 50, 255), math.min(color.g + 50, 255), math.min(color.b + 50, 255), color.a)
 			end
 
-
+			render.SetMaterial(beam_mat1)
+			render.DrawBeam(startPos, endPos, 1, 0, 1, color)
+			render.SetMaterial(beam_mat2)
+			render.DrawBeam(startPos, endPos, 1, 0, 1, Color(color.r, color.g, color.b, color.a * 0.5))
+			local endSize = heldEnt and IsValid(heldEnt) and math.random(4, 6) or math.random(1, 1)
+			render.DrawSprite(endPos, endSize, endSize, color)
 			if GetConVar("vrmod_" .. prefix .. "_physgun_beam_damage_enable"):GetBool() and tr.Hit and IsValid(tr.Entity) and not heldEnt then
 				if tr.Entity:GetClass() == "prop_ragdoll" then
 					local damage = GetConVar("vrmod_" .. prefix .. "_physgun_beam_damage"):GetFloat()
@@ -143,6 +127,7 @@ function CreateVRPhysgunSystem(prefix)
 				end
 			end
 		end
+
 		hook.Add(
 			"PostDrawTranslucentRenderables",
 			"vrmod_physgun_beams_" .. prefix,
@@ -151,6 +136,7 @@ function CreateVRPhysgunSystem(prefix)
 				DrawPhysgunBeams()
 			end
 		)
+
 		net.Receive(
 			"vrmod_physgun_action_" .. prefix,
 			function(len)
@@ -161,11 +147,13 @@ function CreateVRPhysgunSystem(prefix)
 					if IsValid(ent) and ent.RenderOverride == ent["VRPhysgunRenderOverride_" .. prefix] then
 						ent.RenderOverride = nil
 					end
+
 					if ply == LocalPlayer() then
 						if g_VR["physgunHeldEntity_" .. prefix] == ent then
 							g_VR["physgunHeldEntity_" .. prefix] = nil
 						end
 					end
+
 					if IsValid(ent) then
 						ent:EmitSound("physics/metal/metal_box_impact_soft" .. math.random(1, 3) .. ".wav")
 					end
@@ -184,10 +172,12 @@ function CreateVRPhysgunSystem(prefix)
 						ent:SetupBones()
 						ent:DrawModel()
 					end
+
 					ent["VRPhysgunRenderOverride_" .. prefix] = ent.RenderOverride
 					if ply == LocalPlayer() then
 						g_VR["physgunHeldEntity_" .. prefix] = ent
 					end
+
 					ent:EmitSound("weapons/physgun_on.wav")
 				end
 			end
@@ -201,6 +191,7 @@ function CreateVRPhysgunSystem(prefix)
 			pickupList = {},
 			pickupCount = 0
 		}
+
 		local ShadowParams = {
 			secondstoarrive = 0.0001,
 			maxangular = 5000,
@@ -211,6 +202,7 @@ function CreateVRPhysgunSystem(prefix)
 			teleportdistance = 0,
 			deltatime = 0
 		}
+
 		net.Receive(
 			"vrmod_physgun_beam_damage_" .. prefix,
 			function(len, ply)
@@ -227,6 +219,7 @@ function CreateVRPhysgunSystem(prefix)
 				util.BlastDamageInfo(dmgInfo, hitPos, 3.0)
 			end
 		)
+
 		net.Receive(
 			"vrmod_physgun_pull_" .. prefix,
 			function(len, ply)
@@ -242,6 +235,7 @@ function CreateVRPhysgunSystem(prefix)
 					else
 						handPos, handAng = LocalToWorld(frame.righthandPos, frame.righthandAng, ply:GetPos(), Angle())
 					end
+
 					local newLocalPos = Vector(-5, 0, 0)
 					t.localPos = newLocalPos
 					hook.Run("VRPhysgun_Pull_" .. prefix, ply, t.ent)
@@ -250,6 +244,7 @@ function CreateVRPhysgunSystem(prefix)
 				end
 			end
 		)
+
 		local function drop(steamid, handPos, handAng, handVel, handAngVel)
 			for i = 1, PhysgunController.pickupCount do
 				local t = PhysgunController.pickupList[i]
@@ -267,6 +262,7 @@ function CreateVRPhysgunSystem(prefix)
 						phys:Wake()
 					end
 				end
+
 				net.Start("vrmod_physgun_action_" .. prefix)
 				net.WriteEntity(t.ply)
 				net.WriteEntity(t.ent)
@@ -276,6 +272,7 @@ function CreateVRPhysgunSystem(prefix)
 					g_VR[t.steamid]["physgunHeldItems_" .. prefix] = g_VR[t.steamid]["physgunHeldItems_" .. prefix] or {}
 					g_VR[t.steamid]["physgunHeldItems_" .. prefix] = nil
 				end
+
 				PhysgunController.pickupList[i] = PhysgunController.pickupList[PhysgunController.pickupCount]
 				PhysgunController.pickupList[PhysgunController.pickupCount] = nil
 				PhysgunController.pickupCount = PhysgunController.pickupCount - 1
@@ -284,10 +281,13 @@ function CreateVRPhysgunSystem(prefix)
 					PhysgunController.controller:Remove()
 					PhysgunController.controller = nil
 				end
+
 				hook.Run("VRPhysgun_Drop_" .. prefix, t.ply, t.ent)
+
 				return
 			end
 		end
+
 		local function pickup(ply, handPos, handAng)
 			local steamid = ply:SteamID()
 			local maxRange = ply:GetInfoNum("vrmod_" .. prefix .. "_physgun_beam_range", physgunmaxrange:GetFloat())
@@ -298,6 +298,7 @@ function CreateVRPhysgunSystem(prefix)
 					filter = ply
 				}
 			)
+
 			if not tr.Hit or not IsValid(tr.Entity) then return end
 			local entity = tr.Entity
 			if entity:IsPlayer() or not IsValid(entity:GetPhysicsObject()) or ply:InVehicle() or entity:GetMoveType() ~= MOVETYPE_VPHYSICS or entity:GetPhysicsObject():GetMass() > 1000 or (entity.CPPICanPickup and not entity:CPPICanPickup(ply)) then return end
@@ -316,9 +317,11 @@ function CreateVRPhysgunSystem(prefix)
 					else
 						handPos, handAng = LocalToWorld(frame.righthandPos, frame.righthandAng, t.ply:GetPos(), Angle())
 					end
+
 					self.ShadowParams.pos, self.ShadowParams.angle = LocalToWorld(t.localPos, t.localAng, handPos, handAng)
 					phys:ComputeShadowControl(self.ShadowParams)
 				end
+
 				PhysgunController.controller:StartMotionController()
 				if not hook.GetTable()["Tick"]["vrmod_physgun_tick_" .. prefix] then
 					hook.Add(
@@ -335,13 +338,16 @@ function CreateVRPhysgunSystem(prefix)
 					)
 				end
 			end
+
 			for k = 1, PhysgunController.pickupCount do
 				if PhysgunController.pickupList[k].ent == entity then return end
 			end
+
 			if entity.RenderOverride then
 				local otherPrefix = prefix == "left" and "right" or "left"
 				if entity["VRPhysgunRenderOverride_" .. otherPrefix] then return end
 			end
+
 			local phys = entity:GetPhysicsObject()
 			local localPos, localAng = WorldToLocal(entity:GetPos(), entity:GetAngles(), handPos, handAng)
 			phys:Wake()
@@ -357,6 +363,7 @@ function CreateVRPhysgunSystem(prefix)
 				steamid = steamid,
 				ply = ply
 			}
+
 			g_VR[steamid] = g_VR[steamid] or {}
 			g_VR[steamid]["physgunHeldItems_" .. prefix] = PhysgunController.pickupList[index]
 			entity["vrmod_physgun_info_" .. prefix] = PhysgunController.pickupList[index]
@@ -370,6 +377,7 @@ function CreateVRPhysgunSystem(prefix)
 			net.Broadcast()
 			hook.Run("VRPhysgun_Pickup_" .. prefix, ply, entity)
 		end
+
 		net.Receive(
 			"vrmod_physgun_action_" .. prefix,
 			function(len, ply)
@@ -384,31 +392,44 @@ function CreateVRPhysgunSystem(prefix)
 			end
 		)
 	end
+
 	hook.Add(
 		"VRMod_Input",
 		"vrmod_physgun_input_" .. prefix,
 		function(action, pressed)
 			if CLIENT and GetConVar("vrmod_" .. prefix .. "_physgun_beam_enable"):GetInt() == 0 then return end
+			if LocalPlayer():InVehicle() then return end
 			local pickupAction = "boolean_" .. (prefix == "left" and "left_primaryfire" or "primaryfire")
 			local activationAction = "boolean_" .. prefix .. "_pickup"
 			if action == activationAction then
 				vrmod["PhysgunAction_" .. prefix](not pressed)
-			elseif CLIENT and action == pickupAction and pressed then
+				if pressed then
+					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 100")
+				else
+					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 0")
+				end
+			elseif action == pickupAction and pressed then
 				vrmod["PhysgunPull_" .. prefix]()
-                timer.Simple(
-                    0.125,
-                    function()
-                        vrmod.Pickup(prefix == "left" and true or false, not pressed)
-                    end
-                )
+				timer.Simple(
+					0.08,
+					function()
+						vrmod.Pickup(prefix == "left" and true or false, not pressed)
+						timer.Simple(
+							0.08,
+							function()
+								vrmod["PhysgunAction_" .. prefix](true)
+							end
+						)
+					end
+				)
 			end
 		end
 	)
+
 	print("[VRMod] " .. string.upper(prefix) .. " hand Physgun controller module loaded")
 end
+
 CreateVRPhysgunSystem("left")
 CreateVRPhysgunSystem("right")
 print("[VRMod] Dual Physgun systems initialized")
 --------[vrmod_pickup_physgun.lua]End--------
-
---- END OF FILE vrmod_vrphysgun.txt ---
