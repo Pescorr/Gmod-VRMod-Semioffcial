@@ -418,6 +418,7 @@ function CreateVRPhysgunSystem(prefix)
 							0.08,
 							function()
 								vrmod["PhysgunAction_" .. prefix](true)
+								vrmod.Pickup(prefix == "left" and true or false, not pressed)
 							end
 						)
 					end
