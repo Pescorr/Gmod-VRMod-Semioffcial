@@ -404,7 +404,7 @@ function CreateVRPhysgunSystem(prefix)
 			if action == activationAction then
 				vrmod["PhysgunAction_" .. prefix](not pressed)
 				if pressed then
-					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 100")
+					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 50")
 				else
 					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 0")
 				end
