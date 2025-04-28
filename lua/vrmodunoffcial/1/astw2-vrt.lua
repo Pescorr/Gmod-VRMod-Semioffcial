@@ -20,7 +20,7 @@ if CLIENT then
         "VertexLitGeneric",
         {
             ["$basetexture"] = "models/debug/debugwhite",
-            ["$alpha"] = 0,
+            ["$alpha"] = 1,
             ["$translucent"] = 1,
             ["$vertexalpha"] = 1,
             ["$vertexcolor"] = 1

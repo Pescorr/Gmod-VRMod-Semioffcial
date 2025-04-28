@@ -520,9 +520,10 @@ function vrmod_lua()
 			overrideConvar("engine_no_focus_sleep", "1")
 			overrideConvar("playerscaling_clientspeed", "0")
 			overrideConvar("playerscaling_clientjump", "0")
+
 			if autoarcbench:GetBool() then
-				overrideConvar("arccw_dev_benchgun", "1")
 				overrideConvar("arccw_hud_size", "0")
+				overrideConvar("arccw_dev_benchgun", "1")
 				overrideConvar("arc9_dev_benchgun", "1")
 				overrideConvar("arc9_cruelty_reload", "0")
 				overrideConvar("arc9_tpik", "0")

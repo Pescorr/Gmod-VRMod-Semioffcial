@@ -22,7 +22,10 @@ local function OpenMenu()
 	if vrautobenchgun:GetBool() and g_VR.active then
 		LocalPlayer():ConCommand("arc9_dev_benchgun 1")
 		LocalPlayer():ConCommand("arc9_tpik 0")
+		LocalPlayer():ConCommand("arccw_dev_benchgun 1")
+		LocalPlayer():ConCommand("arccw_hud_size 1")
 
+		
 	end
 
 	if lvsautosetting:GetBool() and g_VR.active then
