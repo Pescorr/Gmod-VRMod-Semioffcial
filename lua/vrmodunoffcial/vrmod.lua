@@ -983,11 +983,6 @@ function vrmod_lua()
 			VRUtilMenuClose()
 			VRUtilNetworkCleanup()
 			vrmod.StopLocomotion()
-			if autoarcbench:GetBool() then
-				overrideConvar("arccw_dev_benchgun", "0")
-				overrideConvar("arccw_hud_size", "1")
-				overrideConvar("arc9_dev_benchgun", "0")
-			end
 
 			RunConsoleCommand("vrmod_character_stop")
 			overrideConvar("godsenttools_gpu_saver", "1")
@@ -1024,6 +1019,14 @@ function vrmod_lua()
 			g_VR.sixPoints = false
 			VRMOD_Shutdown()
 			g_VR.active = false
+
+			if autoarcbench:GetBool() then
+				overrideConvar("arccw_dev_benchgun", "0")
+				overrideConvar("arccw_hud_size", "1")
+				overrideConvar("arc9_dev_benchgun", "0")
+			end
+
+
 		end
 
 		hook.Add(

@@ -11,10 +11,6 @@ hook.Add(
     function(ply)
         if ply ~= LocalPlayer() then return end
         if vrautobenchgun:GetBool() then
-            LocalPlayer():ConCommand("arc9_dev_benchgun 1")
-            LocalPlayer():ConCommand("arccw_dev_benchgun 1")
-            LocalPlayer():ConCommand("arccw_hud_size 0")
-            LocalPlayer():ConCommand("arc9_tpik 0")
             LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_mode 0")
             LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_passes 0")
             LocalPlayer():ConCommand("cl_tfa_fx_rtscopeblur_intensity 0")
@@ -23,8 +19,8 @@ hook.Add(
             LocalPlayer():ConCommand("cl_tfa_3dscope_overlay 0")
             LocalPlayer():ConCommand("sv_tfa_sprint_enabled 0")
             LocalPlayer():ConCommand("cl_tfa_ironsights_toggle 0")
-            LocalPlayer():ConCommand("arccw_blur_toytown 0")
-            LocalPlayer():ConCommand("arccw_blur 0")
+            LocalPlayer():ConCommand("arc9_dev_benchgun 1")
+            LocalPlayer():ConCommand("arc9_tpik 0")
             LocalPlayer():ConCommand("arc9_cheapscopes 0")
             LocalPlayer():ConCommand("arc9_controller 1")
             LocalPlayer():ConCommand("arc9_autolean 0")
@@ -39,6 +35,10 @@ hook.Add(
             LocalPlayer():ConCommand("arc9_fx_animblur 0")
             LocalPlayer():ConCommand("tacrp_quicknade 1")
             LocalPlayer():ConCommand("tacrp_freeaim 0")
+            LocalPlayer():ConCommand("arccw_blur_toytown 0")
+            LocalPlayer():ConCommand("arccw_blur 0")
+            LocalPlayer():ConCommand("arccw_dev_benchgun 1")
+            LocalPlayer():ConCommand("arccw_hud_size 0")
         end
 
         if lvsautosetting:GetBool() then

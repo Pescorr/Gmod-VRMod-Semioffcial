@@ -579,6 +579,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5")
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2")
 		end
+
 		customres.DoRightClick = function()
 			RunConsoleCommand("vrmod_rtWidth_Multiplier", "2.5")
 			RunConsoleCommand("vrmod_rtHeight_Multiplier", "1.2")

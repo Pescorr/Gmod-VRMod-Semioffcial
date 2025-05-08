@@ -1,0 +1,253 @@
+-- --[[
+--     GModVR Input Simulator for Standard Keybinds
+--     --------------------------------------------
+--     Attempts to simulate standard GMod keybind presses (+attack, +use, etc.)
+--     and PlayerBindPress hooks from VR controller inputs.
+
+--     ** IMPORTANT **
+--     You MUST disable or comment out the default input handling
+--     (LocalPlayer():ConCommand calls) within GModVR's `vrmod_input.lua`
+--     inside the `VRMod_Input` hook before using this script to avoid conflicts.
+
+--     KeyDown simulation relies on a custom player table (ply.VRKeyDownState).
+--     Addons checking ply:KeyDown() might need modification or use the
+--     optional Player:KeyDown override below.
+-- ]]
+-- if not CLIENT then return end
+-- -- Mapping from VRMod Input Actions to GMod Bind Strings and IN_ Enums
+-- -- Add more mappings as needed. Find VRMod action names in gmodvr-semioffcial-lua.txt -> vrmod_steamvr_bindings.lua
+-- local VRInputToGModBind = {
+--     -- Right Hand
+--     ["boolean_primaryfire"] = {
+--         bind = "+attack",
+--         key = IN_ATTACK
+--     },
+--     ["boolean_secondaryfire"] = {
+--         bind = "+attack2",
+--         key = IN_ATTACK2
+--     },
+--     ["boolean_right_pickup"] = {
+--         bind = "+pickup_right",
+--         key = nil
+--     }, -- Example custom bind
+--     ["boolean_reload"] = {
+--         bind = "+reload",
+--         key = IN_RELOAD
+--     },
+--     ["boolean_sprint"] = {
+--         bind = "+speed",
+--         key = IN_SPEED
+--     },
+--     ["boolean_walkkey"] = {
+--         bind = "+walk",
+--         key = IN_WALK
+--     },
+--     ["boolean_jump"] = {
+--         bind = "+jump",
+--         key = IN_JUMP
+--     },
+--     ["boolean_changeweapon"] = {
+--         bind = "+changeweapon",
+--         key = nil
+--     }, -- Example custom bind
+--     ["boolean_spawnmenu"] = {
+--         bind = "+menu",
+--         key = KEY_F1
+--     }, -- Approximating
+--     ["boolean_menucontext"] = {
+--         bind = "+menu_context",
+--         key = KEY_C
+--     }, -- Approximating
+--     -- Left Hand
+--     ["boolean_left_primaryfire"] = {
+--         bind = "+attack_left",
+--         key = nil
+--     }, -- Example custom bind
+--     ["boolean_left_secondaryfire"] = {
+--         bind = "+attack2_left",
+--         key = nil
+--     }, -- Example custom bind
+--     ["boolean_left_pickup"] = {
+--         bind = "+pickup_left",
+--         key = nil
+--     }, -- Example custom bind
+--     ["boolean_use"] = {
+--         bind = "+use",
+--         key = IN_USE
+--     },
+--     ["boolean_flashlight"] = {
+--         bind = "+flashlight",
+--         key = KEY_F
+--     }, -- Approximating
+--     ["boolean_undo"] = {
+--         bind = "+undo",
+--         key = KEY_Z
+--     }, -- Approximating
+--     ["boolean_chat"] = {
+--         bind = "+zoom",
+--         key = IN_ZOOM
+--     }, -- GModVR default uses this for chat/quickmenu, often used for other things like ArcCW firemode
+--     ["boolean_crouch"] = {
+--         bind = "+duck",
+--         key = IN_DUCK
+--     },
+--     -- Add other buttons like slot keys if needed
+--     ["boolean_slot1"] = {
+--         bind = "slot1",
+--         key = KEY_1
+--     },
+--     ["boolean_slot2"] = {
+--         bind = "slot2",
+--         key = KEY_2
+--     },
+--     ["boolean_slot3"] = {
+--         bind = "slot3",
+--         key = KEY_3
+--     },
+--     ["boolean_slot4"] = {
+--         bind = "slot4",
+--         key = KEY_4
+--     },
+--     ["boolean_slot5"] = {
+--         bind = "slot5",
+--         key = KEY_5
+--     },
+--     ["boolean_slot6"] = {
+--         bind = "slot6",
+--         key = KEY_6
+--     },
+-- }
+
+-- -- Map directions if absolutely necessary (Use GModVR locomotion ideally)
+-- -- ["vector2_walkdirection"] = {bind_x = "analog_sideways", bind_y = "analog_forward", key_x = nil, key_y = nil}, -- Example, needs special handling
+-- -- Initialize the custom key state table for the local player
+-- local ply = LocalPlayer()
+-- if not ply.VRKeyDownState then
+--     ply.VRKeyDownState = {}
+-- end
+
+-- hook.Add(
+--     "VRMod_Input",
+--     "VRInputSimulator_HandleInput",
+--     function(action, pressed)
+--         local mapping = VRInputToGModBind[action]
+--         if not mapping then return end -- Not an action we want to simulate
+--         local ply = LocalPlayer()
+--         if not IsValid(ply) then return end
+--         -- Initialize state table if it doesn't exist
+--         if not ply.VRKeyDownState then
+--             ply.VRKeyDownState = {}
+--         end
+
+--         -- 1. Simulate PlayerBindPress Hook
+--         -- Only run if the bind string exists (e.g., "+attack", "slot1")
+--         if mapping.bind then
+--             -- print("[VRInputSim] Running PlayerBindPress:", ply, mapping.bind, pressed)
+--             hook.Run("PlayerBindPress", ply, mapping.bind, pressed)
+--         end
+
+--         -- 2. Simulate KeyDown/KeyRelease State (using custom table)
+--         -- Only run if the IN_ enum exists
+--         if mapping.key then
+--             -- print("[VRInputSim] Updating KeyDown state:", ply, mapping.key, pressed)
+--             ply.VRKeyDownState[mapping.key] = pressed
+--             --[[ Optional: If you uncomment the Player:KeyDown override below,
+--              you don't strictly need this part, but it doesn't hurt.
+--              This allows scripts checking ply.VRKeyDownState directly to work.
+--         --]]
+--         end
+--     end
+-- )
+
+-- --[[ Special Handling for Analog (Example - Generally Not Recommended Here)
+--     if action == "vector2_walkdirection" then
+--         -- Analog input needs different handling, likely via CreateMove hook
+--         -- This is just a placeholder example
+--         local x_val = g_VR.input.vector2_walkdirection and g_VR.input.vector2_walkdirection.x or 0
+--         local y_val = g_VR.input.vector2_walkdirection and g_VR.input.vector2_walkdirection.y or 0
+--         -- Simulate forward/back based on y_val threshold
+--         ply.VRKeyDownState[IN_FORWARD] = y_val > 0.5
+--         ply.VRKeyDownState[IN_BACK] = y_val < -0.5
+--         -- Simulate left/right based on x_val threshold
+--         ply.VRKeyDownState[IN_MOVELEFT] = x_val < -0.5
+--         ply.VRKeyDownState[IN_MOVERIGHT] = x_val > 0.5
+--         -- Note: This analog simulation is very basic and might not feel right.
+--         -- Use GModVR's built-in locomotion hooks/systems for movement.
+--     end
+--     ]]
+-- -- Optional: Override Player:KeyDown to check our custom state table
+-- --[[!
+--     **************************************************************************
+--     * WARNING: Overriding engine meta methods like Player:KeyDown can        *
+--     * potentially conflict with other addons. Use with caution!              *
+--     * Test thoroughly if you uncomment this section.                         *
+--     **************************************************************************
+
+--     local meta = FindMetaTable("Player")
+--     if not meta then
+--         ErrorNoHalt("VRInputSimulator: Could not find Player metatable!\n")
+--         return
+--     end
+
+--     local originalKeyDown = meta.KeyDown
+
+--     if not originalKeyDown then
+--         ErrorNoHalt("VRInputSimulator: Could not find original Player:KeyDown!\n")
+--         return
+--     end
+
+--     -- Store the original function safely if we haven't already
+--     if not meta._VRInputSimulator_OriginalKeyDown then
+--         meta._VRInputSimulator_OriginalKeyDown = originalKeyDown
+--     end
+
+--     function meta:KeyDown(key)
+--         -- Call the original first (might handle keyboard input, etc.)
+--         local originalResult = self:_VRInputSimulator_OriginalKeyDown(key)
+--         if originalResult then return true end -- If original says it's down, respect that
+
+--         -- If not down according to original, check our VR state table
+--         if self.VRKeyDownState and self.VRKeyDownState[key] then
+--             return true
+--         end
+
+--         -- Otherwise, it's not down
+--         return false
+--     end
+
+--     print("[VRInputSim] Player:KeyDown override applied.")
+
+--     -- Optional: Add a function to remove the override if needed
+--     function RemoveVRInputSimulatorKeyDownOverride()
+--         local meta = FindMetaTable("Player")
+--         if meta and meta._VRInputSimulator_OriginalKeyDown then
+--             meta.KeyDown = meta._VRInputSimulator_OriginalKeyDown
+--             meta._VRInputSimulator_OriginalKeyDown = nil -- Clean up
+--             print("[VRInputSim] Player:KeyDown override removed.")
+--         end
+--     end
+-- ]]
+-- -- Cleanup on VRMod exit
+-- hook.Add(
+--     "VRMod_Exit",
+--     "VRInputSimulator_Cleanup",
+--     function(ply, steamid)
+--         if ply ~= LocalPlayer() then return end
+--         -- Reset any keys that might be stuck "down" in our custom table
+--         if ply.VRKeyDownState then
+--             for key, _ in pairs(ply.VRKeyDownState) do
+--                 ply.VRKeyDownState[key] = false
+--             end
+
+--             print("[VRInputSim] Cleared VRKeyDownState on VRMod exit.")
+--         end
+
+--         -- Optional: Remove the KeyDown override if it was applied
+--         -- RemoveVRInputSimulatorKeyDownOverride()
+--         -- Remove the main input hook
+--         hook.Remove("VRMod_Input", "VRInputSimulator_HandleInput")
+--         print("[VRInputSim] Input simulator hook removed.")
+--     end
+-- )
+
+-- print("[VRInputSim] VR Input Simulator Loaded. Remember to disable default GModVR input commands.")

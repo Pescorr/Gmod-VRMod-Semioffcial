@@ -16,21 +16,16 @@ local lvsautosetting = CreateClientConVar("vrmod_auto_lvs_keysetings", 1, true, 
 -- local vrautogunsetting = CreateClientConVar("vrmod_auto_normalgunsetting", "1", true, FCVAR_ARCHIVE)
 local frame = nil
 local function OpenMenu()
-	if autooptimize:GetBool() then
-		LocalPlayer():ConCommand("vrmod_data_vmt_generate_test")	
-	end
+	-- if vrautogunsetting:GetBool() then
+	-- 	LocalPlayer():ConCommand("vrmod_normalgunsetting")	
+	-- end
 	if vrautobenchgun:GetBool() and g_VR.active then
 		LocalPlayer():ConCommand("arc9_dev_benchgun 1")
 		LocalPlayer():ConCommand("arc9_tpik 0")
-		LocalPlayer():ConCommand("arccw_dev_benchgun 1")
-		LocalPlayer():ConCommand("arccw_hud_size 1")
-
-		
 	end
 
 	if lvsautosetting:GetBool() and g_VR.active then
 		LocalPlayer():ConCommand("vrmod_lfsmode")
-
 	end
 
 	if autoscrsetting:GetBool() then
@@ -40,10 +35,9 @@ local function OpenMenu()
 	-- if autooptimize:GetBool() then
 	-- 	LocalPlayer():ConCommand("vrmod_gmod_optimization")
 	-- end
-
 	if IsValid(frame) then return frame end
 	frame = vgui.Create("DFrame")
-	frame:SetSize(400, 485)
+	frame:SetSize(550, 600)
 	frame:SetTitle("VRMod Menu")
 	frame:MakePopup()
 	frame:Center()
@@ -63,7 +57,7 @@ local function OpenMenu()
 	end
 
 	local sheet = vgui.Create("DPropertySheet", frame)
-	sheet:SetPadding(1)
+	sheet:SetPadding(4)
 	sheet:Dock(FILL)
 	frame.DPropertySheet = sheet
 	local panel1 = vgui.Create("DPanel", sheet)
@@ -94,7 +88,7 @@ local function OpenMenu()
 	local tmp = vgui.Create("DButton", panel)
 	tmp:SetText("Exit")
 	tmp:Dock(RIGHT)
-	tmp:DockMargin(0, 5, 0, 0)
+	tmp:DockMargin(0, 5, 5, 0)
 	tmp:SetWide(96)
 	tmp:SetEnabled(g_VR.active)
 	function tmp:DoClick()
@@ -142,7 +136,6 @@ end
 concommand.Add(
 	"vrmod",
 	function(ply, cmd, args)
-
 		timer.Create(
 			"vrmod_open_menu",
 			0.1,
@@ -157,7 +150,7 @@ concommand.Add(
 	end
 )
 
-local convars = vrmod.AddCallbackedConvar("vrmod_showonstartup", nil, "0",FCVAR_ARCHIVE) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+local convars = vrmod.AddCallbackedConvar("vrmod_showonstartup", nil, "0", FCVAR_ARCHIVE) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 if contexticon:GetBool() then
 	list.Set(
 		"DesktopWindows",
