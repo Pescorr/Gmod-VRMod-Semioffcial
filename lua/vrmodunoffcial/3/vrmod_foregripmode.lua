@@ -65,11 +65,13 @@ local function HasVRInWeaponName(player)
 	if IsValid(activeWeapon) then
 		local weaponName = string.lower(activeWeapon:GetClass())
 		-- Avoid activating foregrip for known VR-specific weapons or tools
-		if string.find(weaponName, "vrmod") or string.find(weaponName, "gmod_tool") or string.find(weaponName, "physgun") then return true end
+		if string.find(weaponName, "vr") or string.find(weaponName, "gmod_tool") or string.find(weaponName, "physgun") then return true end
 	end
 
 	return false
 end
+
+
 
 --[[
 Toggles the foregrip mode ConVar based on the input or current state.
