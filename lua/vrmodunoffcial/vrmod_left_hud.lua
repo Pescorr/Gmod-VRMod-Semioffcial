@@ -1,216 +1,310 @@
---------[vrmod_hud_left_hand.lua]Start--------
+--------[vrmod_left_hud.lua]Start--------
 if SERVER then return end
-local LH_HUD_RT_NAME = "vrmod_hud_lh_rt"
-local LH_HUD_MAT_NAME = "!vrmod_hud_lh_mat" -- Adding "!" prefix to avoid potential conflicts if material is not found
-local function CurvedPlane(w, h, segments, degrees, matrix)
-    matrix = matrix or Matrix()
-    degrees = math.rad(degrees)
-    local mesh = Mesh()
-    local verts = {}
-    local startAng = (math.pi - degrees) / 2
-    local segLen = 0.5 * math.tan(degrees / segments)
-    local scale = w / (segLen * segments)
-    local zoffset = math.sin(startAng) * 0.5 * scale
-    for i = 0, segments - 1 do
-        local fraction = i / segments
-        local nextFraction = (i + 1) / segments
-        local ang1 = startAng + fraction * degrees
-        local ang2 = startAng + nextFraction * degrees
-        local x1 = (math.cos(ang1) * -0.5) * scale
-        local x2 = (math.cos(ang2) * -0.5) * scale
-        local z1 = math.sin(ang1) * 0.5 * scale - zoffset
-        local z2 = math.sin(ang2) * 0.5 * scale - zoffset
-        verts[#verts + 1] = {
-            pos = matrix * Vector(x1, 0, z1),
-            u = fraction,
-            v = 0
-        }
-
-        verts[#verts + 1] = {
-            pos = matrix * Vector(x2, 0, z2),
-            u = nextFraction,
-            v = 0
-        }
-
-        verts[#verts + 1] = {
-            pos = matrix * Vector(x2, h, z2),
-            u = nextFraction,
-            v = 1
-        }
-
-        verts[#verts + 1] = {
-            pos = matrix * Vector(x2, h, z2),
-            u = nextFraction,
-            v = 1
-        }
-
-        verts[#verts + 1] = {
-            pos = matrix * Vector(x1, h, z1),
-            u = fraction,
-            v = 1
-        }
-
-        verts[#verts + 1] = {
-            pos = matrix * Vector(x1, 0, z1),
-            u = fraction,
-            v = 0
-        }
-    end
-
-    mesh:BuildFromTriangles(verts)
-
-    return mesh
-end
-
-local rt_lh = GetRenderTarget(LH_HUD_RT_NAME, 1366, 768, false)
-local mat_lh = Material(LH_HUD_MAT_NAME)
-mat_lh = not mat_lh:IsError() and mat_lh or CreateMaterial(
-    LH_HUD_MAT_NAME,
+local SHARED_HUD_RT_ID = "VRModSharedGModHUD_RT_Hands"
+local SHARED_HUD_MAT_ID = "VRModSharedGModHUD_MAT_Hands"
+local gmod_hud_shared_rt = GetRenderTarget(SHARED_HUD_RT_ID, 1366, 768, false)
+local gmod_hud_shared_mat = Material("!" .. SHARED_HUD_MAT_ID)
+gmod_hud_shared_mat = not gmod_hud_shared_mat:IsError() and gmod_hud_shared_mat or CreateMaterial(
+    SHARED_HUD_MAT_ID,
     "UnlitGeneric",
     {
-        ["$basetexture"] = rt_lh:GetName(),
+        ["$basetexture"] = gmod_hud_shared_rt:GetName(),
         ["$translucent"] = 1
     }
 )
-
-local hudMeshes_lh = {}
-local hudMesh_lh = nil
-local convars_lh, convarValues_lh = vrmod.GetConvars() -- Use existing GetConvars, but store in local prefixed vars
--- HUDの左手からのオフセットと角度
--- Vector(X, Y, Z) : 手のローカル座標に対するHUD左下のオフセット
--- X: 手の左右方向 (右が正)
--- Y: 手の前後方向 (指先が正)
--- Z: 手の上下方向 (甲側が正)
--- Angle(P, Y, R) : 手のローカル角度に対するHUDの角度
--- P: ピッチ (X軸回り)
--- Y: ヨー (Y軸回り)
--- R: ロール (Z軸回り)
-local HUD_LH_LOCAL_OFFSET_POS = Vector(1, 1.5, 0.2) -- 手の甲から少し浮かせる(Z=0.2)。X,Yはvr_hud.txtの値を参考に調整開始点とする。
-local HUD_LH_LOCAL_OFFSET_ANG = Angle(1, -8, 90) -- 手の甲を向くようにRollを調整 (-90 -> 90)
-local mtx_lh = Matrix()
-local function RemoveHUD_LH()
-    hook.Remove("VRMod_PreRender", "hud_lh_update_rt_and_matrix")
-    hook.Remove("HUDShouldDraw", "vrmod_hud_lh_blacklist_check")
-    hook.Remove("PostDrawTranslucentRenderables", "vrmod_hud_lh_draw_mesh")
+local orig_VRUtilRenderMenuSystem_for_all_hand_huds = nil
+local _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func
+local function CurvedPlane_HandHUD(w_display_portion, h_display_portion, _segments_unused, _degrees_unused, matrix_transform, uv_offset_x, uv_offset_y, uv_scale_x, uv_scale_y, is_right_hand)
+    matrix_transform = matrix_transform or Matrix()
+    local mesh = Mesh()
+    local verts = {}
+    local p1 = Vector(0, 0, 0)
+    local p2 = Vector(w_display_portion, 0, 0)
+    local p3 = Vector(w_display_portion, h_display_portion, 0)
+    local p4 = Vector(0, h_display_portion, 0)
+    local u_start, u_end
+    if is_right_hand then -- 右手の場合 (元のまま)
+        u_start = uv_offset_x + uv_scale_x
+        u_end = uv_offset_x
+    else -- 左手の場合
+        -- 元のコード
+        -- u_start = uv_offset_x
+        -- u_end = uv_offset_x + uv_scale_x
+        -- 修正: 左手が反転しているため、U座標の割り当てを逆にする
+        u_start = uv_offset_x + uv_scale_x
+        u_end   = uv_offset_x
+    end
+    local v_tex_bottom = uv_offset_y + uv_scale_y 
+    local v_tex_top = uv_offset_y 
+    verts[#verts + 1] = {
+        pos = matrix_transform * p1,
+        u = u_start,
+        v = v_tex_bottom
+    }
+    verts[#verts + 1] = {
+        pos = matrix_transform * p2,
+        u = u_end,
+        v = v_tex_bottom
+    }
+    verts[#verts + 1] = {
+        pos = matrix_transform * p4,
+        u = u_start,
+        v = v_tex_top
+    }
+    verts[#verts + 1] = {
+        pos = matrix_transform * p4,
+        u = u_start,
+        v = v_tex_top
+    }
+    verts[#verts + 1] = {
+        pos = matrix_transform * p2,
+        u = u_end,
+        v = v_tex_bottom
+    }
+    verts[#verts + 1] = {
+        pos = matrix_transform * p3,
+        u = u_end,
+        v = v_tex_top
+    }
+    mesh:BuildFromTriangles(verts)
+    return mesh
 end
-
-local function AddHUD_LH()
-    RemoveHUD_LH()
-    if not g_VR.active or not convarValues_lh.vrmod_hud_lh_enabled then return end
-    local hud_width_scaled = 1366 * convarValues_lh.vrmod_hud_lh_scale
-    local hud_height_scaled = 768 * convarValues_lh.vrmod_hud_lh_scale
-    local mesh_local_transform = Matrix()
-    -- HUDのメッシュ原点を、メッシュ自体の左下隅に設定
-    mesh_local_transform:Translate(Vector(hud_width_scaled / 2, 0, 0))
-    local meshName = convarValues_lh.vrmod_hud_lh_scale .. "_" .. convarValues_lh.vrmod_hud_lh_curve
-    hudMeshes_lh[meshName] = hudMeshes_lh[meshName] or CurvedPlane(hud_width_scaled, hud_height_scaled, 10, convarValues_lh.vrmod_hud_lh_curve, mesh_local_transform)
-    hudMesh_lh = hudMeshes_lh[meshName]
-    local blacklist = {}
-    for k, v in ipairs(string.Explode(",", convarValues_lh.vrmod_hud_lh_blacklist)) do
-        blacklist[v] = #v > 0 and true or blacklist[v]
+local HandHUDs = {
+    Left = {
+        ID_PREFIX = "vrmod_left_hud", -- Changed for clarity and consistency
+        poseFunc = vrmod.GetLeftHandPose,
+        isRightHand = false,
+        meshesCache = {},
+        currentMesh = nil,
+        worldTransform = Matrix(),
+        convars = {},
+        convarValues = {},
+        menuLabel = "Left Hand HUD"
+    },
+    Right = {
+        ID_PREFIX = "vrmod_right_hud", -- Changed for clarity and consistency
+        poseFunc = vrmod.GetRightHandPose,
+        isRightHand = true,
+        meshesCache = {},
+        currentMesh = nil,
+        worldTransform = Matrix(),
+        convars = {},
+        convarValues = {},
+        menuLabel = "Right Hand HUD"
+    }
+}
+local function UpdateAndRenderSharedHUD()
+    if not g_VR.threePoints then return end
+    local anyHandHUDEnabled = false
+    local primaryHUDData = nil -- Prefer left if enabled, otherwise right
+    if HandHUDs.Left.convarValues[HandHUDs.Left.ID_PREFIX .. "_enabled"] then
+        anyHandHUDEnabled = true
+        primaryHUDData = HandHUDs.Left
+    elseif HandHUDs.Right.convarValues[HandHUDs.Right.ID_PREFIX .. "_enabled"] then
+        anyHandHUDEnabled = true
+        primaryHUDData = HandHUDs.Right
     end
-
-    if table.Count(blacklist) > 0 then
-        hook.Add(
-            "HUDShouldDraw",
-            "vrmod_hud_lh_blacklist_check",
-            function(name)
-                if blacklist[name] then return false end
-            end
-        )
+    if not anyHandHUDEnabled then return end
+    render.PushRenderTarget(gmod_hud_shared_rt)
+    render.OverrideAlphaWriteEnable(true, true)
+    local alpha_value = 100
+    if primaryHUDData then
+        local alpha_convar_name = primaryHUDData.ID_PREFIX .. "_alpha"
+        alpha_value = tonumber(primaryHUDData.convarValues[alpha_convar_name]) or 100
     end
-
-    hook.Add(
-        "VRMod_PreRender",
-        "hud_lh_update_rt_and_matrix",
-        function()
-            if not g_VR.threePoints then return end
-            render.PushRenderTarget(rt_lh)
-            render.OverrideAlphaWriteEnable(true, true)
-            render.Clear(0, 0, 0, convarValues_lh.vrmod_hud_lh_testalpha, true, true)
-            render.RenderHUD(0, 0, 1366, 768)
-            render.OverrideAlphaWriteEnable(false)
-            render.PopRenderTarget()
-            local handPos, handAng = vrmod.GetLeftHandPose()
-            if not handPos or not handAng then
-                mtx_lh:Identity()
-
-                return
-            end
-
-            local finalPos, finalAng = LocalToWorld(HUD_LH_LOCAL_OFFSET_POS, HUD_LH_LOCAL_OFFSET_ANG, handPos, handAng)
-            mtx_lh:Identity()
-            mtx_lh:SetAngles(finalAng)
-            mtx_lh:SetTranslation(finalPos)
-        end
-    )
-
-    hook.Add(
-        "PostDrawTranslucentRenderables",
-        "vrmod_hud_lh_draw_mesh",
-        function(bDrawingDepth, bDrawingSkybox)
-            if bDrawingDepth or bDrawingSkybox then return end
-            if not g_VR.active or not convarValues_lh.vrmod_hud_lh_enabled or not hudMesh_lh or not IsValid(hudMesh_lh) then return end
-            -- Ensure rendering only for VR eyes
-            local currentEyePos = vrmod.GetEyePos()
-            if currentEyePos ~= vrmod.GetLeftEyePos() and currentEyePos ~= vrmod.GetRightEyePos() then return end
-            render.SetMaterial(mat_lh)
-            cam.PushModelMatrix(mtx_lh)
-            render.DepthRange(0, 0.01)
-            hudMesh_lh:Draw()
+    render.Clear(0, 0, 0, alpha_value, true, true)
+    render.RenderHUD(0, 0, 1366, 768)
+    render.OverrideAlphaWriteEnable(false)
+    render.PopRenderTarget()
+end
+_VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func = function()
+    if orig_VRUtilRenderMenuSystem_for_all_hand_huds and orig_VRUtilRenderMenuSystem_for_all_hand_huds ~= _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func then
+        orig_VRUtilRenderMenuSystem_for_all_hand_huds()
+    end
+    if not g_VR.active then return end
+    for _, hudData in pairs(HandHUDs) do
+        if hudData.convarValues[hudData.ID_PREFIX .. "_enabled"] and hudData.currentMesh and IsValid(hudData.currentMesh) then
+            render.SetMaterial(gmod_hud_shared_mat)
+            cam.PushModelMatrix(hudData.worldTransform)
+            render.DepthRange(0, 0.001) 
+            hudData.currentMesh:Draw()
             render.DepthRange(0, 1)
             cam.PopModelMatrix()
         end
-    )
+    end
+end
+local function UpdateHandHUDTransform(hudData)
+    if not g_VR.threePoints or not hudData.convarValues[hudData.ID_PREFIX .. "_enabled"] then return end
+    local handPos, handAng = hudData.poseFunc()
+    if not handPos or not handAng then
+        hudData.worldTransform:Identity()
+        return
+    end
+    local id_prefix = hudData.ID_PREFIX
+    local offsetPos = Vector(hudData.convarValues[id_prefix .. "_offset_pos_x"] or 0, hudData.convarValues[id_prefix .. "_offset_pos_y"] or 0, hudData.convarValues[id_prefix .. "_offset_pos_z"] or 0)
+    local offsetAng = Angle(hudData.convarValues[id_prefix .. "_offset_ang_p"] or 0, hudData.convarValues[id_prefix .. "_offset_ang_y"] or 0, hudData.convarValues[id_prefix .. "_offset_ang_r"] or 0)
+    local finalPos, finalAng = LocalToWorld(offsetPos, offsetAng, handPos, handAng)
+    hudData.worldTransform:Identity()
+    hudData.worldTransform:SetAngles(finalAng)
+    hudData.worldTransform:SetTranslation(finalPos)
+end
+local function PreRenderAllHandHUDs()
+    UpdateAndRenderSharedHUD()
+    for _, hudData in pairs(HandHUDs) do
+        UpdateHandHUDTransform(hudData)
+    end
+end
+local function ConfigureHandHUD(hudData)
+    local id_prefix = hudData.ID_PREFIX
+    local isThisHudEnabled = hudData.convarValues[id_prefix .. "_enabled"] or false
+    if not g_VR.active or not isThisHudEnabled then
+        hudData.currentMesh = nil
+        hook.Remove("HUDShouldDraw", id_prefix .. "_HUDShouldDraw")
+    else
+        local scale_val = hudData.convarValues[id_prefix .. "_scale"]
+        local uv_offset_x_val = hudData.convarValues[id_prefix .. "_uv_offset_x"]
+        local uv_offset_y_val = hudData.convarValues[id_prefix .. "_uv_offset_y"]
+        local uv_scale_x_val = hudData.convarValues[id_prefix .. "_uv_scale_x"]
+        local uv_scale_y_val = hudData.convarValues[id_prefix .. "_uv_scale_y"]
+        local hud_total_texture_width_scaled = 1366 * scale_val
+        local hud_total_texture_height_scaled = 768 * scale_val
+        local hud_display_world_width_on_hand = hud_total_texture_width_scaled * uv_scale_x_val
+        local hud_display_world_height_on_hand = hud_total_texture_height_scaled * uv_scale_y_val
+        local meshName = id_prefix .. "_" .. scale_val .. "_" .. uv_offset_x_val .. "_" .. uv_offset_y_val .. "_" .. uv_scale_x_val .. "_" .. uv_scale_y_val
+        if not hudData.meshesCache[meshName] then
+            hudData.meshesCache[meshName] = CurvedPlane_HandHUD(hud_display_world_width_on_hand, hud_display_world_height_on_hand, 10, 0, nil, uv_offset_x_val, uv_offset_y_val, uv_scale_x_val, uv_scale_y_val, hudData.isRightHand) 
+        end
+        hudData.currentMesh = hudData.meshesCache[meshName]
+        local blacklist_hand_hud = {}
+        local blacklist_str = hudData.convarValues[id_prefix .. "_blacklist"] or ""
+        for k, v in ipairs(string.Explode(",", blacklist_str)) do
+            local trimmed_v = string.Trim(v)
+            if trimmed_v ~= "" then
+                blacklist_hand_hud[trimmed_v] = true
+            end
+        end
+        hook.Remove("HUDShouldDraw", id_prefix .. "_HUDShouldDraw")
+        if table.Count(blacklist_hand_hud) > 0 then
+            hook.Add(
+                "HUDShouldDraw",
+                id_prefix .. "_HUDShouldDraw",
+                function(name)
+                    if hudData.convarValues[id_prefix .. "_enabled"] then
+                        if blacklist_hand_hud[name] then return false end
+                    end
+                end
+            )
+        end
+    end
+    local anyHandHUDNowEnabled = false
+    for _, data in pairs(HandHUDs) do
+        if data.convarValues[data.ID_PREFIX .. "_enabled"] then
+            anyHandHUDNowEnabled = true
+            break
+        end
+    end
+    if anyHandHUDNowEnabled then
+        if not hook.GetTable().VRMod_PreRender["AllHandHUDs_PreRender"] then
+            hook.Add("VRMod_PreRender", "AllHandHUDs_PreRender", PreRenderAllHandHUDs)
+        end
+        if VRUtilRenderMenuSystem ~= _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func then
+            if orig_VRUtilRenderMenuSystem_for_all_hand_huds == nil then
+                orig_VRUtilRenderMenuSystem_for_all_hand_huds = VRUtilRenderMenuSystem
+            end
+            VRUtilRenderMenuSystem = _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func
+        end
+    else
+        hook.Remove("VRMod_PreRender", "AllHandHUDs_PreRender")
+        if VRUtilRenderMenuSystem == _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func then
+            VRUtilRenderMenuSystem = orig_VRUtilRenderMenuSystem_for_all_hand_huds
+            orig_VRUtilRenderMenuSystem_for_all_hand_huds = nil
+        end
+    end
 end
 
--- Register convars with unique names
-vrmod.AddCallbackedConvar("vrmod_hud_lh_enabled", "vrmod_hud_lh_enabled", "0", FCVAR_ARCHIVE, "Enable/Disable Left Hand HUD", nil, nil, tobool, AddHUD_LH)
-vrmod.AddCallbackedConvar("vrmod_hud_lh_blacklist", "vrmod_hud_lh_blacklist", "", FCVAR_ARCHIVE, "Comma separated list of HUD elements to hide for Left Hand HUD", nil, nil, nil, AddHUD_LH)
-vrmod.AddCallbackedConvar("vrmod_hud_lh_curve", "vrmod_hud_lh_curve", "1", FCVAR_ARCHIVE, "Curvature of the Left Hand HUD (degrees)", 0, 90, tonumber, AddHUD_LH)
-vrmod.AddCallbackedConvar("vrmod_hud_lh_scale", "vrmod_hud_lh_scale", "0.02", FCVAR_ARCHIVE, "Scale of the Left Hand HUD", 0.001, 0.1, tonumber, AddHUD_LH)
-vrmod.AddCallbackedConvar("vrmod_hud_lh_testalpha", "vrmod_hud_lh_testalpha", "0", FCVAR_ARCHIVE, "Background alpha for Left Hand HUD (for testing)", 0, 255, tonumber)
-hook.Add(
-    "VRMod_Menu",
-    "vrmod_hud_lh_settings",
-    function(frame)
-        local form = frame.SettingsForm
-        if not form or not IsValid(form) then return end
-        form:CheckBox("Enable Left Hand HUD", "vrmod_hud_lh_enabled")
-        form:TextEntry("Left Hand HUD Blacklist", "vrmod_hud_lh_blacklist")
-        form:NumSlider("Left Hand HUD Curve", "vrmod_hud_lh_curve", 0, 90, 0)
-        form:NumSlider("Left Hand HUD Scale", "vrmod_hud_lh_scale", 0.001, 0.1, 3)
-        form:NumSlider("Left Hand HUD Test Alpha", "vrmod_hud_lh_testalpha", 0, 255, 0)
+local function SetupConvarsForHand(hudData)
+    local id_prefix = hudData.ID_PREFIX
+    local _, globalConvarValues = vrmod.GetConvars() -- Get global convar values table
+    local function reconfigureThisHUD()
+        -- Ensure convarValues for this specific HUD are up-to-date from global table
+        hudData.convarValues[id_prefix .. "_enabled"] = globalConvarValues[id_prefix .. "_enabled_val"]
+        hudData.convarValues[id_prefix .. "_scale"] = globalConvarValues[id_prefix .. "_scale_val"]
+        hudData.convarValues[id_prefix .. "_offset_pos_x"] = globalConvarValues[id_prefix .. "_offset_pos_x_val"]
+        hudData.convarValues[id_prefix .. "_offset_pos_y"] = globalConvarValues[id_prefix .. "_offset_pos_y_val"]
+        hudData.convarValues[id_prefix .. "_offset_pos_z"] = globalConvarValues[id_prefix .. "_offset_pos_z_val"]
+        hudData.convarValues[id_prefix .. "_offset_ang_p"] = globalConvarValues[id_prefix .. "_offset_ang_p_val"]
+        hudData.convarValues[id_prefix .. "_offset_ang_y"] = globalConvarValues[id_prefix .. "_offset_ang_y_val"]
+        hudData.convarValues[id_prefix .. "_offset_ang_r"] = globalConvarValues[id_prefix .. "_offset_ang_r_val"]
+        hudData.convarValues[id_prefix .. "_uv_offset_x"] = globalConvarValues[id_prefix .. "_uv_offset_x_val"]
+        hudData.convarValues[id_prefix .. "_uv_offset_y"] = globalConvarValues[id_prefix .. "_uv_offset_y_val"]
+        hudData.convarValues[id_prefix .. "_uv_scale_x"] = globalConvarValues[id_prefix .. "_uv_scale_x_val"]
+        hudData.convarValues[id_prefix .. "_uv_scale_y"] = globalConvarValues[id_prefix .. "_uv_scale_y_val"]
+        hudData.convarValues[id_prefix .. "_blacklist"] = globalConvarValues[id_prefix .. "_blacklist_val"]
+        hudData.convarValues[id_prefix .. "_alpha"] = globalConvarValues[id_prefix .. "_alpha_val"]
+        ConfigureHandHUD(hudData)
     end
-)
 
+    -- Enable
+    vrmod.AddCallbackedConvar(id_prefix .. "_enabled", id_prefix .. "_enabled_val", "1", FCVAR_ARCHIVE, "Enable " .. hudData.menuLabel, nil, nil, tobool, reconfigureThisHUD)
+    -- Scale
+    vrmod.AddCallbackedConvar(id_prefix .. "_scale", id_prefix .. "_scale_val", "0.009", FCVAR_ARCHIVE, hudData.menuLabel .. " Scale", 0.001, 0.1, tonumber, reconfigureThisHUD)
+    -- OffsetPos
+    vrmod.AddCallbackedConvar(id_prefix .. "_offset_pos_x", id_prefix .. "_offset_pos_x_val", hudData.isRightHand and "-6.78" or "0.7", FCVAR_ARCHIVE, "X Offset", -50, 50, tonumber, reconfigureThisHUD)
+    vrmod.AddCallbackedConvar(id_prefix .. "_offset_pos_y", id_prefix .. "_offset_pos_y_val", hudData.isRightHand and "0.7" or "-2.10", FCVAR_ARCHIVE, "Y Offset", -50, 50, tonumber, reconfigureThisHUD)
+    vrmod.AddCallbackedConvar(id_prefix .. "_offset_pos_z", id_prefix .. "_offset_pos_z_val", "-1.5", FCVAR_ARCHIVE, "Z Offset", -50, 50, tonumber, reconfigureThisHUD)
+    -- OffsetAng
+    vrmod.AddCallbackedConvar(id_prefix .. "_offset_ang_p", id_prefix .. "_offset_ang_p_val", hudData.isRightHand and "165" or "185", FCVAR_ARCHIVE, "Pitch Offset", -360, 360, tonumber, reconfigureThisHUD)
+    vrmod.AddCallbackedConvar(id_prefix .. "_offset_ang_y", id_prefix .. "_offset_ang_y_val", hudData.isRightHand and "-180" or "0", FCVAR_ARCHIVE, "Yaw Offset", -360, 360, tonumber, reconfigureThisHUD)
+    vrmod.AddCallbackedConvar(id_prefix .. "_offset_ang_r", id_prefix .. "_offset_ang_r_val", "-90", FCVAR_ARCHIVE, "Roll Offset", -360, 360, tonumber, reconfigureThisHUD)
+    -- UV Offset
+    vrmod.AddCallbackedConvar(id_prefix .. "_uv_offset_x", id_prefix .. "_uv_offset_x_val", hudData.isRightHand and "0.73" or "0.5", FCVAR_ARCHIVE, "UV X Offset", 0, 1, tonumber, reconfigureThisHUD)
+    vrmod.AddCallbackedConvar(id_prefix .. "_uv_offset_y", id_prefix .. "_uv_offset_y_val", "0.73", FCVAR_ARCHIVE, "UV Y Offset", 0, 1, tonumber, reconfigureThisHUD)
+    -- UV Scale
+    vrmod.AddCallbackedConvar(id_prefix .. "_uv_scale_x", id_prefix .. "_uv_scale_x_val", "0.5", FCVAR_ARCHIVE, "UV X Scale", 0.01, 1, tonumber, reconfigureThisHUD)
+    vrmod.AddCallbackedConvar(id_prefix .. "_uv_scale_y", id_prefix .. "_uv_scale_y_val", "0.4", FCVAR_ARCHIVE, "UV Y Scale", 0.01, 1, tonumber, reconfigureThisHUD)
+    -- Existing ConVars
+    vrmod.AddCallbackedConvar(id_prefix .. "_blacklist", id_prefix .. "_blacklist_val", "", FCVAR_ARCHIVE, hudData.menuLabel .. " Blacklist", nil, nil, tostring, reconfigureThisHUD)
+    vrmod.AddCallbackedConvar(id_prefix .. "_alpha", id_prefix .. "_alpha_val", "0", FCVAR_ARCHIVE, hudData.menuLabel .. " Background Alpha", 0, 255, tonumber, reconfigureThisHUD)
+    -- Initialize convarValues for this HUD from the global table immediately after registration
+    reconfigureThisHUD()
+end
+for _, hudData in pairs(HandHUDs) do
+    SetupConvarsForHand(hudData)
+end
+local function InitializeAllHandHUDs()
+    for _, hudData in pairs(HandHUDs) do
+        -- The reconfigureThisHUD function called during SetupConvarsForHand already handles initialization
+        -- So, we just need to ensure ConfigureHandHUD is called once if not already by callbacks.
+        ConfigureHandHUD(hudData)
+    end
+end
 hook.Add(
     "VRMod_Start",
-    "hud_lh_start",
+    "AllHandHUDs_VRStart",
     function(ply)
         if ply ~= LocalPlayer() then return end
-        -- Initialize convar values as they are added after VRMod_Start might be called for other addons
-        timer.Simple(
-            0.1,
-            function()
-                -- Check if convars are initialized
-                if convarValues_lh.vrmod_hud_lh_enabled == nil then
-                    -- Force update convar values if they were not ready
-                    RunConsoleCommand("vrmod_hud_lh_enabled", GetConVar("vrmod_hud_lh_enabled"):GetString())
-                end
-
-                AddHUD_LH()
-            end
-        )
+        timer.Simple(3.4, InitializeAllHandHUDs) -- Delay to ensure all convars are loaded
     end
 )
-
 hook.Add(
     "VRMod_Exit",
-    "hud_lh_exit",
+    "AllHandHUDs_VRExit",
     function(ply)
         if ply ~= LocalPlayer() then return end
-        RemoveHUD_LH()
+        for _, hudData in pairs(HandHUDs) do
+            hudData.convarValues[hudData.ID_PREFIX .. "_enabled"] = false -- Force disable
+            ConfigureHandHUD(hudData) -- This will trigger cleanup due to enabled being false
+        end
+        hook.Remove("VRMod_PreRender", "AllHandHUDs_PreRender")
+        if VRUtilRenderMenuSystem == _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func then
+            VRUtilRenderMenuSystem = orig_VRUtilRenderMenuSystem_for_all_hand_huds
+        end
+        orig_VRUtilRenderMenuSystem_for_all_hand_huds = nil
     end
 )
---------[vrmod_hud_left_hand.lua]End--------
+
+-- Initial setup if VR is already active when script loads
+if vrmod.IsPlayerInVR and vrmod.IsPlayerInVR(LocalPlayer()) then
+    timer.Simple(3.4, InitializeAllHandHUDs)
+end
+--------[vrmod_left_hud.lua]End--------
