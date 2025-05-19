@@ -1,6 +1,6 @@
 if not Glide then return end
 
-
+ 
 
 util.AddNetworkString("glide_vrsetinput")
 net.Receive(
