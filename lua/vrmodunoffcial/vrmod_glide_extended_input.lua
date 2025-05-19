@@ -1,7 +1,7 @@
 -- lua/autorun/client/vrmodUnoffcial/vrmod_glide_extended_input.lua
 AddCSLuaFile()
 
-if CLIENT then
+if CLIENT then 
     if not g_VR then return end
     if not Glide then PrintTable({Error="Glideアドオンが見つかりません！"}); return end
 
