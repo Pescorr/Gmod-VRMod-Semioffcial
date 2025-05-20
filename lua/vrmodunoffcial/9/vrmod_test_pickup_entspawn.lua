@@ -16,15 +16,14 @@ if SERVER then
                 if not IsValid(spawnedEnt) then return end
                 spawnedEnt:SetPos(handPos) -- Adjust this value as needed
                 spawnedEnt:Spawn()
-
                 -- spawnedEnt:SetAngles(handAng)
                 -- Attempt to pick up using the pickup function from vrmod_pickup.lua
                 -- if IsValid(spawnedEnt) then
-                    -- Using the custom pickup function tailored for VRMod
-                    pickup(ply, isLeftHand, handPos, Angle())
-                    -- vrmod.Pickup(isLeftHand, not pressed)
-                    -- 追従タイマーを停止するロジックをここに追加
-                    timer.Remove(ply:UserID() .. "followAndTryPickup")
+                -- Using the custom pickup function tailored for VRMod
+                pickup(ply, isLeftHand, handPos, Angle())
+                -- vrmod.Pickup(isLeftHand, not pressed)
+                -- 追従タイマーを停止するロジックをここに追加
+                timer.Remove(ply:UserID() .. "followAndTryPickup")
                 -- end
             end
 

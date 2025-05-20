@@ -517,7 +517,7 @@ function vrmod_lua()
 			g_VR.rightControllerOffsetAng = Angle(convars.vrmod_controlleroffset_pitch:GetFloat(), convars.vrmod_controlleroffset_yaw:GetFloat(), convars.vrmod_controlleroffset_roll:GetFloat())
 			g_VR.leftControllerOffsetAng = g_VR.rightControllerOffsetAng
 			g_VR.active = true
-			overrideConvar("engine_no_focus_sleep", "1")
+			--overrideConvar("engine_no_focus_sleep", "1")
 			overrideConvar("playerscaling_clientspeed", "0")
 			overrideConvar("playerscaling_clientjump", "0")
 
