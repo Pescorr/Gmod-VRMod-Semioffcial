@@ -24,7 +24,7 @@ if CLIENT then
 		function(ply)
 			if ply ~= LocalPlayer() then return end
 			local inputMode = 1 -- デフォルトはネットワークモード
-			if game.SinglePlayer() or game.IsListenServer() then
+			if game.SinglePlayer() then
 				inputMode = 0 -- シングルプレイまたはホストならレガシーモード
 			end
 
