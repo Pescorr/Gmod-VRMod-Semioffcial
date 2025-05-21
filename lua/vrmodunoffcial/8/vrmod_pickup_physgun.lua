@@ -1,6 +1,7 @@
---------[vrmod_pickup_physgun.lua]Start--------
+-- vrmod_pickup_physgun.lua
 g_VR = g_VR or {}
 vrmod = vrmod or {}
+
 function CreateVRPhysgunSystem(prefix)
 	local physgunmaxrange = GetConVar("physgun_maxrange")
 	scripted_ents.Register(
@@ -18,9 +19,10 @@ function CreateVRPhysgunSystem(prefix)
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_damage", "0.0001", true, FCVAR_ARCHIVE, "", 0, 1.000)
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_damage_enable", "1", true, FCVAR_ARCHIVE, "")
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_pull_enable", "1", true, FCVAR_ARCHIVE, "")
+
 		g_VR["physgunHeldEntity_" .. prefix] = nil
-		-- ADDED: Flag to indicate if a handoff (pickup by vrmod_pickup) is pending
 		g_VR["physgunHandoffPending_" .. prefix] = false
+
 		vrmod["PhysgunAction_" .. prefix] = function(bDrop)
 			if GetConVar("vrmod_" .. prefix .. "_physgun_beam_enable"):GetInt() == 0 then return end
 			net.Start("vrmod_physgun_action_" .. prefix)
@@ -33,9 +35,8 @@ function CreateVRPhysgunSystem(prefix)
 				net.WriteVector(pose.vel)
 				net.WriteVector(pose.angvel)
 				g_VR["physgunHeldEntity_" .. prefix] = nil
-				g_VR["physgunHandoffPending_" .. prefix] = false -- ADDED: Reset handoff flag on drop
+				g_VR["physgunHandoffPending_" .. prefix] = false 
 			end
-
 			net.SendToServer()
 		end
 
@@ -46,17 +47,14 @@ function CreateVRPhysgunSystem(prefix)
 			net.Start("vrmod_physgun_pull_" .. prefix)
 			net.SendToServer()
 			if IsValid(heldEntity) then
-				-- MODIFIED: Changed sound to something more fitting for a pull/preparation
 				heldEntity:EmitSound("weapons/physcannon_pickup.wav")
 			end
 		end
 
-		-- ADDED: Function to request handoff from server
 		vrmod["PhysgunRequestHandoff_" .. prefix] = function()
 			if not g_VR["physgunHeldEntity_" .. prefix] then return end
 			net.Start("vrmod_physgun_request_handoff_" .. prefix)
 			net.SendToServer()
-			-- ADDED: Set pending flag to true, so regular pickup is tried after server confirms
 			g_VR["physgunHandoffPending_" .. prefix] = true
 		end
 
@@ -69,15 +67,12 @@ function CreateVRPhysgunSystem(prefix)
 			if r_cvar then
 				r = r_cvar:GetInt()
 			end
-
 			if g_cvar then
 				g = g_cvar:GetInt()
 			end
-
 			if b_cvar then
 				b = b_cvar:GetInt()
 			end
-
 			if r == 0 and g == 255 and b == 255 then
 				local weaponColor = GetConVar("cl_weaponcolor")
 				if weaponColor then
@@ -90,7 +85,6 @@ function CreateVRPhysgunSystem(prefix)
 					end
 				end
 			end
-
 			return Color(r, g, b, a)
 		end
 
@@ -98,12 +92,14 @@ function CreateVRPhysgunSystem(prefix)
 			if not g_VR.active then return end
 			if LocalPlayer():InVehicle() then return end
 			if not GetConVar("vrmod_" .. prefix .. "_physgun_beam_enable"):GetBool() then return end
+
 			local beamColor = GetPhysgunBeamColor()
 			local hand = prefix == "left" and "pose_lefthand" or "pose_righthand"
 			local heldEnt = g_VR["physgunHeldEntity_" .. prefix]
 			local startPos = g_VR.tracking[hand].pos
 			local forward = g_VR.tracking[hand].ang:Forward()
 			local beamRange = GetConVar("vrmod_" .. prefix .. "_physgun_beam_range"):GetFloat()
+
 			local tr = util.TraceLine(
 				{
 					start = startPos,
@@ -128,8 +124,10 @@ function CreateVRPhysgunSystem(prefix)
 			render.DrawBeam(startPos, endPos, 1, 0, 1, color)
 			render.SetMaterial(beam_mat2)
 			render.DrawBeam(startPos, endPos, 1, 0, 1, Color(color.r, color.g, color.b, color.a * 0.5))
+
 			local endSize = heldEnt and IsValid(heldEnt) and math.random(4, 6) or math.random(1, 1)
 			render.DrawSprite(endPos, endSize, endSize, color)
+
 			if GetConVar("vrmod_" .. prefix .. "_physgun_beam_damage_enable"):GetBool() and tr.Hit and IsValid(tr.Entity) and not heldEnt then
 				if tr.Entity:GetClass() == "prop_ragdoll" then
 					local damage = GetConVar("vrmod_" .. prefix .. "_physgun_beam_damage"):GetFloat()
@@ -150,73 +148,96 @@ function CreateVRPhysgunSystem(prefix)
 			end
 		)
 
+		local function SetRenderOverride(ent, ply, localPos, localAng)
+			local steamid = IsValid(ply) and ply:SteamID()
+			if g_VR.net[steamid] == nil then return end
+
+			ent.RenderOverride = function()
+				if g_VR.net[steamid] == nil then return end
+				local wpos, wang
+				local hand = prefix == "left" and "lefthand" or "righthand"
+				-- Use the current localPos and localAng for rendering
+				wpos, wang = LocalToWorld(ent.vrmod_currentLocalPos or localPos, ent.vrmod_currentLocalAng or localAng, g_VR.net[steamid].lerpedFrame[hand .. "Pos"], g_VR.net[steamid].lerpedFrame[hand .. "Ang"])
+				ent:SetPos(wpos)
+				ent:SetAngles(wang)
+				ent:SetupBones()
+				ent:DrawModel()
+			end
+			ent["VRPhysgunRenderOverride_" .. prefix] = ent.RenderOverride
+			ent.vrmod_currentLocalPos = localPos -- Store current localPos for RenderOverride
+			ent.vrmod_currentLocalAng = localAng -- Store current localAng for RenderOverride
+		end
+
 		net.Receive(
 			"vrmod_physgun_action_" .. prefix,
 			function(len)
 				local ply = net.ReadEntity()
 				local ent = net.ReadEntity()
 				local bDrop = net.ReadBool()
+
 				if bDrop then
 					if IsValid(ent) and ent.RenderOverride == ent["VRPhysgunRenderOverride_" .. prefix] then
 						ent.RenderOverride = nil
+						ent.vrmod_currentLocalPos = nil
+						ent.vrmod_currentLocalAng = nil
 					end
-
 					if ply == LocalPlayer() then
 						if g_VR["physgunHeldEntity_" .. prefix] == ent then
 							g_VR["physgunHeldEntity_" .. prefix] = nil
 						end
 					end
-
 					if IsValid(ent) then
 						ent:EmitSound("physics/metal/metal_box_impact_soft" .. math.random(1, 3) .. ".wav")
 					end
 				else
-					local localPos = net.ReadVector()
-					local localAng = net.ReadAngle()
-					local steamid = IsValid(ply) and ply:SteamID()
-					if g_VR.net[steamid] == nil then return end
-					ent.RenderOverride = function()
-						if g_VR.net[steamid] == nil then return end
-						local wpos, wang
-						local hand = prefix == "left" and "lefthand" or "righthand"
-						wpos, wang = LocalToWorld(localPos, localAng, g_VR.net[steamid].lerpedFrame[hand .. "Pos"], g_VR.net[steamid].lerpedFrame[hand .. "Ang"])
-						ent:SetPos(wpos)
-						ent:SetAngles(wang)
-						ent:SetupBones()
-						ent:DrawModel()
-					end
+					local initialLocalPos = net.ReadVector()
+					local initialLocalAng = net.ReadAngle()
+					SetRenderOverride(ent, ply, initialLocalPos, initialLocalAng)
 
-					ent["VRPhysgunRenderOverride_" .. prefix] = ent.RenderOverride
 					if ply == LocalPlayer() then
 						g_VR["physgunHeldEntity_" .. prefix] = ent
 					end
-
 					ent:EmitSound("weapons/physgun_on.wav")
 				end
 			end
 		)
 
-		-- ADDED: Network receiver for handoff ready
+		net.Receive(
+			"vrmod_physgun_update_localoffset_" .. prefix,
+			function(len)
+				local ply = net.ReadEntity()
+				local ent = net.ReadEntity()
+				local newLocalPos = net.ReadVector()
+				local newLocalAng = net.ReadAngle()
+
+				if IsValid(ent) and ent.RenderOverride == ent["VRPhysgunRenderOverride_" .. prefix] then
+					-- Update the localPos and localAng used by RenderOverride
+					ent.vrmod_currentLocalPos = newLocalPos
+					ent.vrmod_currentLocalAng = newLocalAng
+				end
+			end
+		)
+
 		net.Receive(
 			"vrmod_physgun_handoff_ready_" .. prefix,
 			function()
 				local isLeftHandForHandoff = net.ReadBool()
 				local currentPrefix = isLeftHandForHandoff and "left" or "right"
 				if g_VR["physgunHandoffPending_" .. currentPrefix] then
-					-- Attempt to pickup with vrmod_pickup.lua's system
-					vrmod.Pickup(isLeftHandForHandoff, false)
+					vrmod.Pickup(isLeftHandForHandoff, false) -- Assuming vrmod.Pickup is the general pickup function
 					g_VR["physgunHandoffPending_" .. currentPrefix] = false
 				end
 			end
 		)
+
 	elseif SERVER then
 		util.AddNetworkString("vrmod_physgun_action_" .. prefix)
 		util.AddNetworkString("vrmod_physgun_beam_damage_" .. prefix)
 		util.AddNetworkString("vrmod_physgun_pull_" .. prefix)
-		-- ADDED: Network string for handoff request
 		util.AddNetworkString("vrmod_physgun_request_handoff_" .. prefix)
-		-- ADDED: Network string to notify client handoff is ready
 		util.AddNetworkString("vrmod_physgun_handoff_ready_" .. prefix)
+		util.AddNetworkString("vrmod_physgun_update_localoffset_" .. prefix) -- New network string for server
+
 		local PhysgunController = {
 			controller = nil,
 			pickupList = {},
@@ -239,8 +260,10 @@ function CreateVRPhysgunSystem(prefix)
 			function(len, ply)
 				if not IsValid(ply) or ply:InVehicle() then return end
 				if not ply:GetInfoNum("vrmod_" .. prefix .. "_physgun_beam_damage_enable", 1) == 1 then return end
+
 				local hitPos = net.ReadVector()
 				local damage = net.ReadFloat()
+
 				local dmgInfo = DamageInfo()
 				dmgInfo:SetAttacker(ply)
 				dmgInfo:SetInflictor(ply)
@@ -258,8 +281,10 @@ function CreateVRPhysgunSystem(prefix)
 				for i = 1, PhysgunController.pickupCount do
 					local t = PhysgunController.pickupList[i]
 					if t.steamid ~= ply:SteamID() then continue end
+
 					local frame = g_VR[ply:SteamID()].latestFrame
 					if not frame then continue end
+
 					local handPos, handAng
 					if prefix == "left" then
 						handPos, handAng = LocalToWorld(frame.lefthandPos, frame.lefthandAng, ply:GetPos(), Angle())
@@ -267,17 +292,23 @@ function CreateVRPhysgunSystem(prefix)
 						handPos, handAng = LocalToWorld(frame.righthandPos, frame.righthandAng, ply:GetPos(), Angle())
 					end
 
-					-- MODIFIED: More precise pull towards the hand for easier pickup
-					t.localPos = Vector(-0.5, 0, 0) -- Pull very close to the hand origin
-					--t.localAng = Angle(0, 0, 0) -- Align with hand's angle (or a neutral pickup angle)
+					t.localPos = Vector(0, 0, 0) 
+					
+					-- Notify client about the updated localPos
+					net.Start("vrmod_physgun_update_localoffset_" .. prefix)
+					net.WriteEntity(ply)
+					net.WriteEntity(t.ent)
+					net.WriteVector(t.localPos)
+					net.WriteAngle(t.localAng) -- localAng doesn't change on pull, but send for consistency
+					net.Send(ply) -- Send only to the relevant client
+
 					hook.Run("VRPhysgun_Pull_" .. prefix, ply, t.ent)
 					ply:EmitSound("physics/metal/metal_box_strain" .. math.random(1, 3) .. ".wav")
 					break
 				end
 			end
 		)
-
-		-- ADDED: Network receiver for handoff request
+		
 		net.Receive(
 			"vrmod_physgun_request_handoff_" .. prefix,
 			function(len, ply)
@@ -286,30 +317,29 @@ function CreateVRPhysgunSystem(prefix)
 				for i = 1, PhysgunController.pickupCount do
 					local t = PhysgunController.pickupList[i]
 					if t.steamid ~= ply:SteamID() then continue end
+
 					local frame = g_VR[ply:SteamID()].latestFrame
 					if not frame then continue end
+
 					local handPos, handAng
 					if handoffIsLeft then
 						handPos, handAng = LocalToWorld(frame.lefthandPos, frame.lefthandAng, ply:GetPos(), Angle())
 					else
 						handPos, handAng = LocalToWorld(frame.righthandPos, frame.righthandAng, ply:GetPos(), Angle())
 					end
+					
+					local targetPickupPoint = LocalToWorld(Vector(0.0, handoffIsLeft and -0.0 or 0.0, 0), Angle(), handPos, handAng)
 
-					-- MODIFIED: Calculate precise drop-off point for vrmod_pickup.lua
-					-- This point is based on vrmod_pickup.lua's pickupPoint calculation
-					local targetPickupPoint = LocalToWorld(Vector(0.5, handoffIsLeft and -0.05 or 0.05, 0), Angle(), handPos, handAng)
 					if IsValid(t.ent) and IsValid(t.phys) then
 						t.phys:SetPos(targetPickupPoint)
-						t.phys:SetAngles(handAng) -- Or a neutral angle for pickup
-						t.phys:SetVelocity(Vector(0, 0, 0))
-						t.phys:SetAngleVelocity(Vector(0, 0, 0)) -- Use Vector for angles in GMod Lua
+						t.phys:SetAngles(handAng) 
+						t.phys:SetVelocity(Vector(0,0,0))
+						t.phys:SetAngleVelocity(Vector(0,0,0)) 
 						t.phys:Wake()
 					end
 
-					-- Drop the entity from physgun control
-					drop(t.steamid, nil, nil, Vector(0, 0, 0), Vector(0, 0, 0)) -- Pass nil for positions/velocities to just release
-					-- Notify client that handoff is ready
-					net.Start("vrmod_physgun_handoff_ready_" .. prefix)
+					drop(t.steamid, nil,nil,Vector(0,0,0),Vector(0,0,0)) 
+					net.Start("vrmod_physgun_handoff_ready_"..prefix)
 					net.WriteBool(handoffIsLeft)
 					net.Send(ply)
 					break
@@ -321,11 +351,11 @@ function CreateVRPhysgunSystem(prefix)
 			for i = 1, PhysgunController.pickupCount do
 				local t = PhysgunController.pickupList[i]
 				if t.steamid ~= steamid then continue end
+
 				local phys = t.phys
 				if IsValid(phys) then
 					t.ent:SetCollisionGroup(t.collisionGroup)
 					PhysgunController.controller:RemoveFromMotionController(phys)
-					-- Only set pos/vel if provided (i.e., normal drop, not handoff)
 					if handPos then
 						local wPos, wAng = LocalToWorld(t.localPos, t.localAng, handPos, handAng)
 						phys:SetPos(wPos)
@@ -341,6 +371,7 @@ function CreateVRPhysgunSystem(prefix)
 				net.WriteEntity(t.ent)
 				net.WriteBool(true)
 				net.Broadcast()
+
 				if g_VR[t.steamid] then
 					g_VR[t.steamid]["physgunHeldItems_" .. prefix] = g_VR[t.steamid]["physgunHeldItems_" .. prefix] or {}
 					g_VR[t.steamid]["physgunHeldItems_" .. prefix] = nil
@@ -349,14 +380,13 @@ function CreateVRPhysgunSystem(prefix)
 				PhysgunController.pickupList[i] = PhysgunController.pickupList[PhysgunController.pickupCount]
 				PhysgunController.pickupList[PhysgunController.pickupCount] = nil
 				PhysgunController.pickupCount = PhysgunController.pickupCount - 1
+
 				if PhysgunController.pickupCount == 0 and IsValid(PhysgunController.controller) then
 					PhysgunController.controller:StopMotionController()
 					PhysgunController.controller:Remove()
 					PhysgunController.controller = nil
 				end
-
 				hook.Run("VRPhysgun_Drop_" .. prefix, t.ply, t.ent)
-
 				return
 			end
 		end
@@ -364,6 +394,7 @@ function CreateVRPhysgunSystem(prefix)
 		local function pickup(ply, handPos, handAng)
 			local steamid = ply:SteamID()
 			local maxRange = ply:GetInfoNum("vrmod_" .. prefix .. "_physgun_beam_range", physgunmaxrange:GetFloat())
+
 			local tr = util.TraceLine(
 				{
 					start = handPos,
@@ -374,8 +405,10 @@ function CreateVRPhysgunSystem(prefix)
 
 			if not tr.Hit or not IsValid(tr.Entity) then return end
 			local entity = tr.Entity
+
 			if entity:IsPlayer() or not IsValid(entity:GetPhysicsObject()) or ply:InVehicle() or entity:GetMoveType() ~= MOVETYPE_VPHYSICS or entity:GetPhysicsObject():GetMass() > 1000 or (entity.CPPICanPickup and not entity:CPPICanPickup(ply)) then return end
 			if hook.Run("VRPhysgun_CanPickup_" .. prefix, ply, entity) == false then return end
+
 			if not IsValid(PhysgunController.controller) then
 				PhysgunController.controller = ents.Create("vrmod_physgun_controller_" .. prefix)
 				PhysgunController.controller.ShadowParams = table.Copy(ShadowParams)
@@ -390,11 +423,9 @@ function CreateVRPhysgunSystem(prefix)
 					else
 						handPos, handAng = LocalToWorld(frame.righthandPos, frame.righthandAng, t.ply:GetPos(), Angle())
 					end
-
 					self.ShadowParams.pos, self.ShadowParams.angle = LocalToWorld(t.localPos, t.localAng, handPos, handAng)
 					phys:ComputeShadowControl(self.ShadowParams)
 				end
-
 				PhysgunController.controller:StartMotionController()
 				if not hook.GetTable()["Tick"]["vrmod_physgun_tick_" .. prefix] then
 					hook.Add(
@@ -424,6 +455,7 @@ function CreateVRPhysgunSystem(prefix)
 			local phys = entity:GetPhysicsObject()
 			local localPos, localAng = WorldToLocal(entity:GetPos(), entity:GetAngles(), handPos, handAng)
 			phys:Wake()
+
 			PhysgunController.pickupCount = PhysgunController.pickupCount + 1
 			local index = PhysgunController.pickupCount
 			PhysgunController.controller:AddToMotionController(phys)
@@ -440,7 +472,7 @@ function CreateVRPhysgunSystem(prefix)
 			g_VR[steamid] = g_VR[steamid] or {}
 			g_VR[steamid]["physgunHeldItems_" .. prefix] = PhysgunController.pickupList[index]
 			entity["vrmod_physgun_info_" .. prefix] = PhysgunController.pickupList[index]
-			--entity:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR)
+
 			net.Start("vrmod_physgun_action_" .. prefix)
 			net.WriteEntity(ply)
 			net.WriteEntity(entity)
@@ -456,6 +488,7 @@ function CreateVRPhysgunSystem(prefix)
 			function(len, ply)
 				if not IsValid(ply) or not g_VR[ply:SteamID()] then return end
 				if ply:GetInfoNum("vrmod_" .. prefix .. "_physgun_beam_enable", 1) == 0 then return end
+
 				local bDrop = net.ReadBool()
 				if not bDrop then
 					pickup(ply, net.ReadVector(), net.ReadAngle())
@@ -472,62 +505,39 @@ function CreateVRPhysgunSystem(prefix)
 		function(action, pressed)
 			if CLIENT and GetConVar("vrmod_" .. prefix .. "_physgun_beam_enable"):GetInt() == 0 then return end
 			if LocalPlayer():InVehicle() then return end
+			
 			local pickupAction = "boolean_" .. (prefix == "left" and "left_secondaryfire" or "secondaryfire")
-			local activationAction = "boolean_" .. prefix .. "_pickup" -- This is usually the grip button
+			local activationAction = "boolean_"..prefix.."_pickup" 
 			local actflag
+			
 			if action == activationAction then
-				vrmod["PhysgunAction_" .. prefix](not pressed) -- Grab on press, drop on release
+				vrmod["PhysgunAction_" .. prefix](not pressed) 
 				if pressed then
 					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 50")
 					actflag = true
 				else
 					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 0")
 					actflag = false
-					-- ADDED: Request handoff when grip is released and an object is held by physgun
 					if g_VR["physgunHeldEntity_" .. prefix] then
-						vrmod["PhysgunRequestHandoff_" .. prefix]()
+						vrmod["PhysgunRequestHandoff_"..prefix]()
 					end
 				end
-			-- elseif action == pickupAction and pressed then
-			-- 	vrmod["PhysgunPull_" .. prefix]()
-			-- 	timer.Simple(
-			-- 		0.02,
-			-- 		function()
-			-- 			vrmod.Pickup(prefix == "left" and true or false, not pressed)
-			-- 			timer.Simple(
-			-- 				0.02,
-			-- 				function()
-			-- 					vrmod["PhysgunAction_" .. prefix](true)
-			-- 					vrmod.Pickup(prefix == "left" and true or false, not pressed)
-			-- 				end
-			-- 			)
-			-- 		end
-			-- 	)
-			-- end
 			elseif action == pickupAction and pressed then
-				-- MODIFIED: Original pickup (vrmod_pickup.lua) will be triggered by handoff_ready
-				-- This button (usually trigger) can now be used for PhysgunPull
-				-- Only pull if something is held by this physgun
 				if g_VR["physgunHeldEntity_" .. prefix] then
 					vrmod["PhysgunPull_" .. prefix]()
 				else
-					-- If not holding with physgun, try normal pickup
-					--vrmod.Pickup(prefix == "left" and true or false, not pressed)
+					vrmod.Pickup(prefix == "left" and true or false, not pressed)
 				end
 			elseif action == pickupAction and not pressed then
-				-- If not holding with physgun, try normal drop
 				if g_VR["physgunHeldEntity_" .. prefix] then
 					vrmod.Pickup(prefix == "left" and true or false, actflag == false)
 				end
 			end
-
 		end
 	)
-
 	print("[VRMod] " .. string.upper(prefix) .. " hand Physgun controller module loaded")
 end
 
 CreateVRPhysgunSystem("left")
 CreateVRPhysgunSystem("right")
 print("[VRMod] Dual Physgun systems initialized")
---------[vrmod_pickup_physgun.lua]End--------
