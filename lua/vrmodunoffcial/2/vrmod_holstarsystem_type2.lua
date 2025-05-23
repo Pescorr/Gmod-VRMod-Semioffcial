@@ -240,14 +240,14 @@ function vrholstersystem2()
                         local text = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
                         if text ~= "" then
                             if pouch_locked[i] then
-                                text = "・・" .. text .. "・・"
+                                text = "*" .. text .. "*"
                             end
 
                             draw.SimpleText(text, "DermaLarge", ScrW() * 0.05, ScrH() * 0.9, Color(255, 255, 0, 200), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
                         end
 
                         if not (prev_hand_in_holster_left_status[i] == true) then
-                            VRMOD_TriggerHaptic("vibration_left", 0, 0.01, 0.01, 0.01)
+                            --VRMOD_TriggerHaptic("vibration_left", 0, 0.01, 0.01, 0.01)
                         end
 
                         if not IsValid(ply) then break end
@@ -271,14 +271,14 @@ function vrholstersystem2()
                         local text = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
                         if text ~= "" then
                             if pouch_locked[i] then
-                                text = "・・" .. text .. "・・"
+                                text = "*" .. text .. "*"
                             end
 
                             draw.SimpleText(text, "DermaLarge", ScrW() * 0.95, ScrH() * 0.9, Color(255, 255, 0, 200), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
                         end
 
                         if not (prev_hand_in_holster_right_status[i] == true) then
-                            VRMOD_TriggerHaptic("vibration_right", 0, 0.01, 0.01, 0.01)
+                            --VRMOD_TriggerHaptic("vibration_right", 0, 0.01, 0.01, 0.01)
                         end
 
                         if not IsValid(ply) then break end

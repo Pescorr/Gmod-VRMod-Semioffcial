@@ -486,15 +486,15 @@ function CreateVRPhysgunSystem(prefix)
 		"vrmod_physgun_input_" .. prefix,
 		function(action, pressed)
 			if CLIENT and GetConVar("vrmod_" .. prefix .. "_physgun_beam_enable"):GetInt() == 0 then return end
+			if not g_VR.active then return end
 			if LocalPlayer():InVehicle() then return end
 			local pickupAction = "boolean_" .. (prefix == "left" and "left_secondaryfire" or "secondaryfire")
 			local activationAction = "boolean_" .. prefix .. "_pickup"
 			local actflag = false
-			if not g_VR.active then return end
 			if action == activationAction then
 				vrmod["PhysgunAction_" .. prefix](not pressed)
 				if pressed then
-					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 50")
+					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 100")
 					actflag = true
 				else
 					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 0")
@@ -523,7 +523,6 @@ function CreateVRPhysgunSystem(prefix)
 		end
 	)
 
-	--end
 	print("[VRMod] " .. string.upper(prefix) .. " hand Physgun controller module loaded")
 end
 
