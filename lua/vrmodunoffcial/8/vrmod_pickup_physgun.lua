@@ -516,7 +516,7 @@ function CreateVRPhysgunSystem(prefix)
 					vrmod.Pickup(prefix == "left" and true or false)
 				end
 
-				if actflag == true then
+				if actflag == false then
 					vrmod.Pickup(prefix == "left" and true or false)
 				end
 			end
