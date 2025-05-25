@@ -16,6 +16,8 @@ function vrholstersystem2()
         local pouch_pickup_sound = CreateClientConVar("vrmod_pouch_pickup_sound", "common/wpn_select.wav", true, FCVAR_ARCHIVE)
         local prev_hand_in_holster_left_status = {}
         local prev_hand_in_holster_right_status = {}
+        -- ホルスターから取り出し保留中のエンティティ情報を格納するテーブル (クライアント専用)
+        local holster_pickup_pending = {}
         for i = 1, pouch_slots do
             CreateClientConVar("vrmod_pouch_weapon_" .. i, "", true, FCVAR_ARCHIVE)
             CreateClientConVar("vrmod_pouch_size_" .. i, 12, true, FCVAR_ARCHIVE)
@@ -72,6 +74,7 @@ function vrholstersystem2()
                 if not IsVRReady() then return end
                 prev_hand_in_holster_left_status = {}
                 prev_hand_in_holster_right_status = {}
+                holster_pickup_pending = {} -- VR開始時にクリア
                 for i = 1, pouch_slots do
                     prev_hand_in_holster_left_status[i] = false
                     prev_hand_in_holster_right_status[i] = false
@@ -120,6 +123,58 @@ function vrholstersystem2()
             end
         )
 
+        local function equipWeaponOrEntity(leftHand)
+            if not pouch_enabled:GetBool() then return end
+            if not g_VR.active then return end
+            for i = 1, pouch_slots do
+                local hand_pos = leftHand and g_VR.tracking.pose_lefthand.pos or g_VR.tracking.pose_righthand.pos
+                if hand_pos:DistToSqr(pouch_positions[i]) < (pouch_sizes[i] * pouch_sizes[i]) then
+                    local wepclass = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
+                    if wepclass ~= "" then
+                        -- 武器の場合
+                        if weapons.Get(wepclass) then
+                            if leftHand and not pouch_lefthand_weapon_enable:GetBool() then return end
+                            LocalPlayer():ConCommand("use " .. wepclass)
+                            if leftHand and string.find(wepclass, "vr") then
+                                LocalPlayer():ConCommand("vrmod_LeftHandmode 0")
+                            else
+                                LocalPlayer():ConCommand("vrmod_lefthand " .. (leftHand and "1" or "0"))
+                            end
+
+                            surface.PlaySound(pouch_pickup_sound:GetString())
+                            -- 武器を取り出した後、手に追従させるためにvrmod.Pickupを呼び出す
+                            -- 武器がアクティブになるのを少し待つ
+                            timer.Simple(
+                                0.1,
+                                function()
+                                    if IsValid(LocalPlayer()) and IsValid(LocalPlayer():GetActiveWeapon()) and LocalPlayer():GetActiveWeapon():GetClass() == wepclass then
+                                        if vrmod and vrmod.Pickup then
+                                            vrmod.Pickup(leftHand, false)
+                                        end
+                                    end
+                                end
+                            )
+                        else -- エンティティの場合
+                            net.Start("vrmod_test_spawn_entity")
+                            net.WriteString(wepclass)
+                            net.WriteVector(hand_pos)
+                            net.WriteAngle(leftHand and g_VR.tracking.pose_lefthand.ang or g_VR.tracking.pose_righthand.ang)
+                            net.WriteBool(leftHand)
+                            net.SendToServer()
+                            surface.PlaySound(pouch_pickup_sound:GetString())
+                            -- どのエンティティがホルスターからのものかを識別するため、クラス名とリクエスト時刻を保存
+                            holster_pickup_pending[wepclass] = {
+                                leftHand = leftHand,
+                                time = CurTime()
+                            }
+                        end
+                    end
+
+                    break
+                end
+            end
+        end
+
         hook.Add(
             "VRMod_Input",
             "vrutil_hook_pouchinput",
@@ -160,45 +215,7 @@ function vrholstersystem2()
                     end
                 end
 
-                local function equipWeaponOrEntity(leftHand)
-                    if not pouch_enabled:GetBool() then return end
-                    if not g_VR.active then return end
-                    for i = 1, pouch_slots do
-                        local hand_pos = leftHand and g_VR.tracking.pose_lefthand.pos or g_VR.tracking.pose_righthand.pos
-                        if hand_pos:DistToSqr(pouch_positions[i]) < (pouch_sizes[i] * pouch_sizes[i]) then
-                            local wepclass = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
-                            if wepclass ~= "" then
-                                if weapons.Get(wepclass) then
-                                    if leftHand and not pouch_lefthand_weapon_enable:GetBool() then return end
-                                    LocalPlayer():ConCommand("use " .. wepclass)
-                                    if leftHand and string.find(wepclass, "vr") then
-                                        LocalPlayer():ConCommand("vrmod_LeftHandmode 0")
-                                    else
-                                        LocalPlayer():ConCommand("vrmod_lefthand " .. (leftHand and "1" or "0"))
-                                    end
-
-                                    surface.PlaySound(pouch_pickup_sound:GetString())
-                                else
-                                    net.Start("vrmod_test_spawn_entity")
-                                    net.WriteString(wepclass)
-                                    net.WriteVector(hand_pos)
-                                    net.WriteAngle(leftHand and g_VR.tracking.pose_lefthand.ang or g_VR.tracking.pose_righthand.ang)
-                                    net.WriteBool(leftHand)
-                                    net.SendToServer()
-                                    surface.PlaySound(pouch_pickup_sound:GetString())
-                                    if leftHand then
-                                        LocalPlayer():ConCommand("vrmod_test_pickup_entteleport_left " .. wepclass)
-                                    else
-                                        LocalPlayer():ConCommand("vrmod_test_pickup_entteleport_right " .. wepclass)
-                                    end
-                                end
-                            end
-
-                            break
-                        end
-                    end
-                end
-
+                -- equipWeaponOrEntity は修正済み関数が使われる
                 if action == "boolean_left_pickup" and not pressed then
                     storeWeapon(true)
                 elseif action == "boolean_right_pickup" and not pressed then
@@ -207,8 +224,20 @@ function vrholstersystem2()
 
                 if action == "boolean_left_pickup" and pressed then
                     equipWeaponOrEntity(true)
+                    timer.Simple(
+                        0.30,
+                        function()
+                            vrmod.Pickup(true, not pressed)
+                        end
+                    )
                 elseif action == "boolean_right_pickup" and pressed then
                     equipWeaponOrEntity(false)
+                    timer.Simple(
+                        0.30,
+                        function()
+                            vrmod.Pickup(false, not pressed)
+                        end
+                    )
                 end
 
                 if action == "boolean_use" and pressed then
@@ -247,7 +276,7 @@ function vrholstersystem2()
                         end
 
                         if not (prev_hand_in_holster_left_status[i] == true) then
-                            --VRMOD_TriggerHaptic("vibration_left", 0, 0.01, 0.01, 0.01)
+                            VRMOD_TriggerHaptic("vibration_left", 0, 0.01, 0.01, 0.01)
                         end
 
                         if not IsValid(ply) then break end
@@ -278,7 +307,7 @@ function vrholstersystem2()
                         end
 
                         if not (prev_hand_in_holster_right_status[i] == true) then
-                            --VRMOD_TriggerHaptic("vibration_right", 0, 0.01, 0.01, 0.01)
+                            VRMOD_TriggerHaptic("vibration_right", 0, 0.01, 0.01, 0.01)
                         end
 
                         if not IsValid(ply) then break end
@@ -313,6 +342,44 @@ function vrholstersystem2()
                 end
             end
         )
+
+        -- エンティティがピックアップされた際にvrmod.Pickupを呼び出すフック
+        hook.Add(
+            "VRMod_Pickup",
+            "HolsterSystem_ClientPickupAfterServer",
+            function(ply, ent)
+                if ply ~= LocalPlayer() then return end
+                if not IsValid(ent) then return end
+                local entClass = ent:GetClass()
+                if holster_pickup_pending[entClass] then
+                    local data = holster_pickup_pending[entClass]
+                    -- スポーンリクエストから時間が経ちすぎている場合は無視
+                    -- 2秒以内
+                    if CurTime() - data.time < 2.0 then
+                        if vrmod and vrmod.Pickup then
+                            vrmod.Pickup(data.leftHand, false)
+                        end
+
+                        holster_pickup_pending[entClass] = nil -- 処理済み
+                    end
+                end
+            end
+        )
+
+        -- holster_pickup_pending のクリーンアップ処理
+        hook.Add(
+            "Think",
+            "HolsterSystem_CleanupPending",
+            function()
+                if not holster_pickup_pending then return end
+                for class, data in pairs(holster_pickup_pending) do
+                    -- 5秒以上経過したものは削除
+                    if CurTime() - data.time >= 5.0 then
+                        holster_pickup_pending[class] = nil
+                    end
+                end
+            end
+        )
     end
 
     if SERVER then
@@ -332,17 +399,23 @@ function vrholstersystem2()
                     spawnedEnt:SetPos(handPos)
                     spawnedEnt:SetAngles(handAng)
                     if IsValid(spawnedEnt) then
+                        pickup(ply, isLeftHand, spawnedEnt:GetPos(), spawnedEnt:GetAngles())
                         timer.Simple(
-                            0.20,
+                            0.30,
                             function()
-                                pickup(ply, isLeftHand, spawnedEnt:GetPos(), spawnedEnt:GetAngles())
+                                -- pickup関数が存在し、引数が有効か確認
+                                if IsValid(ply) and IsValid(spawnedEnt) then
+                                    spawnedEnt:SetPos(handPos)
+                                    spawnedEnt:SetAngles(handAng)
+                                end
+
                                 timer.Remove(ply:UserID() .. "followAndTryPickup")
                             end
                         )
                     end
                 end
 
-                timer.Create(ply:UserID() .. "followAndTryPickup", 0.11, 0, followAndTryPickup)
+                timer.Create(ply:UserID() .. "followAndTryPickup", 0.30, 0, followAndTryPickup)
             end
         )
     end
@@ -357,4 +430,4 @@ concommand.Add(
         vrholstersystem2()
     end
 )
---------[vrmod_holstarsystem_type2.lua]End--------
+--------[vrmod_holstarsystem_type2.lua]End--------   
