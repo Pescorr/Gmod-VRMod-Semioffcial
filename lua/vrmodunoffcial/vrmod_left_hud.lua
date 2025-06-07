@@ -343,9 +343,12 @@ hook.Add(
     end
 )
 
-if vrmod.IsPlayerInVR and vrmod.IsPlayerInVR(LocalPlayer()) then
-    timer.Simple(3.4, InitializeAllHandHUDs)
-end
+hook.Add("InitPostEntity", "AllHandHUDs_Initialize", function()
+    if vrmod.IsPlayerInVR and vrmod.IsPlayerInVR(LocalPlayer()) then
+        timer.Simple(3.4, InitializeAllHandHUDs)
+    end
+end)
+
 
 local lastPeriodicReinit = 0
 local periodicReinitInterval = 5
