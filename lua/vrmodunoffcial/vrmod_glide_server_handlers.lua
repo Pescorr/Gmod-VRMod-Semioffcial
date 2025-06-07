@@ -1,6 +1,8 @@
 -- lua/autorun/server/vrmodUnoffcial/glide_server_handlers.lua
 AddCSLuaFile()
 
+if not SERVER then return end
+
     util.AddNetworkString("glide_input_batch_extended")
     util.AddNetworkString("glide_input_bool_extended")
     util.AddNetworkString("glide_turret_target_angle_extended") -- 砲塔目標角度用NetMessage
