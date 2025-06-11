@@ -30,7 +30,7 @@ if SERVER then
             end
 
             -- Repeatedly try to follow and pickup until the entity is picked up or becomes invalid
-            timer.Create(ply:UserID() .. "followAndTryPickup", 0.11, 0, followAndTryPickup)
+            timer.Create(ply:UserID() .. "followAndTryPickup", 0.08, 0, followAndTryPickup)
         end
     )
 end

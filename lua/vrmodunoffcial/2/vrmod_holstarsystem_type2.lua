@@ -1,4 +1,4 @@
---------[vrmod_holstarsystem_type2.lua]Start--------
+--------[vrmod_holstarsystemtype2_type2.lua]Start--------
 function vrholstersystem2()
     if CLIENT then
         local convars, convarValues = vrmod.GetConvars()
@@ -224,20 +224,8 @@ function vrholstersystem2()
 
                 if action == "boolean_left_pickup" and pressed then
                     equipWeaponOrEntity(true)
-                    timer.Simple(
-                        0.30,
-                        function()
-                            vrmod.Pickup(true, not pressed)
-                        end
-                    )
                 elseif action == "boolean_right_pickup" and pressed then
                     equipWeaponOrEntity(false)
-                    timer.Simple(
-                        0.30,
-                        function()
-                            vrmod.Pickup(false, not pressed)
-                        end
-                    )
                 end
 
                 if action == "boolean_use" and pressed then
@@ -258,7 +246,7 @@ function vrholstersystem2()
 
         hook.Add(
             "HUDPaint",
-            "vrmod_holstarsystem_left_hudpaint",
+            "vrmod_holstarsystemtype2_left_hudpaint",
             function()
                 if not pouch_enabled:GetBool() then return end
                 if not pouch_visible_hud:GetBool() then return end
@@ -275,9 +263,9 @@ function vrholstersystem2()
                             draw.SimpleText(text, "DermaLarge", ScrW() * 0.05, ScrH() * 0.9, Color(255, 255, 0, 200), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
                         end
 
-                        if not (prev_hand_in_holster_left_status[i] == true) then
-                            VRMOD_TriggerHaptic("vibration_left", 0, 0.01, 0.01, 0.01)
-                        end
+                        -- if not (prev_hand_in_holster_left_status[i] == true) then
+                        --     VRMOD_TriggerHaptic("vibration_left", 0, 0.01, 0.01, 0.01)
+                        -- end
 
                         if not IsValid(ply) then break end
                     end
@@ -289,7 +277,7 @@ function vrholstersystem2()
 
         hook.Add(
             "HUDPaint",
-            "vrmod_holstarsystem_right_hudpaint",
+            "vrmod_holstarsystemtype2_right_hudpaint",
             function()
                 if not pouch_enabled:GetBool() then return end
                 if not pouch_visible_hud:GetBool() then return end
@@ -306,9 +294,9 @@ function vrholstersystem2()
                             draw.SimpleText(text, "DermaLarge", ScrW() * 0.95, ScrH() * 0.9, Color(255, 255, 0, 200), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
                         end
 
-                        if not (prev_hand_in_holster_right_status[i] == true) then
-                            VRMOD_TriggerHaptic("vibration_right", 0, 0.01, 0.01, 0.01)
-                        end
+                        -- if not (prev_hand_in_holster_right_status[i] == true) then
+                        --     VRMOD_TriggerHaptic("vibration_right", 0, 0.01, 0.01, 0.01)
+                        -- end
 
                         if not IsValid(ply) then break end
                     end
@@ -320,7 +308,7 @@ function vrholstersystem2()
 
         hook.Add(
             "PostDrawTranslucentRenderables",
-            "vrmod_holstarsystem_draw",
+            "vrmod_holstarsystemtype2_draw",
             function(depth, sky)
                 if not pouch_enabled:GetBool() then return end
                 if not pouch_visible_name:GetBool() then return end
@@ -399,12 +387,12 @@ function vrholstersystem2()
                     spawnedEnt:SetPos(handPos)
                     spawnedEnt:SetAngles(handAng)
                     if IsValid(spawnedEnt) then
-                        pickup(ply, isLeftHand, spawnedEnt:GetPos(), spawnedEnt:GetAngles())
                         timer.Simple(
-                            0.30,
+                            0.08,
                             function()
                                 -- pickup関数が存在し、引数が有効か確認
                                 if IsValid(ply) and IsValid(spawnedEnt) then
+                                    pickup(ply, isLeftHand, spawnedEnt:GetPos(), spawnedEnt:GetAngles())
                                     spawnedEnt:SetPos(handPos)
                                     spawnedEnt:SetAngles(handAng)
                                 end
@@ -415,7 +403,7 @@ function vrholstersystem2()
                     end
                 end
 
-                timer.Create(ply:UserID() .. "followAndTryPickup", 0.30, 0, followAndTryPickup)
+                timer.Create(ply:UserID() .. "followAndTryPickup", 0.08, 0, followAndTryPickup)
             end
         )
     end
@@ -426,8 +414,8 @@ concommand.Add(
     "vrmod_lua_reset_holster2",
     function(ply, cmd, args)
         AddCSLuaFile("vrmodunoffcial/2/vrmod_holstarsystem_type2.lua")
-        include("vrmodunoffcial/2/vrmod_holstarsystem_type2.lua")
+        include("vrmodunoffcial/2/vrmod_holstarsystemtype2_type2.lua")
         vrholstersystem2()
     end
 )
---------[vrmod_holstarsystem_type2.lua]End--------   
+--------[vrmod_holstarsystemtype2_type2.lua]End--------   
