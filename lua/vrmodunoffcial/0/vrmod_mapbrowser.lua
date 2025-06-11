@@ -13,8 +13,6 @@ local function CreateMapBrowserWindow()
 		surface.SetDrawColor(80, 80, 80, 255)
 		surface.DrawRect(0, 0, w, 28)
 	end
-
-	--########################## pre processing ############################
 	local sortedMaps = {}
 	local mapCategories = {
 		["Age of Chivalry"] = {"aoc_"},
@@ -63,7 +61,6 @@ local function CreateMapBrowserWindow()
 		["The Stalker"] = {"ts_"},
 		["Zombie Survival"] = {"zm_", "zombiesurvival_", "zs_"},
 	}
-
 	local ignore = {"^background", "^devtest", "^ep1_background", "^ep2_background", "^styleguide", "sdk_", "test_", "vst_", "c4a1y", "credits", "d2_coast_02", "d3_c17_02_camera", "ep1_citadel_00_demo", "intro", "test"}
 	local gamemodes = engine.GetGamemodes()
 	for i = 1, #gamemodes do
@@ -79,14 +76,11 @@ local function CreateMapBrowserWindow()
 					break
 				end
 			end
-
 			if not found then
 				mapCategories[gamemodes[i].title][#mapCategories[gamemodes[i].title] + 1] = patterns[j]
 			end
 		end
 	end
-
-	--PrintTable(mapCategories)
 	local files, dirs = file.Find("maps/*", "GAME")
 	for i = 1, #files do
 		if not string.find(files[i], ".bsp$") then continue end
@@ -97,7 +91,6 @@ local function CreateMapBrowserWindow()
 				break
 			end
 		end
-
 		if cont then continue end
 		local category = "Other"
 		for k, v in pairs(mapCategories) do
@@ -108,7 +101,6 @@ local function CreateMapBrowserWindow()
 				end
 			end
 		end
-
 		local index = nil
 		for j = 1, #sortedMaps do
 			if sortedMaps[j].category == category then
@@ -116,30 +108,24 @@ local function CreateMapBrowserWindow()
 				break
 			end
 		end
-
 		if not index then
 			index = #sortedMaps + 1
 			sortedMaps[index] = {
 				["category"] = category
 			}
 		end
-
 		sortedMaps[index][#sortedMaps[index] + 1] = {
 			["filename"] = files[i],
 			["name"] = string.sub(files[i], 1, #files[i] - 4),
 			["icon"] = Material("maps/thumb/" .. string.sub(files[i], 1, #files[i] - 4) .. ".png")
 		}
-
 		if sortedMaps[index][#sortedMaps[index]].icon:IsError() then
 			sortedMaps[index][#sortedMaps[index]].icon = Material("materials/gui/noicon.png")
 		end
 	end
-
-	--PrintTable(sortedMaps)
 	local selectedCategory = 1
 	local categoryLists = {}
 	local selectedMap = sortedMaps[1][1]
-	--########################## left side ############################
 	local DPanel = vgui.Create("DPanel", window)
 	DPanel:SetSize(200, 0)
 	DPanel:DockMargin(0, 10, 0, 0)
@@ -160,18 +146,15 @@ local function CreateMapBrowserWindow()
 			else
 				surface.SetDrawColor(221, 221, 221, 255)
 			end
-
 			surface.DrawRect(0, 0, w, h)
 			draw.SimpleText(sortedMaps[i].category, "Trebuchet18", 5, 5, Color(85, 85, 85, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 		end
-
 		function DButton:DoClick()
 			categoryLists[selectedCategory]:SetVisible(false)
 			selectedCategory = i
 			categoryLists[selectedCategory]:SetVisible(true)
 		end
 	end
-
 	local DButton = vgui.Create("DButton", DPanel)
 	DButton:SetText("")
 	DButton:Dock(BOTTOM)
@@ -180,17 +163,13 @@ local function CreateMapBrowserWindow()
 		if g_VR.active then
 			GetConVar("vrmod_autostart"):SetBool(true)
 		end
-
-		RunConsoleCommand("map", selectedMap.filename)
+		RunConsoleCommand("changelevel", selectedMap.name)
 	end
-
 	function DButton:Paint(w, h)
 		surface.SetDrawColor(0, 108, 204, 255)
 		surface.DrawRect(0, 0, w, h)
 		draw.SimpleText("Start Game", "Trebuchet24", w / 2, h / 2, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
-
-	--########################## right side ############################
 	for i = 1, #sortedMaps do
 		local DScrollPanel = vgui.Create("DScrollPanel", window)
 		DScrollPanel:DockMargin(10, 10, 0, 0)
@@ -208,13 +187,11 @@ local function CreateMapBrowserWindow()
 			ListItem.DoClick = function()
 				selectedMap = sortedMaps[i][j]
 			end
-
 			function ListItem:Paint(w, h)
 				if selectedMap == sortedMaps[i][j] then
 					surface.SetDrawColor(151, 197, 255, 255)
 					surface.DrawRect(0, 0, w, h)
 				end
-
 				surface.SetDrawColor(255, 255, 255, 255)
 				surface.SetMaterial(sortedMaps[i][j].icon)
 				surface.DrawTexturedRect(2, 2, w - 4, w - 4)
@@ -222,10 +199,8 @@ local function CreateMapBrowserWindow()
 			end
 		end
 	end
-
 	return window
 end
-
 concommand.Add(
 	"vrmod_mapbrowser",
 	function(ply, cmd, args)
@@ -237,20 +212,9 @@ concommand.Add(
 				hook.Remove("VRMod_OpenQuickMenu", "closemapbrowser")
 				if IsValid(window) then
 					window:Remove()
-
 					return false
 				end
 			end
 		)
 	end
 )
--- vrmod.AddInGameMenuItem("Map Browser", 0, 0, function()
--- CreateMapBrowserWindow()
--- hook.Add("VRMod_OpenQuickMenu","closemapbrowser",function()
--- hook.Remove("VRMod_OpenQuickMenu","closemapbrowser")
--- if IsValid(window) then
--- window:Remove()
--- return false
--- end
--- end)
--- end)
