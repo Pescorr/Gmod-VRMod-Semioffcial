@@ -414,7 +414,7 @@ concommand.Add(
     "vrmod_lua_reset_holster2",
     function(ply, cmd, args)
         AddCSLuaFile("vrmodunoffcial/2/vrmod_holstarsystem_type2.lua")
-        include("vrmodunoffcial/2/vrmod_holstarsystemtype2_type2.lua")
+        include("vrmodunoffcial/2/vrmod_holstarsystem_type2.lua")
         vrholstersystem2()
     end
 )
