@@ -15,23 +15,23 @@ if CLIENT then
 		end
 	)
 
-	-- LVS 入力モード切り替え用 ConVar を追加
+	-- -- LVS 入力モード切り替え用 ConVar を追加
 	CreateClientConVar("vrmod_lvs_input_mode", "1", true, FCVAR_ARCHIVE, "LVS input mode (0 = legacy/singleplayer, 1 = networked/multiplayer client)", 0, 1)
-	-- VRMod 開始時に LVS 入力モードを自動設定
-	hook.Add(
-		"VRMod_Start",
-		"vrmod_lvs_set_input_mode",
-		function(ply)
-			if ply ~= LocalPlayer() then return end
-			local inputMode = 1 -- デフォルトはネットワークモード
-			if game.SinglePlayer() then
-				inputMode = 0 -- シングルプレイまたはホストならレガシーモード
-			end
+	-- -- VRMod 開始時に LVS 入力モードを自動設定
+	-- hook.Add(
+	-- 	"VRMod_Start",
+	-- 	"vrmod_lvs_set_input_mode",
+	-- 	function(ply)
+	-- 		if ply ~= LocalPlayer() then return end
+	-- 		local inputMode = 1 -- デフォルトはネットワークモード
+	-- 		if game.SinglePlayer() then
+	-- 			inputMode = 0 -- シングルプレイまたはホストならレガシーモード
+	-- 		end
 
-			RunConsoleCommand("vrmod_lvs_input_mode", tostring(inputMode))
-			print("[VRMod] LVS Input Mode set to: " .. (inputMode == 0 and "Legacy (Singleplayer/Host)" or "Networked (Multiplayer Client)"))
-		end
-	)
+	-- 		RunConsoleCommand("vrmod_lvs_input_mode", tostring(inputMode))
+	-- 		print("[VRMod] LVS Input Mode set to: " .. (inputMode == 0 and "Legacy (Singleplayer/Host)" or "Networked (Multiplayer Client)"))
+	-- 	end
+	-- )
 
 	concommand.Add(
 		"vrmod_keymode_restore",
