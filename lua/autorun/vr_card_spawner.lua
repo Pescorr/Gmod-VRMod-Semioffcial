@@ -1,0 +1,177 @@
+-- AddCSLuaFile()
+-- --[[-------------------------------------------------------------------------
+--     vr_card_spawner - Shared Logic
+--     Defines network strings used for communication between server and client.
+-- ---------------------------------------------------------------------------]]
+-- util.AddNetworkString("VRCardSpawner_SpawnNPC")
+-- util.AddNetworkString("VRCardSpawner_SpawnFeedback")
+-- --[[-------------------------------------------------------------------------
+--     Server-Side Logic
+--     Handles requests from clients to spawn NPCs.
+-- ---------------------------------------------------------------------------]]
+-- if SERVER then
+--     net.Receive(
+--         "VRCardSpawner_SpawnNPC",
+--         function(len, ply)
+--             -- Ensure the player is valid
+--             if not IsValid(ply) then return end
+--             local spawnPos = net.ReadVector()
+--             local spawnAng = net.ReadAngle()
+--             -- Create the specified NPC at the location requested by the client
+--             local npc = ents.Create("npc_citizen")
+--             if IsValid(npc) then
+--                 npc:SetPos(spawnPos)
+--                 npc:SetAngles(spawnAng)
+--                 npc:Spawn()
+--                 npc:Activate()
+--                 -- Send feedback to the client that the spawn was successful
+--                 net.Start("VRCardSpawner_SpawnFeedback")
+--                 net.Send(ply)
+--             end
+--         end
+--     )
+--     -- End of server-side script
+
+--     return
+-- end
+
+-- --[[-------------------------------------------------------------------------
+--     Client-Side Logic
+--     Handles all visual elements, player input, and interaction.
+-- ---------------------------------------------------------------------------]]
+-- -- Configuration constants
+-- local CARD_HOLDER_MODEL = "models/props_c17/cardboardbox01a.mdl"
+-- local CARD_HOLDER_SCALE = 0.1
+-- local CARD_HOLDER_OFFSET_POS = Vector(-3, 1, 0)
+-- local CARD_HOLDER_OFFSET_ANG = Angle(0, 90, -90)
+-- local CARD_MODEL = "models/props_lab/box_cardindex01a.mdl"
+-- local CARD_SCALE = 0.4
+-- local CARD_OFFSET_POS = Vector(5, -1, 0)
+-- local CARD_OFFSET_ANG = Angle(0, 0, 90)
+-- -- Runtime variables
+-- local cardHolder = nil
+-- local heldCard = nil
+-- -- Creates the card holder when the player enters VR
+-- hook.Add(
+--     "VRMod_Start",
+--     "VRCardSpawner_CreateHolder",
+--     function(ply)
+--         if ply ~= LocalPlayer() then return end
+--         if not IsValid(cardHolder) then
+--             cardHolder = ClientsideModel(CARD_HOLDER_MODEL, RENDERGROUP_OPAQUE)
+--             if IsValid(cardHolder) then
+--                 cardHolder:SetModelScale(CARD_HOLDER_SCALE)
+--                 cardHolder:SetNoDraw(false)
+--             end
+--         end
+--     end
+-- )
+
+-- -- Cleans up the holder and card when the player exits VR
+-- hook.Add(
+--     "VRMod_Exit",
+--     "VRCardSpawner_Cleanup",
+--     function(ply)
+--         if ply ~= LocalPlayer() then return end
+--         if IsValid(cardHolder) then
+--             cardHolder:Remove()
+--             cardHolder = nil
+--         end
+
+--         if IsValid(heldCard) then
+--             heldCard:Remove()
+--             heldCard = nil
+--         end
+--     end
+-- )
+
+-- -- Updates the position and visuals of the holder and card every frame
+-- hook.Add(
+--     "VRMod_PreRender",
+--     "VRCardSpawner_RenderFollow",
+--     function()
+--         if not vrmod.IsPlayerInVR(LocalPlayer()) then return end
+--         -- Attach the card holder to the left hand
+--         if IsValid(cardHolder) then
+--             local lhPos, lhAng = vrmod.GetLeftHandPose()
+--             local holderPos, holderAng = LocalToWorld(CARD_HOLDER_OFFSET_POS, CARD_HOLDER_OFFSET_ANG, lhPos, lhAng)
+--             cardHolder:SetPos(holderPos)
+--             cardHolder:SetAngles(holderAng)
+--         end
+
+--         -- Attach the held card to the right hand and draw text on it
+--         if IsValid(heldCard) then
+--             local rhPos, rhAng = vrmod.GetRightHandPose()
+--             local cardPos, cardAng = LocalToWorld(CARD_OFFSET_POS, CARD_OFFSET_ANG, rhPos, rhAng)
+--             heldCard:SetPos(cardPos)
+--             heldCard:SetAngles(cardAng)
+--             local ang = heldCard:GetAngles()
+--             local pos = heldCard:GetPos()
+--             ang:RotateAroundAxis(ang:Up(), -90)
+--             ang:RotateAroundAxis(ang:Forward(), -90)
+--             cam.Start3D2D(pos + ang:Up() * 0.1, ang, 0.05)
+--             draw.SimpleText("Citizen", "DermaLarge", 0, 0, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+--             cam.End3D2D()
+--         end
+--     end
+-- )
+
+-- -- Handles player input for grabbing and using cards
+-- hook.Add(
+--     "VRMod_Input",
+--     "VRCardSpawner_Input",
+--     function(action, pressed)
+--         if not pressed then return end
+--         -- Right hand grab: Get a card
+--         if action == "boolean_right_pickup" then
+--             if IsValid(heldCard) or not IsValid(cardHolder) then return end
+--             local rhPos = vrmod.GetRightHandPos()
+--             if cardHolder:GetPos():Distance(rhPos) < 15 then
+--                 heldCard = ClientsideModel(CARD_MODEL, RENDERGROUP_OPAQUE)
+--                 if IsValid(heldCard) then
+--                     heldCard:SetModelScale(CARD_SCALE)
+--                     heldCard:SetNoDraw(false)
+--                 end
+--             end
+--         end
+
+--         -- Right hand trigger: Use the card
+--         if action == "boolean_primaryfire" then
+--             if not IsValid(heldCard) then return end
+--             local ply = LocalPlayer()
+--             local eyeTrace = ply:GetEyeTrace()
+--             -- Determine spawn position 200 units in front, then find the ground
+--             local traceStart = eyeTrace.HitPos
+--             if traceStart:DistToSqr(ply:EyePos()) > (200 * 200) then
+--                 traceStart = ply:EyePos() + ply:GetAimVector() * 200
+--             end
+
+--             local groundTrace = util.TraceLine(
+--                 {
+--                     start = traceStart + Vector(0, 0, 50),
+--                     endpos = traceStart - Vector(0, 0, 200),
+--                     mask = MASK_SOLID_BRUSHONLY
+--                 }
+--             )
+
+--             local spawnPos = groundTrace.Hit and groundTrace.HitPos or traceStart
+--             local spawnAng = Angle(0, ply:EyeAngles().y, 0)
+--             -- Send spawn request to the server
+--             net.Start("VRCardSpawner_SpawnNPC")
+--             net.WriteVector(spawnPos)
+--             net.WriteAngle(spawnAng)
+--             net.SendToServer()
+--             -- Consume the card
+--             heldCard:Remove()
+--             heldCard = nil
+--         end
+--     end
+-- )
+
+-- -- Receives spawn success feedback from the server
+-- net.Receive(
+--     "VRCardSpawner_SpawnFeedback",
+--     function()
+--         surface.PlaySound("items/gunpickup.wav")
+--     end
+-- )
