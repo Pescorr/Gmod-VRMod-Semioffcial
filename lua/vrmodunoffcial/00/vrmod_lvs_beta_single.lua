@@ -3,6 +3,8 @@
 -- if SERVER then
 --     if not LVS then return end
 --     if not g_VR then return end
+--     local lvssingle = CreateClientConVar("vrmod_lvs_input_mode", "0", true, FCVAR_ARCHIVE, "Enable LVS single player mode for VRMod.")
+--     if lvssingle:GetBool() == false then return end
 --     function vrmod_lvs_server_singleplay()
 --         util.AddNetworkString("lvs_setinput")
 --         -- ネットワークメッセージを受け取る
