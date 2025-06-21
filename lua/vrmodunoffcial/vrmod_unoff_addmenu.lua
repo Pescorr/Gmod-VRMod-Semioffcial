@@ -496,7 +496,7 @@ hook.Add(
 		local vrdisablepickup = generalSettings:CheckBox("VR Disable Pickup (Client)")
 		vrdisablepickup:SetConVar("vr_pickup_disable_client")
 		local lvspickuphandle = generalSettings:CheckBox("Enable LVS Pickup Handle")
-		lvspickuphandle:SetConVar("vrmod_lvs_pickup_handle")
+		lvspickuphandle:SetConVar("vrmod_lvs_input_mode")
 		local vrmodmenutype = generalSettings:CheckBox("VRMod Menu Type")
 		vrmodmenutype:SetConVar("vrmod_menu_type")
 		local animationSettings = vgui.Create("DForm", sheet)
