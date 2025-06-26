@@ -76,7 +76,7 @@ AddCSLuaFile()
         end
 
         if not vehicle.SetTurretAngle then -- GetTurretAngleは不要になった
-             print("[Glide Extended Input] Warning: Vehicle "..tostring(vehicle).." does not support SetTurretAngle.")
+             --print("[Glide Extended Input] Warning: Vehicle "..tostring(vehicle).." does not support SetTurretAngle.")
              return
         end
 

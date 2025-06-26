@@ -4,7 +4,7 @@ function vrmod_character_lua()
 	g_VR.characterYaw = 0
 	local convars, convarValues = vrmod.GetConvars()
 	if not convars or not convarValues then
-		print("VRMod_Character: Warning - convars or convarValues not initialized. This might lead to errors.")
+		--print("VRMod_Character: Warning - convars or convarValues not initialized. This might lead to errors.")
 		convars = {} -- Fallback
 		convarValues = {} -- Fallback
 	end
@@ -460,7 +460,7 @@ function vrmod_character_lua()
 		ply:SetLOD(0)
 		local cm = ClientsideModel(pmname)
 		if not IsValid(cm) then
-			print("VRMod_Character: Error - Failed to create clientside model: " .. pmname)
+			--print("VRMod_Character: Error - Failed to create clientside model: " .. pmname)
 			characterInfo[steamid] = nil -- 初期化失敗
 
 			return false
@@ -512,7 +512,7 @@ function vrmod_character_lua()
 
 				cm:Remove()
 				g_VR.StopCharacterSystem(steamid)
-				print("VRMod: CharacterInit failed for " .. steamid .. " due to missing bone: " .. v_bone_name)
+				--print("VRMod: CharacterInit failed for " .. steamid .. " due to missing bone: " .. v_bone_name)
 
 				return false
 			end
@@ -601,7 +601,7 @@ function vrmod_character_lua()
 	local function PreRenderFunc()
 		if not g_VR or not g_VR.tracking or not g_VR.tracking.hmd or not g_VR.input then return end
 		if not convars or not convars.vrmod_oldcharacteryaw then
-			print("VRMod_Character: Warning - convars.vrmod_oldcharacteryaw not available in PreRenderFunc.")
+			--print("VRMod_Character: Warning - convars.vrmod_oldcharacteryaw not available in PreRenderFunc.")
 
 			return
 		end
@@ -768,7 +768,7 @@ function vrmod_character_lua()
 		local steamid = ply:SteamID()
 		if CharacterInit(ply) == false then return end
 		if not g_VR.net or not g_VR.net[steamid] then
-			print("[VRMod] Warning: Network data not ready for player " .. steamid)
+			--print("[VRMod] Warning: Network data not ready for player " .. steamid)
 
 			return
 		end
