@@ -662,7 +662,7 @@ if SERVER then
 				net.WriteBool(g_VR[k].dontHideBullets)
 				net.Send(ply)
 			else
-				print("VRMod: Invalid SteamID \""..k.."\" found in player table")
+				--print("VRMod: Invalid SteamID \""..k.."\" found in player table")
 			end
 		end
 	end)

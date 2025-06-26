@@ -148,5 +148,5 @@ if CLIENT then
         end
     end)
 
-    print("[Glide Extended Input] Initialized for Aircraft, Tanks, and Boats. Steering/Turret logic updated.")
+    --print("[Glide Extended Input] Initialized for Aircraft, Tanks, and Boats. Steering/Turret logic updated.")
 end
