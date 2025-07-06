@@ -71,12 +71,11 @@ hook.Add(
 		pickuplimit:SetDecimals(0)
 		pickuplimit:SetConVar("vrmod_pickup_limit")
 		AddControl(pickuplimit)
-		if GetConVar("vrmod_manualpickups") ~= nil then
 			local manualpickups = vgui.Create("DCheckBoxLabel", gameplaySettings)
 			manualpickups:SetText("Manual Pickup (by Hugo)")
 			manualpickups:SetConVar("vrmod_manualpickups")
+			manualpickups:SetConVar("vrmod_pickup_allow_default")
 			AddControl(manualpickups)
-		end
 		local GamePlay_defaultbutton = vgui.Create("DButton", gameplaySettings)
 		GamePlay_defaultbutton:SetText("Restore Default Gameplay Settings")
 		GamePlay_defaultbutton.DoClick = function()
