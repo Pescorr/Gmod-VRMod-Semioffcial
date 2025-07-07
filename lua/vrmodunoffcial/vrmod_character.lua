@@ -1,4 +1,8 @@
 --------[vrmod_character.lua]Start--------
+
+if SERVER then return end -- サーバーサイドでは実行しない
+
+
 function vrmod_character_lua()
 	g_VR = g_VR or {}
 	g_VR.characterYaw = 0
