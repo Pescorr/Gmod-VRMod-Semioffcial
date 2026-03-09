@@ -125,7 +125,7 @@ local function AddHUD()
 	)
 
 	--todo dont hook menu system to draw on top of player lol
-	orig = orig or VRUtilRenderMenuSystem
+	orig = vrmod._origVRUtilRenderMenuSystem or VRUtilRenderMenuSystem
 	VRUtilRenderMenuSystem = function()
 		render.SetMaterial(mat)
 		cam.PushModelMatrix(mtx)

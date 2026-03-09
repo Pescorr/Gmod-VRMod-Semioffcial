@@ -315,13 +315,13 @@ function VRUtilOpenHeightMenu()
 			y = 200,
 			w = 50,
 			h = 50,
-			text = convarValues.vrmod_seated and "Disable\nSeated\nOffset" or "Enable\nSeated\nOffset",
+			text = convarValues.vrmod_seated and VRModL("btn_disable_seated", "Disable\nSeated\nOffset") or VRModL("btn_enable_seated", "Enable\nSeated\nOffset"),
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = -2,
 			enabled = true,
 			fn = function()
-				buttons[5].text = (not convarValues.vrmod_seated) and "Disable\nSeated\nOffset" or "Enable\nSeated\nOffset"
+				buttons[5].text = (not convarValues.vrmod_seated) and VRModL("btn_disable_seated", "Disable\nSeated\nOffset") or VRModL("btn_enable_seated", "Enable\nSeated\nOffset")
 				convars.vrmod_seated:SetBool(not convarValues.vrmod_seated)
 				renderControls()
 			end
@@ -331,15 +331,13 @@ function VRUtilOpenHeightMenu()
 			y = 395,
 			w = 50,
 			h = 50,
-			text = "Reset\nConfig",
+			text = VRModL("btn_reset_config", "Reset\nConfig"),
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
 			enabled = true,
 			fn = function()
-				RunConsoleCommand("vrmod_character_reset")
-				convars.vrmod_scale:SetFloat(38.7)
-				convars.vrmod_seatedoffset:SetFloat(0)
+				VRModResetCategory("character")
 				RunConsoleCommand("vrmod_restart")
 			end
 		},
@@ -348,7 +346,7 @@ function VRUtilOpenHeightMenu()
 			y = 450,
 			w = 50,
 			h = 50,
-			text = "Auto\nSet",
+			text = VRModL("btn_auto_set", "Auto\nSet"),
 			font = "Trebuchet18",
 			text_x = 25,
 			text_y = 5,
@@ -356,10 +354,11 @@ function VRUtilOpenHeightMenu()
 			fn = function()
 				RunConsoleCommand("vrmod_hide_head", 0)
 				RunConsoleCommand("vrmod_character_stop")
-				RunConsoleCommand("vrmod_scale", 38.7)
-				RunConsoleCommand("vrmod_characterHeadToHmdDist", 6.3)
-				RunConsoleCommand("vrmod_characterEyeHeight", 66.8)
-				RunConsoleCommand("vrmod_seatedoffset", 66.8)
+				-- Use centralized defaults
+				RunConsoleCommand("vrmod_scale", VRModGetDefault("vrmod_scale"))
+				RunConsoleCommand("vrmod_characterHeadToHmdDist", VRModGetDefault("vrmod_characterHeadToHmdDist"))
+				RunConsoleCommand("vrmod_characterEyeHeight", VRModGetDefault("vrmod_characterEyeHeight"))
+				RunConsoleCommand("vrmod_seatedoffset", VRModGetDefault("vrmod_seatedoffset"))
 				AddCSLuaFile("vrmodunoffcial/vrmod_character.lua")
 				include("vrmodunoffcial/vrmod_character.lua")
 				RunConsoleCommand("vrmod_character_auto")
@@ -399,14 +398,7 @@ function VRUtilOpenHeightMenu()
 					4.5,
 					function()
 						if convarValues.vrmod_characterEyeHeight < 2.0 and not convarValues.vrmod_seated then
-							RunConsoleCommand("vrmod_character_reset")
-							convars.vrmod_scale:SetFloat(38.7)
-							convars.vrmod_characterHeadToHmdDist:SetFloat(6.3)
-							convars.vrmod_characterHeadToHmdDist:SetFloat(6.3)
-							convars.vrmod_characterEyeHeight:SetFloat(66.8)
-							convars.vrmod_crouchthreshold:SetFloat(40)
-							convars.vrmod_seatedoffset:SetFloat(66.8)
-							convars.vrmod_znear:SetFloat(6.0)
+							VRModResetCategory("character")
 						end
 
 						RunConsoleCommand("vrmod_character_start")

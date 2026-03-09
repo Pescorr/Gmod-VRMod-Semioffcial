@@ -17,6 +17,26 @@ if CLIENT then
 
 	-- -- LVS 入力モード切り替え用 ConVar を追加
 	CreateClientConVar("vrmod_lvs_input_mode", "1", true, FCVAR_ARCHIVE, "LVS input mode (0 = legacy/singleplayer, 1 = networked/multiplayer client)", 0, 1)
+
+	-- Auto-generate VR config data on startup (for x64 compatibility)
+	CreateClientConVar("vrmod_unoff_auto_generate_config", "0", true, FCVAR_ARCHIVE, "Auto-generate VR config data on VR startup (recommended for x64 compatibility)", 0, 1)
+
+	-- VRMod 開始時に自動で config data を生成
+	hook.Add(
+		"VRMod_Start",
+		"vrmod_unoff_auto_generate_config",
+		function(ply)
+			if ply ~= LocalPlayer() then return end
+			local autoGenerate = GetConVar("vrmod_unoff_auto_generate_config")
+			if autoGenerate and autoGenerate:GetBool() then
+				timer.Simple(1, function() -- VRMod起動直後に実行するため1秒待つ
+					RunConsoleCommand("vrmod_data_vmt_generate_test")
+					print("[VRMod Unofficial] VR config data auto-generated (x64 compatibility)")
+				end)
+			end
+		end
+	)
+
 	-- -- VRMod 開始時に LVS 入力モードを自動設定
 	-- hook.Add(
 	-- 	"VRMod_Start",
@@ -107,27 +127,14 @@ if CLIENT then
 	)
 
 	--"pescorr_cvar_cl_default"
-	local CVars = {{"vrmod_characterEyeHeight", "vrmod_characterHeadToHmdDist", "vrmod_scale", "vrmod_seatedoffset", "vrmod_seated"}}
+	-- UPDATED: Now uses centralized default values system (vrmod_defaults.lua)
+	-- 更新: 中央管理されたデフォルト値システムを使用 (vrmod_defaults.lua)
 	concommand.Add(
 		"vrmod_character_reset",
 		function(ply, cmd, args)
-			for _, cvar in ipairs(CVars) do
-				if cvar ~= nil then
-					local name, value = unpack(cvar)
-					if GetConVar(name) ~= nil then
-						local value = GetConVar(name):GetDefault()
-						LocalPlayer():ConCommand(name .. " " .. value)
-						LocalPlayer():ConCommand("vrmod_scale 38.7")
-						LocalPlayer():ConCommand("vrmod_characterHeadToHmdDist 6.3")
-						LocalPlayer():ConCommand("vrmod_characterEyeHeight 66.8")
-						LocalPlayer():ConCommand("vrmod_seatedoffset 66.8")
-						LocalPlayer():ConCommand("vrmod_crouchthreshold  40")
-						LocalPlayer():ConCommand("vrmod_znear 6.0")
-						if CLIENT then
-							print(name .. " default: " .. value)
-						end
-					end
-				end
+			VRModResetCategory("character")
+			if CLIENT then
+				print("[VRMod] " .. VRModL("msg_character_reset", "Character settings reset to defaults"))
 			end
 		end
 	)

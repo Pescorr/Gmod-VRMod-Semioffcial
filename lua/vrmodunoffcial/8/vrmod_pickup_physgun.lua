@@ -18,6 +18,10 @@ function CreateVRPhysgunSystem(prefix)
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_damage", "0.0001", true, FCVAR_ARCHIVE, "", 0, 1.000)
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_damage_enable", "1", true, FCVAR_ARCHIVE, "")
 		CreateClientConVar("vrmod_" .. prefix .. "_physgun_pull_enable", "1", true, FCVAR_ARCHIVE, "")
+		CreateClientConVar("vrmod_" .. prefix .. "_physgun_noclip_enable", "1", true, FCVAR_ARCHIVE, "")
+		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_offset_x", "0", true, FCVAR_ARCHIVE, "")
+		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_offset_y", "0", true, FCVAR_ARCHIVE, "")
+		CreateClientConVar("vrmod_" .. prefix .. "_physgun_beam_offset_z", "0", true, FCVAR_ARCHIVE, "")
 		g_VR["physgunHeldEntity_" .. prefix] = nil
 		g_VR["physgunHandoffPending_" .. prefix] = false
 		vrmod["PhysgunAction_" .. prefix] = function(bDrop)
@@ -97,9 +101,17 @@ function CreateVRPhysgunSystem(prefix)
 			local beamColor = GetPhysgunBeamColor()
 			local hand = prefix == "left" and "pose_lefthand" or "pose_righthand"
 			local heldEnt = g_VR["physgunHeldEntity_" .. prefix]
-			local startPos = g_VR.tracking[hand].pos
-			local forward = g_VR.tracking[hand].ang:Forward()
+			local handPos = g_VR.tracking[hand].pos
+			local handAng = g_VR.tracking[hand].ang
 			local beamRange = GetConVar("vrmod_" .. prefix .. "_physgun_beam_range"):GetFloat()
+
+			-- Apply beam offset from ConVars
+			local offsetX = GetConVar("vrmod_" .. prefix .. "_physgun_beam_offset_x"):GetFloat()
+			local offsetY = GetConVar("vrmod_" .. prefix .. "_physgun_beam_offset_y"):GetFloat()
+			local offsetZ = GetConVar("vrmod_" .. prefix .. "_physgun_beam_offset_z"):GetFloat()
+			local startPos = LocalToWorld(Vector(offsetX, offsetY, offsetZ), Angle(), handPos, handAng)
+			local forward = handAng:Forward()
+
 			local tr = util.TraceLine(
 				{
 					start = startPos,
@@ -115,9 +127,21 @@ function CreateVRPhysgunSystem(prefix)
 				endPos = tr.HitPos
 			end
 
-			local color = beamColor
+			local color
 			if heldEnt and IsValid(heldEnt) then
-				color = Color(math.min(color.r + 50, 255), math.min(color.g + 50, 255), math.min(color.b + 50, 255), color.a)
+				-- 物体保持中: 常に表示（明るく）
+				color = Color(
+					math.min(beamColor.r + 50, 255),
+					math.min(beamColor.g + 50, 255),
+					math.min(beamColor.b + 50, 255),
+					100  -- 常に表示
+				)
+			elseif tr.Hit and IsValid(tr.Entity) and tr.Entity:GetPhysicsObject() then
+				-- PhysicsObjectを持つEntityに当たっている: 表示
+				color = Color(beamColor.r, beamColor.g, beamColor.b, 100)
+			else
+				-- 何にも当たっていない or 地面・壁: 非表示
+				color = Color(beamColor.r, beamColor.g, beamColor.b, 0)
 			end
 
 			render.SetMaterial(beam_mat1)
@@ -380,10 +404,17 @@ function CreateVRPhysgunSystem(prefix)
 		local function pickup(ply, handPos, handAng)
 			local steamid = ply:SteamID()
 			local maxRange = ply:GetInfoNum("vrmod_" .. prefix .. "_physgun_beam_range", physgunmaxrange:GetFloat())
+
+			-- Apply beam offset from ConVars
+			local offsetX = ply:GetInfoNum("vrmod_" .. prefix .. "_physgun_beam_offset_x", 0)
+			local offsetY = ply:GetInfoNum("vrmod_" .. prefix .. "_physgun_beam_offset_y", 0)
+			local offsetZ = ply:GetInfoNum("vrmod_" .. prefix .. "_physgun_beam_offset_z", 0)
+			local beamStart = LocalToWorld(Vector(offsetX, offsetY, offsetZ), Angle(), handPos, handAng)
+
 			local tr = util.TraceLine(
 				{
-					start = handPos,
-					endpos = handPos + handAng:Forward() * maxRange,
+					start = beamStart,
+					endpos = beamStart + handAng:Forward() * maxRange,
 					filter = ply
 				}
 			)
@@ -453,6 +484,12 @@ function CreateVRPhysgunSystem(prefix)
 				ply = ply
 			}
 
+			-- Apply noclip collision if enabled
+			local noclipConvar = GetConVar("vrmod_" .. prefix .. "_physgun_noclip_enable")
+			if noclipConvar and noclipConvar:GetBool() then
+				entity:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR) -- don't collide with the player
+			end
+
 			g_VR[steamid] = g_VR[steamid] or {}
 			g_VR[steamid]["physgunHeldItems_" .. prefix] = PhysgunController.pickupList[index]
 			entity["vrmod_physgun_info_" .. prefix] = PhysgunController.pickupList[index]
@@ -494,10 +531,9 @@ function CreateVRPhysgunSystem(prefix)
 			if action == activationAction then
 				vrmod["PhysgunAction_" .. prefix](not pressed)
 				if pressed then
-					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 100")
+					-- beam_color_a設定を削除（DrawPhysgunBeams()で動的に制御）
 					actflag = true
 				else
-					LocalPlayer():ConCommand("vrmod_" .. prefix .. "_physgun_beam_color_a 0")
 					actflag = false
 					if g_VR["physgunHeldEntity_" .. prefix] then
 						vrmod["PhysgunRequestHandoff_" .. prefix]()

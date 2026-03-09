@@ -161,6 +161,8 @@ function vrmod_ui_lua()
 			render.DepthRange(0, 1)
 		end
 
+		vrmod._origVRUtilRenderMenuSystem = VRUtilRenderMenuSystem
+
 		function VRUtilMenuOpen(uid, width, height, panel, attachment, pos, ang, scale, cursorEnabled, closeFunc)
 			if menus[uid] then return end
 			if uirendertype:GetBool() then

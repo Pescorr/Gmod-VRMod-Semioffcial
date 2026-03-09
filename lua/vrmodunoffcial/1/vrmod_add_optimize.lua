@@ -129,7 +129,8 @@ local function ApplyVRModOptimization()
     end
 
     if optimizationLevel == 3 then
-        RunConsoleCommand("gmod_mcore_test", "0")
+        RunConsoleCommand("gmod_mcore_test", "1")
+        RunConsoleCommand("mat_queue_mode", "1")
         RunConsoleCommand("vrmod_mirror_optimization", "1")
         RunConsoleCommand("vrmod_reflective_glass_toggle", "1")
         RunConsoleCommand("vrmod_disable_mirrors", "1")
@@ -154,7 +155,7 @@ end
 -- コンソールコマンド
 concommand.Add("vrmod_apply_optimization", ApplyVRModOptimization)
 if SERVER then return end
-local optimizeConVars = {"r_3dsky", "r_shadows", "r_farz", "r_WaterDrawReflection", "r_WaterDrawRefraction", "r_waterforceexpensive", "r_waterforcereflectentities", "vrmod_mirror_optimization", "vrmod_reflective_glass_toggle", "vrmod_disable_mirrors", "gmod_mcore_test"}
+local optimizeConVars = {"r_3dsky", "r_shadows", "r_farz", "r_WaterDrawReflection", "r_WaterDrawRefraction", "r_waterforceexpensive", "r_waterforcereflectentities", "vrmod_mirror_optimization", "vrmod_reflective_glass_toggle", "vrmod_disable_mirrors", "gmod_mcore_test", "mat_queue_mode"}
 -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
 local originalConVarValues = {}
 local function RecordConVarValues()
@@ -222,7 +223,7 @@ if CLIENT then
     local bothmode = 0
     local ply = LocalPlayer()
     -- 以前のコマンドで設定されたconvarのリスト
-    local optimizeConVars = {"r_3dsky", "r_shadows", "r_farz", "r_WaterDrawReflection", "r_WaterDrawRefraction", "r_waterforceexpensive", "r_waterforcereflectentities", "vrmod_mirror_optimization", "vrmod_reflective_glass_toggle", "vrmod_disable_mirrors", "gmod_mcore_test"}
+    local optimizeConVars = {"r_3dsky", "r_shadows", "r_farz", "r_WaterDrawReflection", "r_WaterDrawRefraction", "r_waterforceexpensive", "r_waterforcereflectentities", "vrmod_mirror_optimization", "vrmod_reflective_glass_toggle", "vrmod_disable_mirrors", "gmod_mcore_test", "mat_queue_mode"}
     -- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
     concommand.Add(
         "vrmod_gmod_optimization_reset",
