@@ -242,6 +242,10 @@ if CLIENT then
             local ply = LocalPlayer()
             if not ply:Alive() or ply:InVehicle() or not IsPlayerInVR(ply) then return end
             if NextMeleeTime > CurTime() then return end
+            -- Get HMD velocity once for relative velocity calculation
+            local hmdVel = Vector(0, 0, 0)
+            local ok, result = pcall(vrmod.GetHMDVelocity)
+            if ok and result then hmdVel = result end
             -- Helper function to find the viewmodel tip position
             local function GetViewModelTipPosition(vm)
                 local bestDist = 0
@@ -262,13 +266,14 @@ if CLIENT then
             if cv_allowgunmelee:GetBool() and cl_usegunmelee:GetBool() then
                 local wep = ply:GetActiveWeapon()
                 if IsValid(wep) and wep:GetClass() ~= "weapon_vrmod_empty" then
-                    local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(vrmod.GetRightHandVelocity())
+                    local relVel = vrmod.GetRightHandVelocity() - hmdVel
+                    local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(relVel)
                     if shouldAttack then
                         local vm = ply:GetViewModel()
                         if IsValid(vm) then
                             local muzzleAttach = vm:GetAttachment(1)
                             local src = muzzleAttach and muzzleAttach.Pos or vrmod.GetRightHandPos(ply)
-                            local dir = vrmod.GetRightHandVelocity():GetNormalized()
+                            local dir = relVel:GetNormalized()
                             -- If a gun command is set, execute it
                             if cv_gunmeleecommand:GetString() ~= "" and damage > 0 then
                                 LocalPlayer():ConCommand(cv_gunmeleecommand:GetString())
@@ -285,10 +290,11 @@ if CLIENT then
             if cv_allowgunmelee:GetBool() and cl_usegunmelee:GetBool() then
                 local wep = ply:GetActiveWeapon()
                 if IsValid(wep) and wep:GetClass() ~= "weapon_vrmod_empty" then
-                    local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(vrmod.GetLeftHandVelocity())
+                    local relVelL = vrmod.GetLeftHandVelocity() - hmdVel
+                    local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(relVelL)
                     if shouldAttack then
                         local src = vrmod.GetLeftHandPos(ply)
-                        local dir = vrmod.GetLeftHandVelocity():GetNormalized()
+                        local dir = relVelL:GetNormalized()
                         -- If a command is set, execute it
                         if cv_lefthandcommand:GetString() ~= "" then
                             LocalPlayer():ConCommand(cv_lefthandcommand:GetString())
@@ -312,10 +318,11 @@ if CLIENT then
             if cv_allowgunmelee:GetBool() and cl_usegunmelee:GetBool() then
                 local wep = ply:GetActiveWeapon()
                 if IsValid(wep) and wep:GetClass() ~= "weapon_vrmod_empty" then
-                    local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(vrmod.GetRightHandVelocity())
+                    local relVelR = vrmod.GetRightHandVelocity() - hmdVel
+                    local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(relVelR)
                     if shouldAttack then
                         local src = vrmod.GetRightHandPos(ply)
-                        local dir = vrmod.GetRightHandVelocity():GetNormalized()
+                        local dir = relVelR:GetNormalized()
                         -- If a command is set, execute it
                         if cv_righthandcommand:GetString() ~= "" then
                             LocalPlayer():ConCommand(cv_righthandcommand:GetString())
@@ -337,10 +344,11 @@ if CLIENT then
 
             -- Process left hand attacks (fist or open hand)
             if cv_allowfist:GetBool() and cl_usefist:GetBool() then
-                local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(vrmod.GetLeftHandVelocity())
+                local relVelL = vrmod.GetLeftHandVelocity() - hmdVel
+                local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(relVelL)
                 if shouldAttack then
                     local src = vrmod.GetLeftHandPos(ply)
-                    local dir = vrmod.GetLeftHandVelocity():GetNormalized()
+                    local dir = relVelL:GetNormalized()
                     -- If a command is set, execute it
                     if cv_lefthandcommand:GetString() ~= "" then
                         LocalPlayer():ConCommand(cv_lefthandcommand:GetString())
@@ -361,10 +369,11 @@ if CLIENT then
 
             -- Process right hand attacks (fist or open hand)
             if cv_allowfist:GetBool() and cl_usefist:GetBool() then
-                local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(vrmod.GetRightHandVelocity())
+                local relVelR = vrmod.GetRightHandVelocity() - hmdVel
+                local shouldAttack, damage, vel, isHighVelocity = ShouldPerformMeleeAttack(relVelR)
                 if shouldAttack then
                     local src = vrmod.GetRightHandPos(ply)
-                    local dir = vrmod.GetRightHandVelocity():GetNormalized()
+                    local dir = relVelR:GetNormalized()
                     -- If a command is set, execute it
                     if cv_righthandcommand:GetString() ~= "" then
                         LocalPlayer():ConCommand(cv_righthandcommand:GetString())

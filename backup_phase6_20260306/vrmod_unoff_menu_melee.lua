@@ -84,58 +84,6 @@ if CLIENT then
             form3:TextEntry("Block Release", "vrmelee_emulateblockbutton_release")
             form3:NumSlider("Block Angle Min", "vrmelee_emulatebloack_Threshold_Low", 0, 180, 0)
             form3:NumSlider("Block Angle Max", "vrmelee_emulatebloack_Threshold_High", 0, 180, 0)
-            -- Server Settings Tab (SERVER ConVars)
-            local MenuTabmelee4 = vgui.Create("DPanel", sheet)
-            sheet:AddSheet("Server", MenuTabmelee4, "icon16/server.png")
-            MenuTabmelee4.Paint = function(self, w, h) end
-            local scrollPanel4 = vgui.Create("DScrollPanel", MenuTabmelee4)
-            scrollPanel4:Dock(FILL)
-            local form4 = vgui.Create("DForm", scrollPanel4)
-            form4:SetName("Server Settings")
-            form4:Dock(TOP)
-            form4.Header:SetVisible(false)
-            form4.Paint = function(self, w, h) end
-            -- Info message
-            local infoLabel = vgui.Create("DLabel", scrollPanel4)
-            infoLabel:SetText("NOTE: Server settings require admin/server owner privileges to change.")
-            infoLabel:SetTextColor(Color(255, 100, 0))
-            infoLabel:Dock(TOP)
-            infoLabel:DockMargin(5, 5, 5, 5)
-            infoLabel:SetWrap(true)
-            infoLabel:SetAutoStretchVertical(true)
-            -- Attack Type Enables
-            form4:CheckBox("Allow Gun Melee", "vrmelee_gunmelee")
-            form4:CheckBox("Allow Fist Attacks", "vrmelee_fist")
-            form4:CheckBox("Allow Kick Attacks (FBT)", "vrmelee_kick")
-            form4:Help("Enable/disable different types of melee attacks")
-            -- Damage Settings
-            form4:NumSlider("Damage (Low Velocity)", "vrmelee_damage_low", 0, 100, 2)
-            form4:NumSlider("Damage (Medium Velocity)", "vrmelee_damage_medium", 0, 100, 2)
-            form4:NumSlider("Damage (High Velocity)", "vrmelee_damage_high", 0, 100, 2)
-            form4:Help("Damage values for different velocity levels")
-            -- Velocity Thresholds
-            form4:NumSlider("Velocity Threshold (Low)", "vrmelee_damage_velocity_low", 0, 10, 2)
-            form4:NumSlider("Velocity Threshold (Medium)", "vrmelee_damage_velocity_medium", 0, 10, 2)
-            form4:NumSlider("Velocity Threshold (High)", "vrmelee_damage_velocity_high", 0, 10, 2)
-            form4:Help("Velocity thresholds to determine damage level")
-            -- Other Server Settings
-            form4:NumSlider("Impact Force", "vrmelee_impact", 0, 20, 2)
-            form4:NumSlider("Attack Delay", "vrmelee_delay", 0, 2, 2)
-            form4:NumSlider("Attack Range", "vrmelee_range", 0, 50, 0)
-            form4:Help("Other server-side melee settings")
-            -- Compatibility
-            form4:CheckBox("High Velocity Fire Bullets", "vrmelee_high_velocity_fire_bullets")
-            form4:Help("Enable bullet firing for high velocity attacks (compatibility mode)")
-            -- Reset Server Settings Button
-            local resetServerBtn = vgui.Create("DButton", scrollPanel4)
-            resetServerBtn:SetText("Reset Server Settings to Defaults")
-            resetServerBtn:Dock(TOP)
-            resetServerBtn:DockMargin(5, 5, 5, 5)
-            resetServerBtn:SetTall(30)
-            resetServerBtn.DoClick = function()
-                RunConsoleCommand("vrmelee_default")
-                chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Server melee settings reset to defaults")
-            end
         end
     )
 

@@ -99,7 +99,14 @@ hook.Add(
 		pickup_beam_damage:SetConVar("vrmod_pickup_beam_damage")
 		pickup_beam_damage.OnValueChanged = function(self, value) end
 
-
+		-- Add Restore Defaults Button
+		local resetButton = vgui.Create("DButton", MenuTab15)
+		resetButton:SetPos(20, 160)
+		resetButton:SetSize(200, 30)
+		resetButton:SetText(VRModL("btn_restore_defaults", "Restore Default Settings"))
+		resetButton.DoClick = function()
+			VRModResetCategory("beam_pickup")
+		end
 
 	end
 )

@@ -66,15 +66,9 @@ hook.Add(
         CreateSlider("vrmod_mag_ang_r", "Angle Roll", -180, 180)
         local resetButton = vgui.Create("DButton", MenuTab14)
         AddControl(resetButton, 25)
-        resetButton:SetText("Reset Magazine Adjustments")
+        resetButton:SetText(VRModL("btn_restore_defaults", "Restore Default Settings"))
         resetButton.DoClick = function()
-            RunConsoleCommand("vrmod_mag_pos_x", "3.15")
-            RunConsoleCommand("vrmod_mag_pos_y", "0.31")
-            RunConsoleCommand("vrmod_mag_pos_z", "2.83")
-            RunConsoleCommand("vrmod_mag_ang_p", "-2.83")
-            RunConsoleCommand("vrmod_mag_ang_y", "90")
-            RunConsoleCommand("vrmod_mag_ang_r", "83")
-            RunConsoleCommand("vrmod_mag_ang_r", "83")
+            VRModResetCategory("magazine")
         end
 
         local magBonesLabel = vgui.Create("DLabel", MenuTab14)

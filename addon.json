@@ -8,9 +8,9 @@
   ],
   "ignore": [
     ".gitattributes",
-    "security.md",
-    ".md",
-    "code_of_conduct.md",
-    "contributing"
+    "*.md",
+    "contributing",
+    "reference/*",
+    "claude-dev-templates/*"
   ]
 }

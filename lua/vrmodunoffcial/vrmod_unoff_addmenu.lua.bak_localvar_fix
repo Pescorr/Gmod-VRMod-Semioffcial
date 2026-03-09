@@ -5,11 +5,8 @@ local menutype1 = CreateClientConVar("vrmod_menu_type", 1, true, FCVAR_ARCHIVE, 
 
 -- Helper function to create Utility tab (reduces local variables in main hook)
 local function CreateUtilityTab(sheet)
-	local scrollPanel = vgui.Create("DScrollPanel", sheet)
-	sheet:AddSheet("Utility", scrollPanel, "icon16/wrench.png")
-	local utilityTab = vgui.Create("DPanel", scrollPanel)
-	utilityTab:Dock(TOP)
-	utilityTab:SetTall(365)
+	local utilityTab = vgui.Create("DPanel", sheet)
+	sheet:AddSheet("Utility", utilityTab, "icon16/wrench.png")
 	utilityTab.Paint = function(self, w, h) end
 	-- Preset Management Section
 	local presetLabel = vgui.Create("DLabel", utilityTab)
@@ -55,15 +52,59 @@ local function CreateUtilityTab(sheet)
 		RunConsoleCommand("vrmod_preset_list")
 		chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Preset list printed to console")
 	end
+	-- Optimization Preset Section
+	local optPresetLabel = vgui.Create("DLabel", utilityTab)
+	optPresetLabel:SetPos(20, 105)
+	optPresetLabel:SetText("=== Optimization Preset Management ===")
+	optPresetLabel:SetFont("DermaDefaultBold")
+	optPresetLabel:SizeToContents()
+	local optPresetNameEntry = vgui.Create("DTextEntry", utilityTab)
+	optPresetNameEntry:SetPos(20, 130)
+	optPresetNameEntry:SetSize(330, 25)
+	optPresetNameEntry:SetPlaceholderText("Enter optimization preset name...")
+	local saveOptPresetBtn = vgui.Create("DButton", utilityTab)
+	saveOptPresetBtn:SetText("Save Opt Preset")
+	saveOptPresetBtn:SetPos(20, 160)
+	saveOptPresetBtn:SetSize(100, 25)
+	saveOptPresetBtn.DoClick = function()
+		local name = optPresetNameEntry:GetValue()
+		if name == "" then
+			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "Please enter a preset name!")
+			return
+		end
+		RunConsoleCommand("vrmod_gmod_optimize_save", name)
+		chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Optimization preset '" .. name .. "' saved!")
+	end
+	local loadOptPresetBtn = vgui.Create("DButton", utilityTab)
+	loadOptPresetBtn:SetText("Load Opt Preset")
+	loadOptPresetBtn:SetPos(130, 160)
+	loadOptPresetBtn:SetSize(100, 25)
+	loadOptPresetBtn.DoClick = function()
+		local name = optPresetNameEntry:GetValue()
+		if name == "" then
+			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "Please enter a preset name!")
+			return
+		end
+		RunConsoleCommand("vrmod_gmod_optimize_load", name)
+		chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Optimization preset '" .. name .. "' loaded!")
+	end
+	local listOptPresetsBtn = vgui.Create("DButton", utilityTab)
+	listOptPresetsBtn:SetText("List Opt Presets")
+	listOptPresetsBtn:SetPos(240, 160)
+	listOptPresetsBtn:SetSize(110, 25)
+	listOptPresetsBtn.DoClick = function()
+		RunConsoleCommand("vrmod_gmod_optimize_list")
+		chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Optimization preset list printed to console")
+	end
 	-- Screen & VGUI Section
 	local screenLabel = vgui.Create("DLabel", utilityTab)
-	screenLabel:SetPos(20, 105)
+	screenLabel:SetPos(20, 200)
 	screenLabel:SetText("=== Screen & VGUI ===")
 	screenLabel:SetFont("DermaDefaultBold")
 	screenLabel:SizeToContents()
 	local scrAutoBtn = vgui.Create("DButton", utilityTab)
 	scrAutoBtn:SetText("Auto-Detect Screen Resolution")
-	scrAutoBtn:SetPos(20, 130)
+	scrAutoBtn:SetPos(20, 225)
 	scrAutoBtn:SetSize(165, 25)
 	scrAutoBtn.DoClick = function()
 		RunConsoleCommand("vrmod_Scr_Auto")
@@ -71,7 +112,7 @@ local function CreateUtilityTab(sheet)
 	end
 	local vguiResetBtn = vgui.Create("DButton", utilityTab)
 	vguiResetBtn:SetText("Reset VGUI Panels")
-	vguiResetBtn:SetPos(195, 130)
+	vguiResetBtn:SetPos(195, 225)
 	vguiResetBtn:SetSize(155, 25)
 	vguiResetBtn.DoClick = function()
 		RunConsoleCommand("vrmod_vgui_reset")
@@ -80,14 +121,14 @@ local function CreateUtilityTab(sheet)
 
 	-- Config Data Generation Section
 	local configLabel = vgui.Create("DLabel", utilityTab)
-	configLabel:SetPos(20, 165)
+	configLabel:SetPos(20, 205)
 	configLabel:SetText("=== VR Config Data Generation ===")
 	configLabel:SetFont("DermaDefaultBold")
 	configLabel:SizeToContents()
 
 	local generateConfigBtn = vgui.Create("DButton", utilityTab)
 	generateConfigBtn:SetText("Generate VR Config Data (Fix x64 Issues)")
-	generateConfigBtn:SetPos(20, 190)
+	generateConfigBtn:SetPos(20, 230)
 	generateConfigBtn:SetSize(330, 30)
 	generateConfigBtn.DoClick = function()
 		RunConsoleCommand("vrmod_data_vmt_generate_test")
@@ -95,34 +136,34 @@ local function CreateUtilityTab(sheet)
 	end
 
 	local autoGenerateCheckbox = utilityTab:Add("DCheckBoxLabel")
-	autoGenerateCheckbox:SetPos(20, 225)
+	autoGenerateCheckbox:SetPos(20, 265)
 	autoGenerateCheckbox:SetText("Auto-generate on VR startup (recommended for x64 compatibility)")
 	autoGenerateCheckbox:SetConVar("vrmod_unoff_auto_generate_config")
 	autoGenerateCheckbox:SizeToContents()
 
 	-- Core VR Control Section
 	local coreLabel = vgui.Create("DLabel", utilityTab)
-	coreLabel:SetPos(20, 255)
+	coreLabel:SetPos(20, 275)
 	coreLabel:SetText("=== Core VR Control ===")
 	coreLabel:SetFont("DermaDefaultBold")
 	coreLabel:SizeToContents()
 	local startVRBtn = vgui.Create("DButton", utilityTab)
 	startVRBtn:SetText("Start VR")
-	startVRBtn:SetPos(20, 280)
+	startVRBtn:SetPos(20, 300)
 	startVRBtn:SetSize(80, 25)
 	startVRBtn.DoClick = function()
 		RunConsoleCommand("vrmod_start")
 	end
 	local exitVRBtn = vgui.Create("DButton", utilityTab)
 	exitVRBtn:SetText("Exit VR")
-	exitVRBtn:SetPos(110, 280)
+	exitVRBtn:SetPos(110, 300)
 	exitVRBtn:SetSize(80, 25)
 	exitVRBtn.DoClick = function()
 		RunConsoleCommand("vrmod_exit")
 	end
 	local resetVRBtn = vgui.Create("DButton", utilityTab)
 	resetVRBtn:SetText("Reset All Settings")
-	resetVRBtn:SetPos(200, 280)
+	resetVRBtn:SetPos(200, 300)
 	resetVRBtn:SetSize(150, 25)
 	resetVRBtn.DoClick = function()
 		RunConsoleCommand("vrmod_reset")
@@ -130,7 +171,7 @@ local function CreateUtilityTab(sheet)
 	end
 	local infoVRBtn = vgui.Create("DButton", utilityTab)
 	infoVRBtn:SetText("Print VR Info")
-	infoVRBtn:SetPos(20, 310)
+	infoVRBtn:SetPos(20, 330)
 	infoVRBtn:SetSize(165, 25)
 	infoVRBtn.DoClick = function()
 		RunConsoleCommand("vrmod_info")
@@ -138,7 +179,7 @@ local function CreateUtilityTab(sheet)
 	end
 	local luaResetBtn = vgui.Create("DButton", utilityTab)
 	luaResetBtn:SetText("Reset Lua Modules")
-	luaResetBtn:SetPos(195, 310)
+	luaResetBtn:SetPos(195, 330)
 	luaResetBtn:SetSize(155, 25)
 	luaResetBtn.DoClick = function()
 		RunConsoleCommand("vrmod_lua_reset")
@@ -232,7 +273,6 @@ hook.Add(
 		local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
 		frame.DPropertySheet:AddSheet("Settings02", sheet)
 		sheet:Dock(FILL)
-		do -- VR + Character tab scope
 		local scrollPanel = vgui.Create("DScrollPanel", sheet)
 		sheet:AddSheet("VR  ", scrollPanel, "icon16/basket.png")
 		local gameplaySettings = vgui.Create("DPanel", scrollPanel)
@@ -495,11 +535,8 @@ hook.Add(
 			VRModResetCategory("character")
 		end
 		AddControl(vrdefault)
-		end -- VR + Character tab scope
-		local uiScrollPanel = vgui.Create("DScrollPanel", sheet)
-		sheet:AddSheet("UI  ", uiScrollPanel, "icon16/photos.png")
-		local uiSettings = vgui.Create("DForm", uiScrollPanel)
-		uiSettings:Dock(TOP)
+		local uiSettings = vgui.Create("DForm", sheet)
+		sheet:AddSheet("UI  ", uiSettings, "icon16/photos.png")
 		uiSettings:DockPadding(0, 0, 0, 0)
 		local hudenable = uiSettings:CheckBox("HUD Enable")
 		hudenable:SetConVar("vrmod_hud")
@@ -566,11 +603,8 @@ hook.Add(
 		scrAutoCheckbox:SetConVar("vrmod_scr_alwaysautosetting")
 		uiSettings:Help("Automatically detect and set optimal screen resolution when entering VR")
 
-		do -- Optimize + Opt.VR + Opt.Gmod tab scope
-		local graphicsScrollPanel = vgui.Create("DScrollPanel", sheet)
-		sheet:AddSheet("Optimize", graphicsScrollPanel, "icon16/picture.png")
-		local graphicsSettings = vgui.Create("DForm", graphicsScrollPanel)
-		graphicsSettings:Dock(TOP)
+		local graphicsSettings = vgui.Create("DForm", sheet)
+		sheet:AddSheet("Optimize", graphicsSettings, "icon16/picture.png")
 		graphicsSettings:DockPadding(0, 0, 0, 0)
 		local skybox = graphicsSettings:CheckBox("Skybox Enable (Client)")
 		skybox:SetConVar("r_3dsky")
@@ -590,6 +624,27 @@ hook.Add(
 			chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Optimization applied!")
 		end
 		graphicsSettings:Help("Manually trigger optimization based on current vrmod_gmod_optimization level")
+
+		-- Advanced Optimization Commands
+		local advOptCategory = graphicsSettings:Help("=== Advanced Optimization ===")
+		advOptCategory:SetFont("DermaDefaultBold")
+
+		local opt02Btn = graphicsSettings:Button("Apply Optimization Level 2 (VR Restart)")
+		opt02Btn.DoClick = function()
+			RunConsoleCommand("vrmod_gmod_optimization_02")
+			chat.AddText(Color(255, 165, 0), "[VRMod] ", Color(255, 255, 255), "Optimization Level 2 applied (VR will restart)")
+		end
+		graphicsSettings:Help("Medium optimization: Disable water reflections, motion blur (requires VR restart)")
+
+		local opt03Btn = graphicsSettings:Button("Apply Optimization Level 3 (VR Restart)")
+		opt03Btn.DoClick = function()
+			RunConsoleCommand("vrmod_gmod_optimization_03")
+			chat.AddText(Color(255, 165, 0), "[VRMod] ", Color(255, 255, 255), "Optimization Level 3 applied (VR will restart)")
+		end
+		graphicsSettings:Help("Maximum optimization: Disable most visual effects for best performance (requires VR restart)")
+
+		local advOptWarning = graphicsSettings:Help("WARNING: Level 2/3 commands will restart VR mode automatically")
+		advOptWarning:SetTextColor(Color(255, 100, 0))
 
 		-- Mirror/Reflection Management
 		local mirrorCategory = graphicsSettings:Help("=== Mirror & Reflection Management ===")
@@ -755,7 +810,6 @@ hook.Add(
 				changedValues = {}
 			end
 		-- End of Opt.Gmod tab
-		end -- Optimize + Opt.VR + Opt.Gmod tab scope
 
 		local leftColumn2 = vgui.Create("DPanel", uiSettings)
 		leftColumn2:SetSize(200, 400)
@@ -770,7 +824,6 @@ hook.Add(
 		rightColumn2:Add(cameraoverride)
 		rightColumn2:Add(uirender)
 		rightColumn2:Add(uidefault)
-		do -- Quick Menu / VRStop / Misc / Animation / Graphics02 / Network scope
 		local quickMenuSettings = vgui.Create("DForm", sheet)
 		sheet:AddSheet("Quick Menu", quickMenuSettings, "icon16/application_view_tile.png")
 		quickMenuSettings:DockPadding(0, 0, 0, 0)
@@ -916,9 +969,7 @@ hook.Add(
 		netdefault.DoClick = function()
 			VRModResetCategory("network")
 		end
-		end -- Quick Menu / VRStop / Misc / Animation / Graphics02 / Network scope
 
-		do -- Commands + Vehicle tab scope
 		-- VRCommands Tab (NEW)
 		local commandsTab = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Commands", commandsTab, "icon16/application_xp_terminal.png")
@@ -1094,22 +1145,15 @@ hook.Add(
 			chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Switched to SimfPhys mode")
 		end
 		simfModeBtn:SetTooltip("Switch reticle mode for SimfPhys addon")
-		-- Auto Seat Reset
-		local autoSeatReset = vehicleTab:Add("DCheckBoxLabel")
-		autoSeatReset:SetPos(20, 210)
-		autoSeatReset:SetText("[Auto Seat Reset] Disable seat mode when entering vehicle")
-		autoSeatReset:SetConVar("vrmod_auto_seat_reset")
-		autoSeatReset:SizeToContents()
 		-- Reset Vehicle Settings Button
 		local resetVehicleBtn = vgui.Create("DButton", vehicleTab)
 		resetVehicleBtn:SetText("Reset Vehicle Settings")
-		resetVehicleBtn:SetPos(20, 240)
+		resetVehicleBtn:SetPos(20, 210)
 		resetVehicleBtn:SetSize(330, 30)
 		resetVehicleBtn.DoClick = function()
 			VRModResetCategory("vehicle")
 			chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Vehicle settings reset to defaults")
 		end
-		end -- Commands + Vehicle tab scope
 
 		-- Create Utility and Cardboard tabs using helper functions (reduces local variables)
 		CreateUtilityTab(sheet)
