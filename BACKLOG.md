@@ -26,15 +26,14 @@
   - physgun: gmodのphysgunをVRで両手操作可能にする
   - 機能が被っており、別々のシステムとしてリリースするのは不自然かもしれない
   - 統合 or 役割の明確な棲み分けが必要
-- [ ] Physgun Pull時の衝突問題の使い分け
-  - 現状: 引き寄せるとcollisionGroupが未変更でプレイヤーに衝突してしまう
-  - ユーザー層1: gmodのphysgunとできるだけ近い仕様のまま使いたい
-  - ユーザー層2: 引き寄せてそのままvrmod_pickupで持ち上げたい
-  - ConVar等で使い分けできるようにする必要あり
-- [ ] Physgunビーム発射位置の問題
-  - 現状: vrmod_pickupよりも指先側から発射されている
-  - 問題: vrmod_pickupの弱点「同じエンティティを両手で持てない」を補うためにvrmod_physgunを使う際に不便
-  - vrmod_pickupと同じ発射位置にする or ConVarで調整可能にする
+- [x] Physgun Pull時の衝突問題の使い分け
+  - ConVar `vrmod_*_physgun_noclip_enable` で切替（デフォルトON）
+  - Pull中は `COLLISION_GROUP_PASSABLE_DOOR` を適用、ドロップ時に元のcollisionGroupを復元
+  - メニューUIにチェックボックスあり
+- [x] Physgunビーム発射位置の問題
+  - ConVar `vrmod_*_physgun_beam_offset_x/y/z` で3軸オフセット調整可能（-5～+5）
+  - クライアント（ビーム描画）とサーバー（レイトレース）の両方に適用
+  - メニューUIにスライダーあり
 
 ### HUD (フォルダ7)
 - [ ] vrmod_autohudctrl.lua 安定化
@@ -64,6 +63,19 @@
   - 改善案: 判定形状の拡張（楕円・矩形等）、サイズの精密調整、ボーン位置のオフセット調整
 
 ### Magbone / VRMag (フォルダ4)
+- [x] S11: ARC9武器でVRMagのマガジンボーン非表示が動作しない問題
+  - 原因: ARC9のDoBodygroups()が毎フレーム全ボーンをManipulateBoneScale(1,1,1)でリセット
+  - 解決: DoBodygroupsをインスタンスレベルでラップし、リセット後にmagボーン非表示を再適用
+  - 新規3ファイル: vrmod_arc9_core.lua, vrmod_arc9_viewmodel.lua, vrmod_arc9_magbone_fix.lua
+- [ ] ARC9: マガジンボーンを左手位置に追従させる（state==2でSetBoneMatrix）
+  - 現状: magボーンは非表示のみ。TFA/HL2武器のように左手に追従しない
+  - DoBodygroupsラッパー内でSetBoneMatrixを使用する方式が有力
+- [ ] ARC9: リロード時の空弾倉落下エフェクト応用
+  - ARC9の「リロード時に空弾倉を独立エンティティとして地面に落下させる機能」を活用
+  - vrmagentと連動させて、排出した弾倉が物理的に落ちる演出を実現
+- [ ] ARC9: カスタマイズUI VR表示（Phase C）
+  - デスクトップウィンドウ連携 or RenderTarget経由のVR空間表示
+  - VRコントローラーでメニュー操作
 - [ ] vrmod_mag_ejectbone_type=0でもtype=1と同等の機能を持たせる
   - boolean_reloadキーでviewmodelの弾倉ボーンを非表示にし、vrmagで装填する動作
   - 弾倉が回復状態になったり、リロードキー連打で弾倉ボーンの表示/非表示が狂う問題
@@ -215,3 +227,4 @@
 ## 完了
 - [x] S2: Melee相対速度修正（hand_vel - hmd_vel）
 - [x] S2.5: HUD Stack Overflow修正（canonical original pattern）
+- [x] S11: ARC9 VRMagマガジンボーン非表示（DoBodygroupsラッパー方式）
