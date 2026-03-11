@@ -565,10 +565,3 @@ end
 CreateVRPhysgunSystem("left")
 CreateVRPhysgunSystem("right")
 print("[VRMod] Dual Physgun systems initialized")
-
--- VRPICKUP Compatibility Mode: physgun側からvr_pickup_disable_clientを連動制御
-if CLIENT then
-	cvars.AddChangeCallback("vrmod_unoff_physgun_pickup_compat", function(name, old, new)
-		RunConsoleCommand("vr_pickup_disable_client", tonumber(new) == 1 and "1" or "0")
-	end, "physgun_pickup_compat")
-end

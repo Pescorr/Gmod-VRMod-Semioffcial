@@ -53,19 +53,81 @@ hook.Add(
             {
                 part = "Chest",
                 side = "Center"
+            },
+            {
+                part = "Pelvis",
+                side = "Bone"
+            },
+            {
+                part = "Head",
+                side = "Bone"
+            },
+            {
+                part = "Spine",
+                side = "Bone"
             }
         }
 
-        for i = 1, 5 do
+        local yOffset = 160
+        for i = 1, 8 do
+            -- 形状選択ドロップダウン
+            local shape_label = vgui.Create("DLabel", MenuTab16)
+            shape_label:SetPos(20, yOffset)
+            shape_label:SetText(holsterPositions[i].part .. " (" .. holsterPositions[i].side .. ") Shape:")
+            shape_label:SizeToContents()
+
+            local shape_combo = vgui.Create("DComboBox", MenuTab16)
+            shape_combo:SetPos(200, yOffset)
+            shape_combo:SetSize(150, 25)
+            shape_combo:SetValue(GetConVar("vrmod_unoff_pouch_shape_" .. i):GetString())
+            shape_combo:AddChoice("sphere")
+            shape_combo:AddChoice("box")
+            shape_combo.OnSelect = function(self, index, value)
+                RunConsoleCommand("vrmod_unoff_pouch_shape_" .. i, value)
+            end
+            yOffset = yOffset + 30
+
+            -- Sphere用サイズスライダー（常に表示）
             local holster_size = vgui.Create("DNumSlider", MenuTab16)
-            holster_size:SetPos(20, 160 + (i - 1) * 30)
+            holster_size:SetPos(20, yOffset)
             holster_size:SetSize(370, 25)
-            holster_size:SetText(holsterPositions[i].part .. " (" .. holsterPositions[i].side .. ") Holster Size")
+            holster_size:SetText("  Sphere Size")
             holster_size:SetMin(1)
             holster_size:SetMax(100)
-            holster_size:SetDecimals(0)
+            holster_size:SetDecimals(2)
             holster_size:SetConVar("vrmod_pouch_size_" .. i)
-            holster_size.OnValueChanged = function(self, value) end
+            yOffset = yOffset + 30
+
+            -- Box用スライダー3本（常に表示）
+            local box_width = vgui.Create("DNumSlider", MenuTab16)
+            box_width:SetPos(20, yOffset)
+            box_width:SetSize(370, 25)
+            box_width:SetText("  Box Width (X)")
+            box_width:SetMin(1)
+            box_width:SetMax(50)
+            box_width:SetDecimals(2)
+            box_width:SetConVar("vrmod_unoff_pouch_box_width_" .. i)
+            yOffset = yOffset + 25
+
+            local box_height = vgui.Create("DNumSlider", MenuTab16)
+            box_height:SetPos(20, yOffset)
+            box_height:SetSize(370, 25)
+            box_height:SetText("  Box Height (Y)")
+            box_height:SetMin(1)
+            box_height:SetMax(50)
+            box_height:SetDecimals(2)
+            box_height:SetConVar("vrmod_unoff_pouch_box_height_" .. i)
+            yOffset = yOffset + 25
+
+            local box_depth = vgui.Create("DNumSlider", MenuTab16)
+            box_depth:SetPos(20, yOffset)
+            box_depth:SetSize(370, 25)
+            box_depth:SetText("  Box Depth (Z)")
+            box_depth:SetMin(1)
+            box_depth:SetMax(50)
+            box_depth:SetDecimals(2)
+            box_depth:SetConVar("vrmod_unoff_pouch_box_depth_" .. i)
+            yOffset = yOffset + 35  -- 次のスロットまでの余白
         end
 
         -- releaseタブの追加
@@ -94,7 +156,7 @@ hook.Add(
         vrmod_pouch_lefthandwep_enable:SetConVar("vrmod_pouch_lefthandwep_enable")
         vrmod_pouch_lefthandwep_enable:SizeToContents()
         -- vrmod_pouch_weapon_1からvrmod_pouch_weapon_5を操作するメニュー項目の追加
-        for i = 1, 5 do
+        for i = 1, 8 do
             local weapon_textentry = vgui.Create("DTextEntry", MenuTab12)
             weapon_textentry:SetPos(20, 160 + (i - 1) * 30)
             weapon_textentry:SetSize(370, 25)

@@ -147,11 +147,6 @@ hook.Add(
 		form2:CheckBox("[Tediore like reload] Enable", "vrmod_weapondrop_enable")
 		form2:CheckBox("Trash Weapon on Drop", "vrmod_weapondrop_trashwep")
 
-		-- Dupe Settings
-		local dupeCategory = form2:Help("=== Dupe Settings ===")
-		dupeCategory:SetFont("DermaDefaultBold")
-		form2:CheckBox("Reusable Dupe (infinite retrieve)", "vrmod_unoff_dupe_reusable")
-
 		-- Per-Slot Settings
 		local slotNames = {
 			"Slot 1 - Head Right",
@@ -176,13 +171,7 @@ hook.Add(
 
 			form2:NumSlider("Box Width (X)", "vrmod_unoff_pouch_box_width_" .. i, 1, 50, 2)
 			form2:NumSlider("Box Height (Y)", "vrmod_unoff_pouch_box_height_" .. i, 1, 50, 2)
-			form2:NumSlider("Box Depth Up (Z+)", "vrmod_unoff_pouch_box_depth_up_" .. i, 1, 50, 2)
-			form2:NumSlider("Box Depth Down (Z-)", "vrmod_unoff_pouch_box_depth_down_" .. i, 1, 50, 2)
-
-			-- Slot 6-8: 左手用の武器表示を追加
-			if i >= 6 then
-				form2:TextEntry("Left Hand Weapon (Read-only)", "vrmod_pouch_weapon_" .. i .. "_left")
-			end
+			form2:NumSlider("Box Depth (Z)", "vrmod_unoff_pouch_box_depth_" .. i, 1, 50, 2)
 		end
 
 		-- Restore Defaults

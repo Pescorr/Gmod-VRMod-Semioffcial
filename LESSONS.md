@@ -122,5 +122,30 @@
 - **内容**: CODE_STATUS.mdの更新がS6-S8で抜けていた。「毎セッション終了時の重厚なチェックリスト」は過去の失敗パターン（vrmod_semioffcial_re）を繰り返す。代わりにPDCAサイクル（4専用会話）+ 定期大規模点検（5-10タスクごと）で品質管理する。トークン枯渇防止が最重要制約
 - **対策**: 1タスク=4専用会話（P→D→C→A）で分離。Check会話でユーザーが採点し、60点未満ならAction会話で修正。大規模なメタ更新は定期点検で一括実施
 
-**教訓総数**: 15件
-**最終追加**: L15（2026-03-01）
+### L16: GLuaのSWEPでwep.Method = nilはメタテーブル復帰しない
+- **発見セッション**: S11 ARC9統合 Session 2（2026-03-09）
+- **内容**: 通常のLuaではインスタンスレベルの上書きを`nil`に戻すとメタテーブルのメソッドが復帰するが、GLuaのSWEPエンティティではこの挙動が機能しない。`wep.DoBodygroups = nil`とすると、メタテーブル復帰ではなくメソッドが完全に消失し、`attempt to call method 'DoBodygroups' (a nil value)`エラーが毎フレーム発生する
+- **対策**: ラップ前に元の関数を保存し、復元時は`wep.DoBodygroups = originalDoBodygroups`で直接代入する
+
+### L17: ARC9のDoBodygroupsは毎フレーム全ボーンをリセットする
+- **発見セッション**: S11 ARC9統合 Session 2（2026-03-09）
+- **内容**: ARC9の`DoBodygroups()`（sh_bodygroups.lua:44-47）は毎フレーム`PreDrawViewModel`から呼ばれ、全ボーンを`ManipulateBoneScale(1,1,1)`でリセットしてから選択的に非表示にする。外部からのManipulateBoneScale設定は次フレームで消える。同様に`SetBodyGroups("")`と`SetSubMaterial()`も毎フレームリセットされる
+- **対策**: `SWEP.DoBodygroups`をインスタンスレベルでラップし、元の処理（リセット+選択的非表示）の**後**に追加の操作を行う。これにより毎フレームARC9のリセット後に再適用される
+
+### L18: テストスクリプトは本番コードとフック名が競合しないよう注意
+- **発見セッション**: S11 ARC9統合 Session 2（2026-03-09）
+- **内容**: v4テストスクリプトと本番コードの両方が同時にロードされると、Thinkフック等が競合してDoBodygroupsのラップ/復元が二重に動作する可能性がある。テストスクリプトは本番移行後に削除またはリネームが必要
+- **対策**: テストスクリプト完了後は速やかに削除する。フック名にはユニークなプレフィックス（`VRMod_ARC9_`等）を付けて競合を防ぐ
+
+### L19: input.IsKeyDown()のLuaデトアはエラーフリーなら安全
+- **発見セッション**: S12 input.IsKeyDownエミュレーション（2026-03-10）
+- **内容**: `input.IsKeyDown`は`input`テーブルの通常フィールドであり、メタテーブル保護なし。上書き自体は安全だが、**ラッパー関数内でエラーが1つでも発生すると、GModのhookシステムにpcall保護がないためそのフレームの全hookチェーンが死に、スポーンメニュー等のVGUIパネルが破壊される**。過去の失敗はIN_enum/KEY_enumの混在（issue #284: IN_enumをIsKeyDownに渡すとクラッシュ）と複雑すぎるロジックが原因。最小限の`if vrKeys[key] then return true end`→`return orig(key)`構造ならエラー発生経路が存在しない
+- **対策**: エンジンライブラリのLuaデトアは**絶対にエラーを起こさない**構造にする。テーブルのnilインデックスリード（safe）→ 元関数フォールスルーの2行のみ
+
+### L20: GModのアドオンはinput.IsKeyDownをファイルスコープキャッシュしない
+- **発見セッション**: S12 input.IsKeyDownエミュレーション（2026-03-10）
+- **内容**: GMod基本コード（VGUI: DAdjustableModelPanel, DListView, DNumberScratch等）もサードパーティアドオンも、`local IsKeyDown = input.IsKeyDown`のようなファイルスコープキャッシュを使用していない。全て毎フレーム`input.IsKeyDown()`をグローバルテーブル経由で直接呼ぶ。そのため、autorun/clientの早期ロード（`!`プレフィックス）でデトアを設置すれば、ほぼ全てのアドオンに効果がある
+- **対策**: inputライブラリのデトアはautorun/clientで`!`プレフィックスファイルから設置する
+
+**教訓総数**: 20件
+**最終追加**: L20（2026-03-10）

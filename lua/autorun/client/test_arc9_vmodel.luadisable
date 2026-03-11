@@ -1,0 +1,231 @@
+--------[test_arc9_vmodel.lua]Start--------
+-- 動作確認v4: DoBodygroups拡張によるARC9マガジンボーン操作テスト
+-- v1: PlayerSwitchWeaponがクライアントで発火しなかった
+-- v2: Think hookで検出成功。VModel[]にマガジンモデルが存在しないことが判明
+-- v3: ManipulateBoneScaleで操作 → ARC9のDoBodygroups()が毎フレーム全ボーンリセットで失敗
+-- v4: SWEP.DoBodygroupsをラップして、ARC9のリセット後にマガジンボーン非表示を追加
+
+if SERVER then return end
+
+local currentARC9Weapon = nil
+local magBoneHidden = false
+local magBoneIndices = {}
+local originalDoBodygroups = nil
+
+-- ARC9武器判定
+local function IsARC9Weapon(wep)
+    return IsValid(wep) and wep.ARC9 == true
+end
+
+-- マガジンボーン名の判定
+local function IsMagazineBone(boneName)
+    boneName = string.lower(boneName)
+    local keywords = {"mag", "clip", "ammo", "magazine"}
+    for _, keyword in ipairs(keywords) do
+        if string.find(boneName, keyword, 1, true) then
+            return true
+        end
+    end
+    return false
+end
+ 
+-- magボーンを見つけてインデックスを返す
+local function FindMagBones(viewModel)
+    local indices = {}
+    if not IsValid(viewModel) then return indices end
+
+    for i = 0, viewModel:GetBoneCount() - 1 do
+        local boneName = viewModel:GetBoneName(i)
+        if IsMagazineBone(boneName) then
+            table.insert(indices, {index = i, name = boneName})
+        end
+    end
+    return indices
+end
+
+-- DoBodygroupsを拡張: 元の処理の後にマガジンボーン非表示を追加
+local function ExtendDoBodygroups(wep)
+    if not IsValid(wep) then return false end
+
+    -- 元のDoBodygroupsを取得（メタテーブル経由でクラスメソッドを取得）
+    local original = wep.DoBodygroups
+    if not original then
+        print("[TEST] ERROR: DoBodygroups not found on weapon!")
+        return false
+    end
+
+    -- 既に拡張済みなら何もしない
+    if originalDoBodygroups then
+        print("[TEST] DoBodygroups already extended")
+        return true
+    end
+
+    originalDoBodygroups = original
+
+    -- インスタンスレベルで上書き
+    wep.DoBodygroups = function(self, wm, cm)
+        -- 元のDoBodygroupsを呼び出し（ARC9のリセット+選択的非表示）
+        originalDoBodygroups(self, wm, cm)
+
+        -- ViewModelのみ介入（WorldModelやCustomModelには触らない）
+        if wm then return end
+        if cm then return end
+        if not magBoneHidden then return end
+
+        -- ARC9のリセット後にマガジンボーン非表示を追加
+        local vm = LocalPlayer():GetViewModel()
+        if not IsValid(vm) then return end
+
+        for _, bone in ipairs(magBoneIndices) do
+            vm:ManipulateBoneScale(bone.index, Vector(0, 0, 0))
+        end
+    end
+
+    return true
+end
+
+-- DoBodygroupsを復元: 保存した元の関数を直接復元
+local function RestoreDoBodygroups(wep)
+    if IsValid(wep) and originalDoBodygroups then
+        wep.DoBodygroups = originalDoBodygroups
+    end
+    originalDoBodygroups = nil
+end
+
+-- 診断コマンド: 現在の武器・ボーン情報を出力
+concommand.Add("test_arc9_diag", function()
+    local ply = LocalPlayer()
+    if not IsValid(ply) then
+        print("[DIAG] LocalPlayer is invalid")
+        return
+    end
+
+    local wep = ply:GetActiveWeapon()
+    local vm = ply:GetViewModel()
+
+    print("[DIAG] ===== ARC9 Diagnostic v4 =====")
+    print("[DIAG] Active weapon: " .. tostring(wep) .. " class=" .. (IsValid(wep) and wep:GetClass() or "nil"))
+    print("[DIAG] wep.ARC9: " .. tostring(IsValid(wep) and wep.ARC9))
+    print("[DIAG] ViewModel: " .. tostring(vm))
+
+    -- DoBodygroups拡張状態
+    print("[DIAG] DoBodygroups extended: " .. tostring(originalDoBodygroups ~= nil))
+    print("[DIAG] magBoneHidden: " .. tostring(magBoneHidden))
+    print("[DIAG] currentARC9Weapon: " .. tostring(currentARC9Weapon))
+
+    if IsValid(vm) then
+        print("[DIAG] VM BoneCount: " .. vm:GetBoneCount())
+
+        -- マガジンボーン一覧
+        local magBones = FindMagBones(vm)
+        print("[DIAG] Magazine bones found: " .. #magBones)
+        for _, bone in ipairs(magBones) do
+            local scale = vm:GetManipulateBoneScale(bone.index)
+            print("[DIAG]   [" .. bone.index .. "] " .. bone.name .. " scale=" .. tostring(scale))
+        end
+
+        -- マガジンボディグループ一覧
+        for i = 0, vm:GetNumBodyGroups() - 1 do
+            local bgName = vm:GetBodygroupName(i)
+            if IsMagazineBone(bgName) then
+                print("[DIAG]   Bodygroup [" .. i .. "] " .. bgName .. " current=" .. vm:GetBodygroup(i) .. " count=" .. vm:GetBodygroupCount(i))
+            end
+        end
+    end
+
+    -- 拡張中のmagBoneIndices
+    if #magBoneIndices > 0 then
+        print("[DIAG] Active magBoneIndices:")
+        for _, bone in ipairs(magBoneIndices) do
+            print("[DIAG]   [" .. bone.index .. "] " .. bone.name)
+        end
+    end
+
+    print("[DIAG] ===== End Diagnostic =====")
+end)
+
+-- 手動テスト: DoBodygroupsを拡張してmagボーンを隠す
+concommand.Add("test_arc9_hide_mag", function()
+    local ply = LocalPlayer()
+    local wep = ply:GetActiveWeapon()
+    local vm = ply:GetViewModel()
+
+    if not IsARC9Weapon(wep) then
+        print("[TEST] Not an ARC9 weapon!")
+        return
+    end
+
+    if not IsValid(vm) then
+        print("[TEST] ViewModel is invalid")
+        return
+    end
+
+    magBoneIndices = FindMagBones(vm)
+    if #magBoneIndices == 0 then
+        print("[TEST] No magazine bones found!")
+        return
+    end
+
+    magBoneHidden = true
+
+    if ExtendDoBodygroups(wep) then
+        print("[TEST] DoBodygroups extended. Mag bones will be hidden on next frame.")
+        for _, bone in ipairs(magBoneIndices) do
+            print("[TEST]   Target: [" .. bone.index .. "] " .. bone.name)
+        end
+        print("[TEST] Use test_arc9_show_mag to restore.")
+    else
+        print("[TEST] Failed to extend DoBodygroups!")
+        magBoneHidden = false
+    end
+end)
+
+-- 手動テスト: DoBodygroupsを復元してmagボーンを表示
+concommand.Add("test_arc9_show_mag", function()
+    local ply = LocalPlayer()
+    local wep = ply:GetActiveWeapon()
+
+    RestoreDoBodygroups(wep)
+    magBoneHidden = false
+    magBoneIndices = {}
+    print("[TEST] DoBodygroups restored. Mag bones will reappear on next frame.")
+end)
+
+-- Thinkフックで武器変更を監視（自動復元用）
+hook.Add("Think", "TestARC9VModelThink", function()
+    local ply = LocalPlayer()
+    if not IsValid(ply) then return end
+
+    local wep = ply:GetActiveWeapon()
+
+    if IsARC9Weapon(wep) then
+        if currentARC9Weapon ~= wep then
+            -- 前の武器でDoBodygroupsが拡張されていたら復元
+            if originalDoBodygroups and IsValid(currentARC9Weapon) then
+                RestoreDoBodygroups(currentARC9Weapon)
+            end
+
+            currentARC9Weapon = wep
+            magBoneHidden = false
+            magBoneIndices = {}
+            originalDoBodygroups = nil
+            print("[TEST] ARC9 weapon detected: " .. (wep:GetClass() or "unknown"))
+        end
+    else
+        if currentARC9Weapon ~= nil then
+            -- ARC9以外に切り替え → DoBodygroups復元
+            if originalDoBodygroups then
+                RestoreDoBodygroups(currentARC9Weapon)
+            end
+            currentARC9Weapon = nil
+            magBoneHidden = false
+            magBoneIndices = {}
+            originalDoBodygroups = nil
+            print("[TEST] Switched away from ARC9 weapon")
+        end
+    end
+end)
+
+print("[TEST] ARC9 VModel test script v4 loaded (DoBodygroups extension test)")
+print("[TEST] Commands: test_arc9_diag, test_arc9_hide_mag, test_arc9_show_mag")
+--------[test_arc9_vmodel.lua]End--------
