@@ -3,15 +3,8 @@ desktop.ini
 # Reference documents (analysis data, not part of addon)
 reference/
 
-# Development infrastructure
-.claude/
+# Development notes
 handoff/
-claude_talk_save/
-claude-dev-templates/
-CLAUDE.md
-CODE_STATUS.md
-LESSONS.md
-NEXT_SESSION.md
 
 # Backup files
 backup_*/
