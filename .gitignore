@@ -1,10 +1,17 @@
 desktop.ini
 
-# Reference documents (analysis data from RE project, not part of addon)
+# Reference documents (analysis data, not part of addon)
 reference/
 
-# Handoff files (PDCA inter-session communication)
+# Development infrastructure
+.claude/
 handoff/
-
-# Conversation logs (session transcripts)
 claude_talk_save/
+claude-dev-templates/
+CLAUDE.md
+CODE_STATUS.md
+LESSONS.md
+NEXT_SESSION.md
+
+# Backup files
+backup_*/

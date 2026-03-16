@@ -11,6 +11,12 @@
     "*.md",
     "contributing",
     "reference/*",
-    "claude-dev-templates/*"
+    "backup_*",
+    "handoff/*",
+    "create_upload.sh",
+    "_ul",
+    "nul",
+    "*.code-workspace",
+    "GmodVR -APIDocument.txt"
   ]
 }
