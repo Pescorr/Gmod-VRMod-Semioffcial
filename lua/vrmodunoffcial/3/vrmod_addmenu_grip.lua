@@ -6,15 +6,10 @@ hook.Add(
 	"VRMod_Menu",
 	"addsettingsgrip",
 	function(frame)
-		--Settings02 Start
-		--add VRMod_Menu Settings02 propertysheet start
-		local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-		frame.DPropertySheet:AddSheet("VRGrip", sheet)
-		sheet:Dock(FILL)
-		--add VRMod_Menu Settings02 propertysheet end
+		if not frame.nonVRGunSheet then return end
 		-- MenuTab11 (Foregrip) Start
-		local MenuTab11 = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Foregrip", MenuTab11, "icon16/controller.png")
+		local MenuTab11 = vgui.Create("DPanel", frame.nonVRGunSheet)
+		frame.nonVRGunSheet:AddSheet("Foregrip", MenuTab11, "icon16/controller.png")
 		MenuTab11.Paint = function(self, w, h) end
 		-- DNumSlider Start
 		-- vrmod_Foregripmode_range

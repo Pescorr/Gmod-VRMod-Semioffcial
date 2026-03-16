@@ -8,8 +8,9 @@ hook.Add(
 	"VRMod_Menu",
 	"addsettingsholster",
 	function(frame)
-		local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-		frame.DPropertySheet:AddSheet("VRHolster", sheet)
+		if not frame.pickupSheet then return end
+		local sheet = vgui.Create("DPropertySheet", frame.pickupSheet)
+		frame.pickupSheet:AddSheet("VRHolster", sheet)
 		sheet:Dock(FILL)
 
 		-- Type1 Settings Tab

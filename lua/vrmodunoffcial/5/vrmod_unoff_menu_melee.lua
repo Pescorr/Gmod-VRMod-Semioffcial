@@ -6,8 +6,9 @@ if CLIENT then
         "VRMod_Menu",
         "addsettingsmelee",
         function(frame)
-            local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-            frame.DPropertySheet:AddSheet("VRMelee", sheet)
+            if not frame.VRplaySheet then return end
+            local sheet = vgui.Create("DPropertySheet", frame.VRplaySheet)
+            frame.VRplaySheet:AddSheet("VRMelee", sheet)
             sheet:Dock(FILL)
             -- Basic Settings Tab
             local MenuTabmelee1 = vgui.Create("DPanel", sheet)

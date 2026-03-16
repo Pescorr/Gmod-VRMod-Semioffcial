@@ -84,17 +84,23 @@ hook.Add(
 		end
 
 		if action == "boolean_left_pickup" then
+			if not pressed then
+				vrmod.Pickup(true, true)
+				return
+			end
 			if cl_pickupdisable:GetBool() then return end
-			vrmod.Pickup(true, not pressed)
-			-- DropItemsHeldByPlayer(LocalPlayer(), true)
+			vrmod.Pickup(true, false)
 
 			return
 		end
 
 		if action == "boolean_right_pickup" then
+			if not pressed then
+				vrmod.Pickup(false, true)
+				return
+			end
 			if cl_pickupdisable:GetBool() then return end
-			vrmod.Pickup(false, not pressed)
-			-- DropItemsHeldByPlayer(LocalPlayer(), false)
+			vrmod.Pickup(false, false)
 
 			return
 		end

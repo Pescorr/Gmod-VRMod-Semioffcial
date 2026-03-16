@@ -180,11 +180,10 @@ if SERVER then
         end
 
         -- ファイルにも永続化（displayNameと共に保存）
-        SaveDupeToFile(ply:SteamID64(), slotIndex, {
+        local saved = SaveDupeToFile(ply:SteamID64(), slotIndex, {
             dupeData = dupeData,
             displayName = displayName
         })
-
         -- クライアントに同期
         net.Start("vrmod_unoff_holster_dupe_sync")
         net.WriteUInt(slotIndex, 4)

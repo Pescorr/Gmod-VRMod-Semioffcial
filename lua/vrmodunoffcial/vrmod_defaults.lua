@@ -168,6 +168,30 @@ VRMOD_DEFAULTS = {
 		vrmod_right_physgun_beam_offset_y = 0,
 		vrmod_right_physgun_beam_offset_z = 0,
 	},
+	-- Physgun Left Hand / 物理ガン左手
+	physgun_left = {
+		vrmod_left_physgun_beam_enable = 1,
+		vrmod_left_physgun_beam_range = 4096,
+		vrmod_left_physgun_beam_damage_enable = 0,
+		vrmod_left_physgun_beam_damage = 0.0001,
+		vrmod_left_physgun_pull_enable = 1,
+		vrmod_left_physgun_noclip_enable = 1,
+		vrmod_left_physgun_beam_offset_x = 0,
+		vrmod_left_physgun_beam_offset_y = 0,
+		vrmod_left_physgun_beam_offset_z = 0,
+	},
+	-- Physgun Right Hand / 物理ガン右手
+	physgun_right = {
+		vrmod_right_physgun_beam_enable = 1,
+		vrmod_right_physgun_beam_range = 4096,
+		vrmod_right_physgun_beam_damage_enable = 0,
+		vrmod_right_physgun_beam_damage = 0.0001,
+		vrmod_right_physgun_pull_enable = 1,
+		vrmod_right_physgun_noclip_enable = 1,
+		vrmod_right_physgun_beam_offset_x = 0,
+		vrmod_right_physgun_beam_offset_y = 0,
+		vrmod_right_physgun_beam_offset_z = 0,
+	},
 	-- Beam Pickup Settings / ビームピックアップ設定
 	beam_pickup = {
 		vrmod_pickup_beam_enable = 1,

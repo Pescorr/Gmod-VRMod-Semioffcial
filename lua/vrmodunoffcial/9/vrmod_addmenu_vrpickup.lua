@@ -4,41 +4,12 @@ if SERVER then return end
 local convars, convarValues = vrmod.GetConvars()
 hook.Add(
 	"VRMod_Menu",
-	"addsettingspickupbeam",
+	"addsettingsvrpickupbeam",
 	function(frame)
-		--Settings02 Start
-		--add VRMod_Menu Settings02 propertysheet start
-		local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-		frame.DPropertySheet:AddSheet("VRpickup", sheet)
-		sheet:Dock(FILL)
-		--add VRMod_Menu Settings02 propertysheet end
-		-- -- MenuTab12 (Entity Teleport) Start
-		-- local MenuTab12 = vgui.Create("DPanel", sheet)
-		-- sheet:AddSheet("Entity Teleport", MenuTab12, "icon16/wand.png")
-		-- MenuTab12.Paint = function(self, w, h) end
-		-- -- DCheckBoxLabel Start
-		-- local entteleport_enable = MenuTab12:Add("DCheckBoxLabel")
-		-- entteleport_enable:SetPos(20, 10)
-		-- entteleport_enable:SetText("Enable Entity Teleport")
-		-- entteleport_enable:SetConVar("vrmod_test_entteleport_enable")
-		-- entteleport_enable:SizeToContents()
-		-- -- DCheckBoxLabel End
-		-- -- DNumSlider Start
-		-- -- vrmod_test_entteleport_range
-		-- local entteleport_range = vgui.Create("DNumSlider", MenuTab12)
-		-- entteleport_range:SetPos(20, 40)
-		-- entteleport_range:SetSize(370, 25)
-		-- entteleport_range:SetText("Entity Teleport Range")
-		-- entteleport_range:SetMin(1)
-		-- entteleport_range:SetMax(100)
-		-- entteleport_range:SetDecimals(0)
-		-- entteleport_range:SetConVar("vrmod_test_entteleport_range")
-		-- entteleport_range.OnValueChanged = function(self, value) end
-		-- -- DNumSlider End
-		-- -- MenuTab12 (Entity Teleport) End
+		if not frame.physgunSheet then return end
 		-- MenuTab15 (Beam Pickup) Start
-		local MenuTab15 = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Beam Pickup", MenuTab15, "icon16/lightning.png")
+		local MenuTab15 = vgui.Create("DPanel", frame.physgunSheet)
+		frame.physgunSheet:AddSheet("Beam Pickup", MenuTab15, "icon16/lightning.png")
 		MenuTab15.Paint = function(self, w, h) end
 		-- DCheckBoxLabel Start
 		local beampickup_enable = MenuTab15:Add("DCheckBoxLabel")
@@ -101,7 +72,7 @@ hook.Add(
 
 		-- Add Restore Defaults Button
 		local resetButton = vgui.Create("DButton", MenuTab15)
-		resetButton:SetPos(20, 160)
+		resetButton:SetPos(20, 210)
 		resetButton:SetSize(200, 30)
 		resetButton:SetText(VRModL("btn_restore_defaults", "Restore Default Settings"))
 		resetButton.DoClick = function()

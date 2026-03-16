@@ -395,9 +395,9 @@ vgui.Register("VRMod_QuickMenuEditor", PANEL, "DPanel")
 -- Menu Integration
 -----------------------------------------------------------
 
-hook.Add("VRMod_Menu", "VRMod_QuickMenuEditor", function(frame)
-    if not frame or not frame.DPropertySheet then return end
-    local sheet = frame.DPropertySheet
+hook.Add("VRMod_Menu", "addsettings_quickmenu_editor", function(frame)
+    if not frame or not frame.quickmenuBtnSheet then return end
+    local sheet = frame.quickmenuBtnSheet
     local container = vgui.Create("DPanel", sheet)
     container:Dock(FILL)
     container.Paint = function() end

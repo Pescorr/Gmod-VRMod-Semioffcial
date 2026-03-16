@@ -32,6 +32,7 @@ function vrmod_character_lua()
 	g_VR.openHandAngles = g_VR.defaultOpenHandAngles
 	g_VR.closedHandAngles = g_VR.defaultClosedHandAngles
 	local characterInfo = {}
+	vrmod.characterInfo = characterInfo  -- Expose for x64mode modules (bone_skip, spine_precalc)
 	local activePlayers = {}
 	local zeroVec, zeroAng = Vector(), Angle()
 	local function RecursiveBoneTable2(ent, parentbone, infotab, ordertab, notfirst)
@@ -71,6 +72,8 @@ function vrmod_character_lua()
 		local net = g_VR.net[steamid]
 		if not characterInfo or not characterInfo[steamid] or not characterInfo[steamid].boneinfo then return end
 		local charinfo = characterInfo[steamid]
+		-- x64mode: skip redundant bone updates when idle (set by bone_skip module)
+		if charinfo.x64mode_skipBoneUpdate then charinfo.x64mode_skipBoneUpdate = false return end
 		local boneinfo = charinfo.boneinfo
 		local bones = charinfo.bones
 		if not net or not net.lerpedFrame then return end

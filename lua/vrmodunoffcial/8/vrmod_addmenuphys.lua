@@ -6,9 +6,11 @@ hook.Add(
 	"VRMod_Menu",
 	"addsettingsvrphysgun",
 	function(frame)
-		local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-		frame.DPropertySheet:AddSheet("VRPhysgun", sheet)
+		if not frame.pickupSheet then return end
+		local sheet = vgui.Create("DPropertySheet", frame.pickupSheet)
+		frame.pickupSheet:AddSheet("VRPhysgun", sheet)
 		sheet:Dock(FILL)
+		frame.physgunSheet = sheet  -- expose for VRPickup module
 		local physgunmaxrange = GetConVar("physgun_maxrange") or CreateClientConVar("physgun_maxrange", "4096", true, false)
 		-- General Tab
 		local MenuTabGeneral = vgui.Create("DPanel", sheet)
@@ -105,6 +107,14 @@ hook.Add(
 		instructions:SetPos(20, 335)
 		instructions:SetSize(370, 40)
 		instructions:SetWrap(true)
+		-- Add Restore Defaults Button (Left Hand)
+		local resetButtonLeft = vgui.Create("DButton", MenuTab16)
+		resetButtonLeft:SetPos(20, 380)
+		resetButtonLeft:SetSize(200, 30)
+		resetButtonLeft:SetText(VRModL("btn_restore_defaults", "Restore Default Settings"))
+		resetButtonLeft.DoClick = function()
+			VRModResetCategory("physgun_left")
+		end
 		local MenuTab17 = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Physgun Right", MenuTab17, "icon16/brick_add.png")
 		MenuTab17.Paint = function(self, w, h) end
@@ -183,11 +193,11 @@ hook.Add(
 
 		-- Add Restore Defaults Button
 		local resetButton = vgui.Create("DButton", MenuTab17)
-		resetButton:SetPos(20, 265)
+		resetButton:SetPos(20, 380)
 		resetButton:SetSize(200, 30)
 		resetButton:SetText(VRModL("btn_restore_defaults", "Restore Default Settings"))
 		resetButton.DoClick = function()
-			VRModResetCategory("physgun")
+			VRModResetCategory("physgun_right")
 		end
 	end
 )

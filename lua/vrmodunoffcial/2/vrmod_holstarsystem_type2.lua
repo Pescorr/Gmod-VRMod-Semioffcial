@@ -28,6 +28,15 @@ function vrholstersystem2()
         local prev_hand_in_holster_left_status = {}
         local prev_hand_in_holster_right_status = {}
         local holster_pickup_pending = {}
+        -- heldEntityキャッシュ: VRMod_Inputのhook実行順序に依存しないためのフレーム先行キャッシュ
+        -- vrmod.Pickup(hand,true) がheldEntityを消去した後でもstoreWeapon()が読めるようにする
+        local cachedHeldLeft, cachedHeldRight
+        hook.Add("Think", "vrutil_holster_heldcache", function()
+            if g_VR then
+                cachedHeldLeft = g_VR.heldEntityLeft
+                cachedHeldRight = g_VR.heldEntityRight
+            end
+        end)
         local pouch_slot_enabled = {}
         for i = 1, pouch_slots do
             CreateClientConVar("vrmod_pouch_weapon_" .. i, "", true, FCVAR_ARCHIVE)
@@ -316,7 +325,12 @@ function vrholstersystem2()
                                 return
                             end
 
-                            local heldEntity = leftHand and g_VR.heldEntityLeft or g_VR.heldEntityRight
+                            local heldEntity
+                            if leftHand then
+                                heldEntity = g_VR.heldEntityLeft or cachedHeldLeft
+                            else
+                                heldEntity = g_VR.heldEntityRight or cachedHeldRight
+                            end
                             if IsValid(heldEntity) then
                                 if pouch_locked[i] then return end
                                 if vrmod.HolsterDupe and vrmod.HolsterDupe.StoreEntity then
@@ -328,8 +342,10 @@ function vrholstersystem2()
                                 end
                                 if leftHand then
                                     g_VR.heldEntityLeft = nil
+                                    cachedHeldLeft = nil
                                 else
                                     g_VR.heldEntityRight = nil
+                                    cachedHeldRight = nil
                                 end
 
                                 return

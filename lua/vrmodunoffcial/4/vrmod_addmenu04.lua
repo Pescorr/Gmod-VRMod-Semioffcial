@@ -6,11 +6,9 @@ hook.Add(
     "VRMod_Menu",
     "addsettings04",
     function(frame)
-        local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-        frame.DPropertySheet:AddSheet("VRMag", sheet)
-        sheet:Dock(FILL)
-        local ScrollPanel = vgui.Create("DScrollPanel", sheet)
-        sheet:AddSheet("Magazine", ScrollPanel, "icon16/basket.png")
+        if not frame.nonVRGunSheet then return end
+        local ScrollPanel = vgui.Create("DScrollPanel", frame.nonVRGunSheet)
+        frame.nonVRGunSheet:AddSheet("Magazine", ScrollPanel, "icon16/basket.png")
         local MenuTab14 = vgui.Create("DPanel", ScrollPanel)
         MenuTab14:Dock(TOP)
         MenuTab14:SetHeight(500)

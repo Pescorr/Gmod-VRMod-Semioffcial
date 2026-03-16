@@ -37,7 +37,7 @@ local function OpenMenu()
 	-- end
 	if IsValid(frame) then return frame end
 	frame = vgui.Create("DFrame")
-	frame:SetSize(550, 600)
+	frame:SetSize(700, 680)
 	frame:SetTitle("VRMod Menu")
 	frame:MakePopup()
 	frame:Center()

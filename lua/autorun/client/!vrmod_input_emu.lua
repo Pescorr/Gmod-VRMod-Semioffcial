@@ -91,6 +91,7 @@ local function BuildMapping()
 		boolean_undo              = FindKeyForBind("gmod_undo") or KEY_Z,
 		boolean_chat              = FindKeyForBind("+zoom"),
 		boolean_menucontext       = FindKeyForBind("+menu_context") or KEY_C,
+		boolean_spawnmenu         = FindKeyForBind("+menu") or KEY_Q,
 		boolean_slot1             = KEY_1,
 		boolean_slot2             = KEY_2,
 		boolean_slot3             = KEY_3,
@@ -120,6 +121,16 @@ hook.Add("VRMod_Start", "vrmod_unoff_input_emu", function()
 	if not cv_enabled:GetBool() then return end
 	vrActive = true
 	BuildMapping()
+	print("[VR Input Emu] Activated. Mapped", table.Count(actionMap), "actions")
+end)
+
+-- Fallback: VR already active when this file loads (e.g. lua_openscript_cl reload)
+timer.Simple(0, function()
+	if cv_enabled:GetBool() and g_VR and g_VR.active and not vrActive then
+		vrActive = true
+		BuildMapping()
+		print("[VR Input Emu] Late init: VR already active. Mapped", table.Count(actionMap), "actions")
+	end
 end)
 
 hook.Add("VRMod_Input", "vrmod_unoff_input_emu", function(action, pressed)

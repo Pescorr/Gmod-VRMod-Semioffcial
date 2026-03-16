@@ -1,12 +1,75 @@
 -- --------[vrmod_unoff_addmenu.lua]Start--------
+-- DTree Navigation System (2026-03-15)
 if SERVER then return end
 local convars, convarValues = vrmod.GetConvars()
 local menutype1 = CreateClientConVar("vrmod_menu_type", 1, true, FCVAR_ARCHIVE, "1 = type1 0 = type2", 0, 1)
 
--- Helper function to create Utility tab (reduces local variables in main hook)
-local function CreateUtilityTab(sheet)
-	local scrollPanel = vgui.Create("DScrollPanel", sheet)
-	sheet:AddSheet("Utility", scrollPanel, "icon16/wrench.png")
+-- DTree Navigation Helper: Creates a DHorizontalDivider with DTree (left) and content panel (right)
+local function CreateTreeTab(parent)
+	local divider = vgui.Create("DHorizontalDivider", parent)
+	divider:Dock(FILL)
+	divider:SetDividerWidth(4)
+	divider:SetLeftMin(120)
+	divider:SetRightMin(200)
+	divider:SetLeftWidth(170)
+
+	local tree = vgui.Create("DTree", divider)
+	tree:SetShowIcons(true)
+
+	local contentContainer = vgui.Create("DPanel", divider)
+	contentContainer.Paint = function() end
+
+	divider:SetLeft(tree)
+	divider:SetRight(contentContainer)
+
+	local panels = {}
+
+	local function showPanel(key)
+		for k, p in pairs(panels) do
+			if IsValid(p) then
+				p:SetVisible(k == key)
+			end
+		end
+	end
+
+	local function registerPanel(key, panel)
+		panel:SetParent(contentContainer)
+		panel:Dock(FILL)
+		panel:SetVisible(false)
+		panels[key] = panel
+	end
+
+	return tree, contentContainer, showPanel, registerPanel
+end
+
+-- DTree Navigation Helper: Adds a flat node to the DTree root
+local function AddTreeNode(tree, label, key, icon, showPanel)
+	local node = tree:AddNode(label, icon)
+	node.DoClick = function()
+		showPanel(key)
+	end
+	return node
+end
+
+-- DTree Navigation Helper: Extracts tabs from a hidden DPropertySheet into the DTree
+local function ExtractSheet(hiddenSheet, tree, showPanel, registerPanel)
+	if not IsValid(hiddenSheet) then return end
+	local items = hiddenSheet:GetItems()
+	if not items then return end
+	for _, item in ipairs(items) do
+		if item.Tab and item.Panel then
+			local tabName = item.Tab:GetText():Trim()
+			local key = "mod_" .. tabName
+			registerPanel(key, item.Panel)
+			AddTreeNode(tree, tabName, key, "icon16/plugin.png", showPanel)
+		end
+	end
+	hiddenSheet:Remove()
+end
+
+-- Helper: Creates Utility panel (standalone, returns panel)
+local function CreateUtilityPanel()
+	local scrollPanel = vgui.Create("DScrollPanel")
 	local utilityTab = vgui.Create("DPanel", scrollPanel)
 	utilityTab:Dock(TOP)
 	utilityTab:SetTall(365)
@@ -144,12 +207,12 @@ local function CreateUtilityTab(sheet)
 		RunConsoleCommand("vrmod_lua_reset")
 		chat.AddText(Color(255, 165, 0), "[VRMod] ", Color(255, 255, 255), "Lua modules reset")
 	end
+	return scrollPanel
 end
 
--- Helper function to create Cardboard tab (reduces local variables in main hook)
-local function CreateCardboardTab(sheet)
-	local cardboardTab = vgui.Create("DPanel", sheet)
-	sheet:AddSheet("Cardboard", cardboardTab, "icon16/phone.png")
+-- Helper: Creates Cardboard panel (standalone, returns panel)
+local function CreateCardboardPanel()
+	local cardboardTab = vgui.Create("DPanel")
 	cardboardTab.Paint = function(self, w, h) end
 
 	-- Cardboard Settings Label
@@ -222,6 +285,7 @@ local function CreateCardboardTab(sheet)
 	resetCardboardBtn.DoClick = function()
 		VRModResetCategory("cardboard")
 	end
+	return cardboardTab
 end
 
 hook.Add(
@@ -229,12 +293,51 @@ hook.Add(
 	"addsettings",
 	function(frame)
 		if not menutype1:GetBool() then return end
-		local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-		frame.DPropertySheet:AddSheet("Settings02", sheet)
-		sheet:Dock(FILL)
-		do -- VR + Character tab scope
-		local scrollPanel = vgui.Create("DScrollPanel", sheet)
-		sheet:AddSheet("VR  ", scrollPanel, "icon16/basket.png")
+
+		-- Settings02 container (DPanel with DTree navigation)
+		local settings02 = vgui.Create("DPanel", frame.DPropertySheet)
+		frame.DPropertySheet:AddSheet("Settings02", settings02)
+		settings02:Dock(FILL)
+		settings02.Paint = function() end
+
+		-- DTree + content area
+		local tree, contentContainer, showPanel, registerPanel = CreateTreeTab(settings02)
+
+		-- Hidden DPropertySheets for module compatibility
+		local hiddenVRplay = vgui.Create("DPropertySheet", settings02)
+		hiddenVRplay:SetVisible(false); hiddenVRplay:SetSize(0, 0)
+		frame.VRplaySheet = hiddenVRplay
+
+		local hiddenPickup = vgui.Create("DPropertySheet", settings02)
+		hiddenPickup:SetVisible(false); hiddenPickup:SetSize(0, 0)
+		frame.pickupSheet = hiddenPickup
+
+		local hiddenNonVRGun = vgui.Create("DPropertySheet", settings02)
+		hiddenNonVRGun:SetVisible(false); hiddenNonVRGun:SetSize(0, 0)
+		frame.nonVRGunSheet = hiddenNonVRGun
+
+		local hiddenHud = vgui.Create("DPropertySheet", settings02)
+		hiddenHud:SetVisible(false); hiddenHud:SetSize(0, 0)
+		frame.hudSheet = hiddenHud
+
+		local hiddenDebug = vgui.Create("DPropertySheet", settings02)
+		hiddenDebug:SetVisible(false); hiddenDebug:SetSize(0, 0)
+		frame.debugSheet = hiddenDebug
+
+		local hiddenQmBtn = vgui.Create("DPropertySheet", settings02)
+		hiddenQmBtn:SetVisible(false); hiddenQmBtn:SetSize(0, 0)
+		frame.quickmenuBtnSheet = hiddenQmBtn
+
+		local hiddenSettings02 = vgui.Create("DPropertySheet", settings02)
+		hiddenSettings02:SetVisible(false); hiddenSettings02:SetSize(0, 0)
+		frame.Settings02Sheet = hiddenSettings02
+
+		-- ========================================
+		-- Panel: VR
+		-- ========================================
+		local vrNode
+		do
+		local scrollPanel = vgui.Create("DScrollPanel")
 		local gameplaySettings = vgui.Create("DPanel", scrollPanel)
 		gameplaySettings:Dock(TOP)
 		gameplaySettings:SetPaintBackground(false)
@@ -304,8 +407,15 @@ hook.Add(
 			VRModResetCategory("gameplay")
 		end
 		AddControl(GamePlay_defaultbutton)
-		local scrollPanel = vgui.Create("DScrollPanel", sheet)
-		sheet:AddSheet("Character", scrollPanel, "icon16/user.png")
+		registerPanel("vr", scrollPanel)
+		vrNode = AddTreeNode(tree, "VR", "vr", "icon16/basket.png", showPanel)
+		end -- VR panel
+
+		-- ========================================
+		-- Panel: Character
+		-- ========================================
+		do
+		local scrollPanel = vgui.Create("DScrollPanel")
 		local vrSettings = vgui.Create("DPanel", scrollPanel)
 		vrSettings:Dock(TOP)
 		vrSettings:SetPaintBackground(false)
@@ -495,9 +605,15 @@ hook.Add(
 			VRModResetCategory("character")
 		end
 		AddControl(vrdefault)
-		end -- VR + Character tab scope
-		local uiScrollPanel = vgui.Create("DScrollPanel", sheet)
-		sheet:AddSheet("UI  ", uiScrollPanel, "icon16/photos.png")
+		registerPanel("character", scrollPanel)
+		AddTreeNode(tree, "Character", "character", "icon16/user.png", showPanel)
+		end -- Character panel
+
+		-- ========================================
+		-- Panel: UI
+		-- ========================================
+		do
+		local uiScrollPanel = vgui.Create("DScrollPanel")
 		local uiSettings = vgui.Create("DForm", uiScrollPanel)
 		uiSettings:Dock(TOP)
 		uiSettings:DockPadding(0, 0, 0, 0)
@@ -566,9 +682,29 @@ hook.Add(
 		scrAutoCheckbox:SetConVar("vrmod_scr_alwaysautosetting")
 		uiSettings:Help("Automatically detect and set optimal screen resolution when entering VR")
 
-		do -- Optimize + Opt.VR + Opt.Gmod tab scope
-		local graphicsScrollPanel = vgui.Create("DScrollPanel", sheet)
-		sheet:AddSheet("Optimize", graphicsScrollPanel, "icon16/picture.png")
+		-- Column layout for checkboxes
+		local leftColumn2 = vgui.Create("DPanel", uiSettings)
+		leftColumn2:SetSize(200, 400)
+		leftColumn2:Dock(LEFT)
+		local rightColumn2 = vgui.Create("DPanel", uiSettings)
+		rightColumn2:SetSize(200, 400)
+		rightColumn2:Dock(RIGHT)
+		leftColumn2:Add(VRElefthand)
+		leftColumn2:Add(menuoutline)
+		leftColumn2:Add(hudonlykey)
+		leftColumn2:Add(keyboarduichat)
+		rightColumn2:Add(cameraoverride)
+		rightColumn2:Add(uirender)
+		rightColumn2:Add(uidefault)
+
+		registerPanel("ui", uiScrollPanel)
+		AddTreeNode(tree, "UI", "ui", "icon16/photos.png", showPanel)
+		end -- UI panel
+		-- ========================================
+		-- Panel: Optimize
+		-- ========================================
+		do
+		local graphicsScrollPanel = vgui.Create("DScrollPanel")
 		local graphicsSettings = vgui.Create("DForm", graphicsScrollPanel)
 		graphicsSettings:Dock(TOP)
 		graphicsSettings:DockPadding(0, 0, 0, 0)
@@ -640,139 +776,137 @@ hook.Add(
 		end
 		graphicsSettings:Help("Reset both multipliers to default value (2.0)")
 
-		-- [DEPRECATED] Manual optimization tabs are now always shown
-		-- local showOptTabs = graphicsSettings:CheckBox("Show Manual Optimization Tabs")
-		-- showOptTabs:SetConVar("vrmod_showmanualoptimizationtabs")
-		-- local showoptimizationtabs = CreateClientConVar("vrmod_showmanualoptimizationtabs", "0", true, FCVAR_ARCHIVE, "Show optimization tabs in VR settings menu")
+		registerPanel("optimize", graphicsScrollPanel)
+		AddTreeNode(tree, "Optimize", "optimize", "icon16/picture.png", showPanel)
+		end -- Optimize panel
 
-		-- Opt.VR Tab (always shown)
-		local MenuTab11 = nil
-		-- Always show optimization tabs
-		MenuTab11 = vgui.Create("DPanel", sheet)
-			sheet:AddSheet("Opt.VR", MenuTab11, "icon16/cog_add.png")
-			MenuTab11.Paint = function(self, w, h) end
-			local scroll = vgui.Create("DScrollPanel", MenuTab11)
-			scroll:Dock(FILL)
-			local optimizeconvar = {{"r_WaterDrawReflection", 0, 1, "Draw water reflections", 1}, {"r_WaterDrawRefraction", 0, 1, "Draw water refractions", 1}, {"r_waterforceexpensive", 0, 1, "Force expensive water", 0}, {"r_waterforcereflectentities", 0, 1, "Force water to reflect entities", 0}, {"vrmod_mirror_optimization", 0, 1, "Optimize VR mirrors", 0}, {"vrmod_reflective_glass_toggle", 0, 1, "Toggle reflective glass", 0}, {"vrmod_disable_mirrors", 0, 1, "Disable mirrors", 0}, {"gmod_mcore_test", 0, 1, "Enable multi-core rendering", 1}, {"mat_queue_mode", -1, 2, "Multicore rendering mode (Warning: 2 can cause flickering)", -1}}
-			local changedValues = {}
-			for i, convar_item in ipairs(optimizeconvar) do -- Renamed 'convar' to 'convar_item' to avoid conflict
-				local name, min, max, description, default = unpack(convar_item)
-				local panel = vgui.Create("DPanel", scroll)
-				panel:Dock(TOP)
-				panel:SetHeight(70)
-				panel:DockMargin(0, 0, 0, 10)
-				local label = vgui.Create("DLabel", panel)
-				label:SetText(description)
-				label:Dock(TOP)
-				local slider = vgui.Create("DNumSlider", panel)
-				slider:Dock(TOP)
-				slider:SetText(name)
-				slider:SetMin(min)
-				slider:SetMax(max)
-				slider:SetDecimals(0)
-				local valueLabel = vgui.Create("DLabel", panel)
-				valueLabel:Dock(LEFT)
-				valueLabel:SetWidth(50)
-				local defaultButton = vgui.Create("DButton", panel)
-				defaultButton:Dock(RIGHT)
-				defaultButton:SetText("Default")
-				defaultButton:SetWidth(60)
-				slider.OnValueChanged = function(self, value)
-					changedValues[name] = math.Round(value)
-					valueLabel:SetText(tostring(math.Round(value)))
-				end
-				local currentValue = GetConVar(name):GetInt()
-				slider:SetValue(currentValue)
-				valueLabel:SetText(tostring(currentValue))
-				defaultButton.DoClick = function()
-					slider:SetValue(default)
-					changedValues[name] = default
-				end
+		-- ========================================
+		-- Panel: Opt.VR
+		-- ========================================
+		do
+		local MenuTab11 = vgui.Create("DPanel")
+		MenuTab11.Paint = function(self, w, h) end
+		local scroll = vgui.Create("DScrollPanel", MenuTab11)
+		scroll:Dock(FILL)
+		local optimizeconvar = {{"r_WaterDrawReflection", 0, 1, "Draw water reflections", 1}, {"r_WaterDrawRefraction", 0, 1, "Draw water refractions", 1}, {"r_waterforceexpensive", 0, 1, "Force expensive water", 0}, {"r_waterforcereflectentities", 0, 1, "Force water to reflect entities", 0}, {"vrmod_mirror_optimization", 0, 1, "Optimize VR mirrors", 0}, {"vrmod_reflective_glass_toggle", 0, 1, "Toggle reflective glass", 0}, {"vrmod_disable_mirrors", 0, 1, "Disable mirrors", 0}, {"gmod_mcore_test", 0, 1, "Enable multi-core rendering", 1}, {"mat_queue_mode", -1, 2, "Multicore rendering mode (Warning: 2 can cause flickering)", -1}}
+		local changedValues = {}
+		for i, convar_item in ipairs(optimizeconvar) do
+			local name, min, max, description, default = unpack(convar_item)
+			local panel = vgui.Create("DPanel", scroll)
+			panel:Dock(TOP)
+			panel:SetHeight(70)
+			panel:DockMargin(0, 0, 0, 10)
+			local label = vgui.Create("DLabel", panel)
+			label:SetText(description)
+			label:SetTextColor(Color(50, 50, 50))
+			label:Dock(TOP)
+			local slider = vgui.Create("DNumSlider", panel)
+			slider:Dock(TOP)
+			slider:SetText(name)
+			slider:SetMin(min)
+			slider:SetMax(max)
+			slider:SetDecimals(0)
+			slider:SetDark(true)
+			local valueLabel = vgui.Create("DLabel", panel)
+			valueLabel:Dock(LEFT)
+			valueLabel:SetWidth(50)
+			valueLabel:SetTextColor(Color(50, 50, 50))
+			local defaultButton = vgui.Create("DButton", panel)
+			defaultButton:Dock(RIGHT)
+			defaultButton:SetText("Default")
+			defaultButton:SetWidth(60)
+			slider.OnValueChanged = function(self, value)
+				changedValues[name] = math.Round(value)
+				valueLabel:SetText(tostring(math.Round(value)))
 			end
-			local applyButton = vgui.Create("DButton", MenuTab11)
-			applyButton:Dock(BOTTOM)
-			applyButton:SetText("Apply")
-			applyButton:SetHeight(30)
-			applyButton.DoClick = function()
-				for name, value in pairs(changedValues) do
-					RunConsoleCommand(name, tostring(value))
-				end
-				changedValues = {}
+			local currentValue = GetConVar(name):GetInt()
+			slider:SetValue(currentValue)
+			valueLabel:SetText(tostring(currentValue))
+			defaultButton.DoClick = function()
+				slider:SetValue(default)
+				changedValues[name] = default
 			end
+		end
+		local applyButton = vgui.Create("DButton", MenuTab11)
+		applyButton:Dock(BOTTOM)
+		applyButton:SetText("Apply")
+		applyButton:SetHeight(30)
+		applyButton.DoClick = function()
+			for name, value in pairs(changedValues) do
+				RunConsoleCommand(name, tostring(value))
+			end
+			changedValues = {}
+		end
+		registerPanel("optvr", MenuTab11)
+		AddTreeNode(tree, "Opt.VR", "optvr", "icon16/cog_add.png", showPanel)
+		end -- Opt.VR panel
 
-		-- Opt.Gmod Tab (always shown)
-		local MenuTab12 = nil
-		-- Always show optimization tabs
-		MenuTab12 = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Opt.Gmod", MenuTab12, "icon16/cog_add.png")
-			MenuTab12.Paint = function(self, w, h) end
-			local scroll = vgui.Create("DScrollPanel", MenuTab12)
-			scroll:Dock(FILL)
-			local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 1, 8000, "Distance at which details are visible", 1200}, {"mat_fastspecular", 0, 1, "Distance at which details are visible", 1}, {"mat_wateroverlaysize", 2, 1200, "Distance at which details are visible", 256}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
-			local changedValues = {}
-			for i, convar_item in ipairs(optimizeconvar2) do -- Renamed 'convar' to 'convar_item'
-				local name, min, max, description, default = unpack(convar_item)
-				local panel = vgui.Create("DPanel", scroll)
-				panel:Dock(TOP)
-				panel:SetHeight(70)
-				panel:DockMargin(0, 0, 0, 10)
-				local label = vgui.Create("DLabel", panel)
-				label:SetText(description)
-				label:Dock(TOP)
-				local slider = vgui.Create("DNumSlider", panel)
-				slider:Dock(TOP)
-				slider:SetText(name)
-				slider:SetMin(min)
-				slider:SetMax(max)
-				slider:SetDecimals(2)
-				local valueLabel = vgui.Create("DLabel", panel)
-				valueLabel:Dock(LEFT)
-				valueLabel:SetWidth(50)
-				local defaultButton = vgui.Create("DButton", panel)
-				defaultButton:Dock(RIGHT)
-				defaultButton:SetText("Default")
-				defaultButton:SetWidth(60)
-				slider.OnValueChanged = function(self, value)
-					changedValues[name] = value
-					valueLabel:SetText(string.format("%.2f", value))
-				end
-				local currentValue = GetConVar(name):GetFloat()
-				slider:SetValue(currentValue)
-				valueLabel:SetText(string.format("%.2f", currentValue))
-				defaultButton.DoClick = function()
-					slider:SetValue(default)
-					changedValues[name] = default
-				end
+		-- ========================================
+		-- Panel: Opt.Gmod
+		-- ========================================
+		do
+		local MenuTab12 = vgui.Create("DPanel")
+		MenuTab12.Paint = function(self, w, h) end
+		local scroll = vgui.Create("DScrollPanel", MenuTab12)
+		scroll:Dock(FILL)
+		local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 1, 8000, "Distance at which details are visible", 1200}, {"mat_fastspecular", 0, 1, "Distance at which details are visible", 1}, {"mat_wateroverlaysize", 2, 1200, "Distance at which details are visible", 256}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
+		local changedValues = {}
+		for i, convar_item in ipairs(optimizeconvar2) do
+			local name, min, max, description, default = unpack(convar_item)
+			local panel = vgui.Create("DPanel", scroll)
+			panel:Dock(TOP)
+			panel:SetHeight(70)
+			panel:DockMargin(0, 0, 0, 10)
+			local label = vgui.Create("DLabel", panel)
+			label:SetText(description)
+			label:SetTextColor(Color(50, 50, 50))
+			label:Dock(TOP)
+			local slider = vgui.Create("DNumSlider", panel)
+			slider:Dock(TOP)
+			slider:SetText(name)
+			slider:SetMin(min)
+			slider:SetMax(max)
+			slider:SetDecimals(2)
+			slider:SetDark(true)
+			local valueLabel = vgui.Create("DLabel", panel)
+			valueLabel:Dock(LEFT)
+			valueLabel:SetWidth(50)
+			valueLabel:SetTextColor(Color(50, 50, 50))
+			local defaultButton = vgui.Create("DButton", panel)
+			defaultButton:Dock(RIGHT)
+			defaultButton:SetText("Default")
+			defaultButton:SetWidth(60)
+			slider.OnValueChanged = function(self, value)
+				changedValues[name] = value
+				valueLabel:SetText(string.format("%.2f", value))
 			end
-			local applyButton = vgui.Create("DButton", MenuTab12)
-			applyButton:Dock(BOTTOM)
-			applyButton:SetText("Apply")
-			applyButton:SetHeight(30)
-			applyButton.DoClick = function()
-				for name, value in pairs(changedValues) do
-					RunConsoleCommand(name, tostring(value))
-				end
-				changedValues = {}
+			local currentValue = GetConVar(name):GetFloat()
+			slider:SetValue(currentValue)
+			valueLabel:SetText(string.format("%.2f", currentValue))
+			defaultButton.DoClick = function()
+				slider:SetValue(default)
+				changedValues[name] = default
 			end
-		-- End of Opt.Gmod tab
-		end -- Optimize + Opt.VR + Opt.Gmod tab scope
+		end
+		local applyButton = vgui.Create("DButton", MenuTab12)
+		applyButton:Dock(BOTTOM)
+		applyButton:SetText("Apply")
+		applyButton:SetHeight(30)
+		applyButton.DoClick = function()
+			for name, value in pairs(changedValues) do
+				RunConsoleCommand(name, tostring(value))
+			end
+			changedValues = {}
+		end
+		registerPanel("optgmod", MenuTab12)
+		AddTreeNode(tree, "Opt.Gmod", "optgmod", "icon16/cog_add.png", showPanel)
+		end -- Opt.Gmod panel
 
-		local leftColumn2 = vgui.Create("DPanel", uiSettings)
-		leftColumn2:SetSize(200, 400)
-		leftColumn2:Dock(LEFT)
-		local rightColumn2 = vgui.Create("DPanel", uiSettings)
-		rightColumn2:SetSize(200, 400)
-		rightColumn2:Dock(RIGHT)
-		leftColumn2:Add(VRElefthand)
-		leftColumn2:Add(menuoutline)
-		leftColumn2:Add(hudonlykey)
-		leftColumn2:Add(keyboarduichat)
-		rightColumn2:Add(cameraoverride)
-		rightColumn2:Add(uirender)
-		rightColumn2:Add(uidefault)
-		do -- Quick Menu / VRStop / Misc / Animation / Graphics02 / Network scope
-		local quickMenuSettings = vgui.Create("DForm", sheet)
-		sheet:AddSheet("Quick Menu", quickMenuSettings, "icon16/application_view_tile.png")
+		-- ========================================
+		-- Panel: Quick Menu
+		-- ========================================
+		do
+		local quickMenuSettings = vgui.Create("DForm")
 		quickMenuSettings:DockPadding(0, 0, 0, 0)
 		local mapbrowser = quickMenuSettings:CheckBox("Map Browser")
 		mapbrowser:SetConVar("vrmod_quickmenu_mapbrowser_enable")
@@ -802,8 +936,15 @@ hook.Add(
 		quickmenudefault.DoClick = function()
 			VRModResetCategory("quickmenu")
 		end
-		local PanelEMSTOP = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("VRStop Key", PanelEMSTOP, "icon16/stop.png")
+		registerPanel("quickmenu", quickMenuSettings)
+		AddTreeNode(tree, "Quick Menu", "quickmenu", "icon16/application_view_tile.png", showPanel)
+		end -- Quick Menu panel
+
+		-- ========================================
+		-- Panel: VRStop Key
+		-- ========================================
+		do
+		local PanelEMSTOP = vgui.Create("DPanel")
 		PanelEMSTOP.Paint = function(self, w, h) end
 		local emergStopKeyBinder = vgui.Create("DBinder", PanelEMSTOP)
 		emergStopKeyBinder:SetPos(20, 20)
@@ -817,8 +958,15 @@ hook.Add(
 		emergStopHoldTime:SetMax(10.0)
 		emergStopHoldTime:SetDecimals(2)
 		emergStopHoldTime:SetConVar("vrmod_emergencystop_time")
-		local generalSettings = vgui.Create("DForm", sheet)
-		sheet:AddSheet("Misc", generalSettings, "icon16/cog.png")
+		registerPanel("vrstop", PanelEMSTOP)
+		AddTreeNode(tree, "VRStop Key", "vrstop", "icon16/stop.png", showPanel)
+		end -- VRStop Key panel
+
+		-- ========================================
+		-- Panel: Misc
+		-- ========================================
+		do
+		local generalSettings = vgui.Create("DForm")
 		generalSettings:DockPadding(0, 0, 0, 0)
 		local showonstartup = generalSettings:CheckBox("VRMod Menu Show on Startup")
 		showonstartup:SetConVar("vrmod_showonstartup")
@@ -854,9 +1002,15 @@ hook.Add(
 		miscDefault.DoClick = function()
 			VRModResetCategory("misc")
 		end
+		registerPanel("misc", generalSettings)
+		AddTreeNode(tree, "Misc", "misc", "icon16/cog.png", showPanel)
+		end -- Misc panel
 
-		local animationSettings = vgui.Create("DForm", sheet)
-		sheet:AddSheet("Animation", animationSettings, "icon16/user_edit.png")
+		-- ========================================
+		-- Panel: Animation
+		-- ========================================
+		do
+		local animationSettings = vgui.Create("DForm")
 		animationSettings:DockPadding(0, 0, 0, 0)
 		animationSettings:TextEntry("Idle Animation", "vrmod_idle_act")
 		animationSettings:TextEntry("Walk Animation", "vrmod_walk_act")
@@ -874,8 +1028,15 @@ hook.Add(
 			RunConsoleCommand("vrmod_run_act", "ACT_HL2MP_WALK")
 			RunConsoleCommand("vrmod_jump_act", "ACT_HL2MP_WALK")
 		end
-		local advancedSettings = vgui.Create("DForm", sheet)
-		sheet:AddSheet("Graphics02", advancedSettings, "icon16/wrench.png")
+		registerPanel("animation", animationSettings)
+		AddTreeNode(tree, "Animation", "animation", "icon16/user_edit.png", showPanel)
+		end -- Animation panel
+
+		-- ========================================
+		-- Panel: Graphics02
+		-- ========================================
+		do
+		local advancedSettings = vgui.Create("DForm")
 		advancedSettings:DockPadding(0, 0, 0, 0)
 		local autores = advancedSettings:CheckBox("Automatic Resolution Set")
 		autores:SetConVar("vrmod_scr_alwaysautosetting")
@@ -903,8 +1064,15 @@ hook.Add(
 			VRModResetCategory("advanced")
 			RunConsoleCommand("vrmod_restart")
 		end
-		local networkSettings = vgui.Create("DForm", sheet)
-		sheet:AddSheet("Network(Server)", networkSettings, "icon16/connect.png")
+		registerPanel("graphics02", advancedSettings)
+		AddTreeNode(tree, "Graphics02", "graphics02", "icon16/wrench.png", showPanel)
+		end -- Graphics02 panel
+
+		-- ========================================
+		-- Panel: Network(Server)
+		-- ========================================
+		do
+		local networkSettings = vgui.Create("DForm")
 		networkSettings:DockPadding(0, 0, 0, 0)
 		local netdelay = networkSettings:NumSlider("Net Delay", "vrmod_net_delay", 0, 1, 3)
 		local netdelaymax = networkSettings:NumSlider("Net Delay Max", "vrmod_net_delaymax", 0, 100, 3)
@@ -916,12 +1084,15 @@ hook.Add(
 		netdefault.DoClick = function()
 			VRModResetCategory("network")
 		end
-		end -- Quick Menu / VRStop / Misc / Animation / Graphics02 / Network scope
+		registerPanel("network", networkSettings)
+		AddTreeNode(tree, "Network(Server)", "network", "icon16/connect.png", showPanel)
+		end -- Network panel
 
-		do -- Commands + Vehicle tab scope
-		-- VRCommands Tab (NEW)
-		local commandsTab = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Commands", commandsTab, "icon16/application_xp_terminal.png")
+		-- ========================================
+		-- Panel: Commands
+		-- ========================================
+		do
+		local commandsTab = vgui.Create("DPanel")
 		commandsTab.Paint = function(self, w, h) end
 
 		local scrollPanel = vgui.Create("DScrollPanel", commandsTab)
@@ -1026,11 +1197,15 @@ hook.Add(
 
 		commandsForm:Help("VRE addon must be installed for these commands to work")
 
-		-- === Vehicle, Utility, Cardboard tabs migrated from old menu ===
+		registerPanel("commands", commandsTab)
+		AddTreeNode(tree, "Commands", "commands", "icon16/application_xp_terminal.png", showPanel)
+		end -- Commands panel
 
-		-- Vehicle Tab
-		local vehicleTab = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Vehicle", vehicleTab, "icon16/car.png")
+		-- ========================================
+		-- Panel: Vehicle
+		-- ========================================
+		do
+		local vehicleTab = vgui.Create("DPanel")
 		vehicleTab.Paint = function(self, w, h) end
 		-- Input Mode Switching Buttons
 		local keymodeMainBtn = vgui.Create("DButton", vehicleTab)
@@ -1109,12 +1284,42 @@ hook.Add(
 			VRModResetCategory("vehicle")
 			chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Vehicle settings reset to defaults")
 		end
-		end -- Commands + Vehicle tab scope
+		registerPanel("vehicle", vehicleTab)
+		AddTreeNode(tree, "Vehicle", "vehicle", "icon16/car.png", showPanel)
+		end -- Vehicle panel
 
-		-- Create Utility and Cardboard tabs using helper functions (reduces local variables)
-		CreateUtilityTab(sheet)
-		CreateCardboardTab(sheet)
+		-- ========================================
+		-- Panel: Utility
+		-- ========================================
+		do
+		local utilityPanel = CreateUtilityPanel()
+		registerPanel("utility", utilityPanel)
+		AddTreeNode(tree, "Utility", "utility", "icon16/wrench.png", showPanel)
+		end -- Utility panel
 
+		-- ========================================
+		-- Panel: Cardboard
+		-- ========================================
+		do
+		local cardboardPanel = CreateCardboardPanel()
+		registerPanel("cardboard", cardboardPanel)
+		AddTreeNode(tree, "Cardboard", "cardboard", "icon16/phone.png", showPanel)
+		end -- Cardboard panel
+
+		-- Show first panel (VR) by default
+		showPanel("vr")
+		tree:SetSelectedItem(vrNode)
+
+		-- Deferred module extraction: after all hooks run, extract hidden sheet tabs into DTree
+		timer.Simple(0, function()
+			if not IsValid(tree) then return end
+			ExtractSheet(frame.VRplaySheet, tree, showPanel, registerPanel)
+			ExtractSheet(frame.pickupSheet, tree, showPanel, registerPanel)
+			ExtractSheet(frame.nonVRGunSheet, tree, showPanel, registerPanel)
+			ExtractSheet(frame.hudSheet, tree, showPanel, registerPanel)
+			ExtractSheet(frame.debugSheet, tree, showPanel, registerPanel)
+			ExtractSheet(frame.quickmenuBtnSheet, tree, showPanel, registerPanel)
+			ExtractSheet(frame.Settings02Sheet, tree, showPanel, registerPanel)
+		end)
 	end
 )
---------[vrmod_unoff_addmenu.lua]End--------

@@ -11,12 +11,12 @@ hook.Add(
 	"VRMod_Menu",
 	"addsettingsdebug",
 	function(frame)
-		-- Only show if developer mode is enabled
-		local devMode = GetConVar("vrmod_unoff_developer_mode")
-		if not devMode or not devMode:GetBool() then return end
-
-		local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-		frame.DPropertySheet:AddSheet("VRDebug", sheet)
+		-- VRDebug root tab disabled: items redistributed into debug tab in Settings02
+		-- Test handles → debug > Test > vehiclemode
+		-- Emergency stop → VRStop Key in VRplay
+		-- Error handling → debug > Settings
+		-- Debug Monitor → debug > Debug Monitor (separate module)
+		return
 		sheet:Dock(FILL)
 
 		-- Test Settings Tab
@@ -83,6 +83,42 @@ hook.Add(
 		end
 
 		form3:CheckBox("Error Hard Mode", "vrmod_error_hard")
+
+		-- Debug Monitor ボタン（デバッグシステム有効時のみ）
+		if vrmod.debug and vrmod.debug.enabled then
+			local debugMonTab = vgui.Create("DPanel", sheet)
+			sheet:AddSheet("Monitor", debugMonTab, "icon16/monitor.png")
+			debugMonTab.Paint = function(self, w, h) end
+
+			local scrollPanel4 = vgui.Create("DScrollPanel", debugMonTab)
+			scrollPanel4:Dock(FILL)
+
+			local form4 = vgui.Create("DForm", scrollPanel4)
+			form4:SetName("Debug Monitor")
+			form4:Dock(TOP)
+			form4:DockMargin(5, 5, 5, 5)
+
+			local openBtn = form4:Button("Open Debug Monitor Panel")
+			openBtn.DoClick = function()
+				RunConsoleCommand("vrmod_unoff_debug_panel")
+			end
+
+			local recBtn = form4:Button("Start/Stop Recording")
+			recBtn.DoClick = function()
+				if vrmod.debug.export and vrmod.debug.export.IsRecording() then
+					vrmod.debug.export.StopRecording()
+				elseif vrmod.debug.export then
+					vrmod.debug.export.StartRecording()
+				end
+			end
+
+			local exportBtn = form4:Button("Export Session Data")
+			exportBtn.DoClick = function()
+				if vrmod.debug.export then
+					vrmod.debug.export.ExportJSON()
+				end
+			end
+		end
 	end
 )
 

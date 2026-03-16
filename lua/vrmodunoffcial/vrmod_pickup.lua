@@ -12,7 +12,8 @@ function vrmod_pickup_lua()
 	local _, convarValues = vrmod.GetConvars()
 	vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 1, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 3, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_pickup_centered", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-	vrmod.AddCallbackedConvar("vrmod_dev_pickup_limit_droptest", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 2, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+	-- S14: Tick自動ドロップモード（0=無効＝10年間の旧挙動, 1=有効＝オリジナル同等）
+	vrmod.AddCallbackedConvar("vrmod_pickup_tick_autodrop", nil, 0, FCVAR_REPLICATED + FCVAR_ARCHIVE, "Tick auto-drop: 0=disabled(legacy), 1=enabled(original)", 0, 1, tonumber)
 	vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 100, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 99999, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_pickup_allow_default", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "Allow default pickup behavior for VR players", 0, 1, tonumber)
@@ -216,39 +217,21 @@ vrmod.AddCallbackedConvar("vrmod_pickup_allow_default", nil, 1, FCVAR_REPLICATED
 					end
 
 					pickupController:StartMotionController()
-					hook.Add(
+					-- S14: Tick自動ドロップ（vrmod_pickup_tick_autodrop で切替）
+				-- 0=無効（10年間の旧挙動。ホルスター格納との干渉を避ける）
+				-- 1=有効（オリジナル同等。物理無効/固定/VR終了/死亡/車両で自動ドロップ）
+				hook.Add(
 						"Tick",
 						"vrmod_pickup",
 						function()
+							if convarValues.vrmod_pickup_tick_autodrop ~= 1 then return end
 							--drop items that have become immovable or invalid
 							for i = 1, pickupCount do
 								local t = pickupList[i]
-								if t == nil then
-									i = 0
-									break
-								end
-
-								--pescorrzonestart
-								if convarValues.vrmod_test_pickup_limit_droptest == 2 then
+								if t == nil then break end
+								if not IsValid(t.phys) or not t.phys:IsMoveable() or not g_VR[t.steamid] or not t.ply:Alive() or t.ply:InVehicle() then
 									drop(t.steamid, t.left)
 								end
-
-								if convarValues.vrmod_test_pickup_limit_droptest == 1 then
-									if not IsValid(t.phys) or not t.phys:IsMoveable() or not g_VR[t.steamid] or not t.ply:Alive() or t.ply:InVehicle() then
-										if not g_VR[t.steamid] or t.ply:InVehicle() then
-											--print("dropping invalid")
-											drop(t.steamid, t.left)
-										end
-									end
-								end
-
-								if convarValues.vrmod_test_pickup_limit_droptest == 0 then
-									if not g_VR[t.steamid] or t.ply:InVehicle() then
-										--print("dropping invalid")
-										drop(t.steamid, t.left)
-									end
-								end
-								--pescorrzoneend
 							end
 						end
 					)
@@ -335,12 +318,27 @@ vrmod.AddCallbackedConvar("vrmod_pickup_allow_default", nil, 1, FCVAR_REPLICATED
 			end
 		)
 
+		-- S14: VRMod_Exitハンドラ（vrmod_pickup_tick_autodrop で挙動切替）
+		-- autodrop=0: 旧挙動（pickupCount=0リセット+VRMod_Drop発火。entは不正だがホルスターとの互換性あり）
+		-- autodrop=1: 新挙動（pickupListを逆順反復して各アイテムをdrop()。正しいply/entでVRMod_Drop発火）
 		hook.Add(
 			"VRMod_Exit",
 			"pickupreset",
 			function(ply, ent)
-				pickupCount = 0
-				hook.Call("VRMod_Drop", nil, ply, ent)
+				if convarValues.vrmod_pickup_tick_autodrop == 1 then
+					-- 新挙動: 正しく各アイテムをドロップ
+					local steamid = ply:SteamID()
+					for i = pickupCount, 1, -1 do
+						local t = pickupList[i]
+						if t and t.steamid == steamid then
+							drop(steamid, t.left)
+						end
+					end
+				else
+					-- 旧挙動: 10年間使用されてきた方式
+					pickupCount = 0
+					hook.Call("VRMod_Drop", nil, ply, ent)
+				end
 			end
 		)
 

@@ -2,15 +2,12 @@ AddCSLuaFile()
 if SERVER then return end
 hook.Add(
     "VRMod_Menu",
-    "VRhandhudsettings",
+    "addsettings_handhud",
     function(frame)
-        -- Add Hand HUD Settings propertysheet
-        local sheet = vgui.Create("DPropertySheet", frame.DPropertySheet)
-        frame.DPropertySheet:AddSheet("VRHandHUDs", sheet)
-        sheet:Dock(FILL)
-        -- VRHandHUDs Settings Tab
-        local VRhandHudsScrollPanel = vgui.Create("DScrollPanel", sheet)
-        sheet:AddSheet("VRHandHUDs", VRhandHudsScrollPanel, "icon16/monitor_edit.png")
+        if not frame.hudSheet then return end
+        -- Add Hand HUD Settings directly into UI > HUD sheet
+        local VRhandHudsScrollPanel = vgui.Create("DScrollPanel", frame.hudSheet)
+        frame.hudSheet:AddSheet("VRHandHUDs", VRhandHudsScrollPanel, "icon16/monitor_edit.png")
         local handHudsForm = vgui.Create("DForm", VRhandHudsScrollPanel) -- DForm自体はコンテナとして使用
         handHudsForm:Dock(FILL)
         handHudsForm:SetPadding(5)
@@ -65,3 +62,6 @@ hook.Add(
         end
     end
 )
+
+-- Remove old hook name (renamed from VRhandhudsettings to addsettings_handhud)
+hook.Remove("VRMod_Menu", "VRhandhudsettings")

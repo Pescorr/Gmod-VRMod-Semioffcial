@@ -516,8 +516,41 @@ function CreateVRPhysgunSystem(prefix)
 				end
 			end
 		)
+
+		hook.Add(
+			"VRMod_Exit",
+			"vrmod_physgun_exit_" .. prefix,
+			function(ply)
+				if not IsValid(ply) then return end
+				actflag = false
+				local steamid = ply:SteamID()
+				for i = PhysgunController.pickupCount, 1, -1 do
+					local t = PhysgunController.pickupList[i]
+					if t and t.steamid == steamid then
+						drop(steamid)
+					end
+				end
+			end
+		)
+
+		hook.Add(
+			"PlayerDeath",
+			"vrmod_physgun_death_" .. prefix,
+			function(ply)
+				if not IsValid(ply) then return end
+				local steamid = ply:SteamID()
+				if not g_VR[steamid] then return end
+				for i = PhysgunController.pickupCount, 1, -1 do
+					local t = PhysgunController.pickupList[i]
+					if t and t.steamid == steamid then
+						drop(steamid)
+					end
+				end
+			end
+		)
 	end
 
+	local actflag = false -- グリップ押下状態をイベント間で保持（クロージャ経由）
 	hook.Add(
 		"VRMod_Input",
 		"vrmod_physgun_input_" .. prefix,
@@ -527,7 +560,6 @@ function CreateVRPhysgunSystem(prefix)
 			if LocalPlayer():InVehicle() then return end
 			local pickupAction = "boolean_" .. (prefix == "left" and "left_secondaryfire" or "secondaryfire")
 			local activationAction = "boolean_" .. prefix .. "_pickup"
-			local actflag = false
 			if action == activationAction then
 				vrmod["PhysgunAction_" .. prefix](not pressed)
 				if pressed then
