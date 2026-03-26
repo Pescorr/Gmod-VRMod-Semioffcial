@@ -1,4 +1,5 @@
 if CLIENT then
+	local _, convarValues = vrmod.GetConvars()
 
 	local pressTime = 0
 	local chatLog = {}
@@ -77,7 +78,9 @@ if CLIENT then
 		chatPanel = vgui.Create( "DPanel" )
 		chatPanel:SetPos( 0, 0 )
 		chatPanel:SetSize( 600, 310 )
-		chatPanel:SetPaintedManually(true)
+		if convarValues.vrmod_unoff_desktop_ui_mirror ~= 1 then
+			chatPanel:SetPaintedManually(true)
+		end
 		function chatPanel:Paint( w, h )
 			--surface.SetDrawColor( Color( 255, 0, 0, 255 ) )
 			--surface.DrawOutlinedRect(0,0,w,h)

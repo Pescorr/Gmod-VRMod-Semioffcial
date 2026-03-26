@@ -14,6 +14,8 @@ function vrmod_character_lua()
 	end
 
 	local cv_animation_convar = CreateClientConVar("vrmod_animation_Enable", "1", true, FCVAR_ARCHIVE)
+	local cv_yaw_optimized = CreateClientConVar("vrmod_unoff_yaw_optimized", "1", true, FCVAR_ARCHIVE, "Optimized character yaw calculation (0=original, 1=optimized)", 0, 1)
+	local cv_floatinghands_nosync = CreateClientConVar("vrmod_unoff_floatinghands_nosync", "0", true, FCVAR_ARCHIVE, "When floatinghands is ON, skip IK sync to player model (0=normal, 1=skip)", 0, 1)
 	-- cv_animationの代わりにcv_animation_convarを使用
 	if CLIENT then
 		CreateClientConVar("vrmod_idle_act", "ACT_HL2MP_IDLE", true, FCVAR_ARCHIVE)
@@ -35,6 +37,15 @@ function vrmod_character_lua()
 	vrmod.characterInfo = characterInfo  -- Expose for x64mode modules (bone_skip, spine_precalc)
 	local activePlayers = {}
 	local zeroVec, zeroAng = Vector(), Angle()
+
+	-- floatinghands nosync: LocalPlayerがfloatinghands ON かつ nosync ONの場合にtrueを返す
+	-- nosync OFF時は常にfalseを返し、既存コードパスに一切影響しない
+	local function IsNosyncActive(ply)
+		if ply ~= LocalPlayer() then return false end
+		if not cv_floatinghands_nosync:GetBool() then return false end
+		if not convars or not convars.vrmod_floatinghands then return false end
+		return convars.vrmod_floatinghands:GetBool()
+	end
 	local function RecursiveBoneTable2(ent, parentbone, infotab, ordertab, notfirst)
 		if not IsValid(ent) then return end
 		local bones = notfirst and ent:GetChildBones(parentbone) or {parentbone}
@@ -73,7 +84,7 @@ function vrmod_character_lua()
 		if not characterInfo or not characterInfo[steamid] or not characterInfo[steamid].boneinfo then return end
 		local charinfo = characterInfo[steamid]
 		-- x64mode: skip redundant bone updates when idle (set by bone_skip module)
-		if charinfo.x64mode_skipBoneUpdate then charinfo.x64mode_skipBoneUpdate = false return end
+		if charinfo.x64mode_skipBoneUpdate then charinfo.x64mode_skipBoneUpdate = false; return end
 		local boneinfo = charinfo.boneinfo
 		local bones = charinfo.bones
 		if not net or not net.lerpedFrame then return end
@@ -578,12 +589,12 @@ function vrmod_character_lua()
 
 	local function BoneCallbackFunc(ply, numbones)
 		if not IsValid(ply) then return end
+		-- nosync: floatinghands+nosync時はPMのボーンを書き換えない
+		if IsNosyncActive(ply) then return end
 		local steamid = ply:SteamID()
 		if not g_VR.net or not g_VR.net[steamid] or not g_VR.net[steamid].lerpedFrame then return end
 		if activePlayers[steamid] == nil then return end
 		if not characterInfo or not characterInfo[steamid] or not characterInfo[steamid].bones then return end
-		local vehicle = ply:GetVehicle()
-		if IsValid(vehicle) and vehicle:GetClass() ~= "prop_vehicle_prisoner_pod" then return end
 		local bones = characterInfo[steamid].bones
 		if not bones or not bones.b_rightHand then return end -- 保護: bonesとb_rightHandの存在を確認
 		local righthand_mtx = ply:GetBoneMatrix(bones.b_rightHand)
@@ -627,16 +638,39 @@ function vrmod_character_lua()
 		else
 			if not g_VR.tracking.pose_lefthand or not g_VR.tracking.pose_righthand then return end
 			local leftPos, rightPos, hmdPos, hmdAng = g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_righthand.pos, g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang
-			if WorldToLocal(leftPos, zeroAng, hmdPos, hmdAng).y > WorldToLocal(rightPos, zeroAng, hmdPos, hmdAng).y then
-				handYaw = Vector(rightPos.x - leftPos.x, rightPos.y - leftPos.y, 0):Angle().yaw + 90
-			end
 
-			local forwardAng = up:Cross(g_VR.tracking.hmd.ang:Right()):Angle()
-			local _, tmp = WorldToLocal(zeroVec, Angle(0, handYaw, 0), zeroVec, forwardAng)
-			local targetYaw = forwardAng.yaw + math.Clamp(tmp.yaw, -45, 45)
-			local _, tmp_yaw_diff = WorldToLocal(zeroVec, Angle(0, targetYaw, 0), zeroVec, Angle(0, g_VR.characterYaw, 0))
-			local diff = tmp_yaw_diff.yaw
-			g_VR.characterYaw = math.NormalizeAngle(g_VR.characterYaw + diff * 8 * RealFrameTime())
+			if cv_yaw_optimized:GetBool() then
+				-- Optimized mode: math.atan2 + degenerate check (x64 86c6567参考)
+				local lpos_local = WorldToLocal(leftPos, zeroAng, hmdPos, hmdAng)
+				local rpos_local = WorldToLocal(rightPos, zeroAng, hmdPos, hmdAng)
+				if lpos_local.y > rpos_local.y then
+					local dx = rightPos.x - leftPos.x
+					local dy = rightPos.y - leftPos.y
+					handYaw = math.deg(math.atan2(dy, dx)) + 90
+				end
+
+				local fwd = up:Cross(g_VR.tracking.hmd.ang:Right())
+				if fwd:LengthSqr() < 1e-6 then
+					fwd = Angle(0, g_VR.tracking.hmd.ang.yaw, 0):Forward()
+				end
+				local forwardYaw = fwd:Angle().yaw
+				local relativeToForward = math.NormalizeAngle(handYaw - forwardYaw)
+				local targetYaw = forwardYaw + math.Clamp(relativeToForward, -45, 45)
+				local diff = math.NormalizeAngle(targetYaw - g_VR.characterYaw)
+				g_VR.characterYaw = math.NormalizeAngle(g_VR.characterYaw + diff * 8 * RealFrameTime())
+			else
+				-- Original mode: WorldToLocal approach
+				if WorldToLocal(leftPos, zeroAng, hmdPos, hmdAng).y > WorldToLocal(rightPos, zeroAng, hmdPos, hmdAng).y then
+					handYaw = Vector(rightPos.x - leftPos.x, rightPos.y - leftPos.y, 0):Angle().yaw + 90
+				end
+
+				local forwardAng = up:Cross(g_VR.tracking.hmd.ang:Right()):Angle()
+				local _, tmp = WorldToLocal(zeroVec, Angle(0, handYaw, 0), zeroVec, forwardAng)
+				local targetYaw = forwardAng.yaw + math.Clamp(tmp.yaw, -45, 45)
+				local _, tmp_yaw_diff = WorldToLocal(zeroVec, Angle(0, targetYaw, 0), zeroVec, Angle(0, g_VR.characterYaw, 0))
+				local diff = tmp_yaw_diff.yaw
+				g_VR.characterYaw = math.NormalizeAngle(g_VR.characterYaw + diff * 8 * RealFrameTime())
+			end
 		end
 	end
 
@@ -644,6 +678,9 @@ function vrmod_character_lua()
 	local updatedPlayers = {}
 	local function PrePlayerDrawFunc(ply)
 		if not IsValid(ply) then return end
+		-- nosync: floatinghands+nosync時はPMの位置・ボーンを一切変更しない
+		-- PMはRenderOverrideで描画ブロック済みなので、IK計算自体が不要
+		if IsNosyncActive(ply) then return end
 		local steamid = ply:SteamID()
 		if not activePlayers[steamid] or not g_VR.net or not g_VR.net[steamid] or not g_VR.net[steamid].lerpedFrame then return end
 		if not characterInfo or not characterInfo[steamid] or not characterInfo[steamid].bones then return end
@@ -699,7 +736,6 @@ function vrmod_character_lua()
 			updatedPlayers[steamid] = 1
 		end
 
-		if IsValid(vehicle) and vehicle:GetClass() ~= "prop_vehicle_prisoner_pod" then return end
 		if characterInfo[steamid] and characterInfo[steamid].boneorder and characterInfo[steamid].boneinfo then
 			for i = 1, #characterInfo[steamid].boneorder do
 				local bone_id_current = characterInfo[steamid].boneorder[i]
@@ -712,6 +748,8 @@ function vrmod_character_lua()
 
 	local function PostPlayerDrawFunc(ply)
 		if not IsValid(ply) then return end
+		-- nosync: PrePlayerDrawFuncでSetPosしていないので復帰も不要
+		if IsNosyncActive(ply) then return end
 		local steamid = ply:SteamID()
 		if activePlayers[steamid] == nil then return end
 		if not g_VR.net or not g_VR.net[steamid] or not g_VR.net[steamid].lerpedFrame then return end
@@ -723,6 +761,8 @@ function vrmod_character_lua()
 
 	local function CalcMainActivityFunc(ply, vel)
 		if not IsValid(ply) or not activePlayers[ply:SteamID()] or ply:InVehicle() then return end
+		-- nosync: PMの元のアニメーションシステムを維持する
+		if IsNosyncActive(ply) then return end
 		local idle_act_convar = GetConVar("vrmod_idle_act")
 		local jump_act_convar = GetConVar("vrmod_jump_act")
 		local run_act_convar = GetConVar("vrmod_run_act")
@@ -750,6 +790,8 @@ function vrmod_character_lua()
 
 	local function DoAnimationEventFunc(ply, evt, data)
 		if not IsValid(ply) or not activePlayers[ply:SteamID()] or ply:InVehicle() then return end
+		-- nosync: PMの元のアニメーションイベントを維持する
+		if IsNosyncActive(ply) then return end
 		if evt ~= PLAYERANIMEVENT_JUMP then return ACT_INVALID end
 	end
 

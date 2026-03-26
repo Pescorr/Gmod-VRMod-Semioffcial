@@ -19,7 +19,7 @@ if CLIENT then
 	CreateClientConVar("vrmod_lvs_input_mode", "1", true, FCVAR_ARCHIVE, "LVS input mode (0 = legacy/singleplayer, 1 = networked/multiplayer client)", 0, 1)
 
 	-- Auto-generate VR config data on startup (for x64 compatibility)
-	CreateClientConVar("vrmod_unoff_auto_generate_config", "0", true, FCVAR_ARCHIVE, "Auto-generate VR config data on VR startup (recommended for x64 compatibility)", 0, 1)
+	CreateClientConVar("vrmod_unoff_auto_generate_config", "1", true, FCVAR_ARCHIVE, "Auto-generate VR config data on VR startup (recommended for x64 compatibility)", 0, 1)
 
 	-- VRMod 開始時に自動で config data を生成
 	hook.Add(

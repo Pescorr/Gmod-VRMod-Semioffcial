@@ -1,0 +1,664 @@
+-- VRMod Beginner Guide - Category Definitions & ConVar Metadata
+-- カテゴリ定義とConVarメタデータ
+
+AddCSLuaFile()
+if SERVER then return end
+
+vrmod = vrmod or {}
+vrmod.guide = vrmod.guide or {}
+
+-- ============================================================
+-- Category order (sidebar display order)
+-- ============================================================
+vrmod.guide.categoryOrder = {
+	"getting_started",
+	"body_scale",
+	"gameplay",
+	"movement",
+	"hud_ui",
+	"quickmenu",
+	"melee",
+	"weapons",
+	"holster",
+	"physgun",
+	"climbing",
+	"vehicles",
+	"network",
+	"optimization",
+	"developer",
+	"commands",
+}
+
+-- ============================================================
+-- Category definitions
+-- Each category has: icon, defaults_category (for reset), items[]
+-- Each item has: cvar/command, type, lang_key, tip_key, and type-specific fields
+-- ============================================================
+vrmod.guide.categories = {
+
+-- ============================================================
+-- 1. Getting Started (handled by core.lua directly)
+-- ============================================================
+getting_started = {
+	icon = "icon16/information.png",
+	items = {},
+},
+
+-- ============================================================
+-- 2. Body & Scale
+-- ============================================================
+body_scale = {
+	icon = "icon16/user.png",
+	defaults_category = {"character", "character_advanced"},
+	items = {
+		{type = "section", lang_key = "section_basic_body"},
+		{cvar = "vrmod_scale", type = "slider", min = 1, max = 100, decimals = 1, lang_key = "cvar_vrmod_scale", tip_key = "tip_vrmod_scale"},
+		{cvar = "vrmod_characterEyeHeight", type = "slider", min = 0, max = 100, decimals = 1, lang_key = "cvar_vrmod_characterEyeHeight", tip_key = "tip_vrmod_characterEyeHeight"},
+		{cvar = "vrmod_characterHeadToHmdDist", type = "slider", min = 0, max = 20, decimals = 1, lang_key = "cvar_vrmod_characterHeadToHmdDist", tip_key = "tip_vrmod_characterHeadToHmdDist"},
+		{cvar = "vrmod_crouchthreshold", type = "slider", min = 0, max = 100, decimals = 0, lang_key = "cvar_vrmod_crouchthreshold", tip_key = "tip_vrmod_crouchthreshold"},
+		{cvar = "vrmod_znear", type = "slider", min = 0.1, max = 10, decimals = 1, lang_key = "cvar_vrmod_znear", tip_key = "tip_vrmod_znear"},
+
+		{type = "section", lang_key = "section_seated_mode"},
+		{cvar = "vrmod_seated", type = "checkbox", lang_key = "cvar_vrmod_seated", tip_key = "tip_vrmod_seated"},
+		{cvar = "vrmod_seatedoffset", type = "slider", min = 0, max = 100, decimals = 1, lang_key = "cvar_vrmod_seatedoffset", tip_key = "tip_vrmod_seatedoffset"},
+
+		{type = "section", lang_key = "section_handedness"},
+		{cvar = "vrmod_LeftHand", type = "checkbox", lang_key = "cvar_vrmod_LeftHand", tip_key = "tip_vrmod_LeftHand"},
+		{cvar = "vrmod_lefthandleftfire", type = "checkbox", lang_key = "cvar_vrmod_lefthandleftfire", tip_key = "tip_vrmod_lefthandleftfire"},
+		{cvar = "vrmod_LeftHandmode", type = "dropdown", lang_key = "cvar_vrmod_LeftHandmode", tip_key = "tip_vrmod_LeftHandmode",
+			options = {
+				{value = "0", lang_key = "opt_lefthandmode_0", label = "Normal"},
+				{value = "1", lang_key = "opt_lefthandmode_1", label = "Mirror"},
+			}},
+
+		{type = "section", lang_key = "section_character_advanced"},
+		{cvar = "vrmod_oldcharacteryaw", type = "checkbox", lang_key = "cvar_vrmod_oldcharacteryaw", tip_key = "tip_vrmod_oldcharacteryaw"},
+		{cvar = "vrmod_animation_Enable", type = "checkbox", lang_key = "cvar_vrmod_animation_Enable", tip_key = "tip_vrmod_animation_Enable"},
+		{cvar = "vrmod_hide_head", type = "checkbox", lang_key = "cvar_vrmod_hide_head", tip_key = "tip_vrmod_hide_head"},
+		{cvar = "vrmod_hide_head_pos_x", type = "slider", min = -50, max = 50, decimals = 0, lang_key = "cvar_vrmod_hide_head_pos_x", tip_key = "tip_vrmod_hide_head_pos"},
+		{cvar = "vrmod_hide_head_pos_y", type = "slider", min = -50, max = 50, decimals = 0, lang_key = "cvar_vrmod_hide_head_pos_y", tip_key = "tip_vrmod_hide_head_pos"},
+		{cvar = "vrmod_hide_head_pos_z", type = "slider", min = -50, max = 50, decimals = 0, lang_key = "cvar_vrmod_hide_head_pos_z", tip_key = "tip_vrmod_hide_head_pos"},
+
+		{type = "section", lang_key = "section_animations"},
+		{cvar = "vrmod_idle_act", type = "text", lang_key = "cvar_vrmod_idle_act", tip_key = "tip_vrmod_idle_act"},
+		{cvar = "vrmod_walk_act", type = "text", lang_key = "cvar_vrmod_walk_act", tip_key = "tip_vrmod_walk_act"},
+		{cvar = "vrmod_run_act", type = "text", lang_key = "cvar_vrmod_run_act", tip_key = "tip_vrmod_run_act"},
+		{cvar = "vrmod_jump_act", type = "text", lang_key = "cvar_vrmod_jump_act", tip_key = "tip_vrmod_jump_act"},
+	},
+},
+
+-- ============================================================
+-- 3. Gameplay
+-- ============================================================
+gameplay = {
+	icon = "icon16/controller.png",
+	defaults_category = {"gameplay"},
+	items = {
+		{cvar = "vrmod_autojumpduck", type = "checkbox", lang_key = "cvar_vrmod_autojumpduck", tip_key = "tip_vrmod_autojumpduck"},
+		{cvar = "vrmod_allow_teleport_client", type = "checkbox", lang_key = "cvar_vrmod_allow_teleport_client", tip_key = "tip_vrmod_allow_teleport_client"},
+		{cvar = "vrmod_flashlight_attachment", type = "dropdown", lang_key = "cvar_vrmod_flashlight_attachment", tip_key = "tip_vrmod_flashlight_attachment",
+			options = {
+				{value = "0", lang_key = "opt_flashlight_right", label = "Right Hand"},
+				{value = "1", lang_key = "opt_flashlight_left", label = "Left Hand"},
+				{value = "2", lang_key = "opt_flashlight_hmd", label = "HMD"},
+			}},
+		{cvar = "vrmod_manualpickups", type = "checkbox", lang_key = "cvar_vrmod_manualpickups", tip_key = "tip_vrmod_manualpickups"},
+
+		{type = "section", lang_key = "section_pickup_server"},
+		{cvar = "vrmod_pickup_weight", type = "slider", min = 0, max = 500, decimals = 0, lang_key = "cvar_vrmod_pickup_weight", tip_key = "tip_vrmod_pickup_weight", server = true},
+		{cvar = "vrmod_pickup_range", type = "slider", min = 0.1, max = 10, decimals = 1, lang_key = "cvar_vrmod_pickup_range", tip_key = "tip_vrmod_pickup_range", server = true},
+		{cvar = "vrmod_pickup_limit", type = "slider", min = 0, max = 10, decimals = 0, lang_key = "cvar_vrmod_pickup_limit", tip_key = "tip_vrmod_pickup_limit", server = true},
+
+		{type = "section", lang_key = "section_pickup_client"},
+		{cvar = "vrmod_unoff_pickup_weight_client", type = "slider", min = 0, max = 1000, decimals = 0, lang_key = "cvar_vrmod_unoff_pickup_weight_client", tip_key = "tip_vrmod_unoff_pickup_weight_client"},
+		{cvar = "vrmod_unoff_pickup_limit_client", type = "slider", min = 0, max = 3, decimals = 0, lang_key = "cvar_vrmod_unoff_pickup_limit_client", tip_key = "tip_vrmod_unoff_pickup_limit_client"},
+		{cvar = "vrmod_unoff_rotate_held_enable", type = "checkbox", lang_key = "cvar_vrmod_unoff_rotate_held_enable", tip_key = "tip_vrmod_unoff_rotate_held_enable"},
+		{cvar = "vrmod_unoff_rotate_held_speed", type = "slider", min = 0, max = 3.0, decimals = 1, lang_key = "cvar_vrmod_unoff_rotate_held_speed", tip_key = "tip_vrmod_unoff_rotate_held_speed"},
+	},
+},
+
+-- ============================================================
+-- 4. Movement & Locomotion
+-- ============================================================
+movement = {
+	icon = "icon16/arrow_right.png",
+	defaults_category = {"advanced"},
+	items = {
+		{cvar = "vrmod_directMovement", type = "checkbox", lang_key = "cvar_vrmod_directMovement", tip_key = "tip_vrmod_directMovement"},
+		{cvar = "vrmod_locomotion_step", type = "checkbox", lang_key = "cvar_vrmod_locomotion_step", tip_key = "tip_vrmod_locomotion_step"},
+		{cvar = "vrmod_noTrigger", type = "checkbox", lang_key = "cvar_vrmod_noTrigger", tip_key = "tip_vrmod_noTrigger"},
+
+		{type = "section", lang_key = "section_viewmodel"},
+		{cvar = "vrmod_attach_viewmodel", type = "checkbox", lang_key = "cvar_vrmod_attach_viewmodel", tip_key = "tip_vrmod_attach_viewmodel"},
+		{cvar = "vrmod_viewmodel_normal_enable", type = "checkbox", lang_key = "cvar_vrmod_viewmodel_normal_enable", tip_key = "tip_vrmod_viewmodel_normal_enable"},
+		{cvar = "vrmod_viewmodel_normal_offset_pos_x", type = "slider", min = -50, max = 50, decimals = 1, lang_key = "cvar_vrmod_viewmodel_offset_x", tip_key = "tip_vrmod_viewmodel_offset"},
+		{cvar = "vrmod_viewmodel_normal_offset_pos_y", type = "slider", min = -50, max = 50, decimals = 1, lang_key = "cvar_vrmod_viewmodel_offset_y", tip_key = "tip_vrmod_viewmodel_offset"},
+		{cvar = "vrmod_viewmodel_normal_offset_pos_z", type = "slider", min = -50, max = 50, decimals = 1, lang_key = "cvar_vrmod_viewmodel_offset_z", tip_key = "tip_vrmod_viewmodel_offset"},
+		{cvar = "vrmod_viewmodel_normal_offset_ang_p", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_viewmodel_offset_ang_p", tip_key = "tip_vrmod_viewmodel_offset_ang"},
+		{cvar = "vrmod_viewmodel_normal_offset_ang_y", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_viewmodel_offset_ang_y", tip_key = "tip_vrmod_viewmodel_offset_ang"},
+		{cvar = "vrmod_viewmodel_normal_offset_ang_r", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_viewmodel_offset_ang_r", tip_key = "tip_vrmod_viewmodel_offset_ang"},
+
+		{type = "section", lang_key = "section_render_tweaks"},
+		{cvar = "vrmod_rtWidth_Multiplier", type = "slider", min = 0.5, max = 4, decimals = 1, lang_key = "cvar_vrmod_rtWidth_Multiplier", tip_key = "tip_vrmod_rtWidth_Multiplier"},
+		{cvar = "vrmod_rtHeight_Multiplier", type = "slider", min = 0.5, max = 4, decimals = 1, lang_key = "cvar_vrmod_rtHeight_Multiplier", tip_key = "tip_vrmod_rtHeight_Multiplier"},
+		{cvar = "vrmod_error_check_method", type = "slider", min = 0, max = 3, decimals = 0, lang_key = "cvar_vrmod_error_check_method", tip_key = "tip_vrmod_error_check_method"},
+	},
+},
+
+-- ============================================================
+-- 5. HUD & UI
+-- ============================================================
+hud_ui = {
+	icon = "icon16/monitor.png",
+	defaults_category = {"ui"},
+	items = {
+		{type = "section", lang_key = "section_hud"},
+		{cvar = "vrmod_hud", type = "checkbox", lang_key = "cvar_vrmod_hud", tip_key = "tip_vrmod_hud"},
+		{cvar = "vrmod_hudcurve", type = "slider", min = 0, max = 180, decimals = 0, lang_key = "cvar_vrmod_hudcurve", tip_key = "tip_vrmod_hudcurve"},
+		{cvar = "vrmod_huddistance", type = "slider", min = 10, max = 200, decimals = 0, lang_key = "cvar_vrmod_huddistance", tip_key = "tip_vrmod_huddistance"},
+		{cvar = "vrmod_hudscale", type = "slider", min = 0.01, max = 0.2, decimals = 3, lang_key = "cvar_vrmod_hudscale", tip_key = "tip_vrmod_hudscale"},
+		{cvar = "vrmod_hudtestalpha", type = "slider", min = 0, max = 255, decimals = 0, lang_key = "cvar_vrmod_hudtestalpha", tip_key = "tip_vrmod_hudtestalpha"},
+
+		{type = "section", lang_key = "section_ui_panels"},
+		{cvar = "vre_ui_attachtohand", type = "checkbox", lang_key = "cvar_vre_ui_attachtohand", tip_key = "tip_vre_ui_attachtohand"},
+		{cvar = "vrmod_ui_outline", type = "checkbox", lang_key = "cvar_vrmod_ui_outline", tip_key = "tip_vrmod_ui_outline"},
+		{cvar = "vrmod_ui_realtime", type = "checkbox", lang_key = "cvar_vrmod_ui_realtime", tip_key = "tip_vrmod_ui_realtime"},
+		{cvar = "vrmod_cameraoverride", type = "checkbox", lang_key = "cvar_vrmod_cameraoverride", tip_key = "tip_vrmod_cameraoverride"},
+		{cvar = "vrmod_keyboard_uichatkey", type = "checkbox", lang_key = "cvar_vrmod_keyboard_uichatkey", tip_key = "tip_vrmod_keyboard_uichatkey"},
+
+		{type = "section", lang_key = "section_attachment_points"},
+		{cvar = "vrmod_hud_visible_quickmenukey", type = "checkbox", lang_key = "cvar_vrmod_hud_visible_quickmenukey", tip_key = "tip_vrmod_hud_visible_quickmenukey"},
+		{cvar = "vrmod_attach_quickmenu", type = "dropdown", lang_key = "cvar_vrmod_attach_quickmenu", tip_key = "tip_vrmod_attach_quickmenu",
+			options = {
+				{value = "1", lang_key = "opt_attach_1", label = "Attachment 1"},
+				{value = "2", lang_key = "opt_attach_2", label = "Attachment 2"},
+				{value = "3", lang_key = "opt_attach_3", label = "Attachment 3"},
+				{value = "4", lang_key = "opt_attach_4", label = "Attachment 4"},
+			}},
+		{cvar = "vrmod_attach_weaponmenu", type = "dropdown", lang_key = "cvar_vrmod_attach_weaponmenu", tip_key = "tip_vrmod_attach_weaponmenu",
+			options = {
+				{value = "1", lang_key = "opt_attach_1", label = "Attachment 1"},
+				{value = "2", lang_key = "opt_attach_2", label = "Attachment 2"},
+				{value = "3", lang_key = "opt_attach_3", label = "Attachment 3"},
+				{value = "4", lang_key = "opt_attach_4", label = "Attachment 4"},
+			}},
+		{cvar = "vrmod_attach_popup", type = "dropdown", lang_key = "cvar_vrmod_attach_popup", tip_key = "tip_vrmod_attach_popup",
+			options = {
+				{value = "1", lang_key = "opt_attach_1", label = "Attachment 1"},
+				{value = "2", lang_key = "opt_attach_2", label = "Attachment 2"},
+				{value = "3", lang_key = "opt_attach_3", label = "Attachment 3"},
+				{value = "4", lang_key = "opt_attach_4", label = "Attachment 4"},
+			}},
+	},
+},
+
+-- ============================================================
+-- 6. Quick Menu
+-- ============================================================
+quickmenu = {
+	icon = "icon16/application_view_list.png",
+	defaults_category = {"quickmenu", "quickmenu_editor"},
+	items = {
+		{cvar = "vrmod_quickmenu_use_custom", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_use_custom", tip_key = "tip_vrmod_quickmenu_use_custom"},
+
+		{type = "section", lang_key = "section_quickmenu_items"},
+		{cvar = "vrmod_quickmenu_mapbrowser_enable", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_mapbrowser_enable", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_exit", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_exit", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_vgui_reset_menu", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_vgui_reset_menu", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_vre_gbradial_menu", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_vre_gbradial_menu", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_chat", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_chat", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_seated_menu", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_seated_menu", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_togglemirror", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_togglemirror", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_togglevehiclemode", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_togglevehiclemode", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_noclip", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_noclip", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_spawn_menu", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_spawnmenu", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_context_menu", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_contextmenu", tip_key = "tip_vrmod_quickmenu_item"},
+		{cvar = "vrmod_quickmenu_arccw", type = "checkbox", lang_key = "cvar_vrmod_quickmenu_arccw", tip_key = "tip_vrmod_quickmenu_item"},
+	},
+},
+
+-- ============================================================
+-- 7. VR Melee Combat
+-- ============================================================
+melee = {
+	icon = "icon16/sport_boxing.png",
+	defaults_category = {"melee"},
+	items = {
+		{type = "section", lang_key = "section_melee_enable"},
+		{cvar = "vrmelee_usegunmelee", type = "checkbox", lang_key = "cvar_vrmelee_usegunmelee", tip_key = "tip_vrmelee_usegunmelee"},
+		{cvar = "vrmelee_usefist", type = "checkbox", lang_key = "cvar_vrmelee_usefist", tip_key = "tip_vrmelee_usefist"},
+		{cvar = "vrmelee_usekick", type = "checkbox", lang_key = "cvar_vrmelee_usekick", tip_key = "tip_vrmelee_usekick"},
+
+		{type = "section", lang_key = "section_melee_server"},
+		{cvar = "vrmelee_gunmelee", type = "checkbox", lang_key = "cvar_vrmelee_gunmelee", tip_key = "tip_vrmelee_gunmelee", server = true},
+		{cvar = "vrmelee_fist", type = "checkbox", lang_key = "cvar_vrmelee_fist", tip_key = "tip_vrmelee_fist", server = true},
+		{cvar = "vrmelee_kick", type = "checkbox", lang_key = "cvar_vrmelee_kick", tip_key = "tip_vrmelee_kick", server = true},
+
+		{type = "section", lang_key = "section_melee_damage"},
+		{cvar = "vrmelee_damage_low", type = "slider", min = 0, max = 100, decimals = 1, lang_key = "cvar_vrmelee_damage_low", tip_key = "tip_vrmelee_damage", server = true},
+		{cvar = "vrmelee_damage_medium", type = "slider", min = 0, max = 200, decimals = 1, lang_key = "cvar_vrmelee_damage_medium", tip_key = "tip_vrmelee_damage", server = true},
+		{cvar = "vrmelee_damage_high", type = "slider", min = 0, max = 300, decimals = 1, lang_key = "cvar_vrmelee_damage_high", tip_key = "tip_vrmelee_damage", server = true},
+		{cvar = "vrmelee_damage_velocity_low", type = "slider", min = 0, max = 20, decimals = 2, lang_key = "cvar_vrmelee_damage_velocity_low", tip_key = "tip_vrmelee_velocity", server = true},
+		{cvar = "vrmelee_damage_velocity_medium", type = "slider", min = 0, max = 20, decimals = 2, lang_key = "cvar_vrmelee_damage_velocity_medium", tip_key = "tip_vrmelee_velocity", server = true},
+		{cvar = "vrmelee_damage_velocity_high", type = "slider", min = 0, max = 20, decimals = 2, lang_key = "cvar_vrmelee_damage_velocity_high", tip_key = "tip_vrmelee_velocity", server = true},
+		{cvar = "vrmelee_impact", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_vrmelee_impact", tip_key = "tip_vrmelee_impact", server = true},
+		{cvar = "vrmelee_delay", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_vrmelee_delay", tip_key = "tip_vrmelee_delay", server = true},
+		{cvar = "vrmelee_range", type = "slider", min = 1, max = 100, decimals = 0, lang_key = "cvar_vrmelee_range", tip_key = "tip_vrmelee_range", server = true},
+		{cvar = "vrmelee_high_velocity_fire_bullets", type = "checkbox", lang_key = "cvar_vrmelee_high_velocity_fire_bullets", tip_key = "tip_vrmelee_high_velocity_fire_bullets", server = true},
+
+		{type = "section", lang_key = "section_melee_client"},
+		{cvar = "vrmelee_cooldown", type = "slider", min = 0, max = 2, decimals = 2, lang_key = "cvar_vrmelee_cooldown", tip_key = "tip_vrmelee_cooldown"},
+		{cvar = "vrmelee_hitbox_width", type = "slider", min = 1, max = 20, decimals = 0, lang_key = "cvar_vrmelee_hitbox_width", tip_key = "tip_vrmelee_hitbox"},
+		{cvar = "vrmelee_hitbox_length", type = "slider", min = 1, max = 20, decimals = 0, lang_key = "cvar_vrmelee_hitbox_length", tip_key = "tip_vrmelee_hitbox"},
+		{cvar = "vrmelee_hit_feedback", type = "checkbox", lang_key = "cvar_vrmelee_hit_feedback", tip_key = "tip_vrmelee_hit_feedback"},
+		{cvar = "vrmelee_hit_sound", type = "checkbox", lang_key = "cvar_vrmelee_hit_sound", tip_key = "tip_vrmelee_hit_sound"},
+
+		{type = "section", lang_key = "section_melee_fist"},
+		{cvar = "vrmelee_fist_collision", type = "checkbox", lang_key = "cvar_vrmelee_fist_collision", tip_key = "tip_vrmelee_fist_collision"},
+		{cvar = "vrmelee_fist_visible", type = "checkbox", lang_key = "cvar_vrmelee_fist_visible", tip_key = "tip_vrmelee_fist_visible"},
+		{cvar = "vrmelee_fist_collisionmodel", type = "text", lang_key = "cvar_vrmelee_fist_collisionmodel", tip_key = "tip_vrmelee_fist_collisionmodel"},
+
+		{type = "section", lang_key = "section_melee_blocking"},
+		{cvar = "vrmelee_emulateblocking", type = "checkbox", lang_key = "cvar_vrmelee_emulateblocking", tip_key = "tip_vrmelee_emulateblocking"},
+		{cvar = "vrmelee_emulateblockbutton", type = "text", lang_key = "cvar_vrmelee_emulateblockbutton", tip_key = "tip_vrmelee_emulateblockbutton"},
+		{cvar = "vrmelee_emulateblockbutton_release", type = "text", lang_key = "cvar_vrmelee_emulateblockbutton_release", tip_key = "tip_vrmelee_emulateblockbutton_release"},
+		{cvar = "vrmelee_emulatebloack_Threshold_Low", type = "slider", min = 0, max = 360, decimals = 0, lang_key = "cvar_vrmelee_emulateblock_threshold_low", tip_key = "tip_vrmelee_emulateblock_threshold"},
+		{cvar = "vrmelee_emulatebloack_Threshold_High", type = "slider", min = 0, max = 360, decimals = 0, lang_key = "cvar_vrmelee_emulateblock_threshold_high", tip_key = "tip_vrmelee_emulateblock_threshold"},
+
+		{type = "section", lang_key = "section_melee_commands"},
+		{cvar = "vrmelee_lefthand_command", type = "text", lang_key = "cvar_vrmelee_lefthand_command", tip_key = "tip_vrmelee_hand_command"},
+		{cvar = "vrmelee_righthand_command", type = "text", lang_key = "cvar_vrmelee_righthand_command", tip_key = "tip_vrmelee_hand_command"},
+		{cvar = "vrmelee_leftfoot_command", type = "text", lang_key = "cvar_vrmelee_leftfoot_command", tip_key = "tip_vrmelee_foot_command"},
+		{cvar = "vrmelee_rightfoot_command", type = "text", lang_key = "cvar_vrmelee_rightfoot_command", tip_key = "tip_vrmelee_foot_command"},
+		{cvar = "vrmelee_gunmelee_command", type = "text", lang_key = "cvar_vrmelee_gunmelee_command", tip_key = "tip_vrmelee_gunmelee_command"},
+	},
+},
+
+-- ============================================================
+-- 8. Weapon Handling (Foregrip + Magazine)
+-- ============================================================
+weapons = {
+	icon = "icon16/gun.png",
+	defaults_category = {"foregrip", "foregrip_advanced", "magazine"},
+	items = {
+		{type = "section", lang_key = "section_foregrip"},
+		{cvar = "vrmod_Foregripmode_enable", type = "checkbox", lang_key = "cvar_vrmod_Foregripmode_enable", tip_key = "tip_vrmod_Foregripmode_enable"},
+		{cvar = "vrmod_Foregripmode_range", type = "slider", min = 1, max = 100, decimals = 0, lang_key = "cvar_vrmod_Foregripmode_range", tip_key = "tip_vrmod_Foregripmode_range"},
+		{cvar = "vrmod_Foregripmode_key_leftprimary", type = "checkbox", lang_key = "cvar_vrmod_Foregripmode_key_leftprimary", tip_key = "tip_vrmod_Foregripmode_key"},
+		{cvar = "vrmod_Foregripmode_key_leftgrab", type = "checkbox", lang_key = "cvar_vrmod_Foregripmode_key_leftgrab", tip_key = "tip_vrmod_Foregripmode_key"},
+
+		{type = "section", lang_key = "section_foregrip_advanced"},
+		{cvar = "vrmod_Foregripmode_rotation_blend", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_vrmod_Foregripmode_rotation_blend", tip_key = "tip_vrmod_Foregripmode_rotation_blend"},
+		{cvar = "vrmod_Foregripmode_offset_x", type = "slider", min = -50, max = 50, decimals = 1, lang_key = "cvar_vrmod_Foregripmode_offset_x", tip_key = "tip_vrmod_Foregripmode_offset"},
+		{cvar = "vrmod_Foregripmode_offset_y", type = "slider", min = -50, max = 50, decimals = 1, lang_key = "cvar_vrmod_Foregripmode_offset_y", tip_key = "tip_vrmod_Foregripmode_offset"},
+		{cvar = "vrmod_Foregripmode_offset_z", type = "slider", min = -50, max = 50, decimals = 1, lang_key = "cvar_vrmod_Foregripmode_offset_z", tip_key = "tip_vrmod_Foregripmode_offset"},
+		{cvar = "vrmod_Foregripmode_ang_pitch", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_Foregripmode_ang_pitch", tip_key = "tip_vrmod_Foregripmode_ang"},
+		{cvar = "vrmod_Foregripmode_ang_yaw", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_Foregripmode_ang_yaw", tip_key = "tip_vrmod_Foregripmode_ang"},
+		{cvar = "vrmod_Foregripmode_ang_roll", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_Foregripmode_ang_roll", tip_key = "tip_vrmod_Foregripmode_ang"},
+
+		{type = "section", lang_key = "section_magazine"},
+		{cvar = "vrmod_mag_pos_x", type = "slider", min = -20, max = 20, decimals = 2, lang_key = "cvar_vrmod_mag_pos_x", tip_key = "tip_vrmod_mag_pos"},
+		{cvar = "vrmod_mag_pos_y", type = "slider", min = -20, max = 20, decimals = 2, lang_key = "cvar_vrmod_mag_pos_y", tip_key = "tip_vrmod_mag_pos"},
+		{cvar = "vrmod_mag_pos_z", type = "slider", min = -20, max = 20, decimals = 2, lang_key = "cvar_vrmod_mag_pos_z", tip_key = "tip_vrmod_mag_pos"},
+		{cvar = "vrmod_mag_ang_p", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_mag_ang_p", tip_key = "tip_vrmod_mag_ang"},
+		{cvar = "vrmod_mag_ang_y", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_mag_ang_y", tip_key = "tip_vrmod_mag_ang"},
+		{cvar = "vrmod_mag_ang_r", type = "slider", min = -180, max = 180, decimals = 1, lang_key = "cvar_vrmod_mag_ang_r", tip_key = "tip_vrmod_mag_ang"},
+		{cvar = "vrmod_mag_bones", type = "text", lang_key = "cvar_vrmod_mag_bones", tip_key = "tip_vrmod_mag_bones"},
+	},
+},
+
+-- ============================================================
+-- 9. Holster System
+-- ============================================================
+holster = {
+	icon = "icon16/briefcase.png",
+	defaults_category = {"holster_type2", "holster_type1_right", "holster_type1_left"},
+	items = {
+		-- Type 2 (Simple Pouches)
+		{type = "section", lang_key = "section_holster_type2"},
+		{cvar = "vrmod_pouch_enabled", type = "checkbox", lang_key = "cvar_vrmod_pouch_enabled", tip_key = "tip_vrmod_pouch_enabled"},
+		{cvar = "vrmod_pouch_visiblename", type = "checkbox", lang_key = "cvar_vrmod_pouch_visiblename", tip_key = "tip_vrmod_pouch_visiblename"},
+		{cvar = "vrmod_pouch_visiblename_hud", type = "checkbox", lang_key = "cvar_vrmod_pouch_visiblename_hud", tip_key = "tip_vrmod_pouch_visiblename_hud"},
+		{cvar = "vrmod_pouch_lefthandwep_enable", type = "checkbox", lang_key = "cvar_vrmod_pouch_lefthandwep_enable", tip_key = "tip_vrmod_pouch_lefthandwep_enable"},
+		{cvar = "vrmod_pouch_pickup_sound", type = "text", lang_key = "cvar_vrmod_pouch_pickup_sound", tip_key = "tip_vrmod_pouch_pickup_sound"},
+
+		-- Pouch slots 1-8
+		{type = "section", lang_key = "section_pouch_slots"},
+		{cvar = "vrmod_unoff_pouch_slot_enabled_1", type = "checkbox", lang_key = "cvar_pouch_slot_enabled_1", tip_key = "tip_pouch_slot"},
+		{cvar = "vrmod_pouch_weapon_1", type = "text", lang_key = "cvar_pouch_weapon_1", tip_key = "tip_pouch_weapon"},
+		{cvar = "vrmod_pouch_size_1", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_pouch_size_1", tip_key = "tip_pouch_size"},
+		{cvar = "vrmod_unoff_pouch_slot_enabled_2", type = "checkbox", lang_key = "cvar_pouch_slot_enabled_2", tip_key = "tip_pouch_slot"},
+		{cvar = "vrmod_pouch_weapon_2", type = "text", lang_key = "cvar_pouch_weapon_2", tip_key = "tip_pouch_weapon"},
+		{cvar = "vrmod_pouch_size_2", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_pouch_size_2", tip_key = "tip_pouch_size"},
+		{cvar = "vrmod_unoff_pouch_slot_enabled_3", type = "checkbox", lang_key = "cvar_pouch_slot_enabled_3", tip_key = "tip_pouch_slot"},
+		{cvar = "vrmod_pouch_weapon_3", type = "text", lang_key = "cvar_pouch_weapon_3", tip_key = "tip_pouch_weapon"},
+		{cvar = "vrmod_pouch_size_3", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_pouch_size_3", tip_key = "tip_pouch_size"},
+		{cvar = "vrmod_unoff_pouch_slot_enabled_4", type = "checkbox", lang_key = "cvar_pouch_slot_enabled_4", tip_key = "tip_pouch_slot"},
+		{cvar = "vrmod_pouch_weapon_4", type = "text", lang_key = "cvar_pouch_weapon_4", tip_key = "tip_pouch_weapon"},
+		{cvar = "vrmod_pouch_size_4", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_pouch_size_4", tip_key = "tip_pouch_size"},
+		{cvar = "vrmod_unoff_pouch_slot_enabled_5", type = "checkbox", lang_key = "cvar_pouch_slot_enabled_5", tip_key = "tip_pouch_slot"},
+		{cvar = "vrmod_pouch_weapon_5", type = "text", lang_key = "cvar_pouch_weapon_5", tip_key = "tip_pouch_weapon"},
+		{cvar = "vrmod_pouch_size_5", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_pouch_size_5", tip_key = "tip_pouch_size"},
+
+		{type = "section", lang_key = "section_pouch_left_hand"},
+		{cvar = "vrmod_unoff_pouch_slot_enabled_6", type = "checkbox", lang_key = "cvar_pouch_slot_enabled_6", tip_key = "tip_pouch_slot"},
+		{cvar = "vrmod_pouch_weapon_6", type = "text", lang_key = "cvar_pouch_weapon_6", tip_key = "tip_pouch_weapon"},
+		{cvar = "vrmod_pouch_weapon_6_left", type = "text", lang_key = "cvar_pouch_weapon_6_left", tip_key = "tip_pouch_weapon_left"},
+		{cvar = "vrmod_pouch_size_6", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_pouch_size_6", tip_key = "tip_pouch_size"},
+		{cvar = "vrmod_unoff_pouch_slot_enabled_7", type = "checkbox", lang_key = "cvar_pouch_slot_enabled_7", tip_key = "tip_pouch_slot"},
+		{cvar = "vrmod_pouch_weapon_7", type = "text", lang_key = "cvar_pouch_weapon_7", tip_key = "tip_pouch_weapon"},
+		{cvar = "vrmod_pouch_weapon_7_left", type = "text", lang_key = "cvar_pouch_weapon_7_left", tip_key = "tip_pouch_weapon_left"},
+		{cvar = "vrmod_pouch_size_7", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_pouch_size_7", tip_key = "tip_pouch_size"},
+		{cvar = "vrmod_unoff_pouch_slot_enabled_8", type = "checkbox", lang_key = "cvar_pouch_slot_enabled_8", tip_key = "tip_pouch_slot"},
+		{cvar = "vrmod_pouch_weapon_8", type = "text", lang_key = "cvar_pouch_weapon_8", tip_key = "tip_pouch_weapon"},
+		{cvar = "vrmod_pouch_weapon_8_left", type = "text", lang_key = "cvar_pouch_weapon_8_left", tip_key = "tip_pouch_weapon_left"},
+		{cvar = "vrmod_pouch_size_8", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_pouch_size_8", tip_key = "tip_pouch_size"},
+		{cvar = "vrmod_unoff_dupe_reusable", type = "checkbox", lang_key = "cvar_vrmod_unoff_dupe_reusable", tip_key = "tip_vrmod_unoff_dupe_reusable"},
+
+		-- Type 1 Right Hand
+		{type = "section", lang_key = "section_holster_type1_right"},
+		{cvar = "vrmod_weppouch_Pelvis", type = "checkbox", lang_key = "cvar_vrmod_weppouch_Pelvis", tip_key = "tip_vrmod_weppouch_slot"},
+		{cvar = "vrmod_weppouch_weapon_Pelvis", type = "text", lang_key = "cvar_vrmod_weppouch_weapon_Pelvis", tip_key = "tip_vrmod_weppouch_weapon"},
+		{cvar = "vrmod_weppouch_weapon_lock_Pelvis", type = "checkbox", lang_key = "cvar_vrmod_weppouch_weapon_lock_Pelvis", tip_key = "tip_vrmod_weppouch_lock"},
+		{cvar = "vrmod_weppouch_dist_Pelvis", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_vrmod_weppouch_dist_Pelvis", tip_key = "tip_vrmod_weppouch_dist"},
+		{cvar = "vrmod_weppouch_Head", type = "checkbox", lang_key = "cvar_vrmod_weppouch_Head", tip_key = "tip_vrmod_weppouch_slot"},
+		{cvar = "vrmod_weppouch_weapon_Head", type = "text", lang_key = "cvar_vrmod_weppouch_weapon_Head", tip_key = "tip_vrmod_weppouch_weapon"},
+		{cvar = "vrmod_weppouch_weapon_lock_Head", type = "checkbox", lang_key = "cvar_vrmod_weppouch_weapon_lock_Head", tip_key = "tip_vrmod_weppouch_lock"},
+		{cvar = "vrmod_weppouch_dist_head", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_vrmod_weppouch_dist_head", tip_key = "tip_vrmod_weppouch_dist"},
+		{cvar = "vrmod_weppouch_Spine", type = "checkbox", lang_key = "cvar_vrmod_weppouch_Spine", tip_key = "tip_vrmod_weppouch_slot"},
+		{cvar = "vrmod_weppouch_weapon_Spine", type = "text", lang_key = "cvar_vrmod_weppouch_weapon_Spine", tip_key = "tip_vrmod_weppouch_weapon"},
+		{cvar = "vrmod_weppouch_weapon_lock_Spine", type = "checkbox", lang_key = "cvar_vrmod_weppouch_weapon_lock_Spine", tip_key = "tip_vrmod_weppouch_lock"},
+		{cvar = "vrmod_weppouch_dist_spine", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_vrmod_weppouch_dist_spine", tip_key = "tip_vrmod_weppouch_dist"},
+		{cvar = "vrmod_weppouch_visiblerange", type = "checkbox", lang_key = "cvar_vrmod_weppouch_visiblerange", tip_key = "tip_vrmod_weppouch_visiblerange"},
+		{cvar = "vrmod_weppouch_visiblename", type = "checkbox", lang_key = "cvar_vrmod_weppouch_visiblename_t1", tip_key = "tip_vrmod_weppouch_visiblename"},
+		{cvar = "vrmod_head_visible", type = "checkbox", lang_key = "cvar_vrmod_head_visible", tip_key = "tip_vrmod_head_visible"},
+
+		-- Type 1 Left Hand
+		{type = "section", lang_key = "section_holster_type1_left"},
+		{cvar = "vrmod_weppouch_left_Pelvis", type = "checkbox", lang_key = "cvar_vrmod_weppouch_left_Pelvis", tip_key = "tip_vrmod_weppouch_slot"},
+		{cvar = "vrmod_weppouch_weapon_left_Pelvis", type = "text", lang_key = "cvar_vrmod_weppouch_weapon_left_Pelvis", tip_key = "tip_vrmod_weppouch_weapon"},
+		{cvar = "vrmod_weppouch_weapon_lock_left_Pelvis", type = "checkbox", lang_key = "cvar_vrmod_weppouch_weapon_lock_left_Pelvis", tip_key = "tip_vrmod_weppouch_lock"},
+		{cvar = "vrmod_weppouch_dist_Pelvis_left", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_vrmod_weppouch_dist_Pelvis_left", tip_key = "tip_vrmod_weppouch_dist"},
+		{cvar = "vrmod_weppouch_left_Head", type = "checkbox", lang_key = "cvar_vrmod_weppouch_left_Head", tip_key = "tip_vrmod_weppouch_slot"},
+		{cvar = "vrmod_weppouch_weapon_left_Head", type = "text", lang_key = "cvar_vrmod_weppouch_weapon_left_Head", tip_key = "tip_vrmod_weppouch_weapon"},
+		{cvar = "vrmod_weppouch_weapon_lock_left_Head", type = "checkbox", lang_key = "cvar_vrmod_weppouch_weapon_lock_left_Head", tip_key = "tip_vrmod_weppouch_lock"},
+		{cvar = "vrmod_weppouch_dist_head_left", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_vrmod_weppouch_dist_head_left", tip_key = "tip_vrmod_weppouch_dist"},
+		{cvar = "vrmod_weppouch_left_Spine", type = "checkbox", lang_key = "cvar_vrmod_weppouch_left_Spine", tip_key = "tip_vrmod_weppouch_slot"},
+		{cvar = "vrmod_weppouch_weapon_left_Spine", type = "text", lang_key = "cvar_vrmod_weppouch_weapon_left_Spine", tip_key = "tip_vrmod_weppouch_weapon"},
+		{cvar = "vrmod_weppouch_weapon_lock_left_Spine", type = "checkbox", lang_key = "cvar_vrmod_weppouch_weapon_lock_left_Spine", tip_key = "tip_vrmod_weppouch_lock"},
+		{cvar = "vrmod_weppouch_dist_spine_left", type = "slider", min = 0, max = 50, decimals = 1, lang_key = "cvar_vrmod_weppouch_dist_spine_left", tip_key = "tip_vrmod_weppouch_dist"},
+		{cvar = "vrmod_weppouch_visiblerange_left", type = "checkbox", lang_key = "cvar_vrmod_weppouch_visiblerange_left", tip_key = "tip_vrmod_weppouch_visiblerange"},
+		{cvar = "vrmod_weppouch_visiblename_left", type = "checkbox", lang_key = "cvar_vrmod_weppouch_visiblename_left", tip_key = "tip_vrmod_weppouch_visiblename"},
+	},
+},
+
+-- ============================================================
+-- 10. Physics Gun & Beam Pickup
+-- ============================================================
+physgun = {
+	icon = "icon16/wand.png",
+	defaults_category = {"physgun", "beam_pickup"},
+	items = {
+		{type = "section", lang_key = "section_physgun_left"},
+		{cvar = "vrmod_left_physgun_beam_enable", type = "checkbox", lang_key = "cvar_vrmod_left_physgun_beam_enable", tip_key = "tip_vrmod_physgun_beam_enable"},
+		{cvar = "vrmod_left_physgun_beam_range", type = "slider", min = 0, max = 10000, decimals = 0, lang_key = "cvar_vrmod_left_physgun_beam_range", tip_key = "tip_vrmod_physgun_beam_range"},
+		{cvar = "vrmod_left_physgun_beam_damage_enable", type = "checkbox", lang_key = "cvar_vrmod_left_physgun_beam_damage_enable", tip_key = "tip_vrmod_physgun_beam_damage_enable"},
+		{cvar = "vrmod_left_physgun_beam_damage", type = "slider", min = 0, max = 100, decimals = 4, lang_key = "cvar_vrmod_left_physgun_beam_damage", tip_key = "tip_vrmod_physgun_beam_damage"},
+		{cvar = "vrmod_left_physgun_pull_enable", type = "checkbox", lang_key = "cvar_vrmod_left_physgun_pull_enable", tip_key = "tip_vrmod_physgun_pull_enable"},
+		{cvar = "vrmod_left_physgun_noclip_enable", type = "checkbox", lang_key = "cvar_vrmod_left_physgun_noclip_enable", tip_key = "tip_vrmod_physgun_noclip_enable"},
+		{cvar = "vrmod_left_physgun_beam_offset_x", type = "slider", min = -100, max = 100, decimals = 1, lang_key = "cvar_vrmod_left_physgun_beam_offset_x", tip_key = "tip_vrmod_physgun_beam_offset"},
+		{cvar = "vrmod_left_physgun_beam_offset_y", type = "slider", min = -100, max = 100, decimals = 1, lang_key = "cvar_vrmod_left_physgun_beam_offset_y", tip_key = "tip_vrmod_physgun_beam_offset"},
+		{cvar = "vrmod_left_physgun_beam_offset_z", type = "slider", min = -100, max = 100, decimals = 1, lang_key = "cvar_vrmod_left_physgun_beam_offset_z", tip_key = "tip_vrmod_physgun_beam_offset"},
+
+		{type = "section", lang_key = "section_physgun_right"},
+		{cvar = "vrmod_right_physgun_beam_enable", type = "checkbox", lang_key = "cvar_vrmod_right_physgun_beam_enable", tip_key = "tip_vrmod_physgun_beam_enable"},
+		{cvar = "vrmod_right_physgun_beam_range", type = "slider", min = 0, max = 10000, decimals = 0, lang_key = "cvar_vrmod_right_physgun_beam_range", tip_key = "tip_vrmod_physgun_beam_range"},
+		{cvar = "vrmod_right_physgun_beam_damage_enable", type = "checkbox", lang_key = "cvar_vrmod_right_physgun_beam_damage_enable", tip_key = "tip_vrmod_physgun_beam_damage_enable"},
+		{cvar = "vrmod_right_physgun_beam_damage", type = "slider", min = 0, max = 100, decimals = 4, lang_key = "cvar_vrmod_right_physgun_beam_damage", tip_key = "tip_vrmod_physgun_beam_damage"},
+		{cvar = "vrmod_right_physgun_pull_enable", type = "checkbox", lang_key = "cvar_vrmod_right_physgun_pull_enable", tip_key = "tip_vrmod_physgun_pull_enable"},
+		{cvar = "vrmod_right_physgun_noclip_enable", type = "checkbox", lang_key = "cvar_vrmod_right_physgun_noclip_enable", tip_key = "tip_vrmod_physgun_noclip_enable"},
+		{cvar = "vrmod_right_physgun_beam_offset_x", type = "slider", min = -100, max = 100, decimals = 1, lang_key = "cvar_vrmod_right_physgun_beam_offset_x", tip_key = "tip_vrmod_physgun_beam_offset"},
+		{cvar = "vrmod_right_physgun_beam_offset_y", type = "slider", min = -100, max = 100, decimals = 1, lang_key = "cvar_vrmod_right_physgun_beam_offset_y", tip_key = "tip_vrmod_physgun_beam_offset"},
+		{cvar = "vrmod_right_physgun_beam_offset_z", type = "slider", min = -100, max = 100, decimals = 1, lang_key = "cvar_vrmod_right_physgun_beam_offset_z", tip_key = "tip_vrmod_physgun_beam_offset"},
+
+		{type = "section", lang_key = "section_beam_pickup"},
+		{cvar = "vrmod_pickup_beam_enable", type = "checkbox", lang_key = "cvar_vrmod_pickup_beam_enable", tip_key = "tip_vrmod_pickup_beam_enable"},
+		{cvar = "vrmod_pickup_beam_cone_range", type = "slider", min = 1, max = 1000, decimals = 0, lang_key = "cvar_vrmod_pickup_beam_cone_range", tip_key = "tip_vrmod_pickup_beam_cone_range"},
+		{cvar = "vrmod_pickup_beam_retry_max", type = "slider", min = 1, max = 30, decimals = 0, lang_key = "cvar_vrmod_pickup_beam_retry_max", tip_key = "tip_vrmod_pickup_beam_retry_max"},
+		{cvar = "vrmod_pickup_beam_damage_enable", type = "checkbox", lang_key = "cvar_vrmod_pickup_beam_damage_enable", tip_key = "tip_vrmod_pickup_beam_damage_enable"},
+		{cvar = "vrmod_pickup_beam_damage", type = "slider", min = 0, max = 100, decimals = 4, lang_key = "cvar_vrmod_pickup_beam_damage", tip_key = "tip_vrmod_pickup_beam_damage"},
+	},
+},
+
+-- ============================================================
+-- 11. Climbing & Wallrun
+-- ============================================================
+climbing = {
+	icon = "icon16/arrow_up.png",
+	defaults_category = {"climbing", "climbing_server"},
+	items = {
+		{type = "section", lang_key = "section_climbing_basic"},
+		{cvar = "vrmod_brushclimb_enable", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_enable", tip_key = "tip_vrmod_brushclimb_enable"},
+		{cvar = "vrmod_brushclimb_bind_mode", type = "dropdown", lang_key = "cvar_vrmod_brushclimb_bind_mode", tip_key = "tip_vrmod_brushclimb_bind_mode",
+			options = {
+				{value = "0", lang_key = "opt_bind_mode_0", label = "Hold to Grab"},
+				{value = "1", lang_key = "opt_bind_mode_1", label = "Toggle"},
+			}},
+		{cvar = "vrmod_brushclimb_grab_distance", type = "slider", min = 1, max = 50, decimals = 0, lang_key = "cvar_vrmod_brushclimb_grab_distance", tip_key = "tip_vrmod_brushclimb_grab_distance"},
+		{cvar = "vrmod_brushclimb_launch_mult", type = "slider", min = 0, max = 5, decimals = 2, lang_key = "cvar_vrmod_brushclimb_launch_mult", tip_key = "tip_vrmod_brushclimb_launch_mult"},
+		{cvar = "vrmod_brushclimb_launch_min", type = "slider", min = 0, max = 500, decimals = 0, lang_key = "cvar_vrmod_brushclimb_launch_min", tip_key = "tip_vrmod_brushclimb_launch_min"},
+		{cvar = "vrmod_brushclimb_launch_max", type = "slider", min = 0, max = 2000, decimals = 0, lang_key = "cvar_vrmod_brushclimb_launch_max", tip_key = "tip_vrmod_brushclimb_launch_max"},
+		{cvar = "vrmod_brushclimb_sounds", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_sounds", tip_key = "tip_vrmod_brushclimb_sounds"},
+		{cvar = "vrmod_brushclimb_sound_volume", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_vrmod_brushclimb_sound_volume", tip_key = "tip_vrmod_brushclimb_sound_volume"},
+		{cvar = "vrmod_brushclimb_camera_collision", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_camera_collision", tip_key = "tip_vrmod_brushclimb_camera_collision"},
+
+		{type = "section", lang_key = "section_climbing_surfaces"},
+		{cvar = "vrmod_brushclimb_allow_walls", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_allow_walls", tip_key = "tip_vrmod_brushclimb_allow_surface"},
+		{cvar = "vrmod_brushclimb_allow_ceilings", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_allow_ceilings", tip_key = "tip_vrmod_brushclimb_allow_surface"},
+		{cvar = "vrmod_brushclimb_allow_ledges", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_allow_ledges", tip_key = "tip_vrmod_brushclimb_allow_surface"},
+		{cvar = "vrmod_brushclimb_allow_floors", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_allow_floors", tip_key = "tip_vrmod_brushclimb_allow_surface"},
+		{cvar = "vrmod_brushclimb_allow_doors", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_allow_doors", tip_key = "tip_vrmod_brushclimb_allow_surface"},
+		{cvar = "vrmod_brushclimb_allow_pushable", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_allow_pushable", tip_key = "tip_vrmod_brushclimb_allow_surface"},
+		{cvar = "vrmod_brushclimb_allow_toggleable", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_allow_toggleable", tip_key = "tip_vrmod_brushclimb_allow_surface"},
+		{cvar = "vrmod_brushclimb_allow_ladders", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_allow_ladders", tip_key = "tip_vrmod_brushclimb_allow_surface"},
+
+		{type = "section", lang_key = "section_climbing_palm"},
+		{cvar = "vrmod_brushclimb_hand_inset", type = "slider", min = 0, max = 10, decimals = 1, lang_key = "cvar_vrmod_brushclimb_hand_inset", tip_key = "tip_vrmod_brushclimb_palm"},
+		{cvar = "vrmod_brushclimb_wall_push_dist", type = "slider", min = 0, max = 10, decimals = 1, lang_key = "cvar_vrmod_brushclimb_wall_push_dist", tip_key = "tip_vrmod_brushclimb_palm"},
+		{cvar = "vrmod_brushclimb_palm_offset_forward", type = "slider", min = -10, max = 10, decimals = 2, lang_key = "cvar_vrmod_brushclimb_palm_fwd", tip_key = "tip_vrmod_brushclimb_palm"},
+		{cvar = "vrmod_brushclimb_palm_offset_right", type = "slider", min = -10, max = 10, decimals = 2, lang_key = "cvar_vrmod_brushclimb_palm_right", tip_key = "tip_vrmod_brushclimb_palm"},
+		{cvar = "vrmod_brushclimb_palm_offset_up", type = "slider", min = -10, max = 10, decimals = 2, lang_key = "cvar_vrmod_brushclimb_palm_up", tip_key = "tip_vrmod_brushclimb_palm"},
+		{cvar = "vrmod_brushclimb_palm_offset_forward_right", type = "slider", min = -10, max = 10, decimals = 2, lang_key = "cvar_vrmod_brushclimb_palm_fwd_r", tip_key = "tip_vrmod_brushclimb_palm"},
+		{cvar = "vrmod_brushclimb_palm_offset_right_right", type = "slider", min = -10, max = 10, decimals = 2, lang_key = "cvar_vrmod_brushclimb_palm_right_r", tip_key = "tip_vrmod_brushclimb_palm"},
+		{cvar = "vrmod_brushclimb_palm_offset_up_right", type = "slider", min = -10, max = 10, decimals = 2, lang_key = "cvar_vrmod_brushclimb_palm_up_r", tip_key = "tip_vrmod_brushclimb_palm"},
+
+		{type = "section", lang_key = "section_wallrun"},
+		{cvar = "vrmod_wallrun_hand_range", type = "slider", min = 1, max = 50, decimals = 0, lang_key = "cvar_vrmod_wallrun_hand_range", tip_key = "tip_vrmod_wallrun_hand_range"},
+		{cvar = "vrmod_wallrun_bind_mode", type = "dropdown", lang_key = "cvar_vrmod_wallrun_bind_mode", tip_key = "tip_vrmod_wallrun_bind_mode",
+			options = {
+				{value = "0", lang_key = "opt_bind_mode_0", label = "Hold"},
+				{value = "1", lang_key = "opt_bind_mode_1", label = "Toggle"},
+			}},
+		{cvar = "vrmod_wallrun_cooldown", type = "slider", min = 0, max = 5, decimals = 1, lang_key = "cvar_vrmod_wallrun_cooldown", tip_key = "tip_vrmod_wallrun_cooldown"},
+		{cvar = "vrmod_wallrun_air_regen", type = "slider", min = 0, max = 10, decimals = 1, lang_key = "cvar_vrmod_wallrun_air_regen", tip_key = "tip_vrmod_wallrun_air_regen"},
+		{cvar = "vrmod_wallrun_look_max_dot", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_vrmod_wallrun_look_max_dot", tip_key = "tip_vrmod_wallrun_look_max_dot"},
+		{cvar = "vrmod_wallrun_sounds", type = "checkbox", lang_key = "cvar_vrmod_wallrun_sounds", tip_key = "tip_vrmod_wallrun_sounds"},
+		{cvar = "vrmod_wallrun_sound_volume", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_vrmod_wallrun_sound_volume", tip_key = "tip_vrmod_wallrun_sound_volume"},
+		{cvar = "vrmod_wallrun_sound_interval", type = "slider", min = 0.01, max = 1, decimals = 2, lang_key = "cvar_vrmod_wallrun_sound_interval", tip_key = "tip_vrmod_wallrun_sound_interval"},
+
+		{type = "section", lang_key = "section_slide"},
+		{cvar = "vrmod_slide_enable", type = "checkbox", lang_key = "cvar_vrmod_slide_enable", tip_key = "tip_vrmod_slide_enable"},
+		{cvar = "vrmod_slide_head_height", type = "slider", min = 10, max = 80, decimals = 0, lang_key = "cvar_vrmod_slide_head_height", tip_key = "tip_vrmod_slide_head_height"},
+		{cvar = "vrmod_slide_sounds", type = "checkbox", lang_key = "cvar_vrmod_slide_sounds", tip_key = "tip_vrmod_slide_sounds"},
+		{cvar = "vrmod_slide_sound_volume", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_vrmod_slide_sound_volume", tip_key = "tip_vrmod_slide_sound_volume"},
+
+		{type = "section", lang_key = "section_climbing_server"},
+		{cvar = "sv_vrmod_brushclimb_reduce_collider", type = "checkbox", lang_key = "cvar_sv_vrmod_brushclimb_reduce_collider", tip_key = "tip_sv_vrmod_climbing", server = true},
+		{cvar = "sv_vrmod_brushclimb_allow_walls", type = "checkbox", lang_key = "cvar_sv_vrmod_brushclimb_allow_walls", tip_key = "tip_sv_vrmod_climbing", server = true},
+		{cvar = "sv_vrmod_brushclimb_allow_ceilings", type = "checkbox", lang_key = "cvar_sv_vrmod_brushclimb_allow_ceilings", tip_key = "tip_sv_vrmod_climbing", server = true},
+		{cvar = "sv_vrmod_brushclimb_allow_ledges", type = "checkbox", lang_key = "cvar_sv_vrmod_brushclimb_allow_ledges", tip_key = "tip_sv_vrmod_climbing", server = true},
+		{cvar = "sv_vrmod_brushclimb_allow_floors", type = "checkbox", lang_key = "cvar_sv_vrmod_brushclimb_allow_floors", tip_key = "tip_sv_vrmod_climbing", server = true},
+		{cvar = "sv_vrmod_brushclimb_allow_doors", type = "checkbox", lang_key = "cvar_sv_vrmod_brushclimb_allow_doors", tip_key = "tip_sv_vrmod_climbing", server = true},
+		{cvar = "sv_vrmod_brushclimb_allow_pushable", type = "checkbox", lang_key = "cvar_sv_vrmod_brushclimb_allow_pushable", tip_key = "tip_sv_vrmod_climbing", server = true},
+		{cvar = "sv_vrmod_brushclimb_allow_toggleable", type = "checkbox", lang_key = "cvar_sv_vrmod_brushclimb_allow_toggleable", tip_key = "tip_sv_vrmod_climbing", server = true},
+		{cvar = "sv_vrmod_brushclimb_ledge_normal_min", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_sv_vrmod_brushclimb_ledge_normal_min", tip_key = "tip_sv_vrmod_climbing_normals", server = true},
+		{cvar = "sv_vrmod_brushclimb_floor_normal_min", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_sv_vrmod_brushclimb_floor_normal_min", tip_key = "tip_sv_vrmod_climbing_normals", server = true},
+		{cvar = "sv_vrmod_brushclimb_ceil_normal_max", type = "slider", min = -1, max = 0, decimals = 2, lang_key = "cvar_sv_vrmod_brushclimb_ceil_normal_max", tip_key = "tip_sv_vrmod_climbing_normals", server = true},
+
+		{type = "section", lang_key = "section_wallrun_server"},
+		{cvar = "sv_vrmod_wallrun_jump_force", type = "slider", min = 0, max = 1000, decimals = 0, lang_key = "cvar_sv_vrmod_wallrun_jump_force", tip_key = "tip_sv_vrmod_wallrun", server = true},
+		{cvar = "sv_vrmod_wallrun_wall_force", type = "slider", min = 0, max = 500, decimals = 0, lang_key = "cvar_sv_vrmod_wallrun_wall_force", tip_key = "tip_sv_vrmod_wallrun", server = true},
+		{cvar = "sv_vrmod_wallrun_free_time", type = "slider", min = 0, max = 3, decimals = 1, lang_key = "cvar_sv_vrmod_wallrun_free_time", tip_key = "tip_sv_vrmod_wallrun", server = true},
+		{cvar = "sv_vrmod_wallrun_fall_rate", type = "slider", min = 0, max = 500, decimals = 0, lang_key = "cvar_sv_vrmod_wallrun_fall_rate", tip_key = "tip_sv_vrmod_wallrun", server = true},
+		{cvar = "sv_vrmod_wallrun_max_fall_speed", type = "slider", min = 0, max = 1000, decimals = 0, lang_key = "cvar_sv_vrmod_wallrun_max_fall_speed", tip_key = "tip_sv_vrmod_wallrun", server = true},
+		{cvar = "sv_vrmod_wallrun_speed_grace", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_sv_vrmod_wallrun_speed_grace", tip_key = "tip_sv_vrmod_wallrun", server = true},
+		{cvar = "sv_vrmod_wallrun_min_jump_time", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_sv_vrmod_wallrun_min_jump_time", tip_key = "tip_sv_vrmod_wallrun", server = true},
+
+		{type = "section", lang_key = "section_slide_server"},
+		{cvar = "sv_vrmod_slide_enable", type = "checkbox", lang_key = "cvar_sv_vrmod_slide_enable", tip_key = "tip_sv_vrmod_slide", server = true},
+		{cvar = "sv_vrmod_slide_min_speed", type = "slider", min = 0, max = 500, decimals = 0, lang_key = "cvar_sv_vrmod_slide_min_speed", tip_key = "tip_sv_vrmod_slide", server = true},
+		{cvar = "sv_vrmod_slide_friction", type = "slider", min = 0, max = 200, decimals = 0, lang_key = "cvar_sv_vrmod_slide_friction", tip_key = "tip_sv_vrmod_slide", server = true},
+		{cvar = "sv_vrmod_slide_air_boost", type = "slider", min = 0, max = 200, decimals = 0, lang_key = "cvar_sv_vrmod_slide_air_boost", tip_key = "tip_sv_vrmod_slide", server = true},
+		{cvar = "sv_vrmod_slide_stop_speed", type = "slider", min = 0, max = 200, decimals = 0, lang_key = "cvar_sv_vrmod_slide_stop_speed", tip_key = "tip_sv_vrmod_slide", server = true},
+		{cvar = "sv_vrmod_slide_entry_boost", type = "slider", min = 0, max = 200, decimals = 0, lang_key = "cvar_sv_vrmod_slide_entry_boost", tip_key = "tip_sv_vrmod_slide", server = true},
+
+		{type = "section", lang_key = "section_climbing_debug"},
+		{cvar = "vrmod_brushclimb_debug", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_debug", tip_key = "tip_vrmod_brushclimb_debug"},
+		{cvar = "vrmod_brushclimb_debug_text", type = "checkbox", lang_key = "cvar_vrmod_brushclimb_debug_text", tip_key = "tip_vrmod_brushclimb_debug_text"},
+	},
+},
+
+-- ============================================================
+-- 12. Vehicles
+-- ============================================================
+vehicles = {
+	icon = "icon16/car.png",
+	defaults_category = {"misc"},
+	items = {
+		{cvar = "vrmod_lvs_input_mode", type = "dropdown", lang_key = "cvar_vrmod_lvs_input_mode", tip_key = "tip_vrmod_lvs_input_mode",
+			options = {
+				{value = "0", lang_key = "opt_lvs_mode_0", label = "Disabled"},
+				{value = "1", lang_key = "opt_lvs_mode_1", label = "Enabled"},
+			}},
+		{cvar = "vrmod_sight_bodypart", type = "checkbox", lang_key = "cvar_vrmod_sight_bodypart", tip_key = "tip_vrmod_sight_bodypart"},
+		{cvar = "vrmod_pmchange", type = "checkbox", lang_key = "cvar_vrmod_pmchange", tip_key = "tip_vrmod_pmchange"},
+		{cvar = "vrmod_auto_seat_reset", type = "checkbox", lang_key = "cvar_vrmod_auto_seat_reset", tip_key = "tip_vrmod_auto_seat_reset"},
+	},
+},
+
+-- ============================================================
+-- 13. Network (Server)
+-- ============================================================
+network = {
+	icon = "icon16/server.png",
+	defaults_category = {"network"},
+	items = {
+		{cvar = "vrmod_net_delay", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_vrmod_net_delay", tip_key = "tip_vrmod_net_delay", server = true},
+		{cvar = "vrmod_net_delaymax", type = "slider", min = 0, max = 1, decimals = 2, lang_key = "cvar_vrmod_net_delaymax", tip_key = "tip_vrmod_net_delaymax", server = true},
+		{cvar = "vrmod_net_storedframes", type = "slider", min = 1, max = 60, decimals = 0, lang_key = "cvar_vrmod_net_storedframes", tip_key = "tip_vrmod_net_storedframes", server = true},
+		{cvar = "vrmod_net_tickrate", type = "slider", min = 10, max = 128, decimals = 0, lang_key = "cvar_vrmod_net_tickrate", tip_key = "tip_vrmod_net_tickrate", server = true},
+		{cvar = "vrmod_allow_teleport", type = "checkbox", lang_key = "cvar_vrmod_allow_teleport", tip_key = "tip_vrmod_allow_teleport", server = true},
+	},
+},
+
+-- ============================================================
+-- 14. Performance / Optimization
+-- ============================================================
+optimization = {
+	icon = "icon16/lightning.png",
+	defaults_category = {},
+	items = {
+		{type = "section", lang_key = "section_auto_settings"},
+		{cvar = "vrmod_scr_alwaysautosetting", type = "checkbox", lang_key = "cvar_vrmod_scr_alwaysautosetting", tip_key = "tip_vrmod_scr_alwaysautosetting"},
+		{cvar = "vrmod_gmod_optimization_auto", type = "checkbox", lang_key = "cvar_vrmod_gmod_optimization_auto", tip_key = "tip_vrmod_gmod_optimization_auto"},
+		{cvar = "vrmod_auto_arc_benchgun", type = "checkbox", lang_key = "cvar_vrmod_auto_arc_benchgun", tip_key = "tip_vrmod_auto_arc_benchgun"},
+		{cvar = "vrmod_auto_lvs_keysetings", type = "checkbox", lang_key = "cvar_vrmod_auto_lvs_keysetings", tip_key = "tip_vrmod_auto_lvs_keysetings"},
+
+		{type = "section", lang_key = "section_optimization_commands"},
+		{command = "vrmod_apply_optimization", type = "button", lang_key = "cmd_vrmod_apply_optimization", tip_key = "tip_cmd_vrmod_apply_optimization"},
+		{command = "vrmod_optimization_reset", type = "button", lang_key = "cmd_vrmod_optimization_reset", tip_key = "tip_cmd_vrmod_optimization_reset"},
+		{command = "vrmod_apply_autosettings", type = "button", lang_key = "cmd_vrmod_apply_autosettings", tip_key = "tip_cmd_vrmod_apply_autosettings"},
+	},
+},
+
+-- ============================================================
+-- 15. Developer & Debug
+-- ============================================================
+developer = {
+	icon = "icon16/bug.png",
+	defaults_category = {"developer"},
+	items = {
+		{type = "section", lang_key = "section_dev_general"},
+		{cvar = "vrmod_unoff_developer_mode", type = "checkbox", lang_key = "cvar_vrmod_unoff_developer_mode", tip_key = "tip_vrmod_unoff_developer_mode"},
+		{cvar = "vrmod_error_hard", type = "checkbox", lang_key = "cvar_vrmod_error_hard", tip_key = "tip_vrmod_error_hard"},
+		{cvar = "vrmod_test_Righthandle", type = "checkbox", lang_key = "cvar_vrmod_test_Righthandle", tip_key = "tip_vrmod_test_handle"},
+		{cvar = "vrmod_test_lefthandle", type = "checkbox", lang_key = "cvar_vrmod_test_lefthandle", tip_key = "tip_vrmod_test_handle"},
+
+		{type = "section", lang_key = "section_emergency_stop"},
+		{cvar = "vrmod_emergencystop_key", type = "slider", min = 1, max = 159, decimals = 0, lang_key = "cvar_vrmod_emergencystop_key", tip_key = "tip_vrmod_emergencystop_key"},
+		{cvar = "vrmod_emergencystop_time", type = "slider", min = 0.5, max = 10, decimals = 1, lang_key = "cvar_vrmod_emergencystop_time", tip_key = "tip_vrmod_emergencystop_time"},
+
+		{type = "section", lang_key = "section_debug_commands"},
+		{command = "vrmod_unoff_debug_status", type = "button", lang_key = "cmd_vrmod_unoff_debug_status", tip_key = "tip_cmd_debug"},
+		{command = "vrmod_unoff_debug_panel", type = "button", lang_key = "cmd_vrmod_unoff_debug_panel", tip_key = "tip_cmd_debug"},
+		{command = "vrmod_unoff_debug_hooks_list", type = "button", lang_key = "cmd_vrmod_unoff_debug_hooks_list", tip_key = "tip_cmd_debug"},
+		{command = "vrmod_print_devices", type = "button", lang_key = "cmd_vrmod_print_devices", tip_key = "tip_cmd_print_devices"},
+		{command = "vrmod_net_debug", type = "button", lang_key = "cmd_vrmod_net_debug", tip_key = "tip_cmd_net_debug"},
+	},
+},
+
+-- ============================================================
+-- 16. All Commands
+-- ============================================================
+commands = {
+	icon = "icon16/application_xp_terminal.png",
+	defaults_category = {},
+	items = {
+		{type = "section", lang_key = "section_cmd_general"},
+		{command = "vrmod", type = "button", lang_key = "cmd_vrmod", tip_key = "tip_cmd_vrmod"},
+		{command = "vrmod_guide", type = "button", lang_key = "cmd_vrmod_guide", tip_key = "tip_cmd_vrmod_guide"},
+		{command = "vrmod_lua_reload_all", type = "button", lang_key = "cmd_vrmod_lua_reload_all", tip_key = "tip_cmd_vrmod_lua_reload_all"},
+		{command = "vrmod_keyboard", type = "button", lang_key = "cmd_vrmod_keyboard", tip_key = "tip_cmd_vrmod_keyboard"},
+		{command = "vrmod_actioneditor", type = "button", lang_key = "cmd_vrmod_actioneditor", tip_key = "tip_cmd_vrmod_actioneditor"},
+
+		{type = "section", lang_key = "section_cmd_presets"},
+		{command = "vrmod_preset_save_current", type = "button", lang_key = "cmd_vrmod_preset_save_current", tip_key = "tip_cmd_preset"},
+		{command = "vrmod_preset_load_preset", type = "button", lang_key = "cmd_vrmod_preset_load_preset", tip_key = "tip_cmd_preset"},
+		{command = "vrmod_preset_delete_preset", type = "button", lang_key = "cmd_vrmod_preset_delete_preset", tip_key = "tip_cmd_preset"},
+
+		{type = "section", lang_key = "section_cmd_optimization"},
+		{command = "vrmod_apply_optimization", type = "button", lang_key = "cmd_vrmod_apply_optimization", tip_key = "tip_cmd_vrmod_apply_optimization"},
+		{command = "vrmod_optimization_reset", type = "button", lang_key = "cmd_vrmod_optimization_reset", tip_key = "tip_cmd_vrmod_optimization_reset"},
+		{command = "vrmod_apply_autosettings", type = "button", lang_key = "cmd_vrmod_apply_autosettings", tip_key = "tip_cmd_vrmod_apply_autosettings"},
+
+		{type = "section", lang_key = "section_cmd_holster"},
+		{command = "vrmod_lua_reset_holster_system", type = "button", lang_key = "cmd_vrmod_lua_reset_holster_system", tip_key = "tip_cmd_reset_holster"},
+		{command = "vrmod_lua_reset_lefthand_holster", type = "button", lang_key = "cmd_vrmod_lua_reset_lefthand_holster", tip_key = "tip_cmd_reset_holster"},
+
+		{type = "section", lang_key = "section_cmd_debug"},
+		{command = "vrmod_unoff_debug_status", type = "button", lang_key = "cmd_vrmod_unoff_debug_status", tip_key = "tip_cmd_debug"},
+		{command = "vrmod_unoff_debug_panel", type = "button", lang_key = "cmd_vrmod_unoff_debug_panel", tip_key = "tip_cmd_debug"},
+		{command = "vrmod_unoff_debug_hooks_list", type = "button", lang_key = "cmd_vrmod_unoff_debug_hooks_list", tip_key = "tip_cmd_debug"},
+		{command = "vrmod_unoff_debug_record_start", type = "button", lang_key = "cmd_vrmod_unoff_debug_record_start", tip_key = "tip_cmd_debug_record"},
+		{command = "vrmod_unoff_debug_record_stop", type = "button", lang_key = "cmd_vrmod_unoff_debug_record_stop", tip_key = "tip_cmd_debug_record"},
+		{command = "vrmod_unoff_debug_export", type = "button", lang_key = "cmd_vrmod_unoff_debug_export", tip_key = "tip_cmd_debug_export"},
+
+		{type = "section", lang_key = "section_cmd_mock"},
+		{command = "vrmod_unoff_mock_start", type = "button", lang_key = "cmd_vrmod_unoff_mock_start", tip_key = "tip_cmd_mock"},
+		{command = "vrmod_unoff_mock_stop", type = "button", lang_key = "cmd_vrmod_unoff_mock_stop", tip_key = "tip_cmd_mock"},
+		{command = "vrmod_unoff_mock_status", type = "button", lang_key = "cmd_vrmod_unoff_mock_status", tip_key = "tip_cmd_mock"},
+
+		{type = "section", lang_key = "section_cmd_misc"},
+		{command = "vrmod_print_devices", type = "button", lang_key = "cmd_vrmod_print_devices", tip_key = "tip_cmd_print_devices"},
+		{command = "vrmod_net_debug", type = "button", lang_key = "cmd_vrmod_net_debug", tip_key = "tip_cmd_net_debug"},
+		{command = "vrmod_doordebug", type = "button", lang_key = "cmd_vrmod_doordebug", tip_key = "tip_cmd_doordebug"},
+		{command = "vrmod_debuglocomotion", type = "button", lang_key = "cmd_vrmod_debuglocomotion", tip_key = "tip_cmd_debuglocomotion"},
+		{command = "cardboardmod_start", type = "button", lang_key = "cmd_cardboardmod_start", tip_key = "tip_cmd_cardboard"},
+		{command = "cardboardmod_exit", type = "button", lang_key = "cmd_cardboardmod_exit", tip_key = "tip_cmd_cardboard"},
+		{command = "vrmod_setlang", type = "button", args = {"en"}, lang_key = "cmd_vrmod_setlang", tip_key = "tip_cmd_setlang"},
+	},
+},
+
+} -- end of vrmod.guide.categories
+
+print("[VRMod] Beginner Guide categories loaded (" .. #vrmod.guide.categoryOrder .. " categories)")

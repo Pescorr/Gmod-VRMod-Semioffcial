@@ -104,6 +104,7 @@ function vrmod_lua()
 			function(frame)
 				local form = frame.SettingsForm
 				form:CheckBox("Use floating hands", "vrmod_floatinghands")
+				form:CheckBox("  No PM sync (keep PM animations)", "vrmod_unoff_floatinghands_nosync")
 				form:CheckBox("Use weapon world models", "vrmod_useworldmodels")
 				form:CheckBox("Add laser pointer to tools/weapons", "vrmod_laserpointer")
 				--
@@ -416,14 +417,6 @@ function vrmod_lua()
 				g_VR.rt = nil
 			end
 
-			if GetConVar("godsenttools_gpu_saver") then
-				overrideConvar("godsenttools_gpu_saver", "0")
-			end
-
-			if GetConVar("lithium_enable_gpusaver") then
-				overrideConvar("lithium_enable_gpusaver", "0")
-			end
-
 			local rtWidthMul = CreateClientConVar("vrmod_rtWidth_Multiplier", "2.0", true, FCVAR_ARCHIVE)
 			local rtHeightMul = CreateClientConVar("vrmod_rtHeight_Multiplier", "1.0", true, FCVAR_ARCHIVE)
 			local error = vrmod.GetStartupError()
@@ -525,7 +518,7 @@ function vrmod_lua()
 				overrideConvar("arccw_hud_size", "0")
 				overrideConvar("arccw_dev_benchgun", "1")
 				overrideConvar("arc9_dev_benchgun", "1")
-				overrideConvar("arc9_cruelty_reload", "0")
+				--overrideConvar("arc9_cruelty_reload", "0")
 				overrideConvar("arc9_tpik", "0")
 			end
 
@@ -746,6 +739,9 @@ function vrmod_lua()
 							end
 
 							g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+							if g_VR.viewModelMuzzle and vrmod.ApplyMuzzleOverride then
+								vrmod.ApplyMuzzleOverride(g_VR.viewModelMuzzle)
+							end
 						end
 					else --lefthandmode start
 						if uselefthand:GetBool() then
@@ -776,6 +772,9 @@ function vrmod_lua()
 									end
 
 									g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+									if g_VR.viewModelMuzzle and vrmod.ApplyMuzzleOverride then
+										vrmod.ApplyMuzzleOverride(g_VR.viewModelMuzzle)
+									end
 								end
 								--lefthand-Type2(RhandSimurate) end
 							else
@@ -805,6 +804,9 @@ function vrmod_lua()
 									end
 
 									g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+									if g_VR.viewModelMuzzle and vrmod.ApplyMuzzleOverride then
+										vrmod.ApplyMuzzleOverride(g_VR.viewModelMuzzle)
+									end
 								end
 								--lefthand-type1(Bip01_L_hand Posirion) end
 							end
@@ -824,7 +826,6 @@ function vrmod_lua()
 									g_VR.viewModel:SetPos(g_VR.viewModelPos)
 									g_VR.viewModel:SetAngles(g_VR.viewModelAng)
 									g_VR.viewModel:SetupBones()
-									--override hand pose in net frame
 									if netFrame then
 										local b = g_VR.viewModel:LookupBone("ValveBiped.Bip01_R_Hand")
 										if b then
@@ -836,6 +837,9 @@ function vrmod_lua()
 								end
 
 								g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+								if g_VR.viewModelMuzzle and vrmod.ApplyMuzzleOverride then
+									vrmod.ApplyMuzzleOverride(g_VR.viewModelMuzzle)
+								end
 							end
 						end
 						--righthand end
@@ -864,6 +868,7 @@ function vrmod_lua()
 					g_VR.view.origin = g_VR.view.origin + g_VR.view.angles:Forward() * -(eyez * g_VR.scale)
 					g_VR.eyePosLeft = g_VR.view.origin + g_VR.view.angles:Right() * -ipdeye
 					g_VR.eyePosRight = g_VR.view.origin + g_VR.view.angles:Right() * ipdeye
+					g_VR.isVRRendering = true
 					render.PushRenderTarget(g_VR.rt)
 					-- local rightEyeThread = coroutine.create(RenderRightEye)
 					-- local leftEyeThread = coroutine.create(RenderLeftEye)
@@ -894,6 +899,7 @@ function vrmod_lua()
 						cam.End2D()
 					end
 
+					g_VR.isVRRendering = false
 					render.PopRenderTarget(g_VR.rt)
 					if desktopView > 1 then
 						surface.SetDrawColor(255, 255, 255, 255)
@@ -959,7 +965,53 @@ function vrmod_lua()
 				)
 			end
 
-			hook.Add("ShouldDrawLocalPlayer", "vrutil_hook_shoulddrawlocalplayer", function(ply) return g_VR.allowPlayerDraw end)
+			hook.Add("ShouldDrawLocalPlayer", "vrutil_hook_shoulddrawlocalplayer", function(ply)
+				if g_VR.isVRRendering then
+					return g_VR.allowPlayerDraw
+				end
+				-- non-VR render (desktop / mirrors / other camera mods):
+				-- return nil to let drawviewer or other mods decide
+			end)
+
+			-- Desktop third-person fallback when cameraoverride=0
+			-- Overrides the initial vrutil_hook_calcview (line 528) with cameraover-aware version
+			hook.Add("CalcView", "vrutil_hook_calcview", function(ply, pos, ang, fv)
+				if not g_VR.tracking.hmd then return end
+				if g_VR.isVRRendering then
+					return {
+						origin = g_VR.tracking.hmd.pos,
+						angles = g_VR.tracking.hmd.ang,
+						fov = fv
+					}
+				end
+				if not cameraover:GetBool() then
+					local hmdPos = g_VR.tracking.hmd.pos
+					local hmdAng = g_VR.tracking.hmd.ang
+					local flat = Angle(0, hmdAng.y, 0)
+					local camPos = hmdPos - flat:Forward() * 120 + Vector(0, 0, 30)
+					local tr = util.TraceLine({
+						start = hmdPos,
+						endpos = camPos,
+						filter = ply,
+						mask = MASK_SOLID_BRUSHONLY,
+					})
+					if tr.Hit then
+						camPos = tr.HitPos + tr.HitNormal * 4
+					end
+					return {
+						origin = camPos,
+						angles = (hmdPos - camPos):Angle(),
+						fov = fv,
+						drawviewer = true,
+					}
+				end
+				return {
+					origin = g_VR.tracking.hmd.pos,
+					angles = g_VR.tracking.hmd.ang,
+					fov = fv
+				}
+			end)
+
 			-- add laser pointer
 			if convars.vrmod_laserpointer:GetBool() then
 				local mat = Material("cable/redlaser")
@@ -985,8 +1037,6 @@ function vrmod_lua()
 			vrmod.StopLocomotion()
 
 			RunConsoleCommand("vrmod_character_stop")
-			overrideConvar("godsenttools_gpu_saver", "1")
-			overrideConvar("lithium_enable_gpusaver", "1")
 			if IsValid(g_VR.viewModel) and g_VR.viewModel:GetClass() == "class C_BaseFlex" then
 				g_VR.viewModel:Remove()
 			end

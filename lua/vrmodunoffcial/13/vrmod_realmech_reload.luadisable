@@ -1,0 +1,494 @@
+--[[
+    Module 13: RealMech - Automatic Realistic Gun Mechanics
+    Reload: Magazine drop & insertion system
+
+    Flow:
+    1. boolean_reload pressed → block Gmod reload input
+    2. Hide magazine bones on viewmodel (detached look)
+    3. Set weapon Clip1 to 0
+    4. Spawn ClientsideModel copy of viewmodel
+    5. On the copy, show ONLY magazine bones, hide everything else
+    6. The copy falls to the ground with gravity simulation
+    7. Wait for left hand (VRMag) to touch viewmodel's magazine bone area
+    8. On contact: restore viewmodel magazine bones, refill clip
+
+    All clientside. Uses no server-side networking.
+]]
+
+AddCSLuaFile()
+if SERVER then return end
+
+-- ============================================================================
+-- Reload State
+-- ============================================================================
+
+local reloadState = {
+    active = false,                 -- Reload sequence in progress
+    phase = 0,                      -- 0=idle, 1=mag_ejected, 2=waiting_insert
+    droppedMag = nil,               -- ClientsideModel entity (falling magazine)
+    droppedMagVel = Vector(0, 0, 0),-- Velocity for gravity simulation
+    droppedMagSpawnTime = 0,        -- When the mag was spawned
+    magHiddenBones = {},            -- Bone indices hidden on viewmodel
+    magHiddenBodygroups = {},       -- Original bodygroup values
+    storedClip = 0,                 -- Ammo stored before ejection
+    storedAmmoType = -1,            -- Primary ammo type ID
+    storedMaxClip = 0,              -- Max clip size
+    lastWeaponClass = "",           -- Weapon class when reload started
+    insertReady = false,            -- Hand is near magazine slot
+    insertedTime = 0,               -- When magazine was inserted
+}
+
+-- Export for other files
+vrmod.RealMech = vrmod.RealMech or {}
+vrmod.RealMech.reloadState = reloadState
+
+-- ============================================================================
+-- Magazine Bone Detection (reuses Module 4's keyword pattern)
+-- ============================================================================
+
+local function IsMagazineBoneForReload(boneName)
+    local lowerBone = string.lower(boneName)
+    -- Same keywords as Module 4 + RealMech's own magazine category
+    local keywords = {"mag", "clip", "magazine", "ammo", "cylin", "shell"}
+    for _, keyword in ipairs(keywords) do
+        if string.find(lowerBone, keyword, 1, true) then
+            return true
+        end
+    end
+    return false
+end
+
+-- ============================================================================
+-- Dropped Magazine: ClientsideModel with gravity simulation
+-- (Defined before EjectMagazine because it is called from within it)
+-- ============================================================================
+
+local function SpawnDroppedMagazine(ply, wep, vm)
+    -- Clean up previous dropped mag if any
+    if IsValid(reloadState.droppedMag) then
+        reloadState.droppedMag:Remove()
+        reloadState.droppedMag = nil
+    end
+
+    -- Create ClientsideModel with same model as viewmodel
+    local mdl = vm:GetModel()
+    if not mdl or mdl == "" then return end
+
+    local mag = ClientsideModel(mdl)
+    if not IsValid(mag) then return end
+
+    -- Copy viewmodel properties
+    mag:SetModel(mdl)
+    mag:SetSkin(vm:GetSkin())
+
+    -- Copy bodygroups from viewmodel
+    for i = 0, vm:GetNumBodyGroups() - 1 do
+        mag:SetBodygroup(i, vm:GetBodygroup(i))
+    end
+
+    -- Position at viewmodel location
+    mag:SetPos(vm:GetPos())
+    mag:SetAngles(vm:GetAngles())
+    mag:SetupBones()
+
+    -- ===== KEY: Hide ALL bones EXCEPT magazine bones =====
+    local boneCount = mag:GetBoneCount()
+    for i = 0, boneCount - 1 do
+        local boneName = mag:GetBoneName(i)
+        if boneName then
+            if IsMagazineBoneForReload(boneName) then
+                -- SHOW magazine bones (keep visible)
+                mag:ManipulateBoneScale(i, Vector(1, 1, 1))
+            else
+                -- HIDE non-magazine bones
+                mag:ManipulateBoneScale(i, Vector(0, 0, 0))
+            end
+        end
+    end
+
+    -- No collision, render only
+    mag:SetRenderMode(RENDERMODE_TRANSALPHA)
+    mag:SetColor(Color(255, 255, 255, 255))
+    mag:SetNoDraw(false)
+
+    -- Store and initialize physics simulation
+    reloadState.droppedMag = mag
+    reloadState.droppedMagSpawnTime = CurTime()
+
+    -- Initial velocity: slight downward + small random lateral
+    local handVel = Vector(0, 0, 0)
+    if g_VR and g_VR.tracking and g_VR.tracking.pose_righthand then
+        handVel = g_VR.tracking.pose_righthand.vel or Vector(0, 0, 0)
+    end
+    reloadState.droppedMagVel = Vector(
+        handVel.x * 0.3 + math.Rand(-5, 5),
+        handVel.y * 0.3 + math.Rand(-5, 5),
+        -50 + handVel.z * 0.2
+    )
+end
+
+-- ============================================================================
+-- Phase 1: Eject Magazine
+-- ============================================================================
+
+local function EjectMagazine(ply, wep, vm)
+    local cv = vrmod.RealMech.cv
+    if not cv.reload_enable:GetBool() then return false end
+
+    -- Already in reload sequence
+    if reloadState.active then return false end
+
+    -- Store ammo info
+    reloadState.storedClip = wep:Clip1()
+    reloadState.storedAmmoType = wep:GetPrimaryAmmoType()
+    reloadState.storedMaxClip = wep:GetMaxClip1()
+    reloadState.lastWeaponClass = wep:GetClass()
+
+    -- ===== HIDE MAGAZINE BONES ON VIEWMODEL =====
+    reloadState.magHiddenBones = {}
+    reloadState.magHiddenBodygroups = {}
+
+    local boneCount = vm:GetBoneCount()
+    for i = 0, boneCount - 1 do
+        local boneName = vm:GetBoneName(i)
+        if boneName and IsMagazineBoneForReload(boneName) then
+            reloadState.magHiddenBones[i] = true
+            vm:ManipulateBoneScale(i, Vector(0, 0, 0))
+        end
+    end
+
+    -- Also hide magazine-related bodygroups
+    for i = 0, vm:GetNumBodyGroups() - 1 do
+        local bgName = vm:GetBodygroupName(i)
+        if bgName and IsMagazineBoneForReload(bgName) then
+            reloadState.magHiddenBodygroups[i] = vm:GetBodygroup(i)
+            vm:SetBodygroup(i, 6)
+        end
+    end
+
+    -- ===== SET CLIP TO 0 =====
+    wep:SetClip1(0)
+
+    -- ===== SPAWN DROPPED MAGAZINE MODEL =====
+    if cv.reload_magdrop:GetBool() then
+        SpawnDroppedMagazine(ply, wep, vm)
+    end
+
+    -- Play eject sound
+    ply:EmitSound("weapons/cliprelease1.wav", 60, 100, 0.6)
+
+    -- Update state
+    reloadState.active = true
+    reloadState.phase = 1
+    reloadState.insertReady = false
+
+    return true
+end
+
+-- ============================================================================
+-- Dropped Magazine: Per-frame gravity simulation
+-- ============================================================================
+
+local GRAVITY = Vector(0, 0, -600)  -- Source Engine gravity
+local MAG_LIFETIME = 8              -- Seconds before auto-cleanup
+
+local function UpdateDroppedMagazine(dt)
+    local mag = reloadState.droppedMag
+    if not IsValid(mag) then
+        reloadState.droppedMag = nil
+        return
+    end
+
+    -- Auto-cleanup after lifetime
+    if CurTime() - reloadState.droppedMagSpawnTime > MAG_LIFETIME then
+        mag:Remove()
+        reloadState.droppedMag = nil
+        return
+    end
+
+    -- Gravity simulation
+    reloadState.droppedMagVel = reloadState.droppedMagVel + GRAVITY * dt
+
+    local newPos = mag:GetPos() + reloadState.droppedMagVel * dt
+
+    -- Simple floor collision: trace downward
+    local tr = util.TraceLine({
+        start = mag:GetPos(),
+        endpos = newPos,
+        mask = MASK_SOLID_BRUSHONLY,
+    })
+
+    if tr.Hit then
+        -- Stop on floor
+        newPos = tr.HitPos + tr.HitNormal * 0.5
+        -- Dampen velocity (bounce slightly)
+        local speed = reloadState.droppedMagVel:Length()
+        if speed > 10 then
+            reloadState.droppedMagVel = reloadState.droppedMagVel * -0.2
+            reloadState.droppedMagVel.z = math.abs(reloadState.droppedMagVel.z) * 0.3
+        else
+            reloadState.droppedMagVel = Vector(0, 0, 0)
+        end
+    end
+
+    mag:SetPos(newPos)
+
+    -- Slight rotation during fall
+    local curAng = mag:GetAngles()
+    local rotSpeed = reloadState.droppedMagVel:Length() * 0.05
+    mag:SetAngles(Angle(
+        curAng.p + rotSpeed * dt * 30,
+        curAng.y + rotSpeed * dt * 10,
+        curAng.r
+    ))
+end
+
+-- ============================================================================
+-- Phase 2: Detect Magazine Insertion (left hand near magazine slot)
+-- ============================================================================
+
+local function CheckMagazineInsertion(ply, wep, vm)
+    if not g_VR or not g_VR.tracking then return false end
+    if not g_VR.tracking.pose_lefthand then return false end
+
+    local cv = vrmod.RealMech.cv
+    local leftHandPos = g_VR.tracking.pose_lefthand.pos
+    local insertRange = cv.reload_insert_range:GetFloat()
+
+    -- Find the world position of the magazine bone slot on the viewmodel
+    local boneCount = vm:GetBoneCount()
+    for i = 0, boneCount - 1 do
+        local boneName = vm:GetBoneName(i)
+        if boneName and IsMagazineBoneForReload(boneName) then
+            local bonePos = vm:GetBonePosition(i)
+            if bonePos then
+                local dist = leftHandPos:Distance(bonePos)
+                if dist < insertRange then
+                    return true
+                end
+            end
+        end
+    end
+
+    return false
+end
+
+-- ============================================================================
+-- Phase 3: Insert Magazine (restore viewmodel + refill clip)
+-- ============================================================================
+
+local function InsertMagazine(ply, wep, vm)
+    -- Restore magazine bones on viewmodel
+    for i, _ in pairs(reloadState.magHiddenBones) do
+        vm:ManipulateBoneScale(i, Vector(1, 1, 1))
+    end
+
+    -- Restore bodygroups
+    for i, originalValue in pairs(reloadState.magHiddenBodygroups) do
+        vm:SetBodygroup(i, originalValue)
+    end
+
+    -- Refill clip from reserve ammo
+    local ammoType = reloadState.storedAmmoType
+    local maxClip = reloadState.storedMaxClip
+    local reserveAmmo = ply:GetAmmoCount(ammoType)
+    local ammoToLoad = math.min(maxClip, reserveAmmo)
+
+    if ammoToLoad > 0 then
+        wep:SetClip1(ammoToLoad)
+        ply:RemoveAmmo(ammoToLoad, ammoType)
+    end
+
+    -- Remove dropped magazine model
+    if IsValid(reloadState.droppedMag) then
+        reloadState.droppedMag:Remove()
+        reloadState.droppedMag = nil
+    end
+
+    -- Play insert sound
+    ply:EmitSound("weapons/clipin1.wav", 60, 100, 0.6)
+
+    -- Reset state
+    reloadState.active = false
+    reloadState.phase = 0
+    reloadState.magHiddenBones = {}
+    reloadState.magHiddenBodygroups = {}
+    reloadState.storedClip = 0
+    reloadState.insertReady = false
+    reloadState.insertedTime = CurTime()
+end
+
+-- ============================================================================
+-- Cancel Reload (weapon changed, VR exit, etc.)
+-- ============================================================================
+
+local function CancelReload(ply, vm)
+    if not reloadState.active then return end
+
+    -- Restore viewmodel bones
+    if IsValid(vm) then
+        for i, _ in pairs(reloadState.magHiddenBones) do
+            vm:ManipulateBoneScale(i, Vector(1, 1, 1))
+        end
+        for i, originalValue in pairs(reloadState.magHiddenBodygroups) do
+            vm:SetBodygroup(i, originalValue)
+        end
+    end
+
+    -- Restore clip (give ammo back since reload was cancelled)
+    if IsValid(ply) then
+        local wep = ply:GetActiveWeapon()
+        if IsValid(wep) and wep:GetClass() == reloadState.lastWeaponClass then
+            wep:SetClip1(reloadState.storedClip)
+        end
+    end
+
+    -- Clean up dropped mag
+    if IsValid(reloadState.droppedMag) then
+        reloadState.droppedMag:Remove()
+        reloadState.droppedMag = nil
+    end
+
+    -- Reset state
+    reloadState.active = false
+    reloadState.phase = 0
+    reloadState.magHiddenBones = {}
+    reloadState.magHiddenBodygroups = {}
+    reloadState.storedClip = 0
+    reloadState.insertReady = false
+end
+
+-- Export functions
+vrmod.RealMech.EjectMagazine = EjectMagazine
+vrmod.RealMech.InsertMagazine = InsertMagazine
+vrmod.RealMech.CancelReload = CancelReload
+vrmod.RealMech.IsMagazineBoneForReload = IsMagazineBoneForReload
+
+-- ============================================================================
+-- VRMod_AllowDefaultAction: Block Gmod reload when RealMech handles it
+-- ============================================================================
+
+hook.Add("VRMod_AllowDefaultAction", "VRRealMech_BlockReload", function(action)
+    if not vrmod.RealMech.IsEnabled() then return end
+    if not vrmod.RealMech.cv.reload_enable:GetBool() then return end
+
+    if action == "boolean_reload" then
+        local ply = LocalPlayer()
+        if not IsValid(ply) then return end
+
+        local wep = ply:GetActiveWeapon()
+        if not IsValid(wep) then return end
+
+        -- Only block for non-VR, non-ArcVR weapons
+        if vrmod.RealMech.ShouldSkipWeapon(wep) then return end
+
+        -- Block the default reload action
+        return false
+    end
+end)
+
+-- ============================================================================
+-- VRMod_Input: Handle reload button press
+-- ============================================================================
+
+hook.Add("VRMod_Input", "VRRealMech_ReloadInput", function(action, pressed)
+    if not vrmod.RealMech.IsEnabled() then return end
+    if not vrmod.RealMech.cv.reload_enable:GetBool() then return end
+    if not g_VR or not g_VR.active then return end
+
+    if action == "boolean_reload" and pressed then
+        local ply = LocalPlayer()
+        if not IsValid(ply) or not ply:Alive() then return end
+
+        local wep = ply:GetActiveWeapon()
+        if not IsValid(wep) then return end
+        if vrmod.RealMech.ShouldSkipWeapon(wep) then return end
+
+        local vm = ply:GetViewModel()
+        if not IsValid(vm) then return end
+
+        if not reloadState.active then
+            -- Start magazine ejection
+            EjectMagazine(ply, wep, vm)
+        else
+            -- If already in reload, cancel it (toggle)
+            CancelReload(ply, vm)
+        end
+    end
+end)
+
+-- ============================================================================
+-- Per-Frame Update: Gravity simulation + insertion detection
+-- ============================================================================
+
+hook.Add("VRMod_PreRender", "VRRealMech_ReloadUpdate", function()
+    if not reloadState.active then return end
+    if not g_VR or not g_VR.active then return end
+
+    local ply = LocalPlayer()
+    if not IsValid(ply) or not ply:Alive() then
+        CancelReload(ply, nil)
+        return
+    end
+
+    local wep = ply:GetActiveWeapon()
+    local vm = ply:GetViewModel()
+
+    -- Cancel if weapon changed
+    if not IsValid(wep) or wep:GetClass() ~= reloadState.lastWeaponClass then
+        CancelReload(ply, vm)
+        return
+    end
+
+    if not IsValid(vm) then
+        CancelReload(ply, nil)
+        return
+    end
+
+    local dt = FrameTime()
+
+    -- Keep magazine bones hidden on viewmodel (re-apply each frame
+    -- in case animations reset the scale)
+    for i, _ in pairs(reloadState.magHiddenBones) do
+        vm:ManipulateBoneScale(i, Vector(0, 0, 0))
+    end
+
+    -- Update dropped magazine physics
+    if IsValid(reloadState.droppedMag) then
+        UpdateDroppedMagazine(dt)
+    end
+
+    -- Check for magazine insertion (left hand near mag slot)
+    if reloadState.phase >= 1 then
+        if CheckMagazineInsertion(ply, wep, vm) then
+            InsertMagazine(ply, wep, vm)
+        end
+    end
+end)
+
+-- ============================================================================
+-- Cleanup Hooks
+-- ============================================================================
+
+hook.Add("VRMod_Exit", "VRRealMech_ReloadCleanup", function()
+    local ply = LocalPlayer()
+    local vm = IsValid(ply) and ply:GetViewModel() or nil
+    CancelReload(ply, vm)
+end)
+
+hook.Add("Shutdown", "VRRealMech_ReloadShutdownCleanup", function()
+    if IsValid(reloadState.droppedMag) then
+        reloadState.droppedMag:Remove()
+    end
+end)
+
+-- Cleanup when feature is disabled
+cvars.AddChangeCallback("vrmod_unoff_realmech_reload_enable", function(_, _, new)
+    if new == "0" then
+        local ply = LocalPlayer()
+        local vm = IsValid(ply) and ply:GetViewModel() or nil
+        CancelReload(ply, vm)
+    end
+end, "VRRealMech_ReloadToggle")
+
+print("[RealMech] Reload loaded - magazine drop & insertion system")

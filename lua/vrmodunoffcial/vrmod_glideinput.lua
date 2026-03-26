@@ -50,9 +50,8 @@ if CLIENT then
         local now = CurTime()
         if now - lastGlideSentTime > glideSendInterval then
             local steeringInput = 0
-            local cv_rightHandle = GetConVar("glide_vr_righthandle")
-            local cv_leftHandle = GetConVar("glide_vr_lefthandle")
-            if cv_rightHandle and cv_leftHandle then -- ConVarオブジェクトの存在チェック
+            -- L13-14で作成済みのcv_rightHandle/cv_leftHandleを使用（毎フレームGetConVar禁止）
+            if cv_rightHandle and cv_leftHandle then
                 if cv_rightHandle:GetBool() then
                     steeringInput = g_VR.tracking.pose_righthand.ang.z * 0.01
                 elseif cv_leftHandle:GetBool() then
@@ -68,11 +67,11 @@ if CLIENT then
             local boolean_left = g_VR.input.boolean_left or false
             local boolean_spawnmenu = g_VR.input.boolean_spawnmenu or false
 
-            -- cv_ ConVar の nil チェックを追加 (より安全に)
-            local cv_handbrake_val = GetConVar("glide_vr_handbrake") and GetConVar("glide_vr_handbrake"):GetBool() or false
-            local cv_headlights_val = GetConVar("glide_vr_headlights") and GetConVar("glide_vr_headlights"):GetBool() or false
-            local cv_horn_val = GetConVar("glide_vr_horn") and GetConVar("glide_vr_horn"):GetBool() or false
-            local cv_reducedThrottle_val = GetConVar("glide_vr_reduced_throttle") and GetConVar("glide_vr_reduced_throttle"):GetBool() or false
+            -- L15-18で作成済みのConVarキャッシュを使用（毎フレームGetConVar禁止）
+            local cv_handbrake_val = cv_handbrake and cv_handbrake:GetBool() or false
+            local cv_headlights_val = cv_headlights and cv_headlights:GetBool() or false
+            local cv_horn_val = cv_horn and cv_horn:GetBool() or false
+            local cv_reducedThrottle_val = cv_reducedThrottle and cv_reducedThrottle:GetBool() or false
 
             net.Start("glide_vr_input")
                 net.WriteFloat(forward)

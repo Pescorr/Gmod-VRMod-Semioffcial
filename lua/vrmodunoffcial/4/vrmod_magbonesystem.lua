@@ -209,6 +209,7 @@ function vrmod_advanced_magazine()
             "VRAdvancedMagazinePickupSomething",
             function(player, entity)
                 if not IsFeatureEnabled() then return end
+                if not IsValid(entity) then return end
                 if player == LocalPlayer() and entity:GetClass() == "vrmod_magent" then
                     player.hasMagazine = true
                     player.magazineEntity = entity
@@ -293,6 +294,18 @@ function vrmod_advanced_magazine()
             function()
                 for _, player in ipairs(player.GetAll()) do
                     if not GetConVar("vrmod_mag_system_enable"):GetBool() then return end
+                    -- magazineEntityが消滅していたらステートをリセット
+                    if player.hasMagazine and not IsValid(player.magazineEntity) then
+                        player.hasMagazine = false
+                        player.magazineEntity = nil
+                        if CLIENT and player == LocalPlayer() then
+                            magazineState = 0
+                            local viewModel = player:GetViewModel()
+                            if IsValid(viewModel) then
+                                ShowMagazineBonesAndBodygroups(viewModel)
+                            end
+                        end
+                    end
                     if CheckHandTouch(player) and player.hasMagazine and not HasVRInWeaponName(player) then
                         local wep = player:GetActiveWeapon()
                         if IsValid(wep) then
@@ -320,9 +333,11 @@ function vrmod_advanced_magazine()
                                 player.magazineEntity:Remove()
                             end
                         else
-                            net.Start("RemoveMagEntity")
-                            net.WriteEntity(player.magazineEntity)
-                            net.SendToServer()
+                            if IsValid(player.magazineEntity) then
+                                net.Start("RemoveMagEntity")
+                                net.WriteEntity(player.magazineEntity)
+                                net.SendToServer()
+                            end
                         end
 
                         player.hasMagazine = false
@@ -345,7 +360,7 @@ function vrmod_advanced_magazine()
             "VRAdvancedMagazineDropSomething",
             function(player, entity)
                 if not IsFeatureEnabled() then return end
-                if player == LocalPlayer() and entity:GetClass() == "vrmod_magent" then
+                if IsValid(entity) and player == LocalPlayer() and entity:GetClass() == "vrmod_magent" then
                     player.hasMagazine = false
                     player.magazineEntity = nil
                     entity:SetRenderMode(RENDERMODE_NORMAL)

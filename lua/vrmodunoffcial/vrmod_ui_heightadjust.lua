@@ -173,7 +173,7 @@ function VRUtilOpenHeightMenu()
 	concommand.Add(
 		"vrmod_scale_auto",
 		function(ply, cmd, args)
-			g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+			g_VR.scale = math.Clamp(convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale), 10, 100)
 			convars.vrmod_scale:SetFloat(g_VR.scale)
 		end
 	)
@@ -286,7 +286,7 @@ function VRUtilOpenHeightMenu()
 				if convarValues.vrmod_seated then
 					convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
 				else
-					g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+					g_VR.scale = math.Clamp(convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale), 10, 100)
 					convars.vrmod_scale:SetFloat(g_VR.scale)
 				end
 			end
@@ -311,6 +311,21 @@ function VRUtilOpenHeightMenu()
 			end
 		},
 		{
+			x = 250,
+			y = 363,
+			w = 50,
+			h = 28,
+			text = "Reset\nScale",
+			font = "Trebuchet18",
+			text_x = 25,
+			text_y = 0,
+			enabled = true,
+			fn = function()
+				g_VR.scale = VRMOD_DEFAULTS.character.vrmod_scale
+				convars.vrmod_scale:SetFloat(g_VR.scale)
+			end
+		},
+		{
 			x = 0,
 			y = 200,
 			w = 50,
@@ -321,7 +336,7 @@ function VRUtilOpenHeightMenu()
 			text_y = -2,
 			enabled = true,
 			fn = function()
-				buttons[5].text = (not convarValues.vrmod_seated) and VRModL("btn_disable_seated", "Disable\nSeated\nOffset") or VRModL("btn_enable_seated", "Enable\nSeated\nOffset")
+				buttons[6].text = (not convarValues.vrmod_seated) and VRModL("btn_disable_seated", "Disable\nSeated\nOffset") or VRModL("btn_enable_seated", "Enable\nSeated\nOffset")
 				convars.vrmod_seated:SetBool(not convarValues.vrmod_seated)
 				renderControls()
 			end
@@ -376,7 +391,7 @@ function VRUtilOpenHeightMenu()
 						if convarValues.vrmod_seated then
 							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
 						else
-							g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+							g_VR.scale = math.Clamp(convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale), 10, 100)
 							convars.vrmod_scale:SetFloat(g_VR.scale)
 						end
 					end
@@ -388,7 +403,7 @@ function VRUtilOpenHeightMenu()
 						if convarValues.vrmod_seated then
 							convars.vrmod_seatedoffset:SetFloat(convarValues.vrmod_characterEyeHeight - (g_VR.tracking.hmd.pos.z - convarValues.vrmod_seatedoffset - g_VR.origin.z))
 						else
-							g_VR.scale = convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale)
+							g_VR.scale = math.Clamp(convarValues.vrmod_characterEyeHeight / ((g_VR.tracking.hmd.pos.z - g_VR.origin.z) / g_VR.scale), 10, 100)
 							convars.vrmod_scale:SetFloat(g_VR.scale)
 						end
 					end

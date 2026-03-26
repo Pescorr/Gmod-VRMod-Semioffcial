@@ -3,6 +3,7 @@
 if SERVER then return end
 local convars, convarValues = vrmod.GetConvars()
 local menutype1 = CreateClientConVar("vrmod_menu_type", 1, true, FCVAR_ARCHIVE, "1 = type1 0 = type2", 0, 1)
+local guidemode02 = CreateClientConVar("vrmod_unoff_settings02_guide_mode", "0", true, false, "0=tree view, 1=guide view", 0, 1)
 
 -- DTree Navigation Helper: Creates a DHorizontalDivider with DTree (left) and content panel (right)
 local function CreateTreeTab(parent)
@@ -294,14 +295,60 @@ hook.Add(
 	function(frame)
 		if not menutype1:GetBool() then return end
 
-		-- Settings02 container (DPanel with DTree navigation)
+		-- Settings02 container
 		local settings02 = vgui.Create("DPanel", frame.DPropertySheet)
 		frame.DPropertySheet:AddSheet("Settings02", settings02)
 		settings02:Dock(FILL)
 		settings02.Paint = function() end
 
-		-- DTree + content area
-		local tree, contentContainer, showPanel, registerPanel = CreateTreeTab(settings02)
+		-- Mode toggle header
+		local modeHeader = vgui.Create("DPanel", settings02)
+		modeHeader:Dock(TOP)
+		modeHeader:SetTall(26)
+		modeHeader.Paint = function(self, w, h)
+			surface.SetDrawColor(50, 50, 55)
+			surface.DrawRect(0, 0, w, h)
+			surface.SetDrawColor(70, 70, 75)
+			surface.DrawLine(0, h - 1, w, h - 1)
+		end
+		local modeBtn = vgui.Create("DButton", modeHeader)
+		modeBtn:Dock(LEFT)
+		modeBtn:SetWide(240)
+		modeBtn:DockMargin(4, 2, 4, 2)
+
+		-- Tree container (default view)
+		local treeContainer = vgui.Create("DPanel", settings02)
+		treeContainer:Dock(FILL)
+		treeContainer.Paint = function() end
+
+		-- Guide container (alternative view, initially hidden)
+		local guideContainer = vgui.Create("DPanel", settings02)
+		guideContainer:Dock(FILL)
+		guideContainer.Paint = function() end
+		guideContainer:SetVisible(false)
+
+		local guideBuilt = false
+		local function setGuideMode(isGuide)
+			treeContainer:SetVisible(not isGuide)
+			guideContainer:SetVisible(isGuide)
+			if isGuide then
+				modeBtn:SetText("<< Tree View")
+				if not guideBuilt and vrmod.guide and vrmod.guide.CreateEmbedded then
+					vrmod.guide.CreateEmbedded(guideContainer)
+					guideBuilt = true
+				end
+			else
+				modeBtn:SetText(">> Guide View")
+			end
+			guidemode02:SetBool(isGuide)
+		end
+		modeBtn.DoClick = function()
+			setGuideMode(treeContainer:IsVisible())
+		end
+		setGuideMode(guidemode02:GetBool())
+
+		-- DTree + content area (inside treeContainer)
+		local tree, contentContainer, showPanel, registerPanel = CreateTreeTab(treeContainer)
 
 		-- Hidden DPropertySheets for module compatibility
 		local hiddenVRplay = vgui.Create("DPropertySheet", settings02)
@@ -375,6 +422,18 @@ hook.Add(
 			RunConsoleCommand("vrmod_weaponconfig")
 		end
 		AddControl(weaponconfig)
+		local autoadjustvm = vgui.Create("DButton", gameplaySettings)
+		autoadjustvm:SetText("Auto-adjust Current Weapon (Quick)")
+		autoadjustvm.DoClick = function()
+			RunConsoleCommand("vrmod_viewmodel_autoadjust")
+		end
+		AddControl(autoadjustvm)
+		local muzzleboneBtn = vgui.Create("DButton", gameplaySettings)
+		muzzleboneBtn:SetText("Muzzle Bone Override")
+		muzzleboneBtn.DoClick = function()
+			RunConsoleCommand("vrmod_muzzle_bone_select")
+		end
+		AddControl(muzzleboneBtn)
 		local pickupweight = vgui.Create("DNumSlider", gameplaySettings)
 		pickupweight:SetText("Pickup Weight (Server)")
 		pickupweight:SetMin(0)
@@ -455,6 +514,14 @@ hook.Add(
 		end
 		scaleDownButton.DoRightClick = function()
 			g_VR.scale = g_VR.scale - 1.0
+			convars.vrmod_scale:SetFloat(g_VR.scale)
+		end
+		local scaleDefaultButton = vgui.Create("DButton", characterScale)
+		scaleDefaultButton:Dock(RIGHT)
+		scaleDefaultButton:SetText("Default")
+		scaleDefaultButton:SetWidth(60)
+		scaleDefaultButton.DoClick = function()
+			g_VR.scale = VRMOD_DEFAULTS.character.vrmod_scale
 			convars.vrmod_scale:SetFloat(g_VR.scale)
 		end
 		local eyeheight = vgui.Create("DNumSlider", vrSettings)
@@ -648,6 +715,9 @@ hook.Add(
 		keyboarduichat:SetConVar("vrmod_keyboard_uichatkey")
 		local VRElefthand = uiSettings:CheckBox("VRE Attach Left Hands")
 		VRElefthand:SetConVar("vre_ui_attachtohand")
+		local desktopUIMirror = uiSettings:CheckBox("Show VR UI on Desktop Window")
+		desktopUIMirror:SetConVar("vrmod_unoff_desktop_ui_mirror")
+		desktopUIMirror:SetTooltip("Keep menus and popups visible on the desktop window while in VR")
 		local uidefault = uiSettings:Button(VRModL("btn_restore_defaults", "Restore Default Settings"))
 		uidefault.DoClick = function()
 			VRModResetCategory("ui")
@@ -1305,6 +1375,176 @@ hook.Add(
 		registerPanel("cardboard", cardboardPanel)
 		AddTreeNode(tree, "Cardboard", "cardboard", "icon16/phone.png", showPanel)
 		end -- Cardboard panel
+
+		-- ========================================
+		-- Panel: Modules (Feature Loading Control)
+		-- ========================================
+		do
+		local modulesScroll = vgui.Create("DScrollPanel")
+
+		-- フォルダ番号 → 表示名
+		local folderNames = {
+			["2"]  = "Holster Type2",
+			["3"]  = "Foregrip",
+			["4"]  = "Magbone/ARC9",
+			["5"]  = "Melee",
+			["6"]  = "Holster Type1",
+			["7"]  = "VR Hand HUD",
+			["8"]  = "Physgun",
+			["9"]  = "VR Pickup",
+			["10"] = "Debug",
+			["11"] = "(Reserved)",
+			["12"] = "Guide",
+			["13"] = "RealMech",
+			["14"] = "Throw",
+		}
+
+		-- Addon-only ConVarが存在すればフォルダ0/1もリストに含める
+		if GetConVar("vrmod_unoff_load_0") then
+			folderNames["0"] = "Core/API"
+		end
+		if GetConVar("vrmod_unoff_load_1") then
+			folderNames["1"] = "Auto-settings/Optimize"
+		end
+
+		-- ソート用キー
+		local sortedFolders = {}
+		for k in pairs(folderNames) do sortedFolders[#sortedFolders + 1] = k end
+		table.sort(sortedFolders, function(a, b) return tonumber(a) < tonumber(b) end)
+
+		-- 再起動警告
+		local restartWarning = vgui.Create("DLabel", modulesScroll)
+		restartWarning:Dock(TOP)
+		restartWarning:DockMargin(10, 8, 10, 4)
+		restartWarning:SetText("Changes require Gmod restart to take effect.")
+		restartWarning:SetFont("DermaDefaultBold")
+		restartWarning:SetTextColor(Color(255, 80, 80))
+		restartWarning:SetAutoStretchVertical(true)
+
+		-- === Addon-Only Mode セクション ===
+		local addonOnlySectionLabel = vgui.Create("DLabel", modulesScroll)
+		addonOnlySectionLabel:Dock(TOP)
+		addonOnlySectionLabel:DockMargin(10, 10, 10, 2)
+		addonOnlySectionLabel:SetText("=== Addon-Only Mode ===")
+		addonOnlySectionLabel:SetFont("DermaDefaultBold")
+		addonOnlySectionLabel:SizeToContents()
+
+		local addonOnlyCheck = vgui.Create("DCheckBoxLabel", modulesScroll)
+		addonOnlyCheck:Dock(TOP)
+		addonOnlyCheck:DockMargin(10, 4, 10, 2)
+		addonOnlyCheck:SetText("Addon-Only Mode (skip root files, use external VRMod)")
+		addonOnlyCheck:SetConVar("vrmod_unoff_addon_only_mode")
+		addonOnlyCheck:SizeToContents()
+
+		local addonOnlyDesc = vgui.Create("DLabel", modulesScroll)
+		addonOnlyDesc:Dock(TOP)
+		addonOnlyDesc:DockMargin(20, 0, 10, 8)
+		addonOnlyDesc:SetText("ON = Root files (vrmod.lua, input, character, etc.) are not loaded.\nUse this with legacy/original VRMod as your base VRMod.\nOnly numbered folder modules are loaded as add-on features.")
+		addonOnlyDesc:SetAutoStretchVertical(true)
+		addonOnlyDesc:SetWrap(true)
+		addonOnlyDesc:SetTextColor(Color(180, 180, 180))
+
+		-- === Legacy Mode セクション ===
+		local legacySectionLabel = vgui.Create("DLabel", modulesScroll)
+		legacySectionLabel:Dock(TOP)
+		legacySectionLabel:DockMargin(10, 10, 10, 2)
+		legacySectionLabel:SetText("=== Legacy Mode ===")
+		legacySectionLabel:SetFont("DermaDefaultBold")
+		legacySectionLabel:SizeToContents()
+
+		local legacyCheck = vgui.Create("DCheckBoxLabel", modulesScroll)
+		legacyCheck:Dock(TOP)
+		legacyCheck:DockMargin(10, 4, 10, 2)
+		legacyCheck:SetText("Legacy Mode (load only core features)")
+		legacyCheck:SetConVar("vrmod_unoff_legacy_mode")
+		legacyCheck:SizeToContents()
+
+		local legacyDesc = vgui.Create("DLabel", modulesScroll)
+		legacyDesc:Dock(TOP)
+		legacyDesc:DockMargin(20, 0, 10, 8)
+		legacyDesc:SetText("ON = only folders 0 (Core) and 1 (Auto-settings) load.\nAll features below are disabled regardless of their individual setting.")
+		legacyDesc:SetAutoStretchVertical(true)
+		legacyDesc:SetWrap(true)
+		legacyDesc:SetTextColor(Color(180, 180, 180))
+
+		-- === Feature Modules セクション ===
+		local featureSectionLabel = vgui.Create("DLabel", modulesScroll)
+		featureSectionLabel:Dock(TOP)
+		featureSectionLabel:DockMargin(10, 6, 10, 2)
+		featureSectionLabel:SetText("=== Feature Modules ===")
+		featureSectionLabel:SetFont("DermaDefaultBold")
+		featureSectionLabel:SizeToContents()
+
+		local folderCheckboxes = {}
+
+		for _, k in ipairs(sortedFolders) do
+			local cb = vgui.Create("DCheckBoxLabel", modulesScroll)
+			cb:Dock(TOP)
+			cb:DockMargin(10, 3, 10, 0)
+			cb:SetText("[" .. k .. "] " .. folderNames[k])
+			cb:SetConVar("vrmod_unoff_load_" .. k)
+			cb:SizeToContents()
+			folderCheckboxes[#folderCheckboxes + 1] = cb
+		end
+
+		-- Addon-Only / Legacy 排他制御 + チェックボックス有効/無効切り替え
+		local function updateFolderCheckboxStates()
+			local legacyCV = GetConVar("vrmod_unoff_legacy_mode")
+			local addonOnlyCV = GetConVar("vrmod_unoff_addon_only_mode")
+			local isLegacy = legacyCV and legacyCV:GetBool() or false
+			local isAddonOnly = addonOnlyCV and addonOnlyCV:GetBool() or false
+
+			-- 排他: Addon-Only ON → Legacy チェックボックス無効化
+			legacyCheck:SetEnabled(not isAddonOnly)
+			if isAddonOnly then
+				legacyCheck:SetTextColor(Color(120, 120, 120))
+			else
+				legacyCheck:SetTextColor(Color(255, 255, 255))
+			end
+
+			-- 排他: Legacy ON → Addon-Only チェックボックス無効化
+			addonOnlyCheck:SetEnabled(not isLegacy)
+			if isLegacy then
+				addonOnlyCheck:SetTextColor(Color(120, 120, 120))
+			else
+				addonOnlyCheck:SetTextColor(Color(255, 255, 255))
+			end
+
+			-- フォルダチェックボックス
+			for _, cb in ipairs(folderCheckboxes) do
+				if isLegacy then
+					cb:SetEnabled(false)
+					cb:SetTextColor(Color(120, 120, 120))
+				else
+					cb:SetEnabled(true)
+					cb:SetTextColor(Color(255, 255, 255))
+				end
+			end
+		end
+
+		-- チェックボックスの変更を監視
+		legacyCheck.OnChange = function(self, val)
+			updateFolderCheckboxStates()
+		end
+		addonOnlyCheck.OnChange = function(self, val)
+			updateFolderCheckboxStates()
+		end
+
+		-- パネル表示時に状態を同期
+		modulesScroll.OnShow = function(self)
+			updateFolderCheckboxStates()
+		end
+
+		-- 初回状態同期（timer.Simple(0)でConVar読み込み後に実行）
+		timer.Simple(0, function()
+			if IsValid(modulesScroll) then
+				updateFolderCheckboxStates()
+			end
+		end)
+
+		registerPanel("modules", modulesScroll)
+		AddTreeNode(tree, "Modules", "modules", "icon16/bricks.png", showPanel)
+		end -- Modules panel
 
 		-- Show first panel (VR) by default
 		showPanel("vr")

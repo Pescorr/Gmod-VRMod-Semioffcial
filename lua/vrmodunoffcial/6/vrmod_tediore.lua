@@ -29,12 +29,13 @@ if SERVER then
             local lhandvel = net.ReadVector()
             local lhandangvel = net.ReadVector()
             local wep = ply:GetActiveWeapon()
+            if not IsValid(wep) then return end
             local modelname = wep:GetModel()
-            local guninhandpos = vrmod.GetRightHandPos(ply)
-            local guninhandang = vrmod.GetRightHandAng(ply)
-            local guninlefthandpos = vrmod.GetLeftHandPos(ply)
-            local guninlefthandang = vrmod.GetLeftHandAng(ply)
-            local gunvelocity = Vector(0, 0, 0)
+            local ok1, guninhandpos = pcall(vrmod.GetRightHandPos, ply)
+            local ok2, guninhandang = pcall(vrmod.GetRightHandAng, ply)
+            local ok3, guninlefthandpos = pcall(vrmod.GetLeftHandPos, ply)
+            local ok4, guninlefthandang = pcall(vrmod.GetLeftHandAng, ply)
+            if not ok1 or not ok2 then return end
             wep.VR_Pickup_Tag = false
             if wepdropmode then
                 Wwep = ents.Create(wep:GetClass())
@@ -58,9 +59,15 @@ if SERVER then
 
             ply:Give("weapon_vrmod_empty")
             Wwep:SetModel(modelname)
-            ply:LookupBone("ValveBiped.Bip01_R_Hand")
-            local Bon, BonAng = ply:GetBonePosition(11)
-            Wwep:SetPos(guninhandpos + BonAng:Forward() * 10 - BonAng:Up() * 0 + BonAng:Right() * 4)
+            local handBone = ply:LookupBone("ValveBiped.Bip01_R_Hand")
+            local Bon, BonAng
+            if handBone then
+                Bon, BonAng = ply:GetBonePosition(handBone)
+            end
+            if not BonAng then
+                BonAng = guninhandang
+            end
+            Wwep:SetPos(guninhandpos + BonAng:Forward() * 10 + BonAng:Right() * 4)
             Wwep:SetAngles(guninhandang)
             Wwep:SetModel(wep:GetModel())
             Wwep:Spawn()

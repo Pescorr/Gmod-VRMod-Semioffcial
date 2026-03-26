@@ -3,14 +3,35 @@ function vrholstersystem2()
     if CLIENT then
         local convars, convarValues = vrmod.GetConvars()
 
-        -- 改善1: 非対称AABB判定（Z軸の上下を別々に指定可能）
-        local function IsHandInBox(hand_pos, box_center, box_width, box_height, depth_up, depth_down)
+        -- 安全なボーンワールド位置取得（nilチェック付き）
+        local function SafeGetBoneWorldPos(ply, boneName, offset, yawAngle)
+            if not IsValid(ply) then return nil end
+            local boneId = ply:LookupBone(boneName)
+            if not boneId then return nil end
+            local matrix = ply:GetBoneMatrix(boneId)
+            if not matrix then return nil end
+            return LocalToWorld(offset or Vector(3, 3, 0), Angle(0, 0, 0), matrix:GetTranslation(), yawAngle or Angle(0, 0, 0))
+        end
+
+        -- 安全なボーン位置取得（pos, ang返却版）
+        local function SafeGetBonePosition(ply, boneName)
+            if not IsValid(ply) then return nil, nil end
+            local boneId = ply:LookupBone(boneName)
+            if not boneId then return nil, nil end
+            return ply:GetBonePosition(boneId)
+        end
+
+        -- S20 Problem 5: OBB判定（キャラクターYawで回転、Z軸非対称）
+        local function IsHandInBox(hand_pos, box_center, box_width, box_height, depth_up, depth_down, yaw)
             local half_x = box_width / 2
             local half_y = box_height / 2
-            local dx = math.abs(hand_pos.x - box_center.x)
-            local dy = math.abs(hand_pos.y - box_center.y)
-            local dz = hand_pos.z - box_center.z
-            return dx <= half_x and dy <= half_y and dz <= depth_up and dz >= -depth_down
+            local offset = hand_pos - box_center
+            -- キャラクターYawの逆回転で手の位置をボックスローカル座標に変換
+            local rad = math.rad(-(yaw or 0))
+            local cos_r, sin_r = math.cos(rad), math.sin(rad)
+            local local_x = offset.x * cos_r - offset.y * sin_r
+            local local_y = offset.x * sin_r + offset.y * cos_r
+            return math.abs(local_x) <= half_x and math.abs(local_y) <= half_y and offset.z <= depth_up and offset.z >= -depth_down
         end
 
         local pouch_slots = 8
@@ -19,11 +40,15 @@ function vrholstersystem2()
         local pouch_initial_positions = {}
         local pouch_sizes = {}
         local pouch_enabled = CreateClientConVar("vrmod_pouch_enabled", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
-        local pouch_visible_name = CreateClientConVar("vrmod_pouch_visiblename", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+        local pouch_visible_name = CreateClientConVar("vrmod_pouch_visiblename", 0, true, FCVAR_ARCHIVE, nil, 0, 1)
         local pouch_lefthand_weapon_enable = CreateClientConVar("vrmod_pouch_lefthandwep_enable", "1", true, FCVAR_ARCHIVE)
         local pouch_visible_hud = CreateClientConVar("vrmod_pouch_visiblename_hud", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
         local pouch_saved_positions = {}
-        local pouch_locked = {}
+        local pouch_locked_cvars_left = {}
+        local pouch_locked_cvars_right = {}
+        local pouch_locked_left = {}
+        local pouch_locked_right = {}
+        local pouch_lr_sync = CreateClientConVar("vrmod_pouch_lr_sync", "0", true, FCVAR_ARCHIVE)
         local pouch_pickup_sound = CreateClientConVar("vrmod_pouch_pickup_sound", "common/wpn_select.wav", true, FCVAR_ARCHIVE)
         local prev_hand_in_holster_left_status = {}
         local prev_hand_in_holster_right_status = {}
@@ -43,17 +68,23 @@ function vrholstersystem2()
             CreateClientConVar("vrmod_pouch_size_" .. i, 12, true, FCVAR_ARCHIVE)
             CreateClientConVar("vrmod_unoff_pouch_slot_enabled_" .. i, 1, true, FCVAR_ARCHIVE, nil, 0, 1)
             -- Box形状用ConVar（改善1: depth → depth_up + depth_down）
-            CreateClientConVar("vrmod_unoff_pouch_shape_" .. i, "sphere", true, FCVAR_ARCHIVE)
-            CreateClientConVar("vrmod_unoff_pouch_box_width_" .. i, 10, true, FCVAR_ARCHIVE)
-            CreateClientConVar("vrmod_unoff_pouch_box_height_" .. i, 15, true, FCVAR_ARCHIVE)
+            CreateClientConVar("vrmod_unoff_pouch_shape_" .. i, "box", true, FCVAR_ARCHIVE)
+            CreateClientConVar("vrmod_unoff_pouch_box_width_" .. i, 22, true, FCVAR_ARCHIVE)
+            CreateClientConVar("vrmod_unoff_pouch_box_height_" .. i, 22, true, FCVAR_ARCHIVE)
             CreateClientConVar("vrmod_unoff_pouch_box_depth_up_" .. i, 5, true, FCVAR_ARCHIVE)
             CreateClientConVar("vrmod_unoff_pouch_box_depth_down_" .. i, 5, true, FCVAR_ARCHIVE)
-            pouch_locked[i] = false
+            CreateClientConVar("vrmod_unoff_pouch_locked_" .. i, 0, true, FCVAR_ARCHIVE, nil, 0, 1) -- legacy compat
+            CreateClientConVar("vrmod_unoff_pouch_locked_" .. i .. "_left", 0, true, FCVAR_ARCHIVE, nil, 0, 1)
+            CreateClientConVar("vrmod_unoff_pouch_locked_" .. i .. "_right", 0, true, FCVAR_ARCHIVE, nil, 0, 1)
+            pouch_locked_cvars_left[i] = GetConVar("vrmod_unoff_pouch_locked_" .. i .. "_left")
+            pouch_locked_cvars_right[i] = GetConVar("vrmod_unoff_pouch_locked_" .. i .. "_right")
+            pouch_locked_left[i] = pouch_locked_cvars_left[i]:GetBool()
+            pouch_locked_right[i] = pouch_locked_cvars_right[i]:GetBool()
             pouch_slot_enabled[i] = GetConVar("vrmod_unoff_pouch_slot_enabled_" .. i)
         end
 
-        -- 改善5: Slot 6-8の左手用weapon ConVar
-        for i = 6, 8 do
+        -- S20 Problem 1+2: 全スロットの左手用weapon ConVar（旧: 6-8のみ）
+        for i = 1, 8 do
             CreateClientConVar("vrmod_pouch_weapon_" .. i .. "_left", "", true, FCVAR_ARCHIVE)
         end
 
@@ -69,19 +100,30 @@ function vrholstersystem2()
             Color(128, 0, 255, 200),  -- Slot 8: Spine (Bone)  → PURPLE
         }
 
-        -- 改善5: ヘルパー関数
+        -- S20 Problem 1+2: 全スロットでL/R独立対応 + L/R同期モード
         local BONE_SLOT_START = 6
         local function GetWeaponConVarName(slotIndex, leftHand)
-            if slotIndex >= BONE_SLOT_START and leftHand then
+            if leftHand and not pouch_lr_sync:GetBool() then
                 return "vrmod_pouch_weapon_" .. slotIndex .. "_left"
             end
             return "vrmod_pouch_weapon_" .. slotIndex
         end
         local function GetDupeSlotIndex(slotIndex, leftHand)
-            if slotIndex >= BONE_SLOT_START and leftHand then
-                return slotIndex + 3
+            if not leftHand or pouch_lr_sync:GetBool() then return slotIndex end
+            if slotIndex >= BONE_SLOT_START then
+                return slotIndex + 3  -- 6→9, 7→10, 8→11（既存互換）
             end
-            return slotIndex
+            return slotIndex + 11  -- 1→12, 2→13, 3→14, 4→15, 5→16
+        end
+        -- S20追加: 左右手別ロック判定
+        local function IsSlotLocked(slotIndex, leftHand)
+            if pouch_lr_sync:GetBool() then
+                return pouch_locked_right[slotIndex]
+            end
+            if leftHand then
+                return pouch_locked_left[slotIndex]
+            end
+            return pouch_locked_right[slotIndex]
         end
 
         -- sphere/box共通判定ヘルパー
@@ -92,10 +134,30 @@ function vrholstersystem2()
                 local height = GetConVar("vrmod_unoff_pouch_box_height_" .. slotIndex):GetFloat()
                 local depth_up = GetConVar("vrmod_unoff_pouch_box_depth_up_" .. slotIndex):GetFloat()
                 local depth_down = GetConVar("vrmod_unoff_pouch_box_depth_down_" .. slotIndex):GetFloat()
-                return IsHandInBox(hand_pos, pouch_positions[slotIndex], width, height, depth_up, depth_down)
+                -- S20 Problem 5: キャラクターYawで回転するOBB判定
+                local yaw = g_VR and g_VR.characterYaw or 0
+                return IsHandInBox(hand_pos, pouch_positions[slotIndex], width, height, depth_up, depth_down, yaw)
             else
                 return hand_pos:DistToSqr(pouch_positions[slotIndex]) < (pouch_sizes[slotIndex] * pouch_sizes[slotIndex])
             end
+        end
+
+        -- 最近接スロット選択（重複スロットで意図したスロットを選ぶ）
+        local function FindClosestSlot(hand_pos)
+            local closest_slot = nil
+            local closest_dist = math.huge
+            for i = 1, pouch_slots do
+                if pouch_slot_enabled[i] and pouch_slot_enabled[i]:GetBool() then
+                    if pouch_positions[i] and IsHandInSlot(hand_pos, i) then
+                        local dist = hand_pos:DistToSqr(pouch_positions[i])
+                        if dist < closest_dist then
+                            closest_dist = dist
+                            closest_slot = i
+                        end
+                    end
+                end
+            end
+            return closest_slot
         end
 
         local function InitializeHolsterSystem()
@@ -152,9 +214,30 @@ function vrholstersystem2()
                 for i = 1, pouch_slots do
                     prev_hand_in_holster_left_status[i] = false
                     prev_hand_in_holster_right_status[i] = false
+                    -- ロック状態をConVarから復元（死亡→リスポーンでも保持される）
+                    if pouch_locked_cvars_left[i] then
+                        pouch_locked_left[i] = pouch_locked_cvars_left[i]:GetBool()
+                    end
+                    if pouch_locked_cvars_right[i] then
+                        pouch_locked_right[i] = pouch_locked_cvars_right[i]:GetBool()
+                    end
                 end
 
                 RunConsoleCommand("vrmod_lua_reset_holster2")
+            end
+        )
+
+        hook.Add(
+            "VRMod_Exit",
+            "HolsterSystem_Cleanup",
+            function()
+                hook.Remove("Think", "vrutil_holster_heldcache")
+                hook.Remove("Think", "HolsterSystem_CleanupPending")
+                prev_hand_in_holster_left_status = {}
+                prev_hand_in_holster_right_status = {}
+                holster_pickup_pending = {}
+                cachedHeldLeft = nil
+                cachedHeldRight = nil
             end
         )
 
@@ -183,12 +266,11 @@ function vrholstersystem2()
                 if not g_VR.threePoints then return end
                 if not IsValid(ply) then return end
                 if not ply:Alive() then return end
-                if ply:GetBonePosition(ply:LookupBone("ValveBiped.Bip01_Spine")) == nil then return end
-                if ply:GetBonePosition(ply:LookupBone("ValveBiped.Bip01_Pelvis")) == nil then return end
                 if not g_VR.tracking.hmd then return end
+                local chestPos, chestAng = SafeGetBonePosition(ply, "ValveBiped.Bip01_Spine")
+                local hipPos, hipAng = SafeGetBonePosition(ply, "ValveBiped.Bip01_Pelvis")
+                if not chestPos or not hipPos then return end
                 local headPos, headAng = g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang
-                local chestPos, chestAng = ply:GetBonePosition(ply:LookupBone("ValveBiped.Bip01_Spine"))
-                local hipPos, hipAng = ply:GetBonePosition(ply:LookupBone("ValveBiped.Bip01_Pelvis"))
                 pouch_positions[1] = headPos + (headAng:Right() * 7)
                 pouch_positions[2] = headPos - (headAng:Right() * 7)
                 pouch_positions[3] = chestPos + (headAng:Right() * 10)
@@ -222,18 +304,12 @@ function vrholstersystem2()
         local function equipWeaponOrEntity(leftHand)
             if not pouch_enabled:GetBool() then return end
             if not g_VR.active then return end
-            for i = 1, pouch_slots do
-                local hand_pos = leftHand and g_VR.tracking.pose_lefthand.pos or g_VR.tracking.pose_righthand.pos
-
-                local is_in_holster = false
-                if pouch_slot_enabled[i] and pouch_slot_enabled[i]:GetBool() then
-                    is_in_holster = IsHandInSlot(hand_pos, i)
-                end
-
-                if is_in_holster then
-                    local wepConVar = GetWeaponConVarName(i, leftHand)
-                    local wepclass = GetConVar(wepConVar):GetString()
-                    if wepclass ~= "" then
+            local hand_pos = leftHand and g_VR.tracking.pose_lefthand.pos or g_VR.tracking.pose_righthand.pos
+            local i = FindClosestSlot(hand_pos)
+            if i then
+                local wepConVar = GetWeaponConVarName(i, leftHand)
+                local wepclass = GetConVar(wepConVar):GetString()
+                if wepclass ~= "" then
                         -- Dupeスロットの場合
                         if string.StartWith(wepclass, "dupe:") then
                             if vrmod.HolsterDupe and vrmod.HolsterDupe.SpawnDupe then
@@ -242,11 +318,16 @@ function vrholstersystem2()
                                     leftHand)
                                 surface.PlaySound(pouch_pickup_sound:GetString())
                             end
-                            break
+                            return
                         end
                         -- 武器の場合
                         if weapons.Get(wepclass) then
                             if leftHand and not pouch_lefthand_weapon_enable:GetBool() then return end
+                            -- S20 Problem 4: 未所持武器チェック（Type1同等）
+                            if not IsValid(LocalPlayer():GetWeapon(wepclass)) then
+                                RunConsoleCommand(wepConVar, "")
+                                return
+                            end
                             LocalPlayer():ConCommand("use " .. wepclass)
                             if leftHand and string.find(wepclass, "vr") then
                                 LocalPlayer():ConCommand("vrmod_LeftHandmode 0")
@@ -279,11 +360,8 @@ function vrholstersystem2()
                             }
                         end
                     end
-
-                    break
                 end
             end
-        end
 
         hook.Add(
             "VRMod_Input",
@@ -291,68 +369,59 @@ function vrholstersystem2()
             function(action, pressed)
                 if not g_VR.active then return end
                 if not pouch_enabled:GetBool() then return end
+                -- クライミング中はホルスター入力をブロック
+                if vrmod.ClimbFilter and vrmod.ClimbFilter.ShouldBlockAll() then return end
 
-                -- 改善2: Type1方式ハプティック（入力イベント時のみ振動）
-                for i = 1, pouch_slots do
-                    if pouch_slot_enabled[i] and pouch_slot_enabled[i]:GetBool() then
-                        if IsHandInSlot(g_VR.tracking.pose_lefthand.pos, i) then
-                            VRMOD_TriggerHaptic("vibration_left", 0, 0.5, 20, 1)
-                            break
-                        end
-                        if IsHandInSlot(g_VR.tracking.pose_righthand.pos, i) then
-                            VRMOD_TriggerHaptic("vibration_right", 0, 0.5, 20, 1)
-                            break
-                        end
-                    end
+                -- 改善2: 最近接スロット方式ハプティック（入力イベント時のみ振動）
+                local leftSlot = FindClosestSlot(g_VR.tracking.pose_lefthand.pos)
+                if leftSlot then
+                    VRMOD_TriggerHaptic("vibration_left", 0, 0.5, 20, 1)
+                end
+                local rightSlot = FindClosestSlot(g_VR.tracking.pose_righthand.pos)
+                if rightSlot then
+                    VRMOD_TriggerHaptic("vibration_right", 0, 0.5, 20, 1)
                 end
 
                 -- 改善5: 左右手分離対応のstore
                 local function storeWeapon(leftHand)
-                    for i = 1, pouch_slots do
-                        local hand_pos = leftHand and g_VR.tracking.pose_lefthand.pos or g_VR.tracking.pose_righthand.pos
-                        local is_in_holster = IsHandInSlot(hand_pos, i)
+                    local hand_pos = leftHand and g_VR.tracking.pose_lefthand.pos or g_VR.tracking.pose_righthand.pos
+                    local i = FindClosestSlot(hand_pos)
+                    if not i then return end
 
-                        if is_in_holster then
-                            local activeWeapon = LocalPlayer():GetActiveWeapon()
-                            if IsValid(activeWeapon) and activeWeapon:GetClass() ~= "weapon_vrmod_empty" and ((leftHand and GetConVar("vrmod_lefthand"):GetBool()) or (not leftHand and not GetConVar("vrmod_lefthand"):GetBool())) then
-                                if not pouch_locked[i] then
-                                    local wepConVar = GetWeaponConVarName(i, leftHand)
-                                    RunConsoleCommand(wepConVar, activeWeapon:GetClass())
-                                end
-
-                                LocalPlayer():ConCommand("use weapon_vrmod_empty")
-
-                                return
-                            end
-
-                            local heldEntity
-                            if leftHand then
-                                heldEntity = g_VR.heldEntityLeft or cachedHeldLeft
-                            else
-                                heldEntity = g_VR.heldEntityRight or cachedHeldRight
-                            end
-                            if IsValid(heldEntity) then
-                                if pouch_locked[i] then return end
-                                if vrmod.HolsterDupe and vrmod.HolsterDupe.StoreEntity then
-                                    vrmod.HolsterDupe.StoreEntity(GetDupeSlotIndex(i, leftHand), heldEntity, leftHand)
-                                else
-                                    local wepConVar = GetWeaponConVarName(i, leftHand)
-                                    RunConsoleCommand(wepConVar, heldEntity:GetClass())
-                                    heldEntity:Remove()
-                                end
-                                if leftHand then
-                                    g_VR.heldEntityLeft = nil
-                                    cachedHeldLeft = nil
-                                else
-                                    g_VR.heldEntityRight = nil
-                                    cachedHeldRight = nil
-                                end
-
-                                return
-                            end
-
-                            break
+                    local activeWeapon = LocalPlayer():GetActiveWeapon()
+                    if IsValid(activeWeapon) and activeWeapon:GetClass() ~= "weapon_vrmod_empty" and ((leftHand and GetConVar("vrmod_lefthand"):GetBool()) or (not leftHand and not GetConVar("vrmod_lefthand"):GetBool())) then
+                        if not IsSlotLocked(i, leftHand) then
+                            local wepConVar = GetWeaponConVarName(i, leftHand)
+                            RunConsoleCommand(wepConVar, activeWeapon:GetClass())
                         end
+
+                        LocalPlayer():ConCommand("use weapon_vrmod_empty")
+                        return
+                    end
+
+                    local heldEntity
+                    if leftHand then
+                        heldEntity = g_VR.heldEntityLeft or cachedHeldLeft
+                    else
+                        heldEntity = g_VR.heldEntityRight or cachedHeldRight
+                    end
+                    if IsValid(heldEntity) then
+                        if IsSlotLocked(i, leftHand) then return end
+                        if vrmod.HolsterDupe and vrmod.HolsterDupe.StoreEntity then
+                            vrmod.HolsterDupe.StoreEntity(GetDupeSlotIndex(i, leftHand), heldEntity, leftHand)
+                        else
+                            local wepConVar = GetWeaponConVarName(i, leftHand)
+                            RunConsoleCommand(wepConVar, heldEntity:GetClass())
+                            heldEntity:Remove()
+                        end
+                        if leftHand then
+                            g_VR.heldEntityLeft = nil
+                            cachedHeldLeft = nil
+                        else
+                            g_VR.heldEntityRight = nil
+                            cachedHeldRight = nil
+                        end
+                        return
                     end
                 end
 
@@ -368,18 +437,26 @@ function vrholstersystem2()
                     equipWeaponOrEntity(false)
                 end
 
+                -- S20追加: 左右手別ロック切替
                 if action == "boolean_use" and pressed then
-                    for i = 1, pouch_slots do
-                        if pouch_slot_enabled[i] and pouch_slot_enabled[i]:GetBool() then
-                            if IsHandInSlot(g_VR.tracking.pose_lefthand.pos, i) then
-                                pouch_locked[i] = not pouch_locked[i]
-                                break
-                            end
-                            if IsHandInSlot(g_VR.tracking.pose_righthand.pos, i) then
-                                pouch_locked[i] = not pouch_locked[i]
-                                break
-                            end
+                    local leftLockSlot = FindClosestSlot(g_VR.tracking.pose_lefthand.pos)
+                    local rightLockSlot = FindClosestSlot(g_VR.tracking.pose_righthand.pos)
+                    if leftLockSlot then
+                        if pouch_lr_sync:GetBool() then
+                            -- 同期モード: 共有ロック（right）を切替
+                            pouch_locked_right[leftLockSlot] = not pouch_locked_right[leftLockSlot]
+                            RunConsoleCommand("vrmod_unoff_pouch_locked_" .. leftLockSlot .. "_right", pouch_locked_right[leftLockSlot] and "1" or "0")
+                        else
+                            pouch_locked_left[leftLockSlot] = not pouch_locked_left[leftLockSlot]
+                            RunConsoleCommand("vrmod_unoff_pouch_locked_" .. leftLockSlot .. "_left", pouch_locked_left[leftLockSlot] and "1" or "0")
                         end
+                        VRMOD_TriggerHaptic("vibration_left", 0, 0.5, 20, 1)
+                    end
+                    -- 同期モード＋同一スロットなら二重切替を防止
+                    if rightLockSlot and not (pouch_lr_sync:GetBool() and rightLockSlot == leftLockSlot) then
+                        pouch_locked_right[rightLockSlot] = not pouch_locked_right[rightLockSlot]
+                        RunConsoleCommand("vrmod_unoff_pouch_locked_" .. rightLockSlot .. "_right", pouch_locked_right[rightLockSlot] and "1" or "0")
+                        VRMOD_TriggerHaptic("vibration_right", 0, 0.5, 20, 1)
                     end
                 end
             end
@@ -403,7 +480,7 @@ function vrholstersystem2()
                         local wepConVar = GetWeaponConVarName(i, true)
                         local text = GetConVar(wepConVar):GetString()
                         if text ~= "" then
-                            if pouch_locked[i] then
+                            if IsSlotLocked(i, true) then
                                 text = "*" .. text .. "*"
                             end
                             draw.SimpleText(text, "DermaLarge", ScrW() * 0.05, ScrH() * 0.9, SLOT_COLORS[i], TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
@@ -435,7 +512,7 @@ function vrholstersystem2()
                         local wepConVar = GetWeaponConVarName(i, false)
                         local text = GetConVar(wepConVar):GetString()
                         if text ~= "" then
-                            if pouch_locked[i] then
+                            if IsSlotLocked(i, false) then
                                 text = "*" .. text .. "*"
                             end
                             draw.SimpleText(text, "DermaLarge", ScrW() * 0.95, ScrH() * 0.9, SLOT_COLORS[i], TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
@@ -462,7 +539,8 @@ function vrholstersystem2()
                     local pos = pouch_positions[i]
                     local shape = GetConVar("vrmod_unoff_pouch_shape_" .. i):GetString()
                     render.SetColorMaterial()
-                    local color = pouch_locked[i] and Color(146, 253, 110, 80) or Color(255, 255, 255, 128)
+                    local isAnyLocked = pouch_locked_left[i] or pouch_locked_right[i]
+                    local color = isAnyLocked and Color(146, 253, 110, 80) or Color(255, 255, 255, 128)
 
                     if shape == "box" then
                         local width = GetConVar("vrmod_unoff_pouch_box_width_" .. i):GetFloat()
@@ -471,7 +549,8 @@ function vrholstersystem2()
                         local d_down = GetConVar("vrmod_unoff_pouch_box_depth_down_" .. i):GetFloat()
                         local mins = Vector(-width/2, -height/2, -d_down)
                         local maxs = Vector(width/2, height/2, d_up)
-                        render.DrawWireframeBox(pos, Angle(0,0,0), mins, maxs, color)
+                        -- S20 Problem 5: キャラクターYawで回転描画
+                        render.DrawWireframeBox(pos, Angle(0, g_VR.characterYaw or 0, 0), mins, maxs, color)
                     else
                         local size = pouch_sizes[i]
                         render.DrawSphere(pos, size, 16, 50, color)
@@ -481,10 +560,17 @@ function vrholstersystem2()
                     local eyeAng = EyeAngles()
                     eyeAng:RotateAroundAxis(eyeAng:Right(), 60)
 
-                    if i >= BONE_SLOT_START then
-                        -- Slot 6-8: 右手用と左手用を両方表示
-                        local rightClass = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
-                        local leftClass = GetConVar("vrmod_pouch_weapon_" .. i .. "_left"):GetString()
+                    local rightClass = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
+                    local leftClass = GetConVar("vrmod_pouch_weapon_" .. i .. "_left"):GetString()
+                    if pouch_lr_sync:GetBool() then
+                        -- 同期モード: 単一表示（R/Lプレフィックスなし）
+                        if rightClass ~= "" then
+                            cam.Start3D2D(pos, eyeAng, 0.1)
+                            draw.SimpleText(rightClass, "CloseCaption_Normal", 0, 0, slotColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                            cam.End3D2D()
+                        end
+                    else
+                        -- 独立モード: R/L両方表示
                         if rightClass ~= "" or leftClass ~= "" then
                             cam.Start3D2D(pos, eyeAng, 0.1)
                             if rightClass ~= "" then
@@ -493,13 +579,6 @@ function vrholstersystem2()
                             if leftClass ~= "" then
                                 draw.SimpleText("L: " .. leftClass, "CloseCaption_Normal", 0, 10, slotColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                             end
-                            cam.End3D2D()
-                        end
-                    else
-                        local entClass = GetConVar("vrmod_pouch_weapon_" .. i):GetString()
-                        if entClass ~= "" then
-                            cam.Start3D2D(pos, eyeAng, 0.1)
-                            draw.SimpleText(entClass, "CloseCaption_Normal", 0, 0, slotColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                             cam.End3D2D()
                         end
                     end

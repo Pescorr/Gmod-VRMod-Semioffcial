@@ -5,6 +5,7 @@ function g_VR.MenuOpen()
 	if hook.Call("VRMod_OpenQuickMenu") == false then return end
 	if open then return end
 	open = true
+	g_VR._menuClickActionUsed = false
 	--
 	local items = {}
 	for k, v in pairs(g_VR.menuItems) do
@@ -53,89 +54,29 @@ function g_VR.MenuOpen()
 
 
 
+	-- Shared close function for all attachment modes
+	local function quickmenuCloseFunc()
+		hook.Remove("PreRender", "vrutil_hook_renderigm")
+		open = false
+		g_VR._quickmenuHoveredIndex = nil
+		-- If a click action was used, suppress the release action
+		if not g_VR._menuClickActionUsed and items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
+			g_VR.menuItems[items[prevHoveredItem].index].func()
+		end
+		g_VR._menuClickActionUsed = false
+	end
+
 	--add button end
 	if mode == 1 then
-		VRUtilMenuOpen(
-			"miscmenu",
-			512,
-			512,
-			nil,
-			1,
-			Vector(4, 6, 5.5),
-			Angle(0, -90, 10),
-			0.03,
-			true,
-			function()
-				hook.Remove("PreRender", "vrutil_hook_renderigm")
-				open = false
-				if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
-					g_VR.menuItems[items[prevHoveredItem].index].func()
-				end
-			end
-		)
-		--
+		VRUtilMenuOpen("miscmenu", 512, 512, nil, 1, Vector(4, 6, 5.5), Angle(0, -90, 10), 0.03, true, quickmenuCloseFunc)
 	elseif mode == 3 then
-		--forw, left, up
-		VRUtilMenuOpen(
-			"miscmenu",
-			512,
-			512,
-			nil,
-			3,
-			Vector(35, 20, 0),
-			Angle(0, -90, 90),
-			0.03,
-			true,
-			function()
-				hook.Remove("PreRender", "vrutil_hook_renderigm")
-				open = false
-				if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
-					g_VR.menuItems[items[prevHoveredItem].index].func()
-				end
-			end
-		)
+		VRUtilMenuOpen("miscmenu", 512, 512, nil, 3, Vector(35, 20, 0), Angle(0, -90, 90), 0.03, true, quickmenuCloseFunc)
 	elseif mode == 4 then
-		local newpos = pos+Vector(0,0,0)
-		local newang = ang+Angle(0,0,0)
-		--forw, left, up
-		VRUtilMenuOpen(
-			"miscmenu",
-			512,
-			512,
-			nil,
-			4,
-			newpos,
-			newang,
-			0.03,
-			true,
-			function()
-				hook.Remove("PreRender", "vrutil_hook_renderigm") -- 
-				open = false
-				if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
-					g_VR.menuItems[items[prevHoveredItem].index].func()
-				end
-			end
-		)
+		local newpos = pos + Vector(0, 0, 0)
+		local newang = ang + Angle(0, 0, 0)
+		VRUtilMenuOpen("miscmenu", 512, 512, nil, 4, newpos, newang, 0.03, true, quickmenuCloseFunc)
 	else
-		-- --
-		VRUtilMenuOpen(
-			"miscmenu",
-			512,
-			512,
-			nil,
-			mode,
-			pos,
-			ang,
-			0.03,
-			true,
-			function()
-				hook.Remove("PreRender", "vrutil_hook_renderigm")
-				open = false
-				if items[prevHoveredItem] and g_VR.menuItems[items[prevHoveredItem].index] then
-					g_VR.menuItems[items[prevHoveredItem].index].func()
-				end
-			end
-		)
+		VRUtilMenuOpen("miscmenu", 512, 512, nil, mode, pos, ang, 0.03, true, quickmenuCloseFunc)
 	end
 
 	hook.Add(
@@ -157,6 +98,8 @@ function g_VR.MenuOpen()
 
 			local changes = hoveredItem ~= prevHoveredItem
 			prevHoveredItem = hoveredItem
+			-- Export hover state for click action handlers
+			g_VR._quickmenuHoveredIndex = (hoveredItem > 0 and items[hoveredItem]) and items[hoveredItem].index or nil
 			if not changes then return end
 			VRUtilMenuRenderStart("miscmenu")
 			--debug

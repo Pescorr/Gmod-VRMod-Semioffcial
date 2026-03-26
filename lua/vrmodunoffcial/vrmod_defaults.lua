@@ -49,7 +49,7 @@ VRMOD_DEFAULTS = {
 	},
 	-- Quick Menu Settings / クイックメニュー設定
 	quickmenu = {
-		vrmod_quickmenu_mapbrowser_enable = 1,
+		vrmod_quickmenu_mapbrowser_enable = 0,
 		vrmod_quickmenu_exit = 1,
 		vrmod_quickmenu_vgui_reset_menu = 0,
 		vrmod_quickmenu_vre_gbradial_menu = 1,
@@ -145,8 +145,6 @@ VRMOD_DEFAULTS = {
 	},
 	-- Physgun Settings / 物理ガン設定
 	physgun = {
-		-- General
-		vrmod_unoff_physgun_pickup_compat = 0,
 		-- Left hand
 		vrmod_left_physgun_beam_enable = 1,
 		vrmod_left_physgun_beam_range = 4096,
@@ -192,13 +190,25 @@ VRMOD_DEFAULTS = {
 		vrmod_right_physgun_beam_offset_y = 0,
 		vrmod_right_physgun_beam_offset_z = 0,
 	},
-	-- Beam Pickup Settings / ビームピックアップ設定
+	-- Pickup Assist Settings / ピックアップアシスト設定
 	beam_pickup = {
 		vrmod_pickup_beam_enable = 1,
-		vrmod_pickup_beamrange = 500,
-		vrmod_pickup_beamrange02 = 50,
+		vrmod_pickup_beam_cone_range = 25,
+		vrmod_pickup_beam_retry_max = 10,
+		vrmod_pickup_beamrange = 25,
 		vrmod_pickup_beam_damage_enable = 0,
 		vrmod_pickup_beam_damage = 0,
+		vrmod_unoff_pickup_hud = 0,
+	},
+	-- Client Weight Limit / クライアント重量制限
+	client_weight = {
+		vrmod_unoff_pickup_weight_client = 0,
+		vrmod_unoff_pickup_limit_client = 0,
+	},
+	-- Rotation Control / 回転制御設定
+	rotation = {
+		vrmod_unoff_rotate_held_enable = 1,
+		vrmod_unoff_rotate_held_speed = 0,
 	},
 	-- Quick Menu Editor Settings / クイックメニューエディタ設定
 	quickmenu_editor = {
@@ -216,9 +226,9 @@ VRMOD_DEFAULTS = {
 	},
 	-- Holster Type1 Right Hand Settings / ホルスターType1右手設定
 	holster_type1_right = {
-		vrmod_weppouch_Pelvis = 1,
-		vrmod_weppouch_Head = 1,
-		vrmod_weppouch_Spine = 1,
+		vrmod_weppouch_Pelvis = 0,
+		vrmod_weppouch_Head = 0,
+		vrmod_weppouch_Spine = 0,
 		vrmod_weppouch_weapon_Pelvis = "",
 		vrmod_weppouch_weapon_Head = "",
 		vrmod_weppouch_weapon_Spine = "",
@@ -261,7 +271,7 @@ VRMOD_DEFAULTS = {
 	-- Holster Type2 Settings / ホルスターType2設定
 	holster_type2 = {
 		vrmod_pouch_enabled = 1,
-		vrmod_pouch_visiblename = 1,
+		vrmod_pouch_visiblename = 0,
 		vrmod_pouch_visiblename_hud = 1,
 		vrmod_pouch_lefthandwep_enable = 1,
 		vrmod_pouch_pickup_sound = "common/wpn_select.wav",
@@ -292,7 +302,7 @@ VRMOD_DEFAULTS = {
 		vrmod_pouch_weapon_6_left = "",
 		vrmod_pouch_weapon_7_left = "",
 		vrmod_pouch_weapon_8_left = "",
-		vrmod_unoff_dupe_reusable = 0,
+		vrmod_unoff_dupe_reusable = 1,
 	},
 	-- Character Advanced Settings / キャラクター詳細設定
 	character_advanced = {
@@ -424,12 +434,8 @@ function VRModResetCategory(category)
 
 	local count = 0
 	for cvar_name, value in pairs(VRMOD_DEFAULTS[category]) do
-		if type(value) == "string" then
-			LocalPlayer():ConCommand(cvar_name .. " \"" .. value .. "\"")
-		else
-			LocalPlayer():ConCommand(cvar_name .. " " .. tostring(value))
-		end
-
+		-- JSON管理対象の場合はJsonConfig経由でリセット、そうでなければConCommand
+		RunConsoleCommand(cvar_name, tostring(value))
 		count = count + 1
 	end
 

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VRMod Menu UX Preview - A/B/C Comparison</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #1a1a2e; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Header */
+.header { background: #16213e; padding: 8px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #0f3460; flex-shrink: 0; }
+.header h1 { font-size: 16px; color: #e94560; }
+.header .subtitle { font-size: 12px; color: #888; }
+
+/* Main approach selector tabs */
+.approach-tabs { display: flex; background: #16213e; border-bottom: 2px solid #0f3460; flex-shrink: 0; }
+.approach-tab { padding: 10px 24px; cursor: pointer; font-size: 14px; color: #888; border-bottom: 3px solid transparent; transition: all 0.2s; user-select: none; }
+.approach-tab:hover { color: #ccc; background: rgba(233,69,96,0.1); }
+.approach-tab.active { color: #e94560; border-bottom-color: #e94560; background: rgba(233,69,96,0.05); }
+.approach-tab .badge { font-size: 10px; background: #0f3460; padding: 2px 6px; border-radius: 8px; margin-left: 6px; }
+
+/* Content area */
+.content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.approach-panel { display: none; flex: 1; overflow: hidden; }
+.approach-panel.active { display: flex; flex-direction: column; }
+
+/* Info bar */
+.info-bar { background: #0f3460; padding: 6px 16px; font-size: 11px; color: #a0c4ff; flex-shrink: 0; display: flex; gap: 16px; }
+.info-bar .pro { color: #4caf50; }
+.info-bar .con { color: #ff9800; }
+
+/* ============================================ */
+/* GMod Derma Theme Simulation */
+/* ============================================ */
+.gmod-frame { background: #4a4a4a; border: 2px solid #606060; border-radius: 4px; margin: 16px; flex: 1; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+.gmod-titlebar { background: linear-gradient(180deg, #5a5a5a 0%, #4a4a4a 100%); padding: 4px 8px; font-size: 13px; color: #ddd; border-bottom: 1px solid #666; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.gmod-titlebar .close-btn { width: 18px; height: 18px; background: #c44; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white; cursor: pointer; }
+.gmod-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 4px; }
+
+/* DPropertySheet tabs */
+.gmod-tabs { display: flex; flex-wrap: wrap; gap: 1px; padding: 0 2px; flex-shrink: 0; }
+.gmod-tab { padding: 4px 10px; background: #3a3a3a; border: 1px solid #555; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 12px; color: #aaa; cursor: pointer; user-select: none; white-space: nowrap; }
+.gmod-tab:hover { background: #4a4a5a; color: #ddd; }
+.gmod-tab.active { background: #4a4a4a; color: #fff; border-color: #777; }
+.gmod-tab-content { flex: 1; background: #4a4a4a; border: 1px solid #555; border-top: none; overflow: hidden; display: flex; flex-direction: column; }
+.gmod-tab-page { display: none; flex: 1; overflow-y: auto; padding: 4px; }
+.gmod-tab-page.active { display: block; }
+
+/* DForm */
+.gmod-form { background: #3c3c3c; border: 1px solid #555; border-radius: 3px; margin: 4px; }
+.gmod-form-header { background: #505050; padding: 3px 8px; font-size: 12px; color: #ccc; border-bottom: 1px solid #555; border-radius: 3px 3px 0 0; }
+.gmod-form-body { padding: 4px 8px; }
+
+/* Controls */
+.gmod-control { display: flex; align-items: center; padding: 2px 0; font-size: 12px; }
+.gmod-checkbox { display: flex; align-items: center; gap: 6px; padding: 2px 0; font-size: 12px; cursor: pointer; }
+.gmod-checkbox input[type="checkbox"] { accent-color: #6a8; }
+.gmod-slider { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: 12px; }
+.gmod-slider label { min-width: 140px; color: #bbb; }
+.gmod-slider input[type="range"] { flex: 1; accent-color: #6a8; height: 4px; }
+.gmod-slider .value { min-width: 40px; text-align: right; color: #999; font-size: 11px; }
+.gmod-button { background: #505050; border: 1px solid #666; padding: 4px 12px; color: #ddd; font-size: 12px; border-radius: 2px; cursor: pointer; margin: 2px 0; display: block; width: 100%; text-align: center; }
+.gmod-button:hover { background: #5a5a6a; }
+.gmod-header-label { color: #e9a045; font-weight: bold; font-size: 12px; padding: 6px 0 2px 0; border-bottom: 1px solid #555; margin-bottom: 2px; }
+
+/* ============================================ */
+/* Approach A: DTree Sidebar */
+/* ============================================ */
+.dtree-layout { display: flex; flex: 1; overflow: hidden; }
+.dtree-sidebar { width: 200px; min-width: 160px; max-width: 260px; background: #3c3c3c; border-right: 3px solid #555; overflow-y: auto; flex-shrink: 0; resize: horizontal; }
+.dtree-node { user-select: none; }
+.dtree-node-header { display: flex; align-items: center; padding: 3px 4px; cursor: pointer; font-size: 12px; gap: 2px; }
+.dtree-node-header:hover { background: #505060; }
+.dtree-node-header.selected { background: #4a5a7a; color: #fff; }
+.dtree-node-header .toggle { width: 14px; text-align: center; font-size: 10px; color: #888; flex-shrink: 0; }
+.dtree-node-header .icon { font-size: 11px; flex-shrink: 0; }
+.dtree-node-header .name { flex: 1; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dtree-node-children { padding-left: 14px; }
+.dtree-node-children.collapsed { display: none; }
+.dtree-content { flex: 1; overflow-y: auto; padding: 4px; }
+
+/* ============================================ */
+/* Approach C: Collapsible */
+/* ============================================ */
+.collapsible-scroll { flex: 1; overflow-y: auto; padding: 4px; }
+.dcollapsible { margin: 2px 0; }
+.dcollapsible-header { background: #505050; padding: 4px 8px; font-size: 12px; color: #ccc; cursor: pointer; border: 1px solid #555; border-radius: 2px; display: flex; align-items: center; gap: 6px; user-select: none; }
+.dcollapsible-header:hover { background: #5a5a6a; }
+.dcollapsible-header .arrow { font-size: 10px; color: #888; transition: transform 0.15s; }
+.dcollapsible-header .arrow.open { transform: rotate(90deg); }
+.dcollapsible-body { border: 1px solid #555; border-top: none; padding: 4px 8px; background: #3c3c3c; }
+.dcollapsible-body.hidden { display: none; }
+.dcollapsible.depth-0 > .dcollapsible-header { background: #4a5a7a; color: #fff; font-weight: bold; font-size: 13px; }
+.dcollapsible.depth-1 > .dcollapsible-header { background: #505060; }
+.dcollapsible.depth-2 > .dcollapsible-header { background: #484848; font-size: 11px; }
+
+/* ============================================ */
+/* VR resolution preview */
+/* ============================================ */
+.vr-overlay { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+.vr-overlay.active { display: flex; }
+.vr-frame { border: 3px solid #e94560; position: relative; }
+.vr-label { position: absolute; top: -24px; left: 0; color: #e94560; font-size: 12px; }
+
+/* Size indicator */
+.size-indicator { position: fixed; bottom: 8px; right: 16px; font-size: 11px; color: #666; z-index: 50; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>VRMod Menu UX Preview</h1>
+    <span class="subtitle">3方式比較 | Settings02内部ナビゲーション | 既存ルートタブ(Settings, ArcticVR, VRClimb, x64 Mode)は維持</span>
+</div>
+
+<div class="approach-tabs">
+    <div class="approach-tab active" data-approach="a">A: DTree Sidebar <span class="badge">推奨</span></div>
+    <div class="approach-tab" data-approach="b">B: 2段フラット</div>
+    <div class="approach-tab" data-approach="c">C: 折りたたみ式</div>
+</div>
+
+<!-- ==================== Approach A ==================== -->
+<div class="approach-panel active" id="panel-a">
+    <div class="info-bar">
+        <span class="pro">+ タブバー不要、縦幅100%活用</span>
+        <span class="pro">+ 階層の深さに制限なし</span>
+        <span class="pro">+ Debug Monitorで実績あり</span>
+        <span class="con">- サイドバーが横幅を消費（200px）</span>
+    </div>
+    <div class="gmod-frame">
+        <div class="gmod-titlebar">
+            <span>VRMod Settings</span>
+            <div class="close-btn">x</div>
+        </div>
+        <div class="gmod-body">
+            <!-- Root tabs (maintained) -->
+            <div class="gmod-tabs">
+                <div class="gmod-tab">Settings</div>
+                <div class="gmod-tab">ArcticVR</div>
+                <div class="gmod-tab active">Settings02</div>
+                <div class="gmod-tab">VRClimb</div>
+                <div class="gmod-tab">x64 Mode</div>
+            </div>
+            <div class="gmod-tab-content">
+                <div class="dtree-layout">
+                    <div class="dtree-sidebar" id="tree-a"></div>
+                    <div class="dtree-content" id="content-a">
+                        <div style="color:#888; padding:20px; text-align:center;">
+                            左のツリーからカテゴリを選択してください
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== Approach B ==================== -->
+<div class="approach-panel" id="panel-b">
+    <div class="info-bar">
+        <span class="pro">+ 馴染みのあるタブUI</span>
+        <span class="pro">+ 実装がシンプル</span>
+        <span class="con">- タブバー2段で~50px消費</span>
+        <span class="con">- VRplay内に8-10タブ（VRでクリック困難）</span>
+    </div>
+    <div class="gmod-frame">
+        <div class="gmod-titlebar">
+            <span>VRMod Settings</span>
+            <div class="close-btn">x</div>
+        </div>
+        <div class="gmod-body" id="body-b"></div>
+    </div>
+</div>
+
+<!-- ==================== Approach C ==================== -->
+<div class="approach-panel" id="panel-c">
+    <div class="info-bar">
+        <span class="pro">+ タブバーゼロ、縦幅100%活用</span>
+        <span class="pro">+ 全設定が一覧スクロール可能</span>
+        <span class="con">- 長いスクロールが必要</span>
+        <span class="con">- 深い階層で「今どこにいるか」が分かりにくい</span>
+    </div>
+    <div class="gmod-frame">
+        <div class="gmod-titlebar">
+            <span>VRMod Settings</span>
+            <div class="close-btn">x</div>
+        </div>
+        <div class="gmod-body">
+            <div class="gmod-tabs">
+                <div class="gmod-tab">Settings</div>
+                <div class="gmod-tab">ArcticVR</div>
+                <div class="gmod-tab active">Settings02</div>
+                <div class="gmod-tab">VRClimb</div>
+                <div class="gmod-tab">x64 Mode</div>
+            </div>
+            <div class="gmod-tab-content">
+                <div class="collapsible-scroll" id="collapsible-c"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="size-indicator" id="sizeIndicator"></div>
+
+<script>
+// ============================================
+// Menu Data Structure (matches real Settings02)
+// ============================================
+const MENU_DATA = [
+    {
+        name: "VRplay", icon: "🎮",
+        children: [
+            {
+                name: "input", icon: "🕹️",
+                controls: [
+                    { type: "slider", label: "Locomotion Mode", min: 0, max: 10 },
+                    { type: "check", label: "Smooth turning" },
+                    { type: "slider", label: "Smooth turn rate", min: 1, max: 360 },
+                    { type: "check", label: "Controller oriented locomotion" },
+                    { type: "button", label: "Edit custom controller actions" },
+                    { type: "check", label: "Teleport Enable" },
+                    { type: "check", label: "Replace door mechanics" },
+                    { type: "check", label: "Jumpkey Auto Duck" },
+                    { type: "check", label: "Left Hand (WIP)" },
+                    { type: "check", label: "Left Hand Fire (WIP)" },
+                    { type: "header", label: "Controller Offsets" },
+                    { type: "slider", label: "Offset X", min: -30, max: 30 },
+                    { type: "slider", label: "Offset Y", min: -30, max: 30 },
+                    { type: "slider", label: "Offset Z", min: -30, max: 30 },
+                ]
+            },
+            {
+                name: "UI", icon: "🖼️",
+                children: [
+                    {
+                        name: "Base",
+                        controls: [
+                            { type: "check", label: "Enable HUD" },
+                            { type: "slider", label: "VR UI Width", min: 640, max: 3840 },
+                            { type: "slider", label: "VR UI Height", min: 480, max: 2160 },
+                            { type: "check", label: "Menu Red Outline" },
+                            { type: "check", label: "UI Render Alternative" },
+                        ]
+                    },
+                    {
+                        name: "Quickmenu",
+                        controls: [
+                            { type: "check", label: "Map Browser" },
+                            { type: "check", label: "VR Exit" },
+                            { type: "check", label: "UI Reset" },
+                            { type: "check", label: "Chat" },
+                            { type: "check", label: "Spawn Menu" },
+                        ]
+                    },
+                    {
+                        name: "HUD",
+                        controls: [
+                            { type: "check", label: "HUD Enable" },
+                            { type: "slider", label: "HUD Curve", min: 1, max: 100 },
+                            { type: "slider", label: "HUD Distance", min: 1, max: 200 },
+                            { type: "slider", label: "HUD Scale", min: 1, max: 20 },
+                        ]
+                    },
+                ]
+            },
+            {
+                name: "Character", icon: "👤",
+                children: [
+                    {
+                        name: "General",
+                        controls: [
+                            { type: "check", label: "Seated Mode" },
+                            { type: "check", label: "Floating hands" },
+                            { type: "check", label: "Alt head angle" },
+                            { type: "check", label: "PM Change (PAC3)" },
+                        ]
+                    },
+                    {
+                        name: "Settings",
+                        controls: [
+                            { type: "slider", label: "Eye Height", min: 0, max: 100 },
+                            { type: "slider", label: "Crouch Threshold", min: 0, max: 100 },
+                            { type: "slider", label: "Z Near", min: 0, max: 20 },
+                        ]
+                    },
+                    {
+                        name: "Animation",
+                        controls: [
+                            { type: "slider", label: "Animation Mode", min: 0, max: 3 },
+                            { type: "check", label: "Character Animation" },
+                        ]
+                    },
+                ]
+            },
+            {
+                name: "pickup", icon: "✋",
+                children: [
+                    {
+                        name: "Settings",
+                        controls: [
+                            { type: "slider", label: "Pickup Weight", min: 0, max: 1000 },
+                            { type: "slider", label: "Pickup Range", min: 0, max: 5 },
+                            { type: "check", label: "Disable Pickup" },
+                        ]
+                    },
+                    {
+                        name: "VRPhysgun",
+                        controls: [
+                            { type: "check", label: "Enable Physgun" },
+                            { type: "slider", label: "Physgun Range", min: 0, max: 500 },
+                            { type: "check", label: "Physgun Highlight" },
+                            { type: "check", label: "No-Clip Pull" },
+                            { type: "slider", label: "Beam Offset X", min: -5, max: 5 },
+                            { type: "slider", label: "Beam Offset Y", min: -5, max: 5 },
+                            { type: "slider", label: "Beam Offset Z", min: -5, max: 5 },
+                        ]
+                    },
+                    {
+                        name: "VRPickup",
+                        controls: [
+                            { type: "check", label: "Enable VR Pickup Beam" },
+                            { type: "slider", label: "Beam Range", min: 0, max: 100 },
+                        ]
+                    },
+                    {
+                        name: "VRHolster",
+                        controls: [
+                            { type: "check", label: "Enable Pelvis Holster" },
+                            { type: "slider", label: "Pelvis Range", min: 0, max: 100 },
+                            { type: "check", label: "Enable Head Holster" },
+                            { type: "slider", label: "Head Range", min: 0, max: 100 },
+                        ]
+                    },
+                ]
+            },
+            {
+                name: "non-VRGun", icon: "🔫",
+                children: [
+                    {
+                        name: "Settings",
+                        controls: [
+                            { type: "button", label: "Weapon Viewmodel Setting" },
+                            { type: "slider", label: "Flashlight Attach", min: 0, max: 2 },
+                            { type: "check", label: "Sight Bodypart" },
+                        ]
+                    },
+                    {
+                        name: "Magazine",
+                        controls: [
+                            { type: "slider", label: "Mag Eject Type", min: 0, max: 1 },
+                            { type: "check", label: "Enable VRMag" },
+                            { type: "slider", label: "Mag Grab Range", min: 0, max: 50 },
+                        ]
+                    },
+                    {
+                        name: "Foregrip",
+                        controls: [
+                            { type: "check", label: "Enable Foregrip" },
+                            { type: "slider", label: "Grip Range", min: 0, max: 30 },
+                        ]
+                    },
+                ]
+            },
+            {
+                name: "VRMelee", icon: "⚔️",
+                controls: [
+                    { type: "check", label: "Use Gun Melee" },
+                    { type: "check", label: "Use Fist Attacks" },
+                    { type: "slider", label: "Attack Range", min: 10, max: 100 },
+                    { type: "slider", label: "Damage (Low)", min: 0, max: 100 },
+                    { type: "slider", label: "Damage (High)", min: 0, max: 100 },
+                    { type: "slider", label: "Min Velocity", min: 0, max: 500 },
+                ]
+            },
+            {
+                name: "Vehicle", icon: "🚗",
+                controls: [
+                    { type: "check", label: "Auto Seat Reset" },
+                ]
+            },
+            {
+                name: "Graphics", icon: "🖥️",
+                children: [
+                    {
+                        name: "Graphics02",
+                        controls: [
+                            { type: "slider", label: "RT Width Mult", min: 1, max: 10 },
+                            { type: "slider", label: "RT Height Mult", min: 1, max: 10 },
+                            { type: "check", label: "Resolution Auto-Detect" },
+                        ]
+                    },
+                    {
+                        name: "Optimize",
+                        controls: [
+                            { type: "check", label: "Disable Bloom in VR" },
+                            { type: "check", label: "Disable Motion Blur" },
+                        ]
+                    },
+                    {
+                        name: "desktop",
+                        controls: [
+                            { type: "check", label: "Desktop Mirror" },
+                        ]
+                    },
+                ]
+            },
+            {
+                name: "Cardboard", icon: "📱",
+                controls: [
+                    { type: "slider", label: "Cardboard Scale", min: 1, max: 100 },
+                    { type: "slider", label: "Cardboard Sensitivity", min: 1, max: 100 },
+                ]
+            },
+            {
+                name: "VRStop Key", icon: "🛑",
+                controls: [
+                    { type: "slider", label: "Hold Time (seconds)", min: 0, max: 10 },
+                ]
+            },
+        ]
+    },
+    {
+        name: "Server", icon: "🌐",
+        children: [
+            {
+                name: "General",
+                controls: [
+                    { type: "check", label: "Allow VR Teleport" },
+                ]
+            },
+            {
+                name: "Network",
+                controls: [
+                    { type: "slider", label: "Net Delay", min: 0, max: 100 },
+                    { type: "slider", label: "Net Tickrate", min: 1, max: 100 },
+                ]
+            },
+        ]
+    },
+    {
+        name: "Preset", icon: "💾",
+        controls: [
+            { type: "button", label: "Save Preset" },
+            { type: "button", label: "Load Preset" },
+        ]
+    },
+    {
+        name: "debug", icon: "🔧",
+        children: [
+            {
+                name: "Debug Monitor",
+                controls: [
+                    { type: "button", label: "Open Debug Monitor Panel" },
+                    { type: "button", label: "Start/Stop Recording" },
+                    { type: "button", label: "Export Session Data" },
+                ]
+            },
+            {
+                name: "Commands",
+                controls: [
+                    { type: "button", label: "Reset Render Targets" },
+                    { type: "button", label: "Toggle Door Debug" },
+                    { type: "button", label: "Toggle Net Debug" },
+                ]
+            },
+            {
+                name: "Utility",
+                controls: [
+                    { type: "button", label: "Auto-Detect Screen" },
+                    { type: "button", label: "Reset VGUI Panels" },
+                    { type: "button", label: "Start VR" },
+                    { type: "button", label: "Exit VR" },
+                ]
+            },
+            {
+                name: "Test",
+                controls: [
+                    { type: "button", label: "Main Mode" },
+                    { type: "button", label: "Driving Mode" },
+                    { type: "check", label: "Test Right Handle" },
+                    { type: "check", label: "Test Left Handle" },
+                ]
+            },
+            {
+                name: "Settings",
+                controls: [
+                    { type: "check", label: "Error Check Method" },
+                    { type: "check", label: "ModuleError Menu Lock" },
+                    { type: "check", label: "Developer Mode" },
+                ]
+            },
+        ]
+    },
+];
+
+// ============================================
+// Shared: Render Controls
+// ============================================
+function renderControls(parent, controls) {
+    if (!controls) return;
+    controls.forEach(ctrl => {
+        if (ctrl.type === "check") {
+            const div = document.createElement("div");
+            div.className = "gmod-checkbox";
+            div.innerHTML = `<input type="checkbox"> <span>${ctrl.label}</span>`;
+            parent.appendChild(div);
+        } else if (ctrl.type === "slider") {
+            const div = document.createElement("div");
+            div.className = "gmod-slider";
+            const val = Math.round((ctrl.min + ctrl.max) / 2);
+            div.innerHTML = `<label>${ctrl.label}</label><input type="range" min="${ctrl.min}" max="${ctrl.max}" value="${val}"><span class="value">${val}</span>`;
+            div.querySelector("input").addEventListener("input", e => {
+                div.querySelector(".value").textContent = e.target.value;
+            });
+            parent.appendChild(div);
+        } else if (ctrl.type === "button") {
+            const btn = document.createElement("div");
+            btn.className = "gmod-button";
+            btn.textContent = ctrl.label;
+            parent.appendChild(btn);
+        } else if (ctrl.type === "header") {
+            const h = document.createElement("div");
+            h.className = "gmod-header-label";
+            h.textContent = ctrl.label;
+            parent.appendChild(h);
+        }
+    });
+}
+
+// Count total controls in a node tree
+function countControls(items) {
+    let total = 0;
+    items.forEach(item => {
+        if (item.controls) total += item.controls.length;
+        if (item.children) total += countControls(item.children);
+    });
+    return total;
+}
+
+// ============================================
+// Approach Tab Switching
+// ============================================
+document.querySelectorAll(".approach-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+        document.querySelectorAll(".approach-tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".approach-panel").forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById("panel-" + tab.dataset.approach).classList.add("active");
+    });
+});
+
+// ============================================
+// Approach A: DTree Sidebar
+// ============================================
+function buildTreeA() {
+    const treeContainer = document.getElementById("tree-a");
+    const contentContainer = document.getElementById("content-a");
+    let selectedNode = null;
+
+    function buildNode(item, parent, path) {
+        const node = document.createElement("div");
+        node.className = "dtree-node";
+
+        const header = document.createElement("div");
+        header.className = "dtree-node-header";
+
+        const hasChildren = item.children && item.children.length > 0;
+        const isLeaf = !hasChildren;
+
+        const toggle = document.createElement("span");
+        toggle.className = "toggle";
+        toggle.textContent = hasChildren ? "▶" : " ";
+
+        const icon = document.createElement("span");
+        icon.className = "icon";
+        icon.textContent = item.icon || (hasChildren ? "📁" : "📄");
+
+        const name = document.createElement("span");
+        name.className = "name";
+        name.textContent = item.name;
+
+        header.appendChild(toggle);
+        header.appendChild(icon);
+        header.appendChild(name);
+        node.appendChild(header);
+
+        let childrenDiv = null;
+        if (hasChildren) {
+            childrenDiv = document.createElement("div");
+            childrenDiv.className = "dtree-node-children collapsed";
+            item.children.forEach(child => {
+                buildNode(child, childrenDiv, path + " > " + child.name);
+            });
+            node.appendChild(childrenDiv);
+        }
+
+        // Click: expand/collapse or show content
+        header.addEventListener("click", (e) => {
+            e.stopPropagation();
+
+            if (hasChildren) {
+                const wasCollapsed = childrenDiv.classList.contains("collapsed");
+                childrenDiv.classList.toggle("collapsed");
+                toggle.textContent = wasCollapsed ? "▼" : "▶";
+            }
+
+            // Show content for any node that has controls
+            if (item.controls || isLeaf) {
+                if (selectedNode) selectedNode.classList.remove("selected");
+                header.classList.add("selected");
+                selectedNode = header;
+
+                contentContainer.innerHTML = "";
+
+                // Breadcrumb
+                const breadcrumb = document.createElement("div");
+                breadcrumb.style.cssText = "font-size:11px; color:#888; padding:4px 8px; border-bottom:1px solid #555; margin-bottom:4px;";
+                breadcrumb.textContent = path;
+                contentContainer.appendChild(breadcrumb);
+
+                if (item.controls) {
+                    const form = document.createElement("div");
+                    form.className = "gmod-form";
+                    const formHeader = document.createElement("div");
+                    formHeader.className = "gmod-form-header";
+                    formHeader.textContent = item.name;
+                    form.appendChild(formHeader);
+                    const formBody = document.createElement("div");
+                    formBody.className = "gmod-form-body";
+                    renderControls(formBody, item.controls);
+                    form.appendChild(formBody);
+                    contentContainer.appendChild(form);
+                }
+
+                // Also show children content if this is a parent with its own controls
+                if (item.children) {
+                    item.children.forEach(child => {
+                        if (child.controls) {
+                            const form = document.createElement("div");
+                            form.className = "gmod-form";
+                            const fh = document.createElement("div");
+                            fh.className = "gmod-form-header";
+                            fh.textContent = child.name;
+                            form.appendChild(fh);
+                            const fb = document.createElement("div");
+                            fb.className = "gmod-form-body";
+                            renderControls(fb, child.controls);
+                            form.appendChild(fb);
+                            contentContainer.appendChild(form);
+                        }
+                    });
+                }
+            }
+        });
+
+        parent.appendChild(node);
+    }
+
+    MENU_DATA.forEach(item => {
+        buildNode(item, treeContainer, item.name);
+    });
+
+    // Auto-select first leaf
+    const firstLeaf = treeContainer.querySelector(".dtree-node-header");
+    if (firstLeaf) firstLeaf.click();
+}
+
+// ============================================
+// Approach B: 2-Level Flat
+// ============================================
+function buildFlatB() {
+    const body = document.getElementById("body-b");
+
+    // Root tabs (maintained)
+    const rootTabs = document.createElement("div");
+    rootTabs.className = "gmod-tabs";
+    ["Settings", "ArcticVR", "Settings02", "VRClimb", "x64 Mode"].forEach((name, i) => {
+        const tab = document.createElement("div");
+        tab.className = "gmod-tab" + (name === "Settings02" ? " active" : "");
+        tab.textContent = name;
+        rootTabs.appendChild(tab);
+    });
+    body.appendChild(rootTabs);
+
+    const rootContent = document.createElement("div");
+    rootContent.className = "gmod-tab-content";
+    body.appendChild(rootContent);
+
+    // Level 1 tabs (Settings02 children)
+    const l1Tabs = document.createElement("div");
+    l1Tabs.className = "gmod-tabs";
+    l1Tabs.style.background = "#3a3a3a";
+    rootContent.appendChild(l1Tabs);
+
+    const l1Content = document.createElement("div");
+    l1Content.className = "gmod-tab-content";
+    l1Content.style.flex = "1";
+    rootContent.appendChild(l1Content);
+
+    // Abbreviations for tabs
+    const abbreviations = {
+        "VRplay": "VRplay",
+        "Server": "Server",
+        "Preset": "Preset",
+        "debug": "debug"
+    };
+
+    MENU_DATA.forEach((item, idx) => {
+        const tab = document.createElement("div");
+        tab.className = "gmod-tab" + (idx === 0 ? " active" : "");
+        tab.textContent = abbreviations[item.name] || item.name;
+        l1Tabs.appendChild(tab);
+
+        const page = document.createElement("div");
+        page.className = "gmod-tab-page" + (idx === 0 ? " active" : "");
+        page.style.overflowY = "auto";
+
+        if (item.children) {
+            // For VRplay: create Level 2 tabs for its children
+            if (item.name === "VRplay") {
+                const l2Tabs = document.createElement("div");
+                l2Tabs.className = "gmod-tabs";
+                l2Tabs.style.background = "#353535";
+                page.appendChild(l2Tabs);
+
+                const l2Content = document.createElement("div");
+                l2Content.style.cssText = "flex:1; overflow-y:auto; padding:4px;";
+                page.appendChild(l2Content);
+                page.style.display = "none";
+                page.style.flexDirection = "column";
+
+                const shortNames = {
+                    "input": "input", "UI": "UI", "Character": "Chr",
+                    "pickup": "pickup", "non-VRGun": "Gun", "VRMelee": "Melee",
+                    "Vehicle": "Vehicle", "Graphics": "Gfx", "Cardboard": "Card",
+                    "VRStop Key": "Stop"
+                };
+
+                item.children.forEach((child, ci) => {
+                    const ct = document.createElement("div");
+                    ct.className = "gmod-tab" + (ci === 0 ? " active" : "");
+                    ct.textContent = shortNames[child.name] || child.name;
+                    l2Tabs.appendChild(ct);
+
+                    const cp = document.createElement("div");
+                    cp.className = "gmod-tab-page" + (ci === 0 ? " active" : "");
+                    cp.style.overflowY = "auto";
+
+                    // If child has children, use DCollapsibleCategory
+                    if (child.children) {
+                        child.children.forEach(sub => {
+                            const cat = createCollapsible(sub.name, 2, true);
+                            if (sub.controls) renderControls(cat.body, sub.controls);
+                            cp.appendChild(cat.el);
+                        });
+                    }
+                    if (child.controls) {
+                        renderControls(cp, child.controls);
+                    }
+
+                    l2Content.appendChild(cp);
+
+                    ct.addEventListener("click", () => {
+                        l2Tabs.querySelectorAll(".gmod-tab").forEach(t => t.classList.remove("active"));
+                        l2Content.querySelectorAll(".gmod-tab-page").forEach(p => p.classList.remove("active"));
+                        ct.classList.add("active");
+                        cp.classList.add("active");
+                    });
+                });
+
+                // Fix VRplay page display
+                if (idx === 0) {
+                    page.style.display = "flex";
+                }
+            } else {
+                // Server/debug: use collapsible categories
+                item.children.forEach(child => {
+                    const cat = createCollapsible(child.name, 1, true);
+                    if (child.controls) renderControls(cat.body, child.controls);
+                    page.appendChild(cat.el);
+                });
+            }
+        }
+        if (item.controls) {
+            renderControls(page, item.controls);
+        }
+
+        l1Content.appendChild(page);
+
+        tab.addEventListener("click", () => {
+            l1Tabs.querySelectorAll(".gmod-tab").forEach(t => t.classList.remove("active"));
+            l1Content.querySelectorAll(".gmod-tab-page").forEach(p => {
+                p.classList.remove("active");
+                p.style.display = "none";
+            });
+            tab.classList.add("active");
+            page.classList.add("active");
+            if (item.name === "VRplay") {
+                page.style.display = "flex";
+            } else {
+                page.style.display = "block";
+            }
+        });
+    });
+}
+
+// ============================================
+// Approach C: Collapsible
+// ============================================
+function createCollapsible(name, depth, startOpen) {
+    const el = document.createElement("div");
+    el.className = `dcollapsible depth-${depth}`;
+
+    const header = document.createElement("div");
+    header.className = "dcollapsible-header";
+    const arrow = document.createElement("span");
+    arrow.className = "arrow" + (startOpen ? " open" : "");
+    arrow.textContent = "▶";
+    header.appendChild(arrow);
+    header.appendChild(document.createTextNode(name));
+    el.appendChild(header);
+
+    const body = document.createElement("div");
+    body.className = "dcollapsible-body" + (startOpen ? "" : " hidden");
+    el.appendChild(body);
+
+    header.addEventListener("click", () => {
+        body.classList.toggle("hidden");
+        arrow.classList.toggle("open");
+    });
+
+    return { el, body };
+}
+
+function buildCollapsibleC() {
+    const container = document.getElementById("collapsible-c");
+
+    function buildLevel(items, parent, depth) {
+        items.forEach((item, i) => {
+            const startOpen = depth === 0 && i === 0; // Only first top-level open
+            const cat = createCollapsible(
+                (item.icon ? item.icon + " " : "") + item.name,
+                depth,
+                startOpen
+            );
+
+            if (item.controls) {
+                renderControls(cat.body, item.controls);
+            }
+            if (item.children) {
+                buildLevel(item.children, cat.body, depth + 1);
+            }
+
+            parent.appendChild(cat.el);
+        });
+    }
+
+    buildLevel(MENU_DATA, container, 0);
+}
+
+// ============================================
+// Initialize
+// ============================================
+buildTreeA();
+buildFlatB();
+buildCollapsibleC();
+
+// Size indicator
+function updateSize() {
+    document.getElementById("sizeIndicator").textContent =
+        `${window.innerWidth}x${window.innerHeight} | VR実効: ~720-1080p`;
+}
+window.addEventListener("resize", updateSize);
+updateSize();
+</script>
+</body>
+</html>

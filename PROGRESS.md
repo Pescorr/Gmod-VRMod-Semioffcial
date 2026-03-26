@@ -1,6 +1,6 @@
 # vrmod_semioffcial_addonplus 進捗管理
 
-**最終更新**: 2026-03-15（S18: Settings02 DTree実装）
+**最終更新**: 2026-03-26（S25: デスクトップカメラ共存 + 鏡修正）
 
 ---
 
@@ -62,6 +62,14 @@
 | **S16** | **Settings02 DTree化+ハイブリッドタブ+サイズ修正** | ①Phase 1a: Settings02内のDPropertySheet 5段ネスト→DHorizontalDivider+DTree+コンテンツ切替システムに全面書き換え(1334行)。隠しDPropertySheet方式でモジュール後方互換性完全維持（変更ファイル: vrmod_unoff_addmenu.luaのみ）。②Phase 1b: ユーザーフィードバック反映→ハイブリッド方式に改修。Settings02をDPropertySheet L2に変更し、VRplay/Server/Preset/debugを上タブ、第2階層以下をDTree左サイドバーに配置。CreateTreeTabヘルパー関数で重複削減。③Phase 1c: メニューサイズ550x600→700x680に拡大（コンテンツ領域40%増）。④スポーンメニュータブ設計: spawnmenu.AddToolTab APIによるネイティブ統合の設計書作成（次セッション実装予定）。**教訓**: L29(ハイブリッドタブ+DTree最適解), L30(スポーンメニューAPI並行運用) |
 | **S17** | **スポーンメニュータブ実装** | `vrmod_spawnmenu_tab.lua`新規作成（148行）。`spawnmenu.AddToolTab("VRMod")`+`PopulateToolMenu`の2フックパターンでGMod標準Qメニューに「VRMod」タブを追加。CPanel APIで8カテゴリ（General/Input/UI&HUD/Pickup&Weapons/Graphics/Network/Melee/Utility）を1行1設定で記述。既存VRModメニューとの並行運用設計。既存ファイル編集ゼロ。`VRModResetCategory()`/`VRModResetAll()`を再利用。**VRテスト検証待ち** |
 | **S18** | **Settings02 DTree実装（ロールバック状態から直接実装）** | 前セッションの`git checkout`事故によりS15メニュー再構成がロールバック。この状況を逆手に取り、クリーンなオリジナル状態に直接DTreeサイドバーを実装。`vrmod_unoff_addmenu.lua`を1120行→1325行に書き換え。**アーキテクチャ**: Settings02をDPanel化、DHorizontalDivider+DTree(左170px)+コンテンツパネル(右)。16パネルをフラットリストでDTreeノード化（カテゴリ分けなし、オリジナルタブ順序維持）。隠しDPropertySheet方式で7モジュール互換性維持（VRplaySheet/pickupSheet/nonVRGunSheet/hudSheet/debugSheet/quickmenuBtnSheet/Settings02Sheet）。timer.Simple(0)で全hook完了後にモジュールタブをDTree末尾に自動抽出。ヘルパー関数3個（CreateTreeTab/AddTreeNode/ExtractSheet）+既存2個修正（CreateUtilityPanel/CreateCardboardPanel）。**変更ファイル**: vrmod_unoff_addmenu.luaのみ。**VRテスト検証待ち** |
+| **S19** | **ViewModelInfo自動調節ボタン実装** | `vrmod_viewmodelinfo.lua`に`vrmod.AutoAdjustCurrentWeaponViewmodel()`関数を追加（マズルアタッチメント基準の精密オフセット自動計算）。Settings02→VRパネルに"Auto-adjust Current Weapon"ボタンを追加。concommand `vrmod_viewmodel_autoadjust`。結果はviewmodelinfo.jsonに永続保存。既存の手動ハードコードオフセット・ユーザー保存設定は影響なし。**変更ファイル**: vrmod_viewmodelinfo.lua, vrmod_unoff_addmenu.lua。**VRテスト検証待ち** |
+| **S20** | **デバッグシステム強化 — コールバック単位プロファイラ** | `vrmod_debug_hookmon.lua`と`vrmod_debug_export.lua`を拡張。**3つの不具合原因特定機能を追加**: ①コールバック単位プロファイリング（Rec ON時にhook.Callを手動イテレーション版に切替、各コールバックの平均/最大時間・呼出回数・ソースファイルを個別計測）→Type2ホルスターFPS低下の犯人特定用。②実行順序記録（pairs()の非決定的順序変化を検出・ログ）→L25非決定的バグの再現・検出用。③stale hook検出（VRMod_Start/Exit時にhook.GetTable()スナップショット比較、VR終了後に残留するhookを自動検出）→L27メモリ残留問題用。Rec OFF時は現行と完全同一動作。コンソールコマンド3個追加（`vrmod_unoff_debug_callback_profile`, `vrmod_unoff_debug_stale_hooks`）。**変更ファイル**: vrmod_debug_hookmon.lua, vrmod_debug_export.lua。**VRテスト検証待ち** |
+| **S20 (Holster)** | **ホルスター7大問題一括修正+追加2機能（100点）** | ホルスター7大問題をGroup A/B/Cに分類し一括修正。①スロット1-5 dupe対応 ②スロット1-5 L/R独立化 ③メニュースロット6-8先頭表示 ④Type2未所持武器チェック追加 ⑤Box判定OBB化（charYaw回転） ⑥Type2タブ先頭配置 ⑦Dupe保存フィードバック追加。**追加機能**: 左右手別ロック（per-hand lock）、L/R同期モード（vrmod_pouch_lr_sync）。3ファイル変更: vrmod_holstarsystem_type2.lua, vrmod_holster_dupe.lua, vrmod_holstermenu_unified.lua |
+| **S21** | **Key & VR Action Monitor + Key Bridge PoC** | `vrmod_debug_keymon.lua`新規作成。キーボード入力とVRアクションを統合ログに記録するデバッグツール。**解決した問題**: ①DFrameのMakePopup()がPlayerButtonDownを奪う→Thinkポーリングに切替 ②`pcall(debug.getinfo, 2)`がスタックレベル+1ずれる→pcall除去+CaptureFullStack関数でフルスタック取得 ③hook.Call各コールバック実行時間計測（ACTIVE判定）④GAMEMODE:PlayerButtonDown検出追加。**Key Bridge PoC成功**: `vrmod.InputEmu_TapKey(keyCode)`で`vrKeys`に1フレーム注入→ZoneNPCの`input.IsKeyDown`ポーリングが反応→マップパネルが開くことを実証。**7年間の未解決問題「VRからキーボード操作不可」に対する実用的解決策を実証**。`vrmod_keymon_tap h`コマンドでConCommandからの呼び出しを確認済み。**新規教訓**: L34（pcall+debug.getinfoスタックレベルずれ）。**変更ファイル**: vrmod_debug_keymon.lua(新規), vrmod_debug_panel.lua(タブ追加), !vrmod_input_emu.lua(公開API追加) |
+| **S23** | **VRE ConVar互換ブリッジモジュール** | VRE Dynamic Menu（vre_dynamic_menu_darkrp_sandbox）がオリジナルVRModの`vrutil_*` ConVar名を使用するため、semioffcialの`vrmod_*`との互換ブリッジを実装。`vrmod_vre_convar_compat.lua`新規作成（86行）。8 ConVarの双方向コールバック同期（vrutil_althead↔vrmod_althead等）+ 2スタブConVar（vrutil_hidecharacter, vrutil_userheight）。2フェーズ設計: Phase1=即時ConVar作成（GetConVar nil防止）、Phase2=timer.Simple(0)遅延で同期セットアップ。ゼロポーリング・ゼロ毎フレームコスト。**変更ファイル**: vrmod_vre_convar_compat.lua(新規)。**新規ファイル**: 1 |
+| **S24** | **新GUIDEUI — Feature Combination Guide** | 無効化されていた新GUIDEUIをフォルダ11で機能組合せガイド+トラブルシューターとして完全再構築。8ファイル新規作成（core/modes/troubleshoot/lang×4/addmenu）。3モードタイプ（Toggle/Wizard/Troubleshoot）、7モード定義、30+ノード決定木、4言語対応（en/ja/ru/zh）。`vrmod.fguide`名前空間でGUIDEv1と完全分離。Settings02 DTreeに自動統合。ConCommand: `vrmod_fguide`。**VRテスト検証待ち** |
+| **S25** | **デスクトップカメラ共存 + 鏡修正** | vrmod.luaに3つの改善を実装: ①`ShouldDrawLocalPlayer`を`g_VR.isVRRendering`フラグ方式に変更（VR描画中のみ制御、非VR描画は干渉しない）②`CalcView`にcameraoverride=0時の三人称フォールバック追加（drawviewer=true + 壁衝突回避TraceLine） ③RenderScene内に`g_VR.isVRRendering`フラグ設置。**解決した問題**: cameraoverride=0で他カメラmodがVRModにブロックされる問題、cameraoverride=0でカメラmodなし時にプレイヤーが見えない長年のバグ、cameraoverride=1で鏡にプレイヤーが映らない問題。**教訓**: EyePos() Vector比較はShouldDrawLocalPlayerのタイミングで不安定（L39）、CalcViewのdrawviewerはVR render.RenderView内にも影響しうる（L40）。**変更ファイル**: vrmod.lua |
+| **S22** | **UI描画イントロスペクション + 武器カスタマイズGUI VRブリッジ** | **Part 1: UIスキャンツール** — `vrmod_debug_uiscan.lua`新規作成（2088行）。7カテゴリ描画システム×5捕捉メカニズム(M1-M5)のギャップ分析デバッグツール。8スキャン機能、UIタブ2つ、コンソールコマンド10個。`reference/CONTEXT_UI_RENDERING_SYSTEMS.md`(1067行)保存。**Part 2: 武器カスタマイズGUI解析** — ARC9/ArcCW/TFA/TacRPの4大武器フレームワークのカスタマイズGUI描画方式を解析。`reference/ANALYSIS_WEAPON_CUSTOMIZE_GUI.md`保存。ArcCWに残骸VRコードあり(vrmod.MenuCreate呼び出し)だが動作せず。vrmod_api.luaに既にvrmod.MenuCreate=VRUtilMenuOpenの互換レイヤー存在を発見。**Part 3: VRブリッジ実装** — `vrmod_customize_bridge.lua`新規作成（330行）。dermapopups.luaのMakePopupフックと同パターンで`gui.EnableScreenClicker`をフック。ハイブリッド方式: Layer1=既知アドオン検出(ARC9:wep.CustomizeHUD, ArcCW:ArcCW.InvHUD)、Layer2=gui.EnableScreenClickerフック(未知アドオン対応)、Layer3=input.IsMouseDownブリッジ(ARC9ドラッグ操作対応)。**新規ファイル**: vrmod_debug_uiscan.lua, vrmod_customize_bridge.lua, reference/CONTEXT_UI_RENDERING_SYSTEMS.md, reference/ANALYSIS_WEAPON_CUSTOMIZE_GUI.md。**変更ファイル**: vrmod_debug_panel.lua(タブ登録追加)。**VRテスト検証待ち** |
 | **S15** | **VRModメニュー大規模再構成（v2→v3）** | **3セッション横断プロジェクト（計画→実装→テスト→v3再構成）**。Webベースのドラッグ&ドロップメニュー再構成ツール(`tools/menu_reorganizer/`)を開発・活用。**v2実装（前セッション）**: `vrmod_unoff_addmenu.lua`を全面書き換え、Settings02内にネスト階層（VRplay>input/UI/Character/pickup/non-VRGun/Vehicle/Graphics）を構築。8モジュールファイルのhook名リネーム・ターゲット変更。**v3再構成（本セッション）**: ユーザーのゲーム内テスト後のフィードバックを反映。①HUDをDScrollPanel→DPropertySheetに変換しframe.hudSheet公開 ②gameplay/Misc削除 ③VRStop KeyをSettings02からVRplayに移動 ④Vehicle簡素化 ⑤debug内にTest wrapper追加（vehiclemode+テストハンドル+Reset Vehicle統合）⑥タブ順序変更（VRplay→Server→Preset→debug）⑦x64 Modeをルートレベルに移動 ⑧VRHandHUDsをUI>HUD配下に移動 ⑨VRHolsterをpickup配下に移動 ⑩VRDebug無効化。**hook.Removeパターン発見**: hookリネーム時、旧hook名がメモリに残る問題→hook.Remove()で明示削除が必要。**UX課題浮上**: DPropertySheet 4段ネストでタブバーが画面上部を占有→根本的デザイン見直しの必要性をユーザーが認識 |
 
 ---
@@ -78,4 +86,20 @@
 
 ---
 
-**次のアクション**: スポーンメニュータブVRテスト検証、BACKLOG緑ゾーンからの選択的バグ修正、x64 Mode VRテスト、ARC9改良、input.IsKeyDownエミュレーション検証もペンディング
+**次のアクション**: Phase 2（VR Key Bridge UI: VRアクション→キーコードバインディングエディタ＋vrmod.InputEmu_TapKeyで発火）、スポーンメニュータブVRテスト検証、BACKLOG緑ゾーンからの選択的バグ修正、x64 Mode VRテスト、ARC9改良
+
+---
+
+## アカウント引き継ぎメモ（2026-03-27）
+
+メインアカウントが一時的に利用不可のため、代替アカウントでS25まで開発を継続。
+メインアカウント復旧に伴い、代替アカウントはここで引き継ぎを完了し冬眠状態に戻す。
+
+**引き継ぎ時点のドキュメント状態**:
+- PROGRESS.md: S25まで最新
+- LESSONS.md: L40まで最新（2026-03-26）
+- CODE_STATUS.md: S25まで更新済み（2026-03-27更新）
+- BACKLOG.md: 随時更新済み
+- MEMORY.md（addons/memory/）: S25まで反映済み
+
+**最重要タスク**: S19-S25の未コミット変更（50+ファイル修正、30+新規）をgitコミットすること

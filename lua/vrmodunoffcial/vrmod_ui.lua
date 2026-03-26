@@ -11,7 +11,8 @@ function vrmod_ui_lua()
 		vrmod.AddCallbackedConvar("vrmod_attach_quickmenu", nil, 1, FCVAR_ARCHIVE, "", 0, 4, tonumber)
 		vrmod.AddCallbackedConvar("vrmod_attach_popup", nil, 1, FCVAR_ARCHIVE, "", 0, 4, tonumber)
 		vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 2, FCVAR_ARCHIVE, "", 0, 2, tonumber)
-		vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 0, FCVAR_ARCHIVE, "", 0, 1, tonumber)
+		vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, FCVAR_ARCHIVE, "", 0, 1, tonumber)
+		vrmod.AddCallbackedConvar("vrmod_unoff_desktop_ui_mirror", nil, 1, FCVAR_ARCHIVE, "Show VR UI panels on desktop window", 0, 1, tonumber)
 		local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 		local uikeyboard = CreateClientConVar("vrmod_keyboard_uichatkey", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 		local uirendertype = CreateClientConVar("vrmod_dev_ui_rendertype_ex", 0, true, FCVAR_ARCHIVE, nil, 0, 1)
@@ -41,6 +42,7 @@ function vrmod_ui_lua()
 			local oldclip = DisableClipping(false)
 			render.SetWriteDepthToDestAlpha(false)
 			menus[uid].panel:PaintManual()
+			hook.Run("VRMod_PostRenderPanel", uid, menus[uid])
 			render.SetWriteDepthToDestAlpha(true)
 			DisableClipping(oldclip)
 			cam.End2D()
@@ -209,7 +211,9 @@ function vrmod_ui_lua()
 			)
 
 			if panel then
-				panel:SetPaintedManually(true)
+				if convarValues.vrmod_unoff_desktop_ui_mirror ~= 1 then
+					panel:SetPaintedManually(true)
+				end
 				VRUtilMenuRenderPanel(uid)
 			end
 
@@ -275,6 +279,8 @@ function vrmod_ui_lua()
 				if g_VR.menuFocus and action == "boolean_primaryfire" then
 					if pressed then
 						gui.InternalMousePressed(MOUSE_LEFT)
+						-- Fire custom hook for menu click actions (quickmenu, weaponmenu, etc.)
+						hook.Run("VRMod_MenuClick", g_VR.menuFocus, "primaryfire")
 					else
 						gui.InternalMouseReleased(MOUSE_LEFT)
 					end
@@ -285,6 +291,8 @@ function vrmod_ui_lua()
 				if g_VR.menuFocus and action == "boolean_secondaryfire" then
 					if pressed then
 						gui.InternalMousePressed(MOUSE_RIGHT)
+						-- Fire custom hook for menu click actions (weaponmenu drop, etc.)
+						hook.Run("VRMod_MenuClick", g_VR.menuFocus, "secondaryfire")
 					else
 						gui.InternalMouseReleased(MOUSE_RIGHT)
 					end

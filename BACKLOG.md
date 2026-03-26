@@ -61,6 +61,14 @@
   - 判定形状が円形のみで、精密なサイズ調整もできない
   - 実際の運用: Type1で頭部+腰（右手）、頭部のみ（左手、vrmagent取り出し専用）に限定されている
   - 改善案: 判定形状の拡張（楕円・矩形等）、サイズの精密調整、ボーン位置のオフセット調整
+- [x] S20: **ホルスター7大問題**（7項目一括修正）
+  - 1: スロット1-5のdupe対応（_left ConVar + GetDupeSlotIndex拡張、slot 12-16マッピング）
+  - 2: スロット1-5の左右独立化（GetWeaponConVarNameからBONE_SLOT_STARTゲート撤去）
+  - 3: メニューでスロット6-8を先頭表示（表示順 {6,7,8,1,2,3,4,5}）
+  - 4: Type2に未所持武器チェック追加（IsValid(GetWeapon())、未所持ならConVarクリア）
+  - 5: Box判定をOBBに変更（characterYawで回転、描画も回転対応）
+  - 6: Type2タブをType1の前に配置
+  - 7: Dupe保存失敗時のChatPrintフィードバック追加（entity invalid, distance, success）
 
 ### Magbone / VRMag (フォルダ4)
 - [x] S11: ARC9武器でVRMagのマガジンボーン非表示が動作しない問題
@@ -96,10 +104,11 @@
   - まずは各モードの具体的な長所短所を解析・文書化するところから
 
 ### Viewmodel位置調整
-- [ ] viewmodelinfoの自動調節
-  - 現状: 非VR武器のviewmodel位置を手動で調整する必要がある
-  - 案: VR UIレーザーサイトの位置にviewmodelの右手人差し指が来るように自動調節
-  - レーザーサイトの位置は既知なので、ボーンの人差し指位置との差分で自動計算できるはず
+- [x] viewmodelinfoの自動調節（S19で実装）
+  - マズルアタッチメント基準の精密オフセット自動計算
+  - Settings02 → VRパネルに "Auto-adjust Current Weapon" ボタン追加
+  - concommand: vrmod_viewmodel_autoadjust
+  - 結果はviewmodelinfo.jsonに永続保存
 
 ### Mirror
 - [ ] ウィザード形式のキャラクターセットアップ（大規模・将来実装）
@@ -216,6 +225,26 @@
   - オリジナルを改変して使っているユーザーにとって、この互換性は重要
   - オリジナルとの整合性を壊さないことを意識して開発を続ける必要あり
 - [ ] オリジナル環境でのテスト・動作確認
+
+### Addon-Only Mode（Legacy/オリジナル併用）
+- [x] S21: Legacy併用時にVRMod全体が停止するバグ修正
+  - 原因: initファイル名衝突 + vrmod_api.luaのaddon-onlyガード
+  - 修正: init名リネーム + 他VRMod検出ロジック追加（1ファイル変更のみ）
+- [ ] addon-onlyメニューの充実
+  - 現状: 最低限のメニューしかない
+  - legacy/オリジナルのvrmodmenu内でaddonplus独自設定を変更できるUIが必要
+  - モジュール個別ON/OFFトグル、各モジュールの設定パネル等
+- [ ] コアファイル変更部分のaddon-only対応
+  - addonplusはroot/folder0のコアファイルを拡張変更している部分がある
+  - legacy併用時はfile shadowingでaddonplus版が使われるため大半は動作する
+  - しかし、legacy側が想定しない拡張があれば不整合が起きる可能性
+  - 影響範囲の洗い出しと、必要に応じた互換処理が必要
+
+### Feature Guide (フォルダ11)
+- [ ] パフォーマンスwizardの内容改善
+  - 現在のstep（gmod_mcore_test, mat_queue_mode, rtWidth_Multiplier, r_mapextents）は基本的すぎる
+  - 別の方法のほうが効果的との指摘あり
+  - VRパフォーマンス改善の最新ベストプラクティスを調査して更新する
 
 ### その他
 - [ ] x64/semiofficial互換レイヤー（Phase 4）

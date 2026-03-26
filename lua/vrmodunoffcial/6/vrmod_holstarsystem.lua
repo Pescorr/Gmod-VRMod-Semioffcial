@@ -1,9 +1,20 @@
 AddCSLuaFile()
 if SERVER then return end
+
+-- 安全なボーンワールド位置取得（nilチェック付き）
+local function SafeGetBoneWorldPos(ply, boneName, offset, yawAngle)
+    if not IsValid(ply) then return nil end
+    local boneId = ply:LookupBone(boneName)
+    if not boneId then return nil end
+    local matrix = ply:GetBoneMatrix(boneId)
+    if not matrix then return nil end
+    return LocalToWorld(offset or Vector(3, 3, 0), Angle(0, 0, 0), matrix:GetTranslation(), yawAngle or Angle(0, 0, 0))
+end
+
 -- 既存のConVarはそのまま
-local weppouch_pelvis = CreateClientConVar("vrmod_weppouch_Pelvis", 1, true, FCVAR_ARCHIVE, "", 0, 1)
-local weppouch_head = CreateClientConVar("vrmod_weppouch_Head", 1, true, FCVAR_ARCHIVE, "", 0, 1)
-local weppouch_spine = CreateClientConVar("vrmod_weppouch_Spine", 1, true, FCVAR_ARCHIVE, "", 0, 1)
+local weppouch_pelvis = CreateClientConVar("vrmod_weppouch_Pelvis", 0, true, FCVAR_ARCHIVE, "", 0, 1)
+local weppouch_head = CreateClientConVar("vrmod_weppouch_Head", 0, true, FCVAR_ARCHIVE, "", 0, 1)
+local weppouch_spine = CreateClientConVar("vrmod_weppouch_Spine", 0, true, FCVAR_ARCHIVE, "", 0, 1)
 -- 新しいConVarを作成して武器名を記録
 local weppouch_weapon_pelvis = CreateClientConVar("vrmod_weppouch_weapon_Pelvis", "", true, FCVAR_ARCHIVE)
 local weppouch_weapon_head = CreateClientConVar("vrmod_weppouch_weapon_Head", "", true, FCVAR_ARCHIVE)
@@ -39,11 +50,10 @@ hook.Add(
     "VRMod_Input",
     "vrutil_hook_weppouchinput_pelvis",
     function(action, pressed)
-        local weppouchbone_pelvis = "ValveBiped.Bip01_Pelvis"
-        local weppouchdist = g_VR.eyePosLeft
+        if vrmod.ClimbFilter and vrmod.ClimbFilter.ShouldBlockRight() then return end
         if weppouch_pelvis:GetBool() then
-            if LocalPlayer():LookupBone(weppouchbone_pelvis) and LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone(weppouchbone_pelvis)) then
-                weppouchdist = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone(weppouchbone_pelvis)):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
+            local weppouchdist = SafeGetBoneWorldPos(LocalPlayer(), "ValveBiped.Bip01_Pelvis", Vector(3, 3, 0), Angle(0, g_VR.characterYaw, 0))
+            if weppouchdist then
                 if g_VR.tracking.pose_righthand.pos:DistToSqr(weppouchdist) < (weppouchsize_pelvis:GetFloat() * weppouchsize_pelvis:GetFloat()) then
                     debugoverlay.Sphere(weppouchdist, weppouchsize_pelvis:GetFloat(), 1, Color(255, 0, 0, 255), true) -- 追加
                     VRMOD_TriggerHaptic("vibration_right", 0, 0.5, 20, 1)
@@ -92,15 +102,14 @@ hook.Add(
 -- 頭部ホルスターの位置を取得する関数
 local function GetHeadHolsterPosition()
     if headVisible:GetBool() then
-        -- 通常の頭部ホルスター位置を返す
-        if LocalPlayer():LookupBone("ValveBiped.Bip01_Head1") then return LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Head1")):GetTranslation(), Angle(0, g_VR.characterYaw, 0)) end
-    else
+        local pos = SafeGetBoneWorldPos(LocalPlayer(), "ValveBiped.Bip01_Head1", Vector(3, 3, 0), Angle(0, g_VR.characterYaw, 0))
+        if pos then return pos end
+    end
+    -- フォールバック: HMDの位置の少し上
+    if g_VR and g_VR.tracking and g_VR.tracking.hmd then
         return g_VR.tracking.hmd.pos + Vector(0, 0, 10)
     end
-    -- 代替位置: HMDの位置の少し上
-    -- フォールバック
-
-    return Vector(0, 0, 0)
+    return nil
 end
 
 -- if weppouch_head:GetBool() then
@@ -108,9 +117,10 @@ hook.Add(
     "VRMod_Input",
     "vrutil_hook_weppouchinput_head",
     function(action, pressed)
-        local weppouchbone_head = "ValveBiped.Bip01_Head1"
-        local weppouchdist = g_VR.eyePosLeft
+        if vrmod.ClimbFilter and vrmod.ClimbFilter.ShouldBlockRight() then return end
         if weppouch_head:GetBool() then
+            local weppouchdist = GetHeadHolsterPosition()
+            if not weppouchdist then return end
             if g_VR.tracking.pose_righthand.pos:DistToSqr(weppouchdist) < (weppouchsize_head:GetFloat() * weppouchsize_head:GetFloat()) then
                 debugoverlay.Sphere(weppouchdist, weppouchsize_head:GetFloat(), 1, Color(0, 255, 0, 255), true)
                 VRMOD_TriggerHaptic("vibration_right", 0, 0.5, 20, 1)
@@ -160,11 +170,10 @@ hook.Add(
     "VRMod_Input",
     "vrutil_hook_weppouchinput_spine",
     function(action, pressed)
-        local weppouchbone_spine = "ValveBiped.Bip01_Neck1"
-        local weppouchdist = g_VR.eyePosLeft
+        if vrmod.ClimbFilter and vrmod.ClimbFilter.ShouldBlockRight() then return end
         if weppouch_spine:GetBool() then
-            if LocalPlayer():LookupBone(weppouchbone_spine) and LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone(weppouchbone_spine)) then
-                weppouchdist = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone(weppouchbone_spine)):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
+            local weppouchdist = SafeGetBoneWorldPos(LocalPlayer(), "ValveBiped.Bip01_Neck1", Vector(3, 3, 0), Angle(0, g_VR.characterYaw, 0))
+            if weppouchdist then
                 if g_VR.tracking.pose_righthand.pos:DistToSqr(weppouchdist) < (weppouchsize_spine:GetFloat() * weppouchsize_spine:GetFloat()) then
                     debugoverlay.Sphere(weppouchdist, weppouchsize_spine:GetFloat(), 1, Color(0, 0, 255, 255), true) -- 追加
                     VRMOD_TriggerHaptic("vibration_right", 0, 0.5, 20, 1)
@@ -216,8 +225,8 @@ hook.Add(
     function()
         if not g_VR.threePoints or EyePos() ~= g_VR.view.origin then return end
         if weppouch_pelvis:GetBool() and vrmod_weppouch_visiblerange:GetBool() then
-            if LocalPlayer():LookupBone("ValveBiped.Bip01_Pelvis") and LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Pelvis")) then
-                local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Pelvis")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
+            local pos = SafeGetBoneWorldPos(LocalPlayer(), "ValveBiped.Bip01_Pelvis", Vector(3, 3, 0), Angle(0, g_VR.characterYaw, 0))
+            if pos then
                 render.SetColorMaterial()
                 render.DrawSphere(pos, weppouchsize_pelvis:GetFloat(), 16, 50, Color(255, 0, 0))
             end
@@ -225,13 +234,15 @@ hook.Add(
 
         if weppouch_head:GetBool() and vrmod_weppouch_visiblerange:GetBool() then
             local pos = GetHeadHolsterPosition()
-            render.SetColorMaterial()
-            render.DrawSphere(pos, weppouchsize_head:GetFloat(), 16, 50, Color(0, 255, 0))
+            if pos then
+                render.SetColorMaterial()
+                render.DrawSphere(pos, weppouchsize_head:GetFloat(), 16, 50, Color(0, 255, 0))
+            end
         end
 
         if weppouch_spine:GetBool() and vrmod_weppouch_visiblerange:GetBool() then
-            if LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1") and LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1")) then
-                local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
+            local pos = SafeGetBoneWorldPos(LocalPlayer(), "ValveBiped.Bip01_Neck1", Vector(3, 3, 0), Angle(0, g_VR.characterYaw, 0))
+            if pos then
                 render.SetColorMaterial()
                 render.DrawSphere(pos, weppouchsize_spine:GetFloat(), 16, 50, Color(0, 0, 255))
             end
@@ -247,8 +258,8 @@ hook.Add(
         local eyeAng = EyeAngles()
         eyeAng:RotateAroundAxis(eyeAng:Right(), 90)
         if weppouch_pelvis:GetBool() and vrmod_weppouch_visiblename:GetBool() then
-            local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Pelvis")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
-            if g_VR.tracking.pose_righthand.pos:DistToSqr(pos) < (weppouchsize_pelvis:GetFloat() * weppouchsize_pelvis:GetFloat()) then
+            local pos = SafeGetBoneWorldPos(LocalPlayer(), "ValveBiped.Bip01_Pelvis", Vector(3, 3, 0), Angle(0, g_VR.characterYaw, 0))
+            if pos and g_VR.tracking.pose_righthand.pos:DistToSqr(pos) < (weppouchsize_pelvis:GetFloat() * weppouchsize_pelvis:GetFloat()) then
                 local wepclass = weppouch_weapon_pelvis:GetString()
                 local wep = LocalPlayer():GetWeapon(wepclass)
                 if IsValid(wep) then
@@ -264,7 +275,7 @@ hook.Add(
 
         if weppouch_head:GetBool() and vrmod_weppouch_visiblename:GetBool() then
             local pos = GetHeadHolsterPosition()
-            if g_VR.tracking.pose_righthand.pos:DistToSqr(pos) < (weppouchsize_head:GetFloat() * weppouchsize_head:GetFloat()) then
+            if pos and g_VR.tracking.pose_righthand.pos:DistToSqr(pos) < (weppouchsize_head:GetFloat() * weppouchsize_head:GetFloat()) then
                 local wepclass = weppouch_weapon_head:GetString()
                 local wep = LocalPlayer():GetWeapon(wepclass)
                 if IsValid(wep) then
@@ -279,8 +290,8 @@ hook.Add(
         end
 
         if weppouch_spine:GetBool() and vrmod_weppouch_visiblename:GetBool() then
-            local pos = LocalToWorld(Vector(3, 3, 0), Angle(0, 0, 0), LocalPlayer():GetBoneMatrix(LocalPlayer():LookupBone("ValveBiped.Bip01_Neck1")):GetTranslation(), Angle(0, g_VR.characterYaw, 0))
-            if g_VR.tracking.pose_righthand.pos:DistToSqr(pos) < (weppouchsize_spine:GetFloat() * weppouchsize_spine:GetFloat()) then
+            local pos = SafeGetBoneWorldPos(LocalPlayer(), "ValveBiped.Bip01_Neck1", Vector(3, 3, 0), Angle(0, g_VR.characterYaw, 0))
+            if pos and g_VR.tracking.pose_righthand.pos:DistToSqr(pos) < (weppouchsize_spine:GetFloat() * weppouchsize_spine:GetFloat()) then
                 local wepclass = weppouch_weapon_spine:GetString()
                 local wep = LocalPlayer():GetWeapon(wepclass)
                 if IsValid(wep) then

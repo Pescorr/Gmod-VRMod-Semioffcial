@@ -136,6 +136,120 @@ if CLIENT then
 end
 
 if CLIENT then
+	-- マズルアタッチメント基準の精密オフセット自動計算
+	function vrmod.AutoAdjustCurrentWeaponViewmodel()
+		local ply = LocalPlayer()
+		if not IsValid(ply) then
+			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "Player not valid")
+			return false
+		end
+
+		local wep = ply:GetActiveWeapon()
+		if not IsValid(wep) then
+			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "No weapon equipped")
+			return false
+		end
+
+		local class = wep:GetClass()
+		local vm = wep:GetWeaponViewModel()
+		if vm == "" or vm == "models/weapons/c_arms.mdl" then
+			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "Weapon has no viewmodel: " .. class)
+			return false
+		end
+
+		local cm = ClientsideModel(vm)
+		if not IsValid(cm) then
+			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "Failed to create model for: " .. class)
+			return false
+		end
+
+		cm:SetNoDraw(true)
+		cm:SetupBones()
+
+		local bone = cm:LookupBone("ValveBiped.Bip01_R_Hand")
+		if not bone then
+			cm:Remove()
+			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "No hand bone found: " .. class)
+			return false
+		end
+
+		local boneMat = cm:GetBoneMatrix(bone)
+		local bonePos, boneAng = boneMat:GetTranslation(), boneMat:GetAngles()
+		boneAng:RotateAroundAxis(boneAng:Forward(), 180)
+
+		-- 基本角度オフセット（手ボーンをVR手に合わせる）
+		local _, baseAng = WorldToLocal(vector_origin, angle_zero, bonePos, boneAng)
+
+		local vmi = g_VR.viewModelInfo[class] or {}
+
+		-- マズルアタッチメントによる角度補正
+		local muzzleData = cm:GetAttachment(1)
+		if muzzleData then
+			-- マズル方向を手ボーン基準の角度に変換
+			local _, muzzleLocalAng = WorldToLocal(vector_origin, muzzleData.Ang, vector_origin, boneAng)
+
+			-- 角度補正: マズルが前方を向くように（roll含む全3成分）
+			vmi.offsetAng = baseAng - Angle(muzzleLocalAng.p, muzzleLocalAng.y, muzzleLocalAng.r)
+
+			-- 位置再計算: 角度補正後もハンドボーンがVR手に一致するように
+			-- 条件: offsetPos + Rotate(bonePos, offsetAng) = 0
+			local rotBonePos = Vector(bonePos)
+			rotBonePos:Rotate(vmi.offsetAng)
+			vmi.offsetPos = -rotBonePos
+
+			chat.AddText(
+				Color(0, 255, 0), "[VRMod] ",
+				Color(255, 255, 255), "Auto-adjusted (muzzle): " .. class,
+				Color(180, 180, 180), " Pos=" .. tostring(vmi.offsetPos),
+				Color(180, 180, 180), " Ang=" .. tostring(vmi.offsetAng)
+			)
+		else
+			-- マズルなし: 手ボーンのみでフォールバック
+			vmi.offsetAng = baseAng
+			local rotBonePos = Vector(bonePos)
+			rotBonePos:Rotate(vmi.offsetAng)
+			vmi.offsetPos = -rotBonePos
+
+			chat.AddText(
+				Color(255, 200, 0), "[VRMod] ",
+				Color(255, 255, 255), "Auto-adjusted (no muzzle, fallback): " .. class,
+				Color(180, 180, 180), " Pos=" .. tostring(vmi.offsetPos)
+			)
+		end
+
+		cm:Remove()
+
+		-- 指ポーズ更新
+		local model = vmi.modelOverride or vm
+		vmi.closedHandAngles = vrmod.GetRightHandFingerAnglesFromModel(model)
+
+		-- g_VR.viewModelInfoに適用
+		g_VR.viewModelInfo[class] = vmi
+		g_VR.currentvmi = vmi
+
+		-- viewmodelinfo.jsonに永続保存
+		viewModelConfig = viewModelConfig or {}
+		viewModelConfig[class] = {
+			offsetPos = vmi.offsetPos,
+			offsetAng = vmi.offsetAng
+		}
+		local json = util.TableToJSON(viewModelConfig, true)
+		file.Write("vrmod/viewmodelinfo.json", json)
+
+		-- 即座にviewmodelに反映
+		if vrmod.SetViewModelOffsetForWeaponClass then
+			vrmod.SetViewModelOffsetForWeaponClass(class, vmi.offsetPos, vmi.offsetAng)
+		end
+
+		return true
+	end
+
+	concommand.Add("vrmod_viewmodel_autoadjust", function()
+		vrmod.AutoAdjustCurrentWeaponViewmodel()
+	end)
+end
+
+if CLIENT then
 	-- 読み込み関数の修正
 	local function LoadViewModelConfig()
 		if file.Exists("vrmod/viewmodelinfo.json", "DATA") then
@@ -147,6 +261,14 @@ if CLIENT then
 	end
 
 	LoadViewModelConfig()
+
+	-- 保存関数（ファイルスコープ — 一覧UIと編集ダイアログの両方から呼ばれる）
+	local function SaveViewModelConfig()
+		if not viewModelConfig then return end
+		local json = util.TableToJSON(viewModelConfig, true)
+		file.Write("vrmod/viewmodelinfo.json", json)
+	end
+
 	-- GUIの作成
 	function CreateWeaponConfigGUI()
 		local frame = vgui.Create("DFrame")
@@ -182,31 +304,19 @@ if CLIENT then
 			end
 		end
 
-		-- 編集ボタン
-		local editButton = vgui.Create("DButton", frame)
-		editButton:SetText("Edit")
-		editButton:Dock(BOTTOM)
-		editButton.DoClick = function()
-			local selected = listview:GetSelectedLine()
-			if selected then
-				local class = listview:GetLine(selected):GetValue(1)
-				CreateAddWeaponConfigGUI(class, true)
-				frame:Close()
-			end
-		end
-
-		-- 削除ボタン
-		local deleteButton = vgui.Create("DButton", frame)
-		deleteButton:SetText("Delete")
-		deleteButton:Dock(BOTTOM)
-		deleteButton.DoClick = function()
-			local selected = listview:GetSelectedLine()
-			if selected then
-				local class = listview:GetLine(selected):GetValue(1)
-				viewModelConfig[class] = nil
-				UpdateListView()
-				SaveViewModelConfig()
-			end
+		-- リセットボタン（現在持っている武器のプリセットを全て0に初期化）
+		local resetButton = vgui.Create("DButton", frame)
+		resetButton:SetText("Reset Current Weapon")
+		resetButton:Dock(BOTTOM)
+		resetButton.DoClick = function()
+			local wep = LocalPlayer():GetActiveWeapon()
+			if not IsValid(wep) then return end
+			local class = wep:GetClass()
+			viewModelConfig[class] = { offsetPos = Vector(0, 0, 0), offsetAng = Angle(0, 0, 0) }
+			vrmod.SetViewModelOffsetForWeaponClass(class, Vector(0, 0, 0), Angle(0, 0, 0))
+			SaveViewModelConfig()
+			UpdateListView()
+			chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Reset viewmodel offset: " .. class)
 		end
 	end
 
@@ -225,7 +335,7 @@ if CLIENT then
 	-- 新規追加・編集画面の作成
 	function CreateAddWeaponConfigGUI(class, isEditing)
 		local frame = vgui.Create("DFrame")
-		frame:SetSize(300, 300)
+		frame:SetSize(300, 420)
 		frame:Center()
 		frame:SetTitle(isEditing and "Edit ViewModel Config" or "Add ViewModel Config")
 		frame:MakePopup()
@@ -236,6 +346,14 @@ if CLIENT then
 
 		-- 元の設定を保持
 		local originalData = table.Copy(data)
+
+		-- ドラッグヒント
+		local tipLabel = vgui.Create("DLabel", frame)
+		tipLabel:SetText("Tip: Drag slider labels for fine adjustment")
+		tipLabel:SetTextColor(Color(180, 180, 180))
+		tipLabel:Dock(TOP)
+		tipLabel:DockMargin(5, 2, 5, 2)
+
 		-- Offset Positionの設定
 		local posPanel = vgui.Create("DPanel", frame)
 		posPanel:Dock(TOP)
@@ -296,11 +414,40 @@ if CLIENT then
 			end
 		end
 
-		-- SaveViewModelConfig関数の定義
-		local function SaveViewModelConfig()
-			if not viewModelConfig then return end
-			local json = util.TableToJSON(viewModelConfig, true) -- JSON形式で保存
-			file.Write("vrmod/viewmodelinfo.json", json)
+		-- ユーティリティボタン（Auto Adjust / Reset to Zero）
+		local utilPanel = vgui.Create("DPanel", frame)
+		utilPanel:Dock(TOP)
+		utilPanel:SetHeight(30)
+		utilPanel:SetPaintBackground(false)
+		utilPanel:DockMargin(0, 5, 0, 5)
+
+		local autoBtn = vgui.Create("DButton", utilPanel)
+		autoBtn:SetText("Auto Adjust")
+		autoBtn:Dock(LEFT)
+		autoBtn:SetWide(140)
+		autoBtn.DoClick = function()
+			local success = vrmod.AutoAdjustCurrentWeaponViewmodel()
+			if success then
+				-- 自動調節の結果をスライダーに反映
+				local vmi = g_VR.viewModelInfo[class]
+				if vmi and vmi.offsetPos and vmi.offsetAng then
+					for i = 1, 3 do
+						posSliders[i]:SetValue(vmi.offsetPos[i])
+						angSliders[i]:SetValue(vmi.offsetAng[i])
+					end
+				end
+			end
+		end
+
+		local resetBtn = vgui.Create("DButton", utilPanel)
+		resetBtn:SetText("Reset to Zero")
+		resetBtn:Dock(FILL)
+		resetBtn.DoClick = function()
+			for i = 1, 3 do
+				posSliders[i]:SetValue(0)
+				angSliders[i]:SetValue(0)
+			end
+			vrmod.SetViewModelOffsetForWeaponClass(class, Vector(0, 0, 0), Angle(0, 0, 0))
 		end
 
 		-- 適用ボタン
@@ -321,11 +468,11 @@ if CLIENT then
 
 		-- 破棄ボタン
 		local cancelButton = vgui.Create("DButton", frame)
-		-- 元の設定に戻す
-		vrmod.SetViewModelOffsetForWeaponClass(class, originalData.offsetPos, originalData.offsetAng)
 		cancelButton:SetText("Cancel")
 		cancelButton:Dock(BOTTOM)
 		cancelButton.DoClick = function()
+			-- 元の設定に戻す（ダイアログを開く前の値）
+			vrmod.SetViewModelOffsetForWeaponClass(class, originalData.offsetPos, originalData.offsetAng)
 			frame:Close()
 		end
 	end

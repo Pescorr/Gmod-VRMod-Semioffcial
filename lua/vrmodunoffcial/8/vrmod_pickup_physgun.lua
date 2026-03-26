@@ -421,7 +421,14 @@ function CreateVRPhysgunSystem(prefix)
 
 			if not tr.Hit or not IsValid(tr.Entity) then return end
 			local entity = tr.Entity
-			if entity:IsPlayer() or not IsValid(entity:GetPhysicsObject()) or ply:InVehicle() or entity:GetMoveType() ~= MOVETYPE_VPHYSICS or entity:GetPhysicsObject():GetMass() > 1000 or (entity.CPPICanPickup and not entity:CPPICanPickup(ply)) then return end
+			local serverWeight = ply:GetInfoNum("vrmod_pickup_weight", 100)
+			local clientWeight = ply:GetInfoNum("vrmod_unoff_pickup_weight_client", 0)
+			local maxWeight = clientWeight > 0 and math.min(serverWeight, clientWeight) or serverWeight
+			if entity:IsPlayer() or not IsValid(entity:GetPhysicsObject()) or ply:InVehicle() or entity:GetMoveType() ~= MOVETYPE_VPHYSICS or entity:GetPhysicsObject():GetMass() > maxWeight or (entity.CPPICanPickup and not entity:CPPICanPickup(ply)) then return end
+			-- Client pickup limit check
+			local clientLimit = ply:GetInfoNum("vrmod_unoff_pickup_limit_client", 0)
+			if clientLimit >= 3 then return end
+			if clientLimit >= 2 and (not entity:GetPhysicsObject():IsMoveable() or entity:GetPhysicsObject():HasGameFlag(FVPHYSICS_MULTIOBJECT_ENTITY)) then return end
 			if hook.Run("VRPhysgun_CanPickup_" .. prefix, ply, entity) == false then return end
 			if not IsValid(PhysgunController.controller) then
 				PhysgunController.controller = ents.Create("vrmod_physgun_controller_" .. prefix)
@@ -575,18 +582,6 @@ function CreateVRPhysgunSystem(prefix)
 				if g_VR["physgunHeldEntity_" .. prefix] then
 					vrmod["PhysgunPull_" .. prefix]()
 				end
-
-				if actflag == true then
-					vrmod.Pickup(prefix == "left" and true or false, not pressed)
-				end
-			elseif action == pickupAction and not pressed then
-				if g_VR["physgunHeldEntity_" .. prefix] then
-					vrmod.Pickup(prefix == "left" and true or false)
-				end
-
-				if actflag == false then
-					vrmod.Pickup(prefix == "left" and true or false)
-				end
 			end
 		end
 	)
@@ -598,9 +593,3 @@ CreateVRPhysgunSystem("left")
 CreateVRPhysgunSystem("right")
 print("[VRMod] Dual Physgun systems initialized")
 
--- VRPICKUP Compatibility Mode: physgun側からvr_pickup_disable_clientを連動制御
-if CLIENT then
-	cvars.AddChangeCallback("vrmod_unoff_physgun_pickup_compat", function(name, old, new)
-		RunConsoleCommand("vr_pickup_disable_client", tonumber(new) == 1 and "1" or "0")
-	end, "physgun_pickup_compat")
-end

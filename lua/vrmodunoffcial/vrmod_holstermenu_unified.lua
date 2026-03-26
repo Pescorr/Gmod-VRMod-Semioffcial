@@ -13,7 +13,87 @@ hook.Add(
 		frame.pickupSheet:AddSheet("VRHolster", sheet)
 		sheet:Dock(FILL)
 
-		-- Type1 Settings Tab
+		-- S20 Problem 6: Type2を最初に表示（Type1より使いやすいため）
+		-- Type2 Settings Tab
+		local type2Tab = vgui.Create("DPanel", sheet)
+		sheet:AddSheet("Type2", type2Tab, "icon16/basket.png")
+		type2Tab.Paint = function(self, w, h) end
+
+		local scrollPanel2 = vgui.Create("DScrollPanel", type2Tab)
+		scrollPanel2:Dock(FILL)
+
+		local form2 = vgui.Create("DForm", scrollPanel2)
+		form2:SetName("Type2 Holster Settings")
+		form2:Dock(TOP)
+		form2:DockMargin(5, 5, 5, 5)
+		form2.Paint = function(self, w, h)
+			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
+		end
+
+		-- Basic Settings
+		local basicCategory = form2:Help("=== Basic Settings ===")
+		basicCategory:SetFont("DermaDefaultBold")
+		form2:CheckBox("System Enable", "vrmod_pouch_enabled")
+		form2:CheckBox("Visible Name", "vrmod_pouch_visiblename")
+		form2:CheckBox("Visible HUD", "vrmod_pouch_visiblename_hud")
+		form2:CheckBox("Left Hand Weapon Enable", "vrmod_pouch_lefthandwep_enable")
+		form2:CheckBox("L/R Sync Mode (share slots between hands)", "vrmod_pouch_lr_sync")
+		form2:TextEntry("Pickup Sound", "vrmod_pouch_pickup_sound")
+
+		-- Release / Tediore Settings
+		local releaseCategory = form2:Help("=== Release / Tediore ===")
+		releaseCategory:SetFont("DermaDefaultBold")
+		form2:CheckBox("[release -> Emptyhand] Enable", "vrmod_pickupoff_weaponholster")
+		form2:CheckBox("[Tediore like reload] Enable", "vrmod_weapondrop_enable")
+		form2:CheckBox("Trash Weapon on Drop", "vrmod_weapondrop_trashwep")
+
+		-- Dupe Settings
+		local dupeCategory = form2:Help("=== Dupe Settings ===")
+		dupeCategory:SetFont("DermaDefaultBold")
+		form2:CheckBox("Reusable Dupe (infinite retrieve)", "vrmod_unoff_dupe_reusable")
+
+		-- S20 Problem 3: スロット6-8（使いやすい）を最初に表示
+		local slotNames = {
+			[1] = "Slot 1 - Head Right",
+			[2] = "Slot 2 - Head Left",
+			[3] = "Slot 3 - Chest Right",
+			[4] = "Slot 4 - Chest Left",
+			[5] = "Slot 5 - Chest Center",
+			[6] = "Slot 6 - Pelvis (Bone)",
+			[7] = "Slot 7 - Head (Bone)",
+			[8] = "Slot 8 - Spine (Bone)",
+		}
+		local slotDisplayOrder = {6, 7, 8, 1, 2, 3, 4, 5}
+		for _, i in ipairs(slotDisplayOrder) do
+			local slotCategory = form2:Help("=== " .. slotNames[i] .. " ===")
+			slotCategory:SetFont("DermaDefaultBold")
+			form2:CheckBox("Enable", "vrmod_unoff_pouch_slot_enabled_" .. i)
+			form2:TextEntry("Weapon/Entity (Read-only)", "vrmod_pouch_weapon_" .. i)
+			-- S20 Problem 1+2: 全スロットで左手用武器表示
+			form2:TextEntry("Left Hand Weapon (Read-only)", "vrmod_pouch_weapon_" .. i .. "_left")
+			form2:NumSlider("Sphere Size", "vrmod_pouch_size_" .. i, 0, 50, 1)
+
+			local shapeCombo = form2:ComboBox("Shape", "vrmod_unoff_pouch_shape_" .. i)
+			shapeCombo:AddChoice("sphere")
+			shapeCombo:AddChoice("box")
+
+			form2:NumSlider("Box Width (X)", "vrmod_unoff_pouch_box_width_" .. i, 1, 50, 2)
+			form2:NumSlider("Box Height (Y)", "vrmod_unoff_pouch_box_height_" .. i, 1, 50, 2)
+			form2:NumSlider("Box Depth Up (Z+)", "vrmod_unoff_pouch_box_depth_up_" .. i, 1, 50, 2)
+			form2:NumSlider("Box Depth Down (Z-)", "vrmod_unoff_pouch_box_depth_down_" .. i, 1, 50, 2)
+		end
+
+		-- Restore Defaults
+		local resetButton2 = vgui.Create("DButton", scrollPanel2)
+		resetButton2:SetText(VRModL("btn_restore_defaults", "Restore Default Settings"))
+		resetButton2:Dock(TOP)
+		resetButton2:DockMargin(5, 5, 5, 5)
+		resetButton2:SetTall(30)
+		resetButton2.DoClick = function()
+			VRModResetCategory("holster_type2")
+		end
+
+		-- Type1 Settings Tab (legacy, Type2の後に配置)
 		local type1Tab = vgui.Create("DPanel", sheet)
 		sheet:AddSheet("Type1", type1Tab, "icon16/package.png")
 		type1Tab.Paint = function(self, w, h) end
@@ -114,86 +194,6 @@ hook.Add(
 		resetButton1Left:SetTall(30)
 		resetButton1Left.DoClick = function()
 			VRModResetCategory("holster_type1_left")
-		end
-
-		-- Type2 Settings Tab
-		local type2Tab = vgui.Create("DPanel", sheet)
-		sheet:AddSheet("Type2", type2Tab, "icon16/basket.png")
-		type2Tab.Paint = function(self, w, h) end
-
-		local scrollPanel2 = vgui.Create("DScrollPanel", type2Tab)
-		scrollPanel2:Dock(FILL)
-
-		local form2 = vgui.Create("DForm", scrollPanel2)
-		form2:SetName("Type2 Holster Settings")
-		form2:Dock(TOP)
-		form2:DockMargin(5, 5, 5, 5)
-		form2.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
-		end
-
-		-- Basic Settings
-		local basicCategory = form2:Help("=== Basic Settings ===")
-		basicCategory:SetFont("DermaDefaultBold")
-		form2:CheckBox("System Enable", "vrmod_pouch_enabled")
-		form2:CheckBox("Visible Name", "vrmod_pouch_visiblename")
-		form2:CheckBox("Visible HUD", "vrmod_pouch_visiblename_hud")
-		form2:CheckBox("Left Hand Weapon Enable", "vrmod_pouch_lefthandwep_enable")
-		form2:TextEntry("Pickup Sound", "vrmod_pouch_pickup_sound")
-
-		-- Release / Tediore Settings
-		local releaseCategory = form2:Help("=== Release / Tediore ===")
-		releaseCategory:SetFont("DermaDefaultBold")
-		form2:CheckBox("[release -> Emptyhand] Enable", "vrmod_pickupoff_weaponholster")
-		form2:CheckBox("[Tediore like reload] Enable", "vrmod_weapondrop_enable")
-		form2:CheckBox("Trash Weapon on Drop", "vrmod_weapondrop_trashwep")
-
-		-- Dupe Settings
-		local dupeCategory = form2:Help("=== Dupe Settings ===")
-		dupeCategory:SetFont("DermaDefaultBold")
-		form2:CheckBox("Reusable Dupe (infinite retrieve)", "vrmod_unoff_dupe_reusable")
-
-		-- Per-Slot Settings
-		local slotNames = {
-			"Slot 1 - Head Right",
-			"Slot 2 - Head Left",
-			"Slot 3 - Chest Right",
-			"Slot 4 - Chest Left",
-			"Slot 5 - Chest Center",
-			"Slot 6 - Pelvis (Bone)",
-			"Slot 7 - Head (Bone)",
-			"Slot 8 - Spine (Bone)",
-		}
-		for i = 1, 8 do
-			local slotCategory = form2:Help("=== " .. slotNames[i] .. " ===")
-			slotCategory:SetFont("DermaDefaultBold")
-			form2:CheckBox("Enable", "vrmod_unoff_pouch_slot_enabled_" .. i)
-			form2:TextEntry("Weapon/Entity (Read-only)", "vrmod_pouch_weapon_" .. i)
-			form2:NumSlider("Sphere Size", "vrmod_pouch_size_" .. i, 0, 50, 1)
-
-			local shapeCombo = form2:ComboBox("Shape", "vrmod_unoff_pouch_shape_" .. i)
-			shapeCombo:AddChoice("sphere")
-			shapeCombo:AddChoice("box")
-
-			form2:NumSlider("Box Width (X)", "vrmod_unoff_pouch_box_width_" .. i, 1, 50, 2)
-			form2:NumSlider("Box Height (Y)", "vrmod_unoff_pouch_box_height_" .. i, 1, 50, 2)
-			form2:NumSlider("Box Depth Up (Z+)", "vrmod_unoff_pouch_box_depth_up_" .. i, 1, 50, 2)
-			form2:NumSlider("Box Depth Down (Z-)", "vrmod_unoff_pouch_box_depth_down_" .. i, 1, 50, 2)
-
-			-- Slot 6-8: 左手用の武器表示を追加
-			if i >= 6 then
-				form2:TextEntry("Left Hand Weapon (Read-only)", "vrmod_pouch_weapon_" .. i .. "_left")
-			end
-		end
-
-		-- Restore Defaults
-		local resetButton2 = vgui.Create("DButton", scrollPanel2)
-		resetButton2:SetText(VRModL("btn_restore_defaults", "Restore Default Settings"))
-		resetButton2:Dock(TOP)
-		resetButton2:DockMargin(5, 5, 5, 5)
-		resetButton2:SetTall(30)
-		resetButton2.DoClick = function()
-			VRModResetCategory("holster_type2")
 		end
 
 		-- Display Settings Tab

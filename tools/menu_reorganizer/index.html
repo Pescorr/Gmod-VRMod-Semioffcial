@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VRMod Menu Reorganizer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #1a1a2e; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; }
+
+/* Header */
+.header { background: #16213e; padding: 8px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #0f3460; }
+.header h1 { font-size: 16px; color: #e94560; flex-shrink: 0; }
+.header-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.header-actions button { background: #0f3460; color: #e0e0e0; border: 1px solid #1a3a6e; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap; }
+.header-actions button:hover { background: #1a4a7e; }
+.header-actions button.danger { border-color: #e94560; }
+.header-actions button.danger:hover { background: #e94560; color: #fff; }
+.header-actions button.export { background: #0a6640; border-color: #0d8050; }
+.header-actions button.export:hover { background: #0d8050; }
+
+/* Main layout */
+.main { display: flex; flex: 1; overflow: hidden; }
+
+/* Left panel - Menu Tree */
+.tree-panel { width: 340px; min-width: 280px; border-right: 2px solid #0f3460; display: flex; flex-direction: column; background: #16213e; }
+.tree-panel h2 { font-size: 13px; padding: 8px 12px; background: #0f3460; color: #a0c4ff; }
+.tree-container { flex: 1; overflow-y: auto; padding: 4px; }
+
+/* Tree nodes */
+.tree-node { user-select: none; }
+.tree-node-header { display: flex; align-items: center; padding: 3px 6px; border-radius: 3px; cursor: grab; gap: 4px; font-size: 13px; margin: 1px 0; }
+.tree-node-header:hover { background: rgba(233, 69, 96, 0.15); }
+.tree-node-header.selected { background: rgba(233, 69, 96, 0.3); outline: 1px solid #e94560; }
+.tree-node-header.drag-over-above { border-top: 2px solid #e94560; }
+.tree-node-header.drag-over-inside { background: rgba(233, 69, 96, 0.25); outline: 1px dashed #e94560; }
+.tree-node-header.drag-over-below { border-bottom: 2px solid #e94560; }
+.tree-node-header .toggle { width: 16px; text-align: center; font-size: 10px; color: #888; flex-shrink: 0; cursor: pointer; }
+.tree-node-header .icon { width: 16px; text-align: center; flex-shrink: 0; }
+.tree-node-header .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-node-header .badge { font-size: 10px; background: #0f3460; padding: 1px 5px; border-radius: 8px; color: #888; flex-shrink: 0; }
+.tree-node-children { padding-left: 16px; }
+.tree-node-children.collapsed { display: none; }
+
+/* Node type colors */
+.node-root-tab .name { color: #e94560; font-weight: bold; }
+.node-subtab .name { color: #a0c4ff; }
+.node-item .name { color: #c0c0c0; font-size: 12px; }
+.node-section .name { color: #e9a045; font-size: 12px; font-style: italic; }
+
+/* Right panel - Details & Preview */
+.detail-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.detail-panel h2 { font-size: 13px; padding: 8px 12px; background: #0f3460; color: #a0c4ff; }
+
+/* Preview area */
+.preview-area { flex: 1; overflow-y: auto; padding: 16px; }
+.preview-menu { background: #2a2a3e; border: 1px solid #444; border-radius: 6px; max-width: 560px; }
+.preview-titlebar { background: #333; padding: 6px 12px; border-radius: 6px 6px 0 0; font-size: 13px; color: #ccc; display: flex; justify-content: space-between; }
+.preview-tabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; background: #252538; border-bottom: 1px solid #444; }
+.preview-tab { padding: 5px 10px; background: #1e1e30; border: 1px solid #444; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 12px; color: #aaa; cursor: pointer; white-space: nowrap; }
+.preview-tab:hover { background: #2a2a4e; }
+.preview-tab.active { background: #2a2a3e; color: #e94560; border-color: #e94560; }
+.preview-content { padding: 12px; min-height: 200px; }
+.preview-subtabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 0 0 8px 0; border-bottom: 1px solid #333; margin-bottom: 8px; }
+.preview-subtab { padding: 3px 8px; background: #1e1e30; border: 1px solid #333; border-radius: 3px; font-size: 11px; color: #888; cursor: pointer; }
+.preview-subtab.active { color: #a0c4ff; border-color: #a0c4ff; }
+.preview-item { padding: 3px 8px; font-size: 12px; color: #aaa; border-left: 2px solid #333; margin: 2px 0; }
+.preview-item.section-header { color: #e9a045; border-left-color: #e9a045; font-weight: bold; }
+.preview-footer { display: flex; justify-content: space-between; padding: 6px 12px; background: #252538; border-top: 1px solid #444; border-radius: 0 0 6px 6px; font-size: 11px; color: #666; }
+
+/* Export panel */
+.export-panel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a2e; border: 2px solid #0f3460; border-radius: 8px; padding: 20px; z-index: 100; width: 80%; max-width: 700px; max-height: 80vh; }
+.export-panel.visible { display: block; }
+.export-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99; }
+.export-overlay.visible { display: block; }
+.export-panel h3 { color: #e94560; margin-bottom: 12px; }
+.export-panel textarea { width: 100%; height: 50vh; background: #0a0a1a; color: #e0e0e0; border: 1px solid #333; border-radius: 4px; padding: 10px; font-family: 'Consolas', monospace; font-size: 12px; resize: none; }
+.export-panel .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+.export-panel button { padding: 6px 16px; border-radius: 4px; cursor: pointer; border: 1px solid #333; font-size: 13px; }
+
+/* Rename input */
+.rename-input { background: #0a0a1a; color: #e0e0e0; border: 1px solid #e94560; padding: 2px 4px; font-size: 12px; width: 150px; border-radius: 2px; }
+
+/* Status bar */
+.status-bar { background: #0f3460; padding: 4px 12px; font-size: 11px; color: #888; display: flex; justify-content: space-between; }
+
+/* Custom Modal (replaces prompt/confirm) */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; }
+.modal-overlay.visible { display: flex; align-items: center; justify-content: center; }
+.modal-box { background: #1a1a2e; border: 2px solid #0f3460; border-radius: 8px; padding: 20px; min-width: 320px; max-width: 450px; }
+.modal-box h3 { color: #a0c4ff; margin-bottom: 12px; font-size: 14px; }
+.modal-box input { width: 100%; background: #0a0a1a; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; padding: 8px; font-size: 14px; margin-bottom: 12px; }
+.modal-box input:focus { outline: none; border-color: #e94560; }
+.modal-box .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-box button { padding: 6px 16px; border-radius: 4px; cursor: pointer; border: 1px solid #333; font-size: 13px; }
+.modal-box .btn-ok { background: #0f3460; color: #e0e0e0; }
+.modal-box .btn-ok:hover { background: #1a4a7e; }
+.modal-box .btn-cancel { background: #333; color: #ccc; }
+.modal-box .btn-cancel:hover { background: #555; }
+.modal-box .btn-danger { background: #e94560; color: #fff; border-color: #e94560; }
+.modal-box .btn-danger:hover { background: #c0334a; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #1a1a2e; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>VRMod Menu Reorganizer</h1>
+  <div class="header-actions">
+    <button onclick="addRootTab()">+ Tab</button>
+    <button onclick="addSubtab()">+ Subtab</button>
+    <button onclick="renameSelected()">Rename</button>
+    <button onclick="moveUp()">Up</button>
+    <button onclick="moveDown()">Down</button>
+    <button onclick="duplicateSelected()">Duplicate</button>
+    <button class="danger" onclick="deleteSelected()">Delete</button>
+    <button onclick="resetAll()">Reset</button>
+    <button class="export" onclick="showExport()">Export for Claude</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tree-panel">
+    <h2>Menu Structure (Drag to Reorder)</h2>
+    <div class="tree-container" id="treeContainer"></div>
+  </div>
+  <div class="detail-panel">
+    <h2>Preview - VRMod Menu</h2>
+    <div class="preview-area" id="previewArea"></div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <span id="statusLeft">Click a tab to select. Drag to move.</span>
+  <span id="statusRight">Root Tabs: <span id="rootTabCount">0</span> | Total Items: <span id="totalCount">0</span></span>
+</div>
+
+<!-- Custom Modal (replaces prompt/confirm) -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3 id="modalTitle">Title</h3>
+    <input type="text" id="modalInput" style="display:none" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="modalCancel()">Cancel</button>
+      <button class="btn-ok" id="modalOkBtn" onclick="modalOk()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="export-overlay" id="exportOverlay" onclick="hideExport()"></div>
+<div class="export-panel" id="exportPanel">
+  <h3>Export for Claude Code</h3>
+  <p style="font-size:12px;color:#888;margin-bottom:8px;">Copy the text below and paste it into Claude Code conversation.</p>
+  <textarea id="exportText" readonly></textarea>
+  <div class="btn-row">
+    <button onclick="copyExport()" style="background:#0a6640;color:#fff;">Copy to Clipboard</button>
+    <button onclick="hideExport()" style="background:#333;color:#ccc;">Close</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA: Current VRMod Menu Structure
+// ============================================================
+const ORIGINAL_DATA = [
+  // ============================================================
+  // Settings (ON HOLD - unchanged, from vrmod_menu.lua DForm)
+  // ============================================================
+  {
+    id: "settings", name: "Settings", type: "root_tab", source: "vrmod_menu.lua + vrmod.lua hooks",
+    note: "ON HOLD: DForm-based, not restructured",
+    children: [
+      { id: "s_locomotion", name: "Locomotion (dropdown selector)", type: "item", convar: "vrmod_locomotion" },
+      { id: "s_loco_controller", name: "  Controller oriented locomotion", type: "item", convar: "", note: "Locomotion sub-option" },
+      { id: "s_loco_smooth", name: "  Smooth turning", type: "item", convar: "", note: "Locomotion sub-option" },
+      { id: "s_loco_turnrate", name: "  Smooth turn rate (slider 0-180)", type: "item", convar: "", note: "Locomotion sub-option" },
+      { id: "s_hud_enable", name: "Enable HUD", type: "item", convar: "vrmod_hud" },
+      { id: "s_seated", name: "Enable seated offset", type: "item", convar: "vrmod_seated", note: "Help: Adjust from height adjustment menu" },
+      { id: "s_sranipal", name: "Enable SRanipal", type: "item", convar: "vrmod_use_sranipal", note: "Help: For Vive Pro Eye / Vive Facial Tracker" },
+      { id: "s_floating", name: "Use floating hands", type: "item", convar: "vrmod_floatinghands" },
+      { id: "s_worldmodel", name: "Use weapon world models", type: "item", convar: "vrmod_useworldmodels" },
+      { id: "s_laserpointer", name: "Add laser pointer to tools/weapons", type: "item", convar: "vrmod_laserpointer" },
+      { id: "s_heightmenu", name: "Show height adjustment menu", type: "item", convar: "vrmod_heightmenu" },
+      { id: "s_althead", name: "Alternative head angle manipulation method", type: "item", convar: "vrmod_althead", note: "Help: Less precise, compatibility for jigglebones" },
+      { id: "s_autostart", name: "Automatically start VR after map loads", type: "item", convar: "vrmod_autostart" },
+      { id: "s_doors", name: "Replace door use mechanics (when available)", type: "item", convar: "vrmod_doors" },
+      { id: "s_postprocess", name: "Enable engine postprocessing", type: "item", convar: "vrmod_postprocess" },
+      { id: "s_desktopview", name: "Desktop view (none/left eye/right eye)", type: "item", convar: "vrmod_desktopview" },
+      { id: "s_actioneditor", name: "Edit custom controller input actions", type: "item", convar: "" },
+      { id: "s_reset", name: "Reset settings to default", type: "item", convar: "" },
+      { id: "s_offsets", name: "Controller offsets (X/Y/Z/Pitch/Yaw/Roll)", type: "item", convar: "vrmod_controlleroffset_*", note: "Collapsible section" },
+      { id: "s_preset", name: "Preset panel (Save/Load inline)", type: "item", convar: "", note: "vrmod_presetcreater.lua" }
+    ]
+  },
+  // ============================================================
+  // Settings02 (REORGANIZED v2 hierarchy)
+  // ============================================================
+  {
+    id: "settings02", name: "Settings02", type: "root_tab", source: "vrmod_unoff_addmenu.lua",
+    note: "frame.Settings02Sheet",
+    children: [
+      // --- Preset ---
+      {
+        id: "s02_preset", name: "Preset", type: "subtab", icon: "disk",
+        children: [
+          { id: "pre_save", name: "Save Preset", type: "item", convar: "" },
+          { id: "pre_load", name: "Load Preset", type: "item", convar: "" },
+          { id: "pre_list", name: "List Presets", type: "item", convar: "" }
+        ]
+      },
+      // --- VRplay (main gameplay) ---
+      {
+        id: "s02_vrplay", name: "VRplay", type: "subtab", icon: "basket",
+        note: "frame.VRplaySheet",
+        children: [
+          // VRplay > input
+          {
+            id: "vp_input", name: "input", type: "subtab", icon: "controller",
+            children: [
+              { id: "inp_loco", name: "Locomotion Mode (slider 0-10)", type: "item", convar: "vrmod_locomotion" },
+              { id: "inp_smooth", name: "Smooth turning", type: "item", convar: "vrmod_smoothturn" },
+              { id: "inp_smoothrate", name: "Smooth turn rate (1-360)", type: "item", convar: "vrmod_smoothturnrate" },
+              { id: "inp_controller", name: "Controller oriented locomotion", type: "item", convar: "vrmod_controlleroriented" },
+              { id: "inp_action", name: "Edit custom controller input actions", type: "item", convar: "" },
+              { id: "inp_teleport", name: "Teleport Enable", type: "item", convar: "vrmod_allow_teleport_client" },
+              { id: "inp_doors", name: "Replace door use mechanics", type: "item", convar: "vrmod_doors" },
+              { id: "inp_jumpduck", name: "Jumpkey Auto Duck", type: "item", convar: "vrmod_autojumpduck" },
+              { id: "inp_lefthand", name: "Left Hand (WIP)", type: "item", convar: "vrmod_LeftHand" },
+              { id: "inp_leftfire", name: "Left Hand Fire (WIP)", type: "item", convar: "vrmod_lefthandleftfire" },
+              { id: "inp_leftmode", name: "Left Hand Hold Mode (WIP)", type: "item", convar: "vrmod_LeftHandmode" },
+              { id: "inp_offsets", name: "Controller Offsets (X/Y/Z/Pitch/Yaw/Roll + Apply)", type: "item", convar: "vrmod_controlleroffset_*" }
+            ]
+          },
+          // VRplay > UI
+          {
+            id: "vp_ui", name: "UI", type: "subtab", icon: "photos",
+            children: [
+              // UI > Base
+              {
+                id: "ui_base", name: "Base", type: "subtab", icon: "photos",
+                children: [
+                  { id: "uib_hud", name: "Enable HUD", type: "item", convar: "vrmod_hud" },
+                  { id: "uib_uiw", name: "VR UI Width", type: "item", convar: "vrmod_ScrW" },
+                  { id: "uib_uih", name: "VR UI Height", type: "item", convar: "vrmod_ScrH" },
+                  { id: "uib_hudw", name: "VR HUD Width", type: "item", convar: "vrmod_ScrW_hud" },
+                  { id: "uib_hudh", name: "VR HUD Height", type: "item", convar: "vrmod_ScrH_hud" },
+                  { id: "uib_autoscr", name: "Always Auto-Detect Screen Resolution", type: "item", convar: "vrmod_scr_alwaysautosetting" },
+                  { id: "uib_outline", name: "Menu & UI Red Outline", type: "item", convar: "vrmod_ui_outline" },
+                  { id: "uib_realtime", name: "UI Render Alternative", type: "item", convar: "vrmod_ui_realtime" },
+                  { id: "uib_camoverride", name: "Desktop Camera Override", type: "item", convar: "vrmod_cameraoverride" },
+                  { id: "uib_postprocess", name: "Enable engine postprocessing", type: "item", convar: "vrmod_postprocess" }
+                ]
+              },
+              // UI > Quickmenu
+              {
+                id: "ui_quickmenu", name: "Quickmenu", type: "subtab", icon: "application_view_tile",
+                children: [
+                  // Quickmenu > Button Settings
+                  {
+                    id: "qm_btnsettings", name: "Button Settings", type: "subtab", icon: "application_view_tile",
+                    note: "frame.quickmenuBtnSheet (nesting depth 5)",
+                    children: [
+                      // Button Settings > Toggles
+                      {
+                        id: "qm_toggles", name: "Toggles", type: "subtab", icon: "tick",
+                        children: [
+                          { id: "qmt_mapbrowser", name: "Map Browser", type: "item", convar: "vrmod_quickmenu_mapbrowser_enable" },
+                          { id: "qmt_exit", name: "VR Exit", type: "item", convar: "vrmod_quickmenu_exit" },
+                          { id: "qmt_uireset", name: "UI Reset", type: "item", convar: "vrmod_quickmenu_vgui_reset_menu" },
+                          { id: "qmt_gbradial", name: "VRE GBRadial & Add Menu", type: "item", convar: "vrmod_quickmenu_vre_gbradial_menu" },
+                          { id: "qmt_chat", name: "Chat", type: "item", convar: "vrmod_quickmenu_chat" },
+                          { id: "qmt_seated", name: "Seated Mode", type: "item", convar: "vrmod_quickmenu_seated_menu" },
+                          { id: "qmt_mirror", name: "Toggle Mirror", type: "item", convar: "vrmod_quickmenu_togglemirror" },
+                          { id: "qmt_spawn", name: "Spawn Menu", type: "item", convar: "vrmod_quickmenu_spawn_menu" },
+                          { id: "qmt_noclip", name: "No Clip", type: "item", convar: "vrmod_quickmenu_noclip" },
+                          { id: "qmt_context", name: "Context Menu", type: "item", convar: "vrmod_quickmenu_context_menu" },
+                          { id: "qmt_arccw", name: "ArcCW Customize", type: "item", convar: "vrmod_quickmenu_arccw" },
+                          { id: "qmt_vehicle", name: "Toggle Vehicle Mode", type: "item", convar: "vrmod_quickmenu_togglevehiclemode" },
+                          { id: "qmt_custom", name: "Use Custom QuickMenu", type: "item", convar: "vrmod_quickmenu_use_custom" }
+                        ]
+                      },
+                      // Button Settings > Quick Menu Editor (module)
+                      {
+                        id: "qm_editor", name: "Quick Menu Editor", type: "subtab", icon: "layout_edit",
+                        note: "MODULE: vrmod_quickmenu_editor.lua (hook: addsettings_quickmenu_editor)",
+                        children: [
+                          { id: "qme_note", name: "Custom quick menu layout editor", type: "item", convar: "" }
+                        ]
+                      }
+                    ]
+                  },
+                  // Quickmenu > Display
+                  {
+                    id: "qm_display", name: "Display", type: "subtab", icon: "monitor",
+                    children: [
+                      { id: "qmd_qmattach", name: "Quickmenu Attach Position", type: "item", convar: "vrmod_attach_quickmenu" },
+                      { id: "qmd_wmattach", name: "Weapon Menu Attach Position", type: "item", convar: "vrmod_attach_weaponmenu" },
+                      { id: "qmd_popupattach", name: "Popup Window Attach Position", type: "item", convar: "vrmod_attach_popup" },
+                      { id: "qmd_kbchat", name: "Keyboard UI Chat Key", type: "item", convar: "vrmod_keyboard_uichatkey" },
+                      { id: "qmd_vreleft", name: "VRE Attach Left Hands", type: "item", convar: "vre_ui_attachtohand" },
+                      { id: "qmd_keyboard", name: "Toggle VR Keyboard", type: "item", convar: "" }
+                    ]
+                  }
+                ]
+              },
+              // UI > HUD
+              {
+                id: "ui_hud", name: "HUD", type: "subtab", icon: "monitor",
+                children: [
+                  { id: "hud_enable", name: "HUD Enable", type: "item", convar: "vrmod_hud" },
+                  { id: "hud_curve", name: "HUD Curve", type: "item", convar: "vrmod_hudcurve" },
+                  { id: "hud_dist", name: "HUD Distance", type: "item", convar: "vrmod_huddistance" },
+                  { id: "hud_scale", name: "HUD Scale", type: "item", convar: "vrmod_hudscale" },
+                  { id: "hud_alpha", name: "HUD Alpha", type: "item", convar: "vrmod_hudtestalpha" },
+                  { id: "hud_onlykey", name: "HUD Only While Pressing Menu Key", type: "item", convar: "vrmod_hud_visible_quickmenukey" }
+                ]
+              }
+            ]
+          },
+          // VRplay > Character
+          {
+            id: "vp_character", name: "Character", type: "subtab", icon: "user",
+            children: [
+              // Character > General
+              {
+                id: "ch_general", name: "General", type: "subtab", icon: "user",
+                children: [
+                  { id: "chg_mirror", name: "Toggle Mirror", type: "item", convar: "" },
+                  { id: "chg_seated", name: "Enable Seated Mode", type: "item", convar: "vrmod_seated" },
+                  { id: "chg_seatedoffset", name: "Enable seated offset", type: "item", convar: "vrmod_seated" },
+                  { id: "chg_floating", name: "Use floating hands", type: "item", convar: "vrmod_floatinghands" },
+                  { id: "chg_althead", name: "Alternative head angle manipulation", type: "item", convar: "vrmod_althead" },
+                  { id: "chg_pmchange", name: "Player Model Change (forPAC3)", type: "item", convar: "vrmod_pmchange" },
+                  { id: "chg_apply", name: "Apply VR Settings (Requires Restart)", type: "item", convar: "" },
+                  { id: "chg_sranipal", name: "Enable SRanipal", type: "item", convar: "vrmod_use_sranipal" },
+                  { id: "chg_worldmodels", name: "Use weapon world models", type: "item", convar: "vrmod_useworldmodels" }
+                ]
+              },
+              // Character > Settings
+              {
+                id: "ch_settings", name: "Settings", type: "subtab", icon: "cog",
+                children: [
+                  { id: "chs_eyeheight", name: "Character Eye Height", type: "item", convar: "vrmod_characterEyeHeight" },
+                  { id: "chs_crouch", name: "Crouch Threshold", type: "item", convar: "vrmod_crouchthreshold" },
+                  { id: "chs_scale", name: "Character Scale (+/-)", type: "item", convar: "vrmod_scale" },
+                  { id: "chs_seatedoffset", name: "Seated Offset", type: "item", convar: "vrmod_seatedoffset" },
+                  { id: "chs_znear", name: "Z Near", type: "item", convar: "vrmod_znear" },
+                  { id: "chs_headtohmd", name: "Head to HMD Distance", type: "item", convar: "vrmod_characterHeadToHmdDist" },
+                  { id: "chs_hidehead", name: "Hide Head", type: "item", convar: "vrmod_hide_head" },
+                  { id: "chs_hideheadxyz", name: "Head Hide Position X/Y/Z", type: "item", convar: "vrmod_hide_head_pos_*" },
+                  { id: "chs_autoadjust", name: "Auto Adjust VR Settings", type: "item", convar: "" },
+                  { id: "chs_restore", name: "Restore Default Settings", type: "item", convar: "" }
+                ]
+              },
+              // Character > Animation
+              {
+                id: "ch_animation", name: "Animation", type: "subtab", icon: "user_edit",
+                children: [
+                  { id: "cha_mode", name: "Animation Mode (slider 0-3)", type: "item", convar: "vrmod_animation_mode" },
+                  { id: "cha_enable", name: "Character Animation Enable", type: "item", convar: "vrmod_animation_Enable" },
+                  { id: "cha_idle", name: "Idle Animation", type: "item", convar: "vrmod_idle_act" },
+                  { id: "cha_walk", name: "Walk Animation", type: "item", convar: "vrmod_walk_act" },
+                  { id: "cha_run", name: "Run Animation", type: "item", convar: "vrmod_run_act" },
+                  { id: "cha_jump", name: "Jump Animation", type: "item", convar: "vrmod_jump_act" },
+                  { id: "cha_altyaw", name: "Alternative Character Yaw", type: "item", convar: "vrmod_oldcharacteryaw" },
+                  { id: "cha_reset", name: "Reset to Default", type: "item", convar: "" }
+                ]
+              }
+            ]
+          },
+          // VRplay > gameplay
+          {
+            id: "vp_gameplay", name: "gameplay", type: "subtab", icon: "joystick",
+            note: "Empty placeholder - Coming soon",
+            children: []
+          },
+          // VRplay > pickup
+          {
+            id: "vp_pickup", name: "pickup", type: "subtab", icon: "brick",
+            note: "frame.pickupSheet",
+            children: [
+              // pickup > Settings
+              {
+                id: "pk_settings", name: "Settings", type: "subtab", icon: "cog",
+                children: [
+                  { id: "pks_weight", name: "Pickup Weight (Server)", type: "item", convar: "vrmod_pickup_weight" },
+                  { id: "pks_range", name: "Pickup Range (Server)", type: "item", convar: "vrmod_pickup_range" },
+                  { id: "pks_limit", name: "Pickup Limit (Server)", type: "item", convar: "vrmod_pickup_limit" },
+                  { id: "pks_disable", name: "VR Disable Pickup (Client)", type: "item", convar: "vr_pickup_disable_client" },
+                  { id: "pks_manual", name: "Manual Pickup (by Hugo)", type: "item", convar: "vrmod_manualpickups" }
+                ]
+              },
+              // pickup > VRPhysgun (MODULE)
+              {
+                id: "pk_physgun", name: "VRPhysgun", type: "subtab", icon: "brick",
+                note: "MODULE: vrmod_addmenuphys.lua (hook: addsettingsvrphysgun) -> frame.physgunSheet",
+                children: [
+                  { id: "phys_general", name: "General", type: "subtab", icon: "cog", children: [
+                    { id: "pg_compat", name: "VRPICKUP Compatibility Mode", type: "item", convar: "vrmod_unoff_physgun_pickup_compat" }
+                  ]},
+                  { id: "phys_left", name: "Physgun Left", type: "subtab", icon: "brick", children: [
+                    { id: "pl_enable", name: "Enable Physgun Beams", type: "item", convar: "vrmod_left_physgun_beam_enable" },
+                    { id: "pl_range", name: "Beam Range", type: "item", convar: "vrmod_left_physgun_beam_range" },
+                    { id: "pl_damage_en", name: "Enable Beam Damage", type: "item", convar: "vrmod_left_physgun_beam_damage_enable" },
+                    { id: "pl_damage", name: "Beam Damage Amount", type: "item", convar: "vrmod_left_physgun_beam_damage" },
+                    { id: "pl_pull", name: "Enable Pull Feature", type: "item", convar: "vrmod_left_physgun_pull_enable" },
+                    { id: "pl_noclip", name: "Noclip Collision", type: "item", convar: "vrmod_left_physgun_noclip_enable" },
+                    { id: "pl_offsets", name: "Beam Offset X/Y/Z", type: "item", convar: "vrmod_left_physgun_beam_offset_*" },
+                    { id: "pl_restore", name: "Restore Default Settings", type: "item", convar: "" }
+                  ]},
+                  { id: "phys_right", name: "Physgun Right", type: "subtab", icon: "brick_add", children: [
+                    { id: "pr_enable", name: "Enable Physgun Beams", type: "item", convar: "vrmod_right_physgun_beam_enable" },
+                    { id: "pr_range", name: "Beam Range", type: "item", convar: "vrmod_right_physgun_beam_range" },
+                    { id: "pr_damage_en", name: "Enable Beam Damage", type: "item", convar: "vrmod_right_physgun_beam_damage_enable" },
+                    { id: "pr_damage", name: "Beam Damage Amount", type: "item", convar: "vrmod_right_physgun_beam_damage" },
+                    { id: "pr_pull", name: "Enable Pull Feature", type: "item", convar: "vrmod_right_physgun_pull_enable" },
+                    { id: "pr_noclip", name: "Noclip Collision", type: "item", convar: "vrmod_right_physgun_noclip_enable" },
+                    { id: "pr_offsets", name: "Beam Offset X/Y/Z", type: "item", convar: "vrmod_right_physgun_beam_offset_*" },
+                    { id: "pr_restore", name: "Restore Default Settings", type: "item", convar: "" }
+                  ]},
+                  // VRPhysgun > Beam Pickup (MODULE)
+                  {
+                    id: "pk_beampickup", name: "Beam Pickup", type: "subtab", icon: "lightning",
+                    note: "MODULE: vrmod_addmenu_vrpickup.lua (hook: addsettingsvrpickupbeam)",
+                    children: [
+                      { id: "bp_enable", name: "Enable Beam Pickup", type: "item", convar: "vrmod_pickup_beam_enable" },
+                      { id: "bp_range", name: "Beam Pickup Range", type: "item", convar: "vrmod_pickup_beamrange" },
+                      { id: "bp_range02", name: "Beam Pickup Range 02", type: "item", convar: "vrmod_pickup_beamrange02" },
+                      { id: "bp_weight", name: "Beam Pickup Weight", type: "item", convar: "vrmod_pickup_weight" },
+                      { id: "bp_damage_en", name: "pickup dummy damage", type: "item", convar: "vrmod_pickup_beam_damage_enable" },
+                      { id: "bp_damage", name: "Beam dummy Damage", type: "item", convar: "vrmod_pickup_beam_damage" },
+                      { id: "bp_restore", name: "Restore Default Settings", type: "item", convar: "" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          // VRplay > non-VRGun
+          {
+            id: "vp_nonvrgun", name: "non-VRGun", type: "subtab", icon: "gun",
+            note: "frame.nonVRGunSheet",
+            children: [
+              // non-VRGun > Settings
+              {
+                id: "nvg_settings", name: "Settings", type: "subtab", icon: "cog",
+                children: [
+                  { id: "nvgs_viewmodel", name: "Weapon Viewmodel Setting", type: "item", convar: "" },
+                  { id: "nvgs_flashlight", name: "Flashlight Attachment (0=R,1=L,2=HMD)", type: "item", convar: "vrmod_flashlight_attachment" },
+                  { id: "nvgs_laser", name: "Toggle Laser Pointer", type: "item", convar: "" },
+                  { id: "nvgs_sight", name: "Sight Bodypart", type: "item", convar: "vrmod_sight_bodypart" }
+                ]
+              },
+              // non-VRGun > Foregrip (MODULE)
+              {
+                id: "nvg_foregrip", name: "Foregrip", type: "subtab", icon: "controller",
+                note: "MODULE: vrmod_addmenu_grip.lua (hook: addsettingsgrip)",
+                children: [
+                  { id: "fg_note", name: "Foregrip settings (grip angle, offset, etc.)", type: "item", convar: "" }
+                ]
+              },
+              // non-VRGun > Magazine (MODULE)
+              {
+                id: "nvg_magazine", name: "Magazine", type: "subtab", icon: "basket",
+                note: "MODULE: vrmod_addmenu04.lua (hook: addsettings04)",
+                children: [
+                  { id: "mg_enable", name: "Enable VR Magazine System", type: "item", convar: "vrmod_mag_system_enable" },
+                  { id: "mg_bonetype", name: "Bone or bonegroup type", type: "item", convar: "vrmod_mag_ejectbone_type" },
+                  { id: "mg_sound", name: "Magazine Enter Sound", type: "item", convar: "vrmod_magent_sound" },
+                  { id: "mg_range", name: "Magazine Enter Range", type: "item", convar: "vrmod_magent_range" },
+                  { id: "mg_model", name: "Magazine Enter Model", type: "item", convar: "vrmod_magent_model" },
+                  { id: "mg_eject", name: "WeaponModel Mag Grab/Eject (WIP)", type: "item", convar: "vrmod_mag_ejectbone_enable" },
+                  { id: "mg_pos", name: "Position X/Y/Z", type: "item", convar: "vrmod_mag_pos_*" },
+                  { id: "mg_ang", name: "Angle Pitch/Yaw/Roll", type: "item", convar: "vrmod_mag_ang_*" },
+                  { id: "mg_bones", name: "Magazine Bone Names", type: "item", convar: "vrmod_mag_bones" },
+                  { id: "mg_restore", name: "Restore Default Settings", type: "item", convar: "" }
+                ]
+              }
+            ]
+          },
+          // VRplay > VRMelee (MODULE)
+          {
+            id: "vp_melee", name: "VRMelee", type: "subtab", icon: "briefcase",
+            note: "MODULE: vrmod_unoff_menu_melee.lua (hook: addsettingsmelee)",
+            children: [
+              { id: "mel_basic", name: "Basic", type: "subtab", icon: "briefcase", children: [
+                { id: "mlb_gunmelee", name: "Use Gun Melee", type: "item", convar: "vrmelee_usegunmelee" },
+                { id: "mlb_fist", name: "Use Fist Attacks", type: "item", convar: "vrmelee_usefist" },
+                { id: "mlb_kick", name: "Use Kick Attacks [FBT]", type: "item", convar: "vrmelee_usekick" },
+                { id: "mlb_hitsound", name: "Play Hit Sounds", type: "item", convar: "vrmelee_hit_sound" },
+                { id: "mlb_feedback", name: "Enable Hit Feedback", type: "item", convar: "vrmelee_hit_feedback" },
+                { id: "mlb_range", name: "Attack Range", type: "item", convar: "vrmelee_range" },
+                { id: "mlb_collision", name: "Fist Collision Effects", type: "item", convar: "vrmelee_fist_collision" },
+                { id: "mlb_visible", name: "Visible Collision Model", type: "item", convar: "vrmelee_fist_visible" }
+              ]},
+              { id: "mel_damage", name: "Damage", type: "subtab", icon: "wand", children: [
+                { id: "mld_low", name: "Damage (Low)", type: "item", convar: "vrmelee_damage_low" },
+                { id: "mld_med", name: "Damage (Medium)", type: "item", convar: "vrmelee_damage_medium" },
+                { id: "mld_high", name: "Damage (High)", type: "item", convar: "vrmelee_damage_high" },
+                { id: "mld_vlow", name: "Velocity Threshold (Low)", type: "item", convar: "vrmelee_damage_velocity_low" },
+                { id: "mld_vmed", name: "Velocity Threshold (Medium)", type: "item", convar: "vrmelee_damage_velocity_medium" },
+                { id: "mld_vhigh", name: "Velocity Threshold (High)", type: "item", convar: "vrmelee_damage_velocity_high" },
+                { id: "mld_impact", name: "Impact Force", type: "item", convar: "vrmelee_impact" },
+                { id: "mld_delay", name: "Attack Delay", type: "item", convar: "vrmelee_delay" },
+                { id: "mld_cooldown", name: "Attack Cooldown", type: "item", convar: "vrmelee_cooldown" },
+                { id: "mld_hitbox", name: "Hitbox Width/Length", type: "item", convar: "vrmelee_hitbox_*" },
+                { id: "mld_reset", name: "Reset to Defaults", type: "item", convar: "" }
+              ]},
+              { id: "mel_advanced", name: "Advanced", type: "subtab", icon: "cog", children: [
+                { id: "mla_commands", name: "Hit Commands (Left/Right/Foot/Gun)", type: "item", convar: "vrmelee_*_command" },
+                { id: "mla_collmodel", name: "Collision Effect Model", type: "item", convar: "vrmelee_fist_collisionmodel" },
+                { id: "mla_blocking", name: "Enable Blocking + settings", type: "item", convar: "vrmelee_emulateblocking" }
+              ]},
+              { id: "mel_server", name: "Server", type: "subtab", icon: "server", children: [
+                { id: "mls_note", name: "Server-side melee settings (admin only)", type: "item", convar: "" }
+              ]}
+            ]
+          },
+          // VRplay > Vehicle
+          {
+            id: "vp_vehicle", name: "Vehicle", type: "subtab", icon: "car",
+            children: [
+              { id: "vh_autoseat", name: "Auto Seat Reset", type: "item", convar: "vrmod_auto_seat_reset" },
+              { id: "vh_reset", name: "Reset Vehicle Settings", type: "item", convar: "" }
+            ]
+          },
+          // VRplay > Graphics
+          {
+            id: "vp_graphics", name: "Graphics", type: "subtab", icon: "picture",
+            children: [
+              // Graphics > Graphics02
+              {
+                id: "gr_graphics02", name: "Graphics02", type: "subtab", icon: "wrench",
+                children: [
+                  { id: "g2_rtw", name: "RT Width Multiplier", type: "item", convar: "vrmod_rtWidth_Multiplier" },
+                  { id: "g2_rth", name: "RT Height Multiplier", type: "item", convar: "vrmod_rtHeight_Multiplier" },
+                  { id: "g2_uiw", name: "VR UI Width", type: "item", convar: "vrmod_ScrW" },
+                  { id: "g2_uih", name: "VR UI Height", type: "item", convar: "vrmod_ScrH" },
+                  { id: "g2_hudw", name: "VR HUD Width", type: "item", convar: "vrmod_ScrW_hud" },
+                  { id: "g2_hudh", name: "VR HUD Height", type: "item", convar: "vrmod_ScrH_hud" },
+                  { id: "g2_autores", name: "Resolution (Auto-Detect)", type: "item", convar: "vrmod_scr_alwaysautosetting" },
+                  { id: "g2_quest2", name: "Quest 2 Preset", type: "item", convar: "" },
+                  { id: "g2_restore", name: "Restore Default Settings", type: "item", convar: "" }
+                ]
+              },
+              // Graphics > Optimize
+              {
+                id: "gr_optimize", name: "Optimize", type: "subtab", icon: "picture",
+                children: [
+                  { id: "opt_general", name: "General", type: "subtab", icon: "cog", children: [
+                    { id: "optg_skybox", name: "Skybox Enable", type: "item", convar: "r_3dsky" },
+                    { id: "optg_shadows", name: "Shadows & Flashlights", type: "item", convar: "r_shadows" },
+                    { id: "optg_farz", name: "Visible Range of Map", type: "item", convar: "r_farz" },
+                    { id: "optg_level", name: "VRMod Optimization Level (0-4)", type: "item", convar: "vrmod_gmod_optimization" },
+                    { id: "optg_glass", name: "Remove All Reflective Glass", type: "item", convar: "" }
+                  ]},
+                  { id: "opt_vr", name: "Opt.VR", type: "subtab", icon: "cog_add", children: [
+                    { id: "optvr_note", name: "VR-specific optimization sliders (9 items + Apply)", type: "item", convar: "" }
+                  ]},
+                  { id: "opt_gmod", name: "Opt.Gmod", type: "subtab", icon: "cog_add", children: [
+                    { id: "optgm_note", name: "GMod-specific optimization sliders (10 items + Apply)", type: "item", convar: "" }
+                  ]}
+                ]
+              },
+              // Graphics > desktop
+              {
+                id: "gr_desktop", name: "desktop", type: "subtab", icon: "monitor",
+                children: [
+                  { id: "dt_view", name: "Desktop view (None/Left Eye/Right Eye)", type: "item", convar: "vrmod_desktopview" }
+                ]
+              }
+            ]
+          },
+          // VRplay > Cardboard
+          {
+            id: "vp_cardboard", name: "Cardboard", type: "subtab", icon: "phone",
+            children: [
+              { id: "cb_scale", name: "Cardboard Scale", type: "item", convar: "cardboardmod_scale" },
+              { id: "cb_sens", name: "Cardboard Sensitivity", type: "item", convar: "cardboardmod_sensitivity" },
+              { id: "cb_info", name: "Info: Alternative VR mode using phone sensors", type: "item", convar: "" },
+              { id: "cb_start", name: "Start Cardboard VR Mode", type: "item", convar: "" },
+              { id: "cb_exit", name: "Exit Cardboard VR Mode", type: "item", convar: "" },
+              { id: "cb_restore", name: "Restore Default Settings", type: "item", convar: "" }
+            ]
+          }
+        ]
+      },
+      // --- Misc ---
+      {
+        id: "s02_misc", name: "Misc", type: "subtab", icon: "cog",
+        children: [
+          { id: "mi_autostart", name: "Automatically start VR after map loads", type: "item", convar: "vrmod_autostart" }
+        ]
+      },
+      // --- Server ---
+      {
+        id: "s02_server", name: "Server", type: "subtab", icon: "connect",
+        children: [
+          {
+            id: "sv_general", name: "General", type: "subtab", icon: "connect",
+            children: [
+              { id: "svg_teleport", name: "Allow VR Teleport (Server)", type: "item", convar: "vrmod_allow_teleport" }
+            ]
+          },
+          {
+            id: "sv_network", name: "Network", type: "subtab", icon: "connect",
+            children: [
+              { id: "net_delay", name: "Net Delay", type: "item", convar: "vrmod_net_delay" },
+              { id: "net_delaymax", name: "Net Delay Max", type: "item", convar: "vrmod_net_delaymax" },
+              { id: "net_stored", name: "Net Stored Frames", type: "item", convar: "vrmod_net_storedframes" },
+              { id: "net_tickrate", name: "Net Tickrate", type: "item", convar: "vrmod_net_tickrate" },
+              { id: "net_restore", name: "Restore Default Settings", type: "item", convar: "" }
+            ]
+          }
+        ]
+      },
+      // --- debug ---
+      {
+        id: "s02_debug", name: "debug", type: "subtab", icon: "application_xp_terminal",
+        note: "frame.debugSheet",
+        children: [
+          // debug > Debug Monitor (MODULE)
+          {
+            id: "dbg_monitor", name: "Debug Monitor", type: "subtab", icon: "information",
+            note: "MODULE: vrmod_debug_menutab.lua (hook: addsettings_debug_monitor, dev_mode gated)",
+            children: [
+              { id: "dbgm_summary", name: "Summary", type: "subtab", icon: "information", children: [
+                { id: "dbgs_status", name: "Debug System Status", type: "item", convar: "" },
+                { id: "dbgs_hooks", name: "Hook Monitoring toggle", type: "item", convar: "vrmod_unoff_debug_hooks" },
+                { id: "dbgs_loglevel", name: "Log Level slider", type: "item", convar: "vrmod_unoff_debug_loglevel" },
+                { id: "dbgs_record", name: "Start/Stop Recording", type: "item", convar: "" },
+                { id: "dbgs_export", name: "Export Session Data (JSON)", type: "item", convar: "" }
+              ]}
+            ]
+          },
+          // debug > Commands
+          {
+            id: "dbg_commands", name: "Commands", type: "subtab", icon: "application_xp_terminal",
+            children: [
+              { id: "cmd_rtreset", name: "Reset/Update Render Targets", type: "item", convar: "" },
+              { id: "cmd_rtw", name: "RT Width Multiplier", type: "item", convar: "vrmod_rtWidth_Multiplier" },
+              { id: "cmd_rth", name: "RT Height Multiplier", type: "item", convar: "vrmod_rtHeight_Multiplier" },
+              { id: "cmd_quest2", name: "Quest 2 Preset", type: "item", convar: "" },
+              { id: "cmd_quest2vd", name: "Quest 2 + Virtual Desktop Preset", type: "item", convar: "" },
+              { id: "cmd_door", name: "Toggle Door Collision Debug", type: "item", convar: "" },
+              { id: "cmd_loco", name: "Toggle Playspace Debug", type: "item", convar: "" },
+              { id: "cmd_net", name: "Toggle Network Debug", type: "item", convar: "" },
+              { id: "cmd_x64anim", name: "Switch to x64 Animation", type: "item", convar: "" },
+              { id: "cmd_semianim", name: "Switch to Semiofficial Animation", type: "item", convar: "" },
+              { id: "cmd_compat", name: "Show Compatibility Status", type: "item", convar: "" },
+              { id: "cmd_devices", name: "Print VR Devices Info", type: "item", convar: "" },
+              { id: "cmd_cbstart", name: "Start Cardboard VR Mode", type: "item", convar: "" },
+              { id: "cmd_cbexit", name: "Exit Cardboard VR Mode", type: "item", convar: "" },
+              { id: "cmd_radial", name: "Toggle Radial Menu", type: "item", convar: "" },
+              { id: "cmd_servermenu", name: "Toggle Server Menu", type: "item", convar: "" }
+            ]
+          },
+          // debug > Utility
+          {
+            id: "dbg_utility", name: "Utility", type: "subtab", icon: "wrench",
+            children: [
+              { id: "u_screen", name: "Auto-Detect Screen Resolution", type: "item", convar: "" },
+              { id: "u_vgui", name: "Reset VGUI Panels", type: "item", convar: "" },
+              { id: "u_config", name: "Generate VR Config Data (Fix x64)", type: "item", convar: "" },
+              { id: "u_autogen", name: "Auto-generate config on VR startup", type: "item", convar: "vrmod_unoff_auto_generate_config" },
+              { id: "u_startvr", name: "Start VR", type: "item", convar: "" },
+              { id: "u_exitvr", name: "Exit VR", type: "item", convar: "" },
+              { id: "u_reset", name: "Reset All Settings", type: "item", convar: "" },
+              { id: "u_info", name: "Print VR Info", type: "item", convar: "" },
+              { id: "u_luareset", name: "Reset Lua Modules", type: "item", convar: "" }
+            ]
+          },
+          // debug > vehiclemode
+          {
+            id: "dbg_vehiclemode", name: "vehiclemode", type: "subtab", icon: "car",
+            children: [
+              { id: "vm_main", name: "Main Mode (On-Foot)", type: "item", convar: "" },
+              { id: "vm_driving", name: "Driving Mode (Vehicle)", type: "item", convar: "" },
+              { id: "vm_both", name: "Both Modes (Main + Driving)", type: "item", convar: "" },
+              { id: "vm_restore", name: "Auto Mode (Restore)", type: "item", convar: "" },
+              { id: "vm_lvs", name: "LVS Networked Mode", type: "item", convar: "vrmod_lvs_input_mode" },
+              { id: "vm_lfs", name: "LFS Mode", type: "item", convar: "" },
+              { id: "vm_simf", name: "SimfPhys Mode", type: "item", convar: "" }
+            ]
+          },
+          // debug > Settings
+          {
+            id: "dbg_settings", name: "Settings", type: "subtab", icon: "cog",
+            children: [
+              { id: "dbs_errcheck", name: "Error Check Method", type: "item", convar: "vrmod_error_check_method" },
+              { id: "dbs_errlock", name: "ModuleError VRMod Menu Lock", type: "item", convar: "vrmod_error_hard" },
+              { id: "dbs_lvs", name: "Enable LVS Pickup Handle", type: "item", convar: "vrmod_lvs_input_mode" },
+              { id: "dbs_devmode", name: "Enable Developer Mode", type: "item", convar: "vrmod_unoff_developer_mode" },
+              { id: "dbs_reset", name: "Reset settings to default", type: "item", convar: "" }
+            ]
+          }
+        ]
+      },
+      // --- x64 Mode (MODULE) ---
+      {
+        id: "s02_x64mode", name: "x64 Mode", type: "subtab", icon: "joystick",
+        note: "MODULE: !vrmod_x64mode_core.lua (hook: x64mode_MenuTab)",
+        children: [
+          { id: "x64_main", name: "x64 Mode", type: "subtab", children: [
+            { id: "x64m_note", name: "x64 mode toggle and settings", type: "item", convar: "" }
+          ]},
+          { id: "x64_wip", name: "x64 WIP", type: "subtab", children: [
+            { id: "x64w_note", name: "Experimental x64 features (WIP)", type: "item", convar: "" }
+          ]}
+        ]
+      },
+      // --- VRStop Key ---
+      {
+        id: "s02_emstop", name: "VRStop Key", type: "subtab", icon: "stop",
+        children: [
+          { id: "em_key", name: "Emergency Stop Key Binder", type: "item", convar: "vrmod_emergencystop_key" },
+          { id: "em_time", name: "Hold Time for Emergency Stop", type: "item", convar: "vrmod_emergencystop_time" }
+        ]
+      }
+    ]
+  },
+  // ============================================================
+  // REMAINING ROOT TABS (not yet integrated into Settings02)
+  // ============================================================
+  {
+    id: "vrhandhud", name: "VRHandHUDs", type: "root_tab", source: "9/vrmod_hand_hud_menu.lua",
+    note: "Hook: VRhandhudsettings - Still root tab, needs placement",
+    children: [
+      {
+        id: "hh_settings", name: "VRHandHUDs", type: "subtab", icon: "monitor_edit",
+        children: [
+          { id: "hh_left_enable", name: "Enable Left Hand HUD", type: "item", convar: "vrmod_left_hud_enabled" },
+          { id: "hh_left_scale", name: "Left Scale", type: "item", convar: "vrmod_left_hud_scale" },
+          { id: "hh_left_pos", name: "Left Offset Pos X/Y/Z", type: "item", convar: "vrmod_left_hud_offset_pos_*" },
+          { id: "hh_left_ang", name: "Left Offset Ang P/Y/R", type: "item", convar: "vrmod_left_hud_offset_ang_*" },
+          { id: "hh_left_uv", name: "Left UV Offset/Scale X/Y", type: "item", convar: "vrmod_left_hud_uv_*" },
+          { id: "hh_left_blacklist", name: "Left Blacklist", type: "item", convar: "vrmod_left_hud_blacklist" },
+          { id: "hh_left_alpha", name: "Left Background Alpha", type: "item", convar: "vrmod_left_hud_alpha" },
+          { id: "hh_left_restore", name: "Left Restore Defaults", type: "item", convar: "" },
+          { id: "hh_right_enable", name: "Enable Right Hand HUD", type: "item", convar: "vrmod_right_hud_enabled" },
+          { id: "hh_right_scale", name: "Right Scale", type: "item", convar: "vrmod_right_hud_scale" },
+          { id: "hh_right_pos", name: "Right Offset Pos X/Y/Z", type: "item", convar: "vrmod_right_hud_offset_pos_*" },
+          { id: "hh_right_ang", name: "Right Offset Ang P/Y/R", type: "item", convar: "vrmod_right_hud_offset_ang_*" },
+          { id: "hh_right_uv", name: "Right UV Offset/Scale X/Y", type: "item", convar: "vrmod_right_hud_uv_*" },
+          { id: "hh_right_blacklist", name: "Right Blacklist", type: "item", convar: "vrmod_right_hud_blacklist" },
+          { id: "hh_right_alpha", name: "Right Background Alpha", type: "item", convar: "vrmod_right_hud_alpha" },
+          { id: "hh_right_restore", name: "Right Restore Defaults", type: "item", convar: "" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "arcticvr", name: "ArcticVR", type: "root_tab", source: "EXTERNAL: vrmod_arcvr_fix_beta_version_2700469904",
+    note: "EXTERNAL ADDON - Cannot modify from this project",
+    children: [
+      { id: "arc_note", name: "ArcticVR settings (external addon)", type: "item", convar: "" }
+    ]
+  },
+  {
+    id: "vrdebug", name: "VRDebug", type: "root_tab", source: "vrmod_debugmenu.lua",
+    note: "Hook: addsettingsdebug - dev_mode gated, still root tab",
+    children: [
+      { id: "vdb_test", name: "Test", type: "subtab", icon: "bug", children: [
+        { id: "vdbt_right", name: "Test Right Handle", type: "item", convar: "vrmod_test_Righthandle" },
+        { id: "vdbt_left", name: "Test Left Handle", type: "item", convar: "vrmod_test_lefthandle" },
+        { id: "vdbt_restore", name: "Restore Default Settings", type: "item", convar: "" }
+      ]},
+      { id: "vdb_emergency", name: "Emergency", type: "subtab", icon: "exclamation", children: [
+        { id: "vdbe_time", name: "Emergency Stop Hold Time", type: "item", convar: "vrmod_emergencystop_time" }
+      ]},
+      { id: "vdb_error", name: "Error", type: "subtab", icon: "error", children: [
+        { id: "vdber_hard", name: "Error Hard Mode", type: "item", convar: "vrmod_error_hard" }
+      ]},
+      { id: "vdb_monitor", name: "Monitor", type: "subtab", icon: "monitor", children: [
+        { id: "vdbm_open", name: "Open Debug Monitor Panel", type: "item", convar: "" },
+        { id: "vdbm_record", name: "Start/Stop Recording", type: "item", convar: "" },
+        { id: "vdbm_export", name: "Export Session Data", type: "item", convar: "" }
+      ]}
+    ]
+  },
+  {
+    id: "vrholster", name: "VRHolster", type: "root_tab", source: "vrmod_holstermenu_unified.lua",
+    note: "Hook: addsettingsholster - Still root tab, needs placement",
+    children: [
+      { id: "hol_type1", name: "Type1", type: "subtab", icon: "package", children: [
+        { id: "h1_rpelvis", name: "Right Pelvis Holster", type: "item", convar: "vrmod_weppouch_Pelvis" },
+        { id: "h1_rhead", name: "Right Head Holster", type: "item", convar: "vrmod_weppouch_Head" },
+        { id: "h1_rspine", name: "Right Spine Holster", type: "item", convar: "vrmod_weppouch_Spine" },
+        { id: "h1_rrestore", name: "Restore Defaults (Right)", type: "item", convar: "" },
+        { id: "h1_lpelvis", name: "Left Pelvis Holster", type: "item", convar: "vrmod_weppouch_left_Pelvis" },
+        { id: "h1_lhead", name: "Left Head Holster", type: "item", convar: "vrmod_weppouch_left_Head" },
+        { id: "h1_lspine", name: "Left Spine Holster", type: "item", convar: "vrmod_weppouch_left_Spine" },
+        { id: "h1_lrestore", name: "Restore Defaults (Left)", type: "item", convar: "" }
+      ]},
+      { id: "hol_type2", name: "Type2", type: "subtab", icon: "basket", children: [
+        { id: "h2_enable", name: "System Enable", type: "item", convar: "vrmod_pouch_enabled" },
+        { id: "h2_visname", name: "Visible Name", type: "item", convar: "vrmod_pouch_visiblename" },
+        { id: "h2_vishud", name: "Visible HUD", type: "item", convar: "vrmod_pouch_visiblename_hud" },
+        { id: "h2_lefthand", name: "Left Hand Weapon Enable", type: "item", convar: "vrmod_pouch_lefthandwep_enable" },
+        { id: "h2_sound", name: "Pickup Sound", type: "item", convar: "vrmod_pouch_pickup_sound" },
+        { id: "h2_release", name: "Release / Tediore settings", type: "item", convar: "vrmod_pickupoff_weaponholster" },
+        { id: "h2_dupe", name: "Reusable Dupe", type: "item", convar: "vrmod_unoff_dupe_reusable" },
+        { id: "h2_slots", name: "Per-Slot Settings (8 slots)", type: "item", convar: "vrmod_unoff_pouch_slot_enabled_*" },
+        { id: "h2_restore", name: "Restore Default Settings", type: "item", convar: "" }
+      ]},
+      { id: "hol_display", name: "Display", type: "subtab", icon: "eye", children: [
+        { id: "hd_range", name: "Visible Range", type: "item", convar: "vrmod_weppouch_visiblerange" },
+        { id: "hd_name", name: "Visible Name", type: "item", convar: "vrmod_weppouch_visiblename" },
+        { id: "hd_head", name: "Head Visible", type: "item", convar: "vrmod_head_visible" },
+        { id: "hd_lrange", name: "Visible Range (Left)", type: "item", convar: "vrmod_weppouch_visiblerange_left" },
+        { id: "hd_lname", name: "Visible Name (Left)", type: "item", convar: "vrmod_weppouch_visiblename_left" }
+      ]}
+    ]
+  }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let menuData = JSON.parse(JSON.stringify(ORIGINAL_DATA));
+let selectedNodeId = null;
+let draggedNodeId = null;
+let idCounter = 1000;
+
+function genId() { return '_new_' + (idCounter++); }
+
+// Deep clone
+function cloneData(d) { return JSON.parse(JSON.stringify(d)); }
+
+// ============================================================
+// TREE OPERATIONS
+// ============================================================
+
+// Find node and its parent array by ID
+function findNode(id, nodes, parent) {
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].id === id) return { node: nodes[i], siblings: nodes, index: i, parent: parent };
+    if (nodes[i].children) {
+      const r = findNode(id, nodes[i].children, nodes[i]);
+      if (r) return r;
+    }
+  }
+  return null;
+}
+
+// Count all nodes
+function countAll(nodes) {
+  let c = 0;
+  for (const n of nodes) {
+    c++;
+    if (n.children) c += countAll(n.children);
+  }
+  return c;
+}
+
+// ============================================================
+// RENDER TREE
+// ============================================================
+const collapsedSet = new Set();
+
+function renderTree() {
+  const container = document.getElementById('treeContainer');
+  container.innerHTML = '';
+  menuData.forEach(node => container.appendChild(createTreeNode(node, 0)));
+  document.getElementById('rootTabCount').textContent = menuData.length;
+  document.getElementById('totalCount').textContent = countAll(menuData);
+}
+
+function createTreeNode(node, depth) {
+  const div = document.createElement('div');
+  div.className = 'tree-node';
+  div.dataset.id = node.id;
+
+  const header = document.createElement('div');
+  header.className = 'tree-node-header';
+  if (node.type === 'root_tab') header.classList.add('node-root-tab');
+  else if (node.type === 'subtab') header.classList.add('node-subtab');
+  else if (node.type === 'section') header.classList.add('node-section');
+  else header.classList.add('node-item');
+
+  if (node.id === selectedNodeId) header.classList.add('selected');
+
+  const hasChildren = node.children && node.children.length > 0;
+  const isCollapsed = collapsedSet.has(node.id);
+
+  // Toggle
+  const toggle = document.createElement('span');
+  toggle.className = 'toggle';
+  toggle.textContent = hasChildren ? (isCollapsed ? '\u25B6' : '\u25BC') : '';
+  toggle.onclick = (e) => { e.stopPropagation(); toggleCollapse(node.id); };
+  header.appendChild(toggle);
+
+  // Icon
+  const icon = document.createElement('span');
+  icon.className = 'icon';
+  if (node.type === 'root_tab') icon.textContent = '\uD83D\uDCC1';
+  else if (node.type === 'subtab') icon.textContent = '\uD83D\uDCC4';
+  else if (node.type === 'section') icon.textContent = '\uD83D\uDD36';
+  else icon.textContent = '\u2699';
+  header.appendChild(icon);
+
+  // Name
+  const name = document.createElement('span');
+  name.className = 'name';
+  name.textContent = node.name;
+  header.appendChild(name);
+
+  // Badge
+  if (hasChildren) {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = node.children.length;
+    header.appendChild(badge);
+  }
+  if (node.note) {
+    const warn = document.createElement('span');
+    warn.className = 'badge';
+    warn.style.background = '#e94560';
+    warn.style.color = '#fff';
+    warn.textContent = '!';
+    warn.title = node.note;
+    header.appendChild(warn);
+  }
+
+  // Click to select
+  header.onclick = (e) => { e.stopPropagation(); selectNode(node.id); };
+  // Double click to rename
+  header.ondblclick = (e) => { e.stopPropagation(); renameNode(node.id, name); };
+
+  // Drag & Drop
+  header.draggable = true;
+  header.ondragstart = (e) => {
+    draggedNodeId = node.id;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', node.id);
+    setTimeout(() => header.style.opacity = '0.4', 0);
+  };
+  header.ondragend = () => { header.style.opacity = '1'; clearDropIndicators(); };
+  header.ondragover = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    clearDropIndicators();
+    const rect = header.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const zone = y / rect.height;
+    if (zone < 0.25) header.classList.add('drag-over-above');
+    else if (zone > 0.75) header.classList.add('drag-over-below');
+    else header.classList.add('drag-over-inside');
+  };
+  header.ondragleave = () => { clearDropIndicators(); };
+  header.ondrop = (e) => {
+    e.preventDefault();
+    clearDropIndicators();
+    if (!draggedNodeId || draggedNodeId === node.id) return;
+    const rect = header.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const zone = y / rect.height;
+    if (zone < 0.25) dropNode(draggedNodeId, node.id, 'above');
+    else if (zone > 0.75) dropNode(draggedNodeId, node.id, 'below');
+    else dropNode(draggedNodeId, node.id, 'inside');
+    draggedNodeId = null;
+  };
+
+  div.appendChild(header);
+
+  // Children
+  if (hasChildren) {
+    const childDiv = document.createElement('div');
+    childDiv.className = 'tree-node-children' + (isCollapsed ? ' collapsed' : '');
+    node.children.forEach(child => childDiv.appendChild(createTreeNode(child, depth + 1)));
+    div.appendChild(childDiv);
+  }
+
+  return div;
+}
+
+function clearDropIndicators() {
+  document.querySelectorAll('.drag-over-above,.drag-over-inside,.drag-over-below')
+    .forEach(el => el.classList.remove('drag-over-above', 'drag-over-inside', 'drag-over-below'));
+}
+
+function toggleCollapse(id) {
+  if (collapsedSet.has(id)) collapsedSet.delete(id);
+  else collapsedSet.add(id);
+  renderTree();
+}
+
+function selectNode(id) {
+  selectedNodeId = id;
+  renderTree();
+  renderPreview();
+}
+
+// ============================================================
+// DROP LOGIC
+// ============================================================
+function dropNode(dragId, targetId, position) {
+  if (dragId === targetId) return;
+  // Check not dropping parent into child
+  const dragInfo = findNode(dragId, menuData, null);
+  if (!dragInfo) return;
+  // Check if target is descendant of dragged
+  if (dragInfo.node.children) {
+    const targetInDrag = findNode(targetId, dragInfo.node.children, dragInfo.node);
+    if (targetInDrag) { setStatus('Cannot drop a parent into its own child!'); return; }
+  }
+  const targetInfo = findNode(targetId, menuData, null);
+  if (!targetInfo) return;
+  // Remove from original position
+  dragInfo.siblings.splice(dragInfo.index, 1);
+  // Re-find target (indices may have shifted)
+  const targetInfo2 = findNode(targetId, menuData, null);
+  if (!targetInfo2) { menuData = cloneData(ORIGINAL_DATA); renderTree(); return; }
+  if (position === 'inside') {
+    if (!targetInfo2.node.children) targetInfo2.node.children = [];
+    targetInfo2.node.children.push(dragInfo.node);
+    collapsedSet.delete(targetId);
+  } else if (position === 'above') {
+    targetInfo2.siblings.splice(targetInfo2.index, 0, dragInfo.node);
+  } else {
+    targetInfo2.siblings.splice(targetInfo2.index + 1, 0, dragInfo.node);
+  }
+  setStatus(`Moved "${dragInfo.node.name}" ${position} "${targetInfo2.node.name}"`);
+  renderTree();
+  renderPreview();
+}
+
+// ============================================================
+// CUSTOM MODAL (replaces prompt/confirm)
+// ============================================================
+let modalResolve = null;
+
+function showModal(title, defaultValue, isDanger) {
+  return new Promise((resolve) => {
+    modalResolve = resolve;
+    document.getElementById('modalTitle').textContent = title;
+    const input = document.getElementById('modalInput');
+    const okBtn = document.getElementById('modalOkBtn');
+    if (defaultValue !== null) {
+      input.style.display = 'block';
+      input.value = defaultValue;
+      okBtn.textContent = 'OK';
+      okBtn.className = 'btn-ok';
+    } else {
+      input.style.display = 'none';
+      okBtn.textContent = isDanger ? 'Delete' : 'OK';
+      okBtn.className = isDanger ? 'btn-danger' : 'btn-ok';
+    }
+    document.getElementById('modalOverlay').classList.add('visible');
+    if (defaultValue !== null) { input.focus(); input.select(); }
+  });
+}
+
+function modalOk() {
+  const input = document.getElementById('modalInput');
+  const val = input.style.display !== 'none' ? input.value.trim() : true;
+  document.getElementById('modalOverlay').classList.remove('visible');
+  if (modalResolve) { modalResolve(val); modalResolve = null; }
+}
+
+function modalCancel() {
+  document.getElementById('modalOverlay').classList.remove('visible');
+  if (modalResolve) { modalResolve(null); modalResolve = null; }
+}
+
+// Enter key in modal input
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('modalOverlay').classList.contains('visible')) {
+    if (e.key === 'Enter') { e.preventDefault(); modalOk(); }
+    if (e.key === 'Escape') { e.preventDefault(); modalCancel(); }
+  }
+});
+
+// ============================================================
+// ACTIONS
+// ============================================================
+async function addRootTab() {
+  const name = await showModal('New root tab name:', 'New Tab');
+  if (!name) return;
+  menuData.push({ id: genId(), name: name, type: 'root_tab', source: '(new)', children: [] });
+  renderTree(); renderPreview();
+}
+
+async function addSubtab() {
+  if (!selectedNodeId) { setStatus('Select a root tab first'); return; }
+  const info = findNode(selectedNodeId, menuData, null);
+  if (!info) return;
+  const target = (info.node.type === 'root_tab' || info.node.type === 'subtab') ? info.node : null;
+  if (!target) { setStatus('Select a tab or subtab to add under'); return; }
+  const name = await showModal('New subtab name:', 'New Subtab');
+  if (!name) return;
+  if (!target.children) target.children = [];
+  target.children.push({ id: genId(), name: name, type: 'subtab', children: [] });
+  collapsedSet.delete(target.id);
+  renderTree(); renderPreview();
+}
+
+async function renameSelected() {
+  if (!selectedNodeId) { setStatus('Select a node first'); return; }
+  const info = findNode(selectedNodeId, menuData, null);
+  if (!info) return;
+  const name = await showModal('New name:', info.node.name);
+  if (!name) return;
+  info.node.name = name;
+  renderTree(); renderPreview();
+}
+
+function renameNode(id, nameEl) {
+  const info = findNode(id, menuData, null);
+  if (!info) return;
+  const input = document.createElement('input');
+  input.className = 'rename-input';
+  input.value = info.node.name;
+  nameEl.replaceWith(input);
+  input.focus();
+  input.select();
+  const finish = () => {
+    if (input.value.trim()) info.node.name = input.value.trim();
+    renderTree(); renderPreview();
+  };
+  input.onblur = finish;
+  input.onkeydown = (e) => { if (e.key === 'Enter') finish(); if (e.key === 'Escape') { renderTree(); } };
+}
+
+async function deleteSelected() {
+  if (!selectedNodeId) { setStatus('Select a node first'); return; }
+  const info = findNode(selectedNodeId, menuData, null);
+  if (!info) return;
+  const ok = await showModal(`Delete "${info.node.name}"?`, null, true);
+  if (!ok) return;
+  info.siblings.splice(info.index, 1);
+  selectedNodeId = null;
+  setStatus(`Deleted "${info.node.name}"`);
+  renderTree(); renderPreview();
+}
+
+function duplicateSelected() {
+  if (!selectedNodeId) { setStatus('Select a node first'); return; }
+  const info = findNode(selectedNodeId, menuData, null);
+  if (!info) return;
+  const dup = cloneData(info.node);
+  dup.id = genId();
+  dup.name += ' (copy)';
+  // Re-assign IDs for children
+  function reId(n) { n.id = genId(); if (n.children) n.children.forEach(reId); }
+  if (dup.children) dup.children.forEach(reId);
+  info.siblings.splice(info.index + 1, 0, dup);
+  renderTree(); renderPreview();
+}
+
+function moveUp() {
+  if (!selectedNodeId) return;
+  const info = findNode(selectedNodeId, menuData, null);
+  if (!info || info.index === 0) return;
+  [info.siblings[info.index - 1], info.siblings[info.index]] = [info.siblings[info.index], info.siblings[info.index - 1]];
+  renderTree();
+}
+
+function moveDown() {
+  if (!selectedNodeId) return;
+  const info = findNode(selectedNodeId, menuData, null);
+  if (!info || info.index >= info.siblings.length - 1) return;
+  [info.siblings[info.index], info.siblings[info.index + 1]] = [info.siblings[info.index + 1], info.siblings[info.index]];
+  renderTree();
+}
+
+async function resetAll() {
+  const ok = await showModal('Reset to original structure?', null, false);
+  if (!ok) return;
+  menuData = cloneData(ORIGINAL_DATA);
+  selectedNodeId = null;
+  collapsedSet.clear();
+  renderTree(); renderPreview();
+  setStatus('Reset to original structure');
+}
+
+function setStatus(msg) {
+  document.getElementById('statusLeft').textContent = msg;
+}
+
+// ============================================================
+// PREVIEW
+// ============================================================
+let previewActiveRoot = 0;
+
+function renderPreview() {
+  const area = document.getElementById('previewArea');
+  // Build preview of the reorganized menu
+  let html = '<div class="preview-menu">';
+  html += '<div class="preview-titlebar"><span>VRMod Menu</span><span style="font-size:11px">550x600</span></div>';
+  // Root tabs
+  html += '<div class="preview-tabs">';
+  menuData.forEach((tab, i) => {
+    const active = i === previewActiveRoot ? ' active' : '';
+    html += `<div class="preview-tab${active}" onclick="setPreviewTab(${i})">${tab.name}</div>`;
+  });
+  html += '</div>';
+  // Active tab content
+  const activeTab = menuData[previewActiveRoot];
+  if (activeTab) {
+    html += '<div class="preview-content">';
+    if (activeTab.children && activeTab.children.length > 0) {
+      const hasSubtabs = activeTab.children.some(c => c.type === 'subtab');
+      if (hasSubtabs) {
+        html += '<div class="preview-subtabs">';
+        activeTab.children.forEach((st, j) => {
+          const cls = j === 0 ? ' active' : '';
+          html += `<div class="preview-subtab${cls}">${st.name}</div>`;
+        });
+        html += '</div>';
+        // Show first subtab's items
+        const firstSub = activeTab.children[0];
+        if (firstSub && firstSub.children) {
+          firstSub.children.forEach(item => {
+            const cls = item.type === 'section' ? ' section-header' : '';
+            html += `<div class="preview-item${cls}">${item.name}${item.convar ? ' <span style="color:#555;font-size:10px">[' + item.convar + ']</span>' : ''}</div>`;
+          });
+        }
+      } else {
+        activeTab.children.forEach(item => {
+          const cls = item.type === 'section' ? ' section-header' : '';
+          html += `<div class="preview-item${cls}">${item.name}${item.convar ? ' <span style="color:#555;font-size:10px">[' + item.convar + ']</span>' : ''}</div>`;
+        });
+      }
+    } else {
+      html += '<div style="color:#555;font-style:italic;padding:20px">Empty tab</div>';
+    }
+    html += '</div>';
+  }
+  html += '<div class="preview-footer"><span>Addon version: semioffcial</span><span>[Start] [Exit]</span></div>';
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+function setPreviewTab(i) {
+  previewActiveRoot = i;
+  renderPreview();
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function showExport() {
+  const original = cloneData(ORIGINAL_DATA);
+  const current = cloneData(menuData);
+  // Build diff summary
+  const changes = [];
+  // Compare root tab names and order
+  const origNames = original.map(t => t.name);
+  const currNames = current.map(t => t.name);
+  if (JSON.stringify(origNames) !== JSON.stringify(currNames)) {
+    changes.push(`Root tabs changed: [${origNames.join(', ')}] -> [${currNames.join(', ')}]`);
+  }
+  // Find moved/deleted/added
+  const origIds = new Set();
+  function collectIds(nodes) { nodes.forEach(n => { origIds.add(n.id); if (n.children) collectIds(n.children); }); }
+  collectIds(original);
+  const currIds = new Set();
+  function collectCurrIds(nodes) { nodes.forEach(n => { currIds.add(n.id); if (n.children) collectCurrIds(n.children); }); }
+  collectCurrIds(current);
+  const deleted = [...origIds].filter(id => !currIds.has(id));
+  const added = [...currIds].filter(id => !origIds.has(id));
+  if (deleted.length) {
+    deleted.forEach(id => {
+      const info = findNodeIn(id, original);
+      if (info) changes.push(`DELETED: "${info.name}"`);
+    });
+  }
+  if (added.length) {
+    added.forEach(id => {
+      const info = findNodeIn(id, current);
+      if (info) changes.push(`ADDED: "${info.name}"`);
+    });
+  }
+
+  function findNodeIn(id, nodes) {
+    for (const n of nodes) {
+      if (n.id === id) return n;
+      if (n.children) { const r = findNodeIn(id, n.children); if (r) return r; }
+    }
+    return null;
+  }
+
+  // Build readable structure
+  function buildStructureText(nodes, indent) {
+    let text = '';
+    for (const n of nodes) {
+      const prefix = '  '.repeat(indent);
+      let line = prefix;
+      if (n.type === 'root_tab') line += `[ROOT TAB] ${n.name}`;
+      else if (n.type === 'subtab') line += `[SUB-TAB] ${n.name}`;
+      else line += `- ${n.name}`;
+      if (n.convar) line += `  (${n.convar})`;
+      if (n.source) line += `  // ${n.source}`;
+      text += line + '\n';
+      if (n.children) text += buildStructureText(n.children, indent + 1);
+    }
+    return text;
+  }
+
+  const exportObj = {
+    title: "VRMod Menu Reorganization Plan",
+    exported_at: new Date().toISOString(),
+    instruction: "This is the desired menu structure for vrmod_semioffcial_addonplus. Please reorganize the VRMod menu tabs and items to match this structure.",
+    changes_summary: changes,
+    new_structure_readable: buildStructureText(current, 0),
+    new_structure_json: current
+  };
+
+  const text = `# VRMod Menu Reorganization Plan
+# Exported: ${exportObj.exported_at}
+#
+# INSTRUCTION: Please reorganize the VRMod menu to match this structure.
+# Each [ROOT TAB] becomes a top-level tab in the DPropertySheet.
+# Each [SUB-TAB] becomes a nested tab within its parent.
+# Items (-) are the settings/controls within each tab.
+#
+# Changes from original:
+${changes.length ? changes.map(c => '# - ' + c).join('\n') : '# (no changes detected)'}
+
+## Desired Structure:
+${buildStructureText(current, 0)}
+## JSON (for programmatic use):
+${JSON.stringify(current, null, 2)}`;
+
+  document.getElementById('exportText').value = text;
+  document.getElementById('exportPanel').classList.add('visible');
+  document.getElementById('exportOverlay').classList.add('visible');
+}
+
+function hideExport() {
+  document.getElementById('exportPanel').classList.remove('visible');
+  document.getElementById('exportOverlay').classList.remove('visible');
+}
+
+function copyExport() {
+  const ta = document.getElementById('exportText');
+  ta.select();
+  navigator.clipboard.writeText(ta.value).then(() => {
+    setStatus('Copied to clipboard!');
+  }).catch(() => {
+    document.execCommand('copy');
+    setStatus('Copied to clipboard!');
+  });
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'Delete') deleteSelected();
+  if (e.key === 'F2') renameSelected();
+  if (e.key === 'ArrowUp' && e.ctrlKey) { e.preventDefault(); moveUp(); }
+  if (e.key === 'ArrowDown' && e.ctrlKey) { e.preventDefault(); moveDown(); }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderTree();
+renderPreview();
+setStatus('Ready. Drag tabs to reorder. Double-click to rename. Del to delete. Ctrl+Up/Down to move.');
+</script>
+</body>
+</html>

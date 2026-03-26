@@ -18,6 +18,7 @@ gmod_hud_shared_mat = not gmod_hud_shared_mat:IsError() and gmod_hud_shared_mat 
 local orig_VRUtilRenderMenuSystem_for_all_hand_huds = nil
 local _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func
 local _handHUD_rendering = false
+local _handHUD_origErrorLogged = false
 local function CurvedPlane_HandHUD(w_display_portion, h_display_portion, _segments_unused, _degrees_unused, matrix_transform, uv_offset_x, uv_offset_y, uv_scale_x, uv_scale_y, is_right_hand)
     matrix_transform = matrix_transform or Matrix()
     local mesh = Mesh()
@@ -134,14 +135,25 @@ _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func = function()
     if _handHUD_rendering then return end
     _handHUD_rendering = true
 
+    -- origの呼び出し: エラーが起きても_handHUD_renderingを必ずfalseに戻す
+    local origOk = true
     if orig_VRUtilRenderMenuSystem_for_all_hand_huds and orig_VRUtilRenderMenuSystem_for_all_hand_huds ~= _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func then
-        orig_VRUtilRenderMenuSystem_for_all_hand_huds()
+        local ok, err = pcall(orig_VRUtilRenderMenuSystem_for_all_hand_huds)
+        if not ok then
+            origOk = false
+            -- エラーを飲み込まず一度だけ警告（毎フレーム出さないように）
+            if not _handHUD_origErrorLogged then
+                ErrorNoHaltWithStack("[VR Hand HUD] Error in orig VRUtilRenderMenuSystem: " .. tostring(err))
+                _handHUD_origErrorLogged = true
+            end
+        end
     end
 
     if not g_VR.active then
         _handHUD_rendering = false
         return
     end
+
     for _, hudData in pairs(HandHUDs) do
         if hudData.convarValues[hudData.ID_PREFIX .. "_enabled"] and hudData.currentMesh and IsValid(hudData.currentMesh) then
             render.SetMaterial(gmod_hud_shared_mat)
@@ -152,6 +164,7 @@ _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func = function()
             cam.PopModelMatrix()
         end
     end
+
     _handHUD_rendering = false
 end
 
@@ -175,10 +188,15 @@ end
 
 -- VRUtilRenderMenuSystemが外部から変更された場合、それを検出してorigを更新する
 local function EnsureMenuSystemHooked()
+    -- VRUtilRenderMenuSystemがまだ定義されていない場合はフックしない
+    -- (フォルダ7はvrmod_ui.luaより先にロードされるため、ファイルロード時はnil)
+    if not VRUtilRenderMenuSystem then return end
+
     if VRUtilRenderMenuSystem ~= _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func then
         -- 現在のVRUtilRenderMenuSystemをorigとして保存（これにはvrmod_hud.luaの上書きが含まれる可能性がある）
         orig_VRUtilRenderMenuSystem_for_all_hand_huds = VRUtilRenderMenuSystem
         VRUtilRenderMenuSystem = _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func
+        _handHUD_origErrorLogged = false -- orig変更時にエラーログフラグもリセット
     end
 end
 
@@ -250,7 +268,10 @@ local function ConfigureHandHUD(hudData)
         end
 
         -- VRUtilRenderMenuSystemのフックを確保
-        EnsureMenuSystemHooked()
+        -- VR非アクティブ時はフックしない（ファイルロード時にVRUtilRenderMenuSystemを壊さない）
+        if g_VR and g_VR.active then
+            EnsureMenuSystemHooked()
+        end
     else
         hook.Remove("VRMod_PreRender", "AllHandHUDs_PreRender")
         if VRUtilRenderMenuSystem == _VRUtilRenderMenuSystem_AllHandHUDs_Hooked_Func then
@@ -281,7 +302,7 @@ local function SetupConvarsForHand(hudData)
         ConfigureHandHUD(hudData)
     end
 
-    vrmod.AddCallbackedConvar(id_prefix .. "_enabled", id_prefix .. "_enabled_val", "1", FCVAR_ARCHIVE, "Enable " .. hudData.menuLabel, nil, nil, tobool, reconfigureThisHUD)
+    vrmod.AddCallbackedConvar(id_prefix .. "_enabled", id_prefix .. "_enabled_val", "0", FCVAR_ARCHIVE, "Enable " .. hudData.menuLabel, nil, nil, tobool, reconfigureThisHUD)
     vrmod.AddCallbackedConvar(id_prefix .. "_scale", id_prefix .. "_scale_val", "0.009", FCVAR_ARCHIVE, hudData.menuLabel .. " Scale", 0.001, 0.1, tonumber, reconfigureThisHUD)
     vrmod.AddCallbackedConvar(id_prefix .. "_offset_pos_x", id_prefix .. "_offset_pos_x_val", hudData.isRightHand and "-6.78" or "0.7", FCVAR_ARCHIVE, "X Offset", -50, 50, tonumber, reconfigureThisHUD)
     vrmod.AddCallbackedConvar(id_prefix .. "_offset_pos_y", id_prefix .. "_offset_pos_y_val", hudData.isRightHand and "0.7" or "-2.10", FCVAR_ARCHIVE, "Y Offset", -50, 50, tonumber, reconfigureThisHUD)
@@ -367,8 +388,9 @@ hook.Add(
         end
         orig_VRUtilRenderMenuSystem_for_all_hand_huds = nil
 
-        -- 再入ガードのリセット
+        -- 再入ガード・エラーフラグのリセット
         _handHUD_rendering = false
+        _handHUD_origErrorLogged = false
     end
 )
 

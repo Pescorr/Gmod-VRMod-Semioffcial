@@ -39,6 +39,7 @@ local open = false
 function VRUtilWeaponMenuOpen()
 	if open then return end
 	open = true
+	g_VR._menuClickActionUsed = false
 	--
 	local items = {}
 	local overrides = {
@@ -151,87 +152,28 @@ function VRUtilWeaponMenuOpen()
 	local tmp = Angle(0, g_VR.tracking.hmd.ang.yaw - 90, 45) --Forward() = right, Right() = back, Up() = up (relative to panel, panel forward is looking at top of panel from middle of panel, up is normal)
 	local pos, ang = WorldToLocal(g_VR.tracking.pose_righthand.pos + tmp:Forward() * -9 + tmp:Right() * -11 + tmp:Up() * -7, tmp, g_VR.origin, g_VR.originAngle)
 	--uid, width, height, panel, attachment, pos, ang, scale, cursorEnabled, closeFunc
+	-- Shared close function for all attachment modes
+	local function weaponmenuCloseFunc()
+		hook.Remove("PreRender", "vrutil_hook_renderweaponselect")
+		open = false
+		g_VR._weaponmenuHoveredWep = nil
+		g_VR._weaponmenuHoveredClass = nil
+		-- If a click action was used, suppress the release action (weapon select)
+		if not g_VR._menuClickActionUsed and items[prevValues.hoveredItem] and IsValid(items[prevValues.hoveredItem].wep) then
+			input.SelectWeapon(items[prevValues.hoveredItem].wep)
+		end
+		g_VR._menuClickActionUsed = false
+	end
+
 	local mode = convarValues.vrmod_attach_weaponmenu
 	if mode == 1 then
-		VRUtilMenuOpen(
-			"weaponmenu",
-			512,
-			512,
-			nil,
-			1,
-			Vector(4, 6, 15.5),
-			Angle(0, -90, 60),
-			0.03,
-			true,
-			function()
-				hook.Remove("PreRender", "vrutil_hook_renderweaponselect")
-				open = false
-				if items[prevValues.hoveredItem] and IsValid(items[prevValues.hoveredItem].wep) then
-					input.SelectWeapon(items[prevValues.hoveredItem].wep)
-				end
-			end
-		)
-		--
+		VRUtilMenuOpen("weaponmenu", 512, 512, nil, 1, Vector(4, 6, 15.5), Angle(0, -90, 60), 0.03, true, weaponmenuCloseFunc)
 	elseif mode == 3 then
-		--forw, left, up
-		VRUtilMenuOpen(
-			"weaponmenu",
-			512,
-			512,
-			nil,
-			3,
-			Vector(35, 20, 10),
-			Angle(0, -90, 90),
-			0.03,
-			true,
-			function()
-				hook.Remove("PreRender", "vrutil_hook_renderweaponselect")
-				open = false
-				if items[prevValues.hoveredItem] and IsValid(items[prevValues.hoveredItem].wep) then
-					input.SelectWeapon(items[prevValues.hoveredItem].wep)
-				end
-			end
-		)
+		VRUtilMenuOpen("weaponmenu", 512, 512, nil, 3, Vector(35, 20, 10), Angle(0, -90, 90), 0.03, true, weaponmenuCloseFunc)
 	elseif mode == 2 then
-		--forw, left, up
-		VRUtilMenuOpen(
-			"weaponmenu",
-			512,
-			512,
-			nil,
-			2,
-			Vector(13, 6, 10.5),
-			Angle(0, -90, 90),
-			0.03,
-			true,
-			function()
-				hook.Remove("PreRender", "vrutil_hook_renderweaponselect")
-				open = false
-				if items[prevValues.hoveredItem] and IsValid(items[prevValues.hoveredItem].wep) then
-					input.SelectWeapon(items[prevValues.hoveredItem].wep)
-				end
-			end
-		)
-
-	else --
-		VRUtilMenuOpen(
-			"weaponmenu",
-			512,
-			512,
-			nil,
-			mode,
-			pos,
-			ang,
-			0.03,
-			true,
-			function()
-				hook.Remove("PreRender", "vrutil_hook_renderweaponselect")
-				open = false
-				if items[prevValues.hoveredItem] and IsValid(items[prevValues.hoveredItem].wep) then
-					input.SelectWeapon(items[prevValues.hoveredItem].wep)
-				end
-			end
-		)
+		VRUtilMenuOpen("weaponmenu", 512, 512, nil, 2, Vector(13, 6, 10.5), Angle(0, -90, 90), 0.03, true, weaponmenuCloseFunc)
+	else
+		VRUtilMenuOpen("weaponmenu", 512, 512, nil, mode, pos, ang, 0.03, true, weaponmenuCloseFunc)
 	end
 
 	hook.Add(
@@ -268,6 +210,15 @@ function VRUtilWeaponMenuOpen()
 			end
 
 			prevValues = values
+			-- Export hover state for click action handlers
+			g_VR._weaponmenuHoveredWep = (values.hoveredItem > 0 and items[values.hoveredItem] and IsValid(items[values.hoveredItem].wep))
+				and items[values.hoveredItem].wep or nil
+			g_VR._weaponmenuHoveredClass = g_VR._weaponmenuHoveredWep and g_VR._weaponmenuHoveredWep:GetClass() or nil
+			-- Force redraw when click action triggers visual change (favorite toggle, etc.)
+			if g_VR._weaponmenuForceRedraw then
+				changes = true
+				g_VR._weaponmenuForceRedraw = false
+			end
 			if not changes then return end
 			VRUtilMenuRenderStart("weaponmenu")
 			--debug rendercount
@@ -297,10 +248,22 @@ function VRUtilWeaponMenuOpen()
 			local gap = (512 - buttonWidth * 6) / 5
 			for i = 1, #items do
 				local x, y = items[i].slot, items[i].actualSlotPos
-				draw.RoundedBox(8, x * (buttonWidth + gap), 114 + y * (buttonHeight + gap), buttonWidth, buttonHeight, Color(0, 0, 0, values.hoveredItem == i and 200 or 128))
+				local bx, by = x * (buttonWidth + gap), 114 + y * (buttonHeight + gap)
+				local isHovered = values.hoveredItem == i
+				local isFav = vrmod._weaponFavorites and IsValid(items[i].wep) and vrmod._weaponFavorites[items[i].wep:GetClass()]
+				-- Favorite: gold background + black text / Normal: black background + yellow text
+				local bgColor, textColor
+				if isFav then
+					bgColor = Color(255, 200, 0, isHovered and 255 or 200)
+					textColor = Color(0, 0, 0, 255)
+				else
+					bgColor = Color(0, 0, 0, isHovered and 200 or 128)
+					textColor = Color(255, 250, 0, 255)
+				end
+				draw.RoundedBox(8, bx, by, buttonWidth, buttonHeight, bgColor)
 				local explosion = string.Explode(" ", items[i].label, false)
 				for j = 1, #explosion do
-					draw.SimpleText(explosion[j], items[i].font, buttonWidth / 2 + x * (buttonWidth + gap), 114 + buttonHeight / 2 + y * (buttonHeight + gap) - (#explosion * 6 - 6 - (j - 1) * 12), Color(255, 250, 0, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+					draw.SimpleText(explosion[j], items[i].font, buttonWidth / 2 + bx, buttonHeight / 2 + by - (#explosion * 6 - 6 - (j - 1) * 12), textColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				end
 			end
 

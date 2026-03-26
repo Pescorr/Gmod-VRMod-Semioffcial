@@ -8,9 +8,12 @@ vrmod = vrmod or {}
 vrmod.HolsterDupe = vrmod.HolsterDupe or {}
 
 local MAX_DUPE_ENTITIES = 50
-local MAX_SLOTS = 11  -- 1-8: 通常スロット, 9-11: slot 6-8の左手用
+-- S20 Problem 1+2: 1-8右手, 9-11左手slot6-8（既存互換）, 12-16左手slot1-5
+local MAX_SLOTS = 16
 local RATE_LIMIT_INTERVAL = 2 -- 秒
 local DUPE_DIR = "vrmod/holster"
+-- S20: net bit幅（MAX_SLOTS=16対応: 5bit=0-31）
+local NET_SLOT_BITS = 5
 
 if SERVER then
     -- サーバー側dupeストレージ: [steamid][slot] = dupeData
@@ -98,7 +101,7 @@ if SERVER then
                 if saved and saved.dupeData then
                     dupeStorage[steamid][i] = saved.dupeData
                     net.Start("vrmod_unoff_holster_dupe_sync")
-                    net.WriteUInt(i, 4)
+                    net.WriteUInt(i, NET_SLOT_BITS)
                     net.WriteString(saved.displayName or "dupe: unknown")
                     net.Send(ply)
                 end
@@ -116,17 +119,25 @@ if SERVER then
             return
         end
 
-        local slotIndex = net.ReadUInt(4)
+        local slotIndex = net.ReadUInt(NET_SLOT_BITS)
         local entIndex = net.ReadUInt(14)
         local isLeftHand = net.ReadBool()
 
         -- バリデーション
         if slotIndex < 1 or slotIndex > MAX_SLOTS then return end
         local ent = Entity(entIndex)
-        if not IsValid(ent) then return end
+        if not IsValid(ent) then
+            -- S20 Problem 7: サイレント失敗にフィードバック追加
+            ply:ChatPrint("[VRHolster] Entity not found, cannot store dupe")
+            return
+        end
 
         -- 距離チェック（500ユニット以内）
-        if ent:GetPos():DistToSqr(ply:GetPos()) > 250000 then return end
+        if ent:GetPos():DistToSqr(ply:GetPos()) > 250000 then
+            -- S20 Problem 7: 距離オーバー時のフィードバック
+            ply:ChatPrint("[VRHolster] Entity too far away to store")
+            return
+        end
 
         InitPlayerStorage(steamid)
 
@@ -184,9 +195,15 @@ if SERVER then
             dupeData = dupeData,
             displayName = displayName
         })
+        -- S20 Problem 7: 保存成功フィードバック
+        if saved then
+            ply:ChatPrint("[VRHolster] Dupe stored: " .. displayName)
+        else
+            ply:ChatPrint("[VRHolster] Dupe captured but file save failed")
+        end
         -- クライアントに同期
         net.Start("vrmod_unoff_holster_dupe_sync")
-        net.WriteUInt(slotIndex, 4)
+        net.WriteUInt(slotIndex, NET_SLOT_BITS)
         net.WriteString(displayName)
         net.Send(ply)
     end)
@@ -201,7 +218,7 @@ if SERVER then
             return
         end
 
-        local slotIndex = net.ReadUInt(4)
+        local slotIndex = net.ReadUInt(NET_SLOT_BITS)
         local handPos = net.ReadVector()
         local handAng = net.ReadAngle()
         local isLeftHand = net.ReadBool()
@@ -211,7 +228,7 @@ if SERVER then
             ply:ChatPrint("[VRHolster] No dupe data in slot " .. slotIndex)
             -- クライアントのConVarをクリア（サーバーとの同期修復）
             net.Start("vrmod_unoff_holster_dupe_sync")
-            net.WriteUInt(slotIndex, 4)
+            net.WriteUInt(slotIndex, NET_SLOT_BITS)
             net.WriteString("")
             net.Send(ply)
             return
@@ -260,7 +277,7 @@ if SERVER then
                     local saved = LoadDupeFromFile(ply:SteamID64(), slotLocal)
                     local dn = saved and saved.displayName or "dupe: unknown"
                     net.Start("vrmod_unoff_holster_dupe_sync")
-                    net.WriteUInt(slotLocal, 4)
+                    net.WriteUInt(slotLocal, NET_SLOT_BITS)
                     net.WriteString(dn)
                     net.Send(ply)
                 else
@@ -268,7 +285,7 @@ if SERVER then
                     dupeStorage[steamid][slotLocal] = nil
                     DeleteDupeFile(ply:SteamID64(), slotLocal)
                     net.Start("vrmod_unoff_holster_dupe_sync")
-                    net.WriteUInt(slotLocal, 4)
+                    net.WriteUInt(slotLocal, NET_SLOT_BITS)
                     net.WriteString("")
                     net.Send(ply)
                 end
@@ -287,20 +304,22 @@ end
 
 if CLIENT then
     -- dupeの再利用設定（userinfo=trueでサーバーから読み取り可能）
-    CreateClientConVar("vrmod_unoff_dupe_reusable", "0", true, true)
+    CreateClientConVar("vrmod_unoff_dupe_reusable", "1", true, true)
 
     -- dupeスポーン保留状態（VRMod_Pickupフック用）
     local dupePendingSpawn = nil
 
     -- サーバーからの同期を受信
     net.Receive("vrmod_unoff_holster_dupe_sync", function()
-        local slotIndex = net.ReadUInt(4)
+        local slotIndex = net.ReadUInt(NET_SLOT_BITS)
         local displayName = net.ReadString()
 
         -- ConVarを更新（ホルスターシステムが読み取る）
-        -- slot 9-11は左手用: 実スロット6-8の_leftConVarにマッピング
+        -- S20 Problem 1+2: slot 12-16は左手用slot1-5、slot 9-11は左手用slot6-8
         local convarName
-        if slotIndex >= 9 and slotIndex <= 11 then
+        if slotIndex >= 12 and slotIndex <= 16 then
+            convarName = "vrmod_pouch_weapon_" .. (slotIndex - 11) .. "_left"
+        elseif slotIndex >= 9 and slotIndex <= 11 then
             convarName = "vrmod_pouch_weapon_" .. (slotIndex - 3) .. "_left"
         else
             convarName = "vrmod_pouch_weapon_" .. slotIndex
@@ -320,7 +339,7 @@ if CLIENT then
     function vrmod.HolsterDupe.StoreEntity(slotIndex, ent, isLeftHand)
         if not IsValid(ent) then return false end
         net.Start("vrmod_unoff_holster_dupe_store")
-        net.WriteUInt(slotIndex, 4)
+        net.WriteUInt(slotIndex, NET_SLOT_BITS)
         net.WriteUInt(ent:EntIndex(), 14)
         net.WriteBool(isLeftHand)
         net.SendToServer()
@@ -336,7 +355,7 @@ if CLIENT then
         }
 
         net.Start("vrmod_unoff_holster_dupe_spawn")
-        net.WriteUInt(slotIndex, 4)
+        net.WriteUInt(slotIndex, NET_SLOT_BITS)
         net.WriteVector(handPos)
         net.WriteAngle(handAng)
         net.WriteBool(isLeftHand)

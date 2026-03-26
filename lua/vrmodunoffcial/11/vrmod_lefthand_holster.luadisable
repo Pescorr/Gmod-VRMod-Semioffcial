@@ -1,0 +1,259 @@
+--------[vrmod_lefthand_holster.lua]Start--------
+-- 左手追従ホルスター (vr_card Phase 1)
+-- Type2ホルスターの左手追従版: 左手に1スロット追従、右手で格納/取得
+function vrmod_lefthand_holster()
+    if CLIENT then
+        local SLOT_COLOR = Color(255, 200, 50, 200) -- ゴールド（カードテーマ予兆）
+        local SLOT_COLOR_LOCKED = Color(146, 253, 110, 80)
+        local SLOT_COLOR_SPHERE = Color(255, 200, 50, 128)
+
+        -- ConVar定義（JSON移行対象）
+        local lh_enabled = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_enabled", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+        local lh_size = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_size", 10, true, FCVAR_ARCHIVE)
+        local lh_weapon = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_weapon", "", true, FCVAR_ARCHIVE)
+        local lh_offset_x = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_offset_x", 0, true, FCVAR_ARCHIVE)
+        local lh_offset_y = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_offset_y", 0, true, FCVAR_ARCHIVE)
+        local lh_offset_z = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_offset_z", 5, true, FCVAR_ARCHIVE)
+        local lh_visible_3d = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_visible_3d", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+        local lh_visible_hud = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_visible_hud", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
+        local lh_pickup_sound = vrmod.JsonConfig.CreateVar("vrmod_unoff_lefthand_holster_sound", "common/wpn_select.wav", true, FCVAR_ARCHIVE)
+
+        -- ランタイム変数
+        local slot_position = Vector(0, 0, 0)
+        local slot_size = lh_size:GetFloat()
+        local slot_locked = false
+        local holster_pickup_pending = {}
+
+        -- heldEntityキャッシュ: VRMod_Inputのhook実行順序に依存しないためのフレーム先行キャッシュ
+        local cachedHeldRight
+        hook.Add("Think", "vrmod_lh_holster_heldcache", function()
+            if g_VR then
+                cachedHeldRight = g_VR.heldEntityRight
+            end
+        end)
+
+        -- ConVarサイズ変更コールバック
+        vrmod.JsonConfig.AddChangeCallback("vrmod_unoff_lefthand_holster_size", function(_, _, value_new)
+            slot_size = tonumber(value_new) or 10
+        end, "vrmod_lh_holster_size_cb")
+
+        -- 右手がスロット範囲内か判定（球体距離判定）
+        local function IsRightHandInSlot()
+            if not g_VR or not g_VR.tracking or not g_VR.tracking.pose_righthand then return false end
+            local rh_pos = g_VR.tracking.pose_righthand.pos
+            return rh_pos:DistToSqr(slot_position) < (slot_size * slot_size)
+        end
+
+        -- VR開始時の初期化
+        hook.Add("VRMod_Start", "vrmod_lh_holster_init", function()
+            slot_locked = false
+            holster_pickup_pending = {}
+        end)
+
+        -- 左手追従位置更新
+        hook.Add("VRMod_Tracking", "vrmod_lh_holster_tracking", function()
+            if not lh_enabled:GetBool() then return end
+            if not g_VR or not g_VR.active then return end
+            if not g_VR.tracking or not g_VR.tracking.pose_lefthand then return end
+
+            local lhPos = g_VR.tracking.pose_lefthand.pos
+            local lhAng = g_VR.tracking.pose_lefthand.ang
+            local offset = Vector(
+                lh_offset_x:GetFloat(),
+                lh_offset_y:GetFloat(),
+                lh_offset_z:GetFloat()
+            )
+            slot_position = LocalToWorld(offset, Angle(0, 0, 0), lhPos, lhAng)
+        end)
+
+        -- 取得ロジック（Type2のequipWeaponOrEntityベース、右手専用に簡略化）
+        local function equipFromSlot()
+            if not lh_enabled:GetBool() then return end
+            if not g_VR or not g_VR.active then return end
+            if not IsRightHandInSlot() then return end
+
+            local wepclass = lh_weapon:GetString()
+            if wepclass == "" then return end
+
+            local rh_pos = g_VR.tracking.pose_righthand.pos
+            local rh_ang = g_VR.tracking.pose_righthand.ang
+
+            -- Dupeスロットの場合
+            if string.StartWith(wepclass, "dupe:") then
+                if vrmod.HolsterDupe and vrmod.HolsterDupe.SpawnDupe then
+                    -- dupeスロットインデックス12を使用（Type2の11スロットの次）
+                    vrmod.HolsterDupe.SpawnDupe(12, rh_pos, rh_ang, false)
+                    surface.PlaySound(lh_pickup_sound:GetString())
+                end
+                return
+            end
+
+            -- 武器の場合
+            if weapons.Get(wepclass) then
+                LocalPlayer():ConCommand("use " .. wepclass)
+                LocalPlayer():ConCommand("vrmod_lefthand 0")
+                surface.PlaySound(lh_pickup_sound:GetString())
+                timer.Simple(0.1, function()
+                    if IsValid(LocalPlayer()) and IsValid(LocalPlayer():GetActiveWeapon())
+                        and LocalPlayer():GetActiveWeapon():GetClass() == wepclass then
+                        if vrmod and vrmod.Pickup then
+                            vrmod.Pickup(false, false) -- 右手でPickup
+                        end
+                    end
+                end)
+                return
+            end
+
+            -- エンティティの場合
+            net.Start("vrmod_test_spawn_entity")
+            net.WriteString(wepclass)
+            net.WriteVector(rh_pos)
+            net.WriteAngle(rh_ang)
+            net.WriteBool(false) -- 右手
+            net.SendToServer()
+            surface.PlaySound(lh_pickup_sound:GetString())
+            holster_pickup_pending[wepclass] = {
+                leftHand = false,
+                time = CurTime()
+            }
+        end
+
+        -- 格納ロジック（Type2のstoreWeaponベース、右手専用に簡略化）
+        local function storeToSlot()
+            if not lh_enabled:GetBool() then return end
+            if not g_VR or not g_VR.active then return end
+            if not IsRightHandInSlot() then return end
+            if slot_locked then return end
+
+            -- 武器を格納
+            local activeWeapon = LocalPlayer():GetActiveWeapon()
+            if IsValid(activeWeapon) and activeWeapon:GetClass() ~= "weapon_vrmod_empty"
+                and not GetConVar("vrmod_lefthand"):GetBool() then
+                vrmod.JsonConfig.SetValue("vrmod_unoff_lefthand_holster_weapon", activeWeapon:GetClass())
+                LocalPlayer():ConCommand("use weapon_vrmod_empty")
+                return
+            end
+
+            -- heldEntity（VRPickupで持っているエンティティ）を格納
+            local heldEntity = g_VR.heldEntityRight or cachedHeldRight
+            if IsValid(heldEntity) then
+                if vrmod.HolsterDupe and vrmod.HolsterDupe.StoreEntity then
+                    vrmod.HolsterDupe.StoreEntity(12, heldEntity, false)
+                else
+                    vrmod.JsonConfig.SetValue("vrmod_unoff_lefthand_holster_weapon", heldEntity:GetClass())
+                    heldEntity:Remove()
+                end
+                g_VR.heldEntityRight = nil
+                cachedHeldRight = nil
+                return
+            end
+        end
+
+        -- 入力処理
+        hook.Add("VRMod_Input", "vrmod_lh_holster_input", function(action, pressed)
+            if not g_VR or not g_VR.active then return end
+            if not lh_enabled:GetBool() then return end
+            if vrmod.ClimbFilter and vrmod.ClimbFilter.ShouldBlockRight() then return end
+
+            -- ハプティクスフィードバック（右手がスロット範囲内の時）
+            if IsRightHandInSlot() then
+                VRMOD_TriggerHaptic("vibration_right", 0, 0.5, 20, 1)
+            end
+
+            -- 右手グリップ released → 格納
+            if action == "boolean_right_pickup" and not pressed then
+                storeToSlot()
+            end
+
+            -- 右手グリップ pressed → 取得
+            if action == "boolean_right_pickup" and pressed then
+                equipFromSlot()
+            end
+
+            -- Useボタン → ロック切替
+            if action == "boolean_use" and pressed then
+                if IsRightHandInSlot() then
+                    slot_locked = not slot_locked
+                end
+            end
+        end)
+
+        -- サーバーからのPickup完了を受けてVR Pickup実行
+        hook.Add("VRMod_Pickup", "vrmod_lh_holster_pickup_after_server", function(ply, ent)
+            if ply ~= LocalPlayer() then return end
+            if not IsValid(ent) then return end
+            local entClass = ent:GetClass()
+            if holster_pickup_pending[entClass] then
+                local data = holster_pickup_pending[entClass]
+                if CurTime() - data.time < 2.0 then
+                    if vrmod and vrmod.Pickup then
+                        vrmod.Pickup(data.leftHand, false)
+                    end
+                    holster_pickup_pending[entClass] = nil
+                end
+            end
+        end)
+
+        -- Pending cleanup
+        hook.Add("Think", "vrmod_lh_holster_cleanup_pending", function()
+            if not holster_pickup_pending then return end
+            for class, data in pairs(holster_pickup_pending) do
+                if CurTime() - data.time >= 5.0 then
+                    holster_pickup_pending[class] = nil
+                end
+            end
+        end)
+
+        -- HUD表示（右手がスロット範囲内の時にアイテム名表示）
+        hook.Add("HUDPaint", "vrmod_lh_holster_hud", function()
+            if not lh_enabled:GetBool() then return end
+            if not lh_visible_hud:GetBool() then return end
+            if not g_VR or not g_VR.active then return end
+
+            if IsRightHandInSlot() then
+                local text = lh_weapon:GetString()
+                if text ~= "" then
+                    if slot_locked then
+                        text = "*" .. text .. "*"
+                    end
+                    draw.SimpleText(text, "DermaLarge", ScrW() * 0.5, ScrH() * 0.85, SLOT_COLOR, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                end
+            end
+        end)
+
+        -- 3Dビジュアル（スロット位置に球体 + テキスト）
+        hook.Add("PostDrawTranslucentRenderables", "vrmod_lh_holster_draw", function(depth, sky)
+            if not lh_enabled:GetBool() then return end
+            if not lh_visible_3d:GetBool() then return end
+            if not g_VR or not g_VR.threePoints then return end
+            if EyePos() ~= g_VR.view.origin then return end
+
+            render.SetColorMaterial()
+            local color = slot_locked and SLOT_COLOR_LOCKED or SLOT_COLOR_SPHERE
+            render.DrawSphere(slot_position, slot_size, 16, 50, color)
+
+            local entClass = lh_weapon:GetString()
+            if entClass ~= "" then
+                local eyeAng = EyeAngles()
+                eyeAng:RotateAroundAxis(eyeAng:Right(), 60)
+                cam.Start3D2D(slot_position, eyeAng, 0.1)
+                draw.SimpleText(entClass, "CloseCaption_Normal", 0, 0, SLOT_COLOR, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                cam.End3D2D()
+            end
+        end)
+
+        -- VR終了時クリーンアップ
+        hook.Add("VRMod_Exit", "vrmod_lh_holster_cleanup", function()
+            slot_locked = false
+            holster_pickup_pending = {}
+        end)
+    end
+end
+
+vrmod_lefthand_holster()
+concommand.Add("vrmod_lua_reset_lefthand_holster", function(ply, cmd, args)
+    AddCSLuaFile("vrmodunoffcial/11/vrmod_lefthand_holster.lua")
+    include("vrmodunoffcial/11/vrmod_lefthand_holster.lua")
+    vrmod_lefthand_holster()
+end)
+--------[vrmod_lefthand_holster.lua]End--------

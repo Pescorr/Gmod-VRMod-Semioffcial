@@ -53,8 +53,10 @@ hook.Add(
 		end
 
 		if action == "boolean_secondaryfire" then
-			if cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then return end
-			LocalPlayer():ConCommand(pressed and "+attack2" or "-attack2")
+			if not g_VR.menuFocus then
+				if cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then return end
+				LocalPlayer():ConCommand(pressed and "+attack2" or "-attack2")
+			end
 
 			return
 		end

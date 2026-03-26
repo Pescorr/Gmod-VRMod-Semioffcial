@@ -19,7 +19,7 @@
 
 if SERVER then return end
 
-local cv_enabled = CreateClientConVar("vrmod_unoff_input_emu", "1", true, false,
+local cv_enabled = CreateClientConVar("vrmod_unoff_input_emu", "0", true, false,
 	"Enable VR controller input emulation for input.IsKeyDown() etc.")
 
 -- ============================================================================
@@ -151,6 +151,29 @@ cvars.AddChangeCallback("vrmod_unoff_input_emu", function(_, _, new)
 		ClearVRKeys()
 	end
 end, "vrmod_unoff_input_emu")
+
+-- ============================================================================
+-- 公開API: 外部からキー状態を注入（vrmod_keybridgeやテスト用）
+-- ============================================================================
+
+vrmod = vrmod or {}
+
+--- キー状態を直接注入する。input.IsKeyDown等のデトアに反映される。
+--- @param buttonCode number BUTTON_CODE (KEY_*, MOUSE_*)
+--- @param state boolean|nil trueで押下、nil/falseで解放
+function vrmod.InputEmu_SetKey(buttonCode, state)
+	vrKeys[buttonCode] = state or nil
+end
+
+--- 指定キーを1フレームだけ押して自動で離す。
+--- Think hookでポーリングしているアドオン（ZoneNPC等）に対して有効。
+--- @param buttonCode number BUTTON_CODE
+function vrmod.InputEmu_TapKey(buttonCode)
+	vrKeys[buttonCode] = true
+	timer.Simple(0, function()
+		vrKeys[buttonCode] = nil
+	end)
+end
 
 -- ============================================================================
 -- Debug command

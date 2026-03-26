@@ -44,7 +44,7 @@ hook.Add(
             categoryContents:NumSlider(hudSettingsData.menuLabel .. " Background Alpha", hudSettingsData.id_prefix .. "_alpha", 0, 255, 0)
             local restoreDefaultsButton = categoryContents:Button("Restore Defaults for " .. hudSettingsData.menuLabel)
             restoreDefaultsButton.DoClick = function()
-                RunConsoleCommand(hudSettingsData.id_prefix .. "_enabled", "1")
+                RunConsoleCommand(hudSettingsData.id_prefix .. "_enabled", "0")
                 RunConsoleCommand(hudSettingsData.id_prefix .. "_scale", "0.009")
                 RunConsoleCommand(hudSettingsData.id_prefix .. "_offset_pos_x", handKey == "Right" and "-6.78" or "0.70")
                 RunConsoleCommand(hudSettingsData.id_prefix .. "_offset_pos_y", handKey == "Right" and "0.70" or "-2.10")

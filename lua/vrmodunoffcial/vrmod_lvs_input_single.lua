@@ -1,5 +1,6 @@
 --------[vrmod_lvs_inputbeta.lua]Start--------
 -- クライアント側: 通常のLVS操作（特殊操作を除く）の状態管理と送信
+-- 修正: バッチ送信 + 50msインターバルで毎秒~1800→~20メッセージに削減
 if CLIENT then
     if not LVS then return end
     if not g_VR then return end
@@ -51,21 +52,41 @@ if CLIENT then
             return false
         end
 
-        local function updateServer()
-            if LocalPlayer():InVehicle() then
-                for action, state in pairs(actionStates) do
-                    net.Start("lvs_setinput")
-                    net.WriteString(action)
-                    net.WriteBool(state)
-                    net.SendToServer()
+        -- バッチ送信: EXIT と WEAPON SELECT を除外して一括送信
+        -- サーバー側 (vrmod_lvs_beta.lua) の lvs_setinput_batch ハンドラが受信
+        local function updateServerBatch()
+            if not LocalPlayer():InVehicle() then return end
+            local batchStates = {}
+            for action, state in pairs(actionStates) do
+                if action ~= "EXIT" and not string.StartWith(action, "~SELECT~WEAPON#") then
+                    batchStates[action] = state
                 end
             end
+            net.Start("lvs_setinput_batch")
+            net.WriteTable(batchStates)
+            net.SendToServer()
         end
+
+        -- EXIT専用の即時送信（降車は遅延不可のため個別送信を維持）
+        local function sendExitImmediate(exitState)
+            if not LocalPlayer():InVehicle() and not exitState then return end
+            net.Start("lvs_setinput")
+            net.WriteString("EXIT")
+            net.WriteBool(exitState)
+            net.SendToServer()
+        end
+
+        -- 50ms送信インターバル（Glideと同じ方式）
+        local lastLvsSentTime = 0
+        local lvsSendInterval = 0.05
 
         local function handleVectorInput()
             if not g_VR then return end
-                        if not g_VR.active then return end
+            if not g_VR.active then return end
+            if not LocalPlayer():InVehicle() then return end
+            if not IsValid(LocalPlayer():lvsGetVehicle()) then return end
 
+            -- アクセル/ブレーキの状態を毎フレーム更新
             local forward = g_VR.input.vector1_forward or 0
             local reverse = g_VR.input.vector1_reverse or 0
             if forward > 0 then
@@ -82,7 +103,13 @@ if CLIENT then
             end
 
             actionStates["CAR_BRAKE"] = reverse > 0
-            updateServer()
+
+            -- 50ms間隔でバッチ送信（毎フレーム送信を防止）
+            local now = CurTime()
+            if now - lastLvsSentTime > lvsSendInterval then
+                updateServerBatch()
+                lastLvsSentTime = now
+            end
         end
 
         local usePressedTime = 0
@@ -93,6 +120,9 @@ if CLIENT then
             "VRMod_Input",
             "vrmod_LVSconcommand",
             function(action, pressed)
+                -- ボタン状態のみ actionStates に記録
+                -- 送信はThink hookの50ms間隔バッチに委任（EXIT除く）
+
                 if action == "boolean_turbo" then
                     actionStates["ENGINE"] = pressed
                 end
@@ -194,7 +224,7 @@ if CLIENT then
                                         actionStates["EXIT"] = true
                                         useTimerRunning = false
                                         timer.Remove("CheckUseDuration")
-                                        updateServer() -- 追加: サーバーへの即時更新
+                                        sendExitImmediate(true) -- EXIT は即時送信
                                     end
                                 end
                             )
@@ -207,7 +237,7 @@ if CLIENT then
                         end
 
                         actionStates["EXIT"] = false
-                        updateServer() -- 追加: サーバーへの即時更新
+                        sendExitImmediate(false) -- EXIT解除も即時送信
                     end
                 end
 
@@ -241,8 +271,8 @@ if CLIENT then
                     end
                 end
 
-                -- Update the server with the latest states
-                updateServer()
+                -- 注: バッチ送信はThink hookの50ms間隔で行われる
+                -- ここでは updateServer() を呼ばない（旧コードではここで毎回30メッセージ送信していた）
             end
         )
     end

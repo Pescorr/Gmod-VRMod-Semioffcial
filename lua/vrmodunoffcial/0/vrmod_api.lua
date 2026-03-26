@@ -1,3 +1,6 @@
+-- Addon-only mode: 他VRModのConVarテーブルを上書きしないようスキップ
+if VRMOD_ADDON_ONLY_MODE then return end
+
 local addonVersion = 133
 local requiredModuleVersion = 20
 local latestModuleVersion = 21

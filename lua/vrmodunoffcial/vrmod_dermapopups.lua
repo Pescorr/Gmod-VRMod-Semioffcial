@@ -21,7 +21,9 @@ meta.MakePopup = function(...)
 		0.1,
 		function()
 			if not IsValid(panel) then return end
-			panel:SetPaintedManually(true)
+			if convarValues.vrmod_unoff_desktop_ui_mirror ~= 1 then
+				panel:SetPaintedManually(true)
+			end
 			if panel:GetName() == "DMenu" then
 				--temporary hack because paintmanual doesnt seem to work on the dmenu for some reason
 				panel = panel:GetChildren()[1]

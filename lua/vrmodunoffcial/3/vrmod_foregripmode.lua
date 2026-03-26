@@ -36,21 +36,108 @@ local cv_foregrip_yaw_blend = GetConVar("vrmod_foregrip_yaw_blend")
 local cv_foregrip_roll_blend = GetConVar("vrmod_foregrip_roll_blend")
 -- Global state for the mod
 local isForegripmodeActive = false -- Renamed from isForegripmodeEnabled to avoid conflict
+
+-- ============================================================================
+-- Foregrip Bone Detection: per-weapon cache
+-- ============================================================================
+
+local foregripBoneCache = {} -- weaponClass -> { boneIdx, boneName } or false
+local lastCheckedWeaponClass = ""
+
+-- Keywords that indicate a foregrip / front grip area on the viewmodel
+-- NOTE: Only weapon-part bone names. Character skeleton bones (ValveBiped/Bip01)
+-- are excluded in GetForegripBonePos() to avoid false positives.
+local FOREGRIP_BONE_KEYWORDS = {
+	"foregrip", "fore_grip", "handguard", "hand_guard",
+	"grip_front", "front_grip", "pump",
+}
+
 --[[
-Helper function to check if the left hand is close enough to the right hand (viewmodel).
+Detect the foregrip bone on the current viewmodel.
+Returns the world position of the foregrip bone, or nil if not found.
+Caches per weapon class for performance.
+]]
+local function GetForegripBonePos(player)
+	if not IsValid(player) then return nil end
+
+	local wep = player:GetActiveWeapon()
+	if not IsValid(wep) then return nil end
+
+	local vm = player:GetViewModel()
+	if not IsValid(vm) then return nil end
+
+	local class = wep:GetClass()
+
+	-- Cache lookup (false = already scanned, no bone found)
+	if foregripBoneCache[class] ~= nil then
+		if foregripBoneCache[class] == false then
+			return nil -- No foregrip bone for this weapon
+		end
+		-- Cached bone index found, get world position
+		local idx = foregripBoneCache[class].boneIdx
+		local bonePos = vm:GetBonePosition(idx)
+		return bonePos
+	end
+
+	-- First time seeing this weapon: scan all bones
+	local boneCount = vm:GetBoneCount()
+	if not boneCount or boneCount <= 0 then
+		foregripBoneCache[class] = false
+		return nil
+	end
+
+	for i = 0, boneCount - 1 do
+		local boneName = vm:GetBoneName(i)
+		if boneName and boneName ~= "" then
+			local lowerBone = string.lower(boneName)
+			-- Skip character skeleton bones (present on ALL viewmodels)
+			if not string.find(lowerBone, "valvebiped", 1, true)
+				and not string.find(lowerBone, "bip01", 1, true) then
+				for _, keyword in ipairs(FOREGRIP_BONE_KEYWORDS) do
+					if string.find(lowerBone, keyword, 1, true) then
+						foregripBoneCache[class] = { boneIdx = i, boneName = boneName }
+						local bonePos = vm:GetBonePosition(i)
+						return bonePos
+					end
+				end
+			end
+		end
+	end
+
+	-- No foregrip bone found for this weapon
+	foregripBoneCache[class] = false
+	return nil
+end
+
+-- Clear cache on VR exit (weapons may change models)
+hook.Add("VRMod_Exit", "VRForegripBoneCacheCleanup", function()
+	foregripBoneCache = {}
+end)
+
+--[[
+Helper function to check if the left hand is close enough to the foregrip area.
+Uses foregrip bone position if detected, falls back to right hand position.
 Parameters:
     player: The player entity to check.
 Returns:
     boolean: True if hands are close enough, false otherwise.
 ]]
 local function CheckHandTouch(player)
-	if not vrmod or not vrmod.GetLeftHandPos or not vrmod.GetRightHandPos then return false end -- Ensure vrmod API is available
+	if not vrmod or not vrmod.GetLeftHandPos or not vrmod.GetRightHandPos then return false end
 	local leftHandPos = vrmod.GetLeftHandPos(player)
-	local rightHandPos = vrmod.GetRightHandPos(player) -- Use right hand raw position
-	if not leftHandPos or not rightHandPos then return false end
-	-- Use the ConVar for the distance threshold
+	if not leftHandPos then return false end
 
-	return leftHandPos:Distance(rightHandPos) < cv_range:GetFloat()
+	-- Try foregrip bone position first
+	local gripTargetPos = GetForegripBonePos(player)
+
+	-- Fallback to right hand position if no foregrip bone
+	if not gripTargetPos then
+		gripTargetPos = vrmod.GetRightHandPos(player)
+	end
+
+	if not gripTargetPos then return false end
+
+	return leftHandPos:Distance(gripTargetPos) < cv_range:GetFloat()
 end
 
 --[[
@@ -248,6 +335,9 @@ hook.Add(
 
 				-- Update muzzle attachment info
 				g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+				if g_VR.viewModelMuzzle and vrmod.ApplyMuzzleOverride then
+					vrmod.ApplyMuzzleOverride(g_VR.viewModelMuzzle)
+				end
 			end
 			-- Left Hand Mode Logic
 		elseif useLeftHand then
@@ -294,6 +384,9 @@ hook.Add(
 				end
 
 				g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+				if g_VR.viewModelMuzzle and vrmod.ApplyMuzzleOverride then
+					vrmod.ApplyMuzzleOverride(g_VR.viewModelMuzzle)
+				end
 			end
 		else -- Default Right Hand Mode (or when no special mode is active)
 			-- Check if viewmodel info is available
@@ -328,6 +421,9 @@ hook.Add(
 				end
 
 				g_VR.viewModelMuzzle = g_VR.viewModel:GetAttachment(1)
+				if g_VR.viewModelMuzzle and vrmod.ApplyMuzzleOverride then
+					vrmod.ApplyMuzzleOverride(g_VR.viewModelMuzzle)
+				end
 			end
 		end
 	end

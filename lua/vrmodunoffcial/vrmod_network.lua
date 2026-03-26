@@ -719,5 +719,12 @@ if SERVER then
 			net.Send(ply)
 		end
 	end)
+
+	-- Draconic's Mod互換: VRプレイヤーのturn-in-placeアニメーションを抑制
+	-- ply.TurnCD を未来に固定することでDRCのターン判定ゲートが開かないようにする (x64 a4fc967)
+	hook.Add("PlayerTick", "vrmod_fix_drc_turn", function(ply)
+		if not (g_VR[ply:SteamID()] and g_VR[ply:SteamID()].latestFrame) then return end
+		ply.TurnCD = CurTime() + 1
+	end)
 	
 end
