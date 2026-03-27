@@ -25,8 +25,6 @@ VRMod (semiofficial / original v21) 用の追加アドオン。VR未接続時は
 
 | 機能 | 内容 |
 |------|------|
-| Key Bridge | VRコントローラー入力をinput.IsKeyDown()に変換。キーバインド動的解決 |
-| 武器カスタマイズGUIブリッジ | ARC9/ArcCW/TFA/TacRPのカスタマイズ画面をVR内で操作可能にする |
 | 物理ガンVRピックアップ | 条件付きビーム可視化（手が空き+拾えるものにヒット時のみ） |
 | VRピックアップ改善 | 自動ドロップ制御、VRMod_Exit時クリーンアップ |
 
