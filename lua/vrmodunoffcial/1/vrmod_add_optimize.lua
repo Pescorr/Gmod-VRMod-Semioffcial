@@ -244,3 +244,27 @@ if CLIENT then
         end
     )
 end
+
+-- VR HMD上でのweaponワールドモデル非表示
+-- VR描画時のみactiveWeaponのworldmodelを非表示にし、デスクトップ/ミラーでは通常表示を維持
+-- viewmodel(g_VR.viewModel)は別エンティティなので影響なし
+local hideWmVr = CreateClientConVar("vrmod_unoff_hide_wm_vr", "1", true, FCVAR_ARCHIVE, "Hide weapon worldmodel in VR HMD", 0, 1)
+local hiddenWeapon = nil
+
+hook.Add("VRMod_PreRender", "vrmod_unoff_hide_worldmodel_vr", function()
+    if not hideWmVr:GetBool() then return end
+    local ply = LocalPlayer()
+    if not IsValid(ply) or not ply:Alive() then return end
+    local wep = ply:GetActiveWeapon()
+    if IsValid(wep) then
+        wep:SetNoDraw(true)
+        hiddenWeapon = wep
+    end
+end)
+
+hook.Add("VRMod_PostRender", "vrmod_unoff_restore_worldmodel_vr", function()
+    if IsValid(hiddenWeapon) then
+        hiddenWeapon:SetNoDraw(false)
+        hiddenWeapon = nil
+    end
+end)

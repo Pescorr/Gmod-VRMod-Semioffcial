@@ -21,6 +21,18 @@ function vrmod_advanced_magazine()
         end
 
         local function IsMagazineBone(boneName)
+            -- Override check: if user set a specific magbone, only that bone matches
+            if vrmod.IsMagboneOverride then
+                local ply = LocalPlayer()
+                if IsValid(ply) then
+                    local wep = ply:GetActiveWeapon()
+                    if IsValid(wep) then
+                        local result = vrmod.IsMagboneOverride(wep:GetClass(), boneName)
+                        if result ~= nil then return result end -- override decided
+                    end
+                end
+            end
+            -- Original auto-detect logic
             boneName = string.lower(boneName)
             local magazineBones = string.Explode(",", GetConVar("vrmod_mag_bones"):GetString())
             for _, name in ipairs(magazineBones) do

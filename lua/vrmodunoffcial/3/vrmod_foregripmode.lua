@@ -68,6 +68,24 @@ local function GetForegripBonePos(player)
 
 	local class = wep:GetClass()
 
+	-- Override check: if user configured a specific foregrip bone, use it directly
+	if vrmod.GetForegripBoneOverride then
+		local overrideName = vrmod.GetForegripBoneOverride(class)
+		if overrideName then
+			-- Populate cache with the overridden bone (or re-use if already cached with same name)
+			if foregripBoneCache[class] == nil or
+			   (foregripBoneCache[class] and foregripBoneCache[class].boneName ~= overrideName) then
+				local idx = vm:LookupBone(overrideName)
+				if idx then
+					foregripBoneCache[class] = { boneIdx = idx, boneName = overrideName }
+				else
+					foregripBoneCache[class] = false -- Override bone not found on this model
+				end
+			end
+			-- Fall through to existing cache-return logic below
+		end
+	end
+
 	-- Cache lookup (false = already scanned, no bone found)
 	if foregripBoneCache[class] ~= nil then
 		if foregripBoneCache[class] == false then
@@ -112,6 +130,15 @@ end
 -- Clear cache on VR exit (weapons may change models)
 hook.Add("VRMod_Exit", "VRForegripBoneCacheCleanup", function()
 	foregripBoneCache = {}
+end)
+
+-- Clear cache when weapon bone config changes (user saved new override)
+hook.Add("VRMod_WeaponBoneConfigChanged", "VRForegripCacheInvalidate", function(weaponClass)
+	if weaponClass then
+		foregripBoneCache[weaponClass] = nil -- Force re-scan with new override
+	else
+		foregripBoneCache = {} -- Full cache clear
+	end
 end)
 
 --[[

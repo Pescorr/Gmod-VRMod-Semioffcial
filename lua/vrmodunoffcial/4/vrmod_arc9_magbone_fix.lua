@@ -34,6 +34,18 @@ end
 
 -- マガジンボーン名の判定（既存vrmod_mag_bonesのキーワードを再利用）
 local function IsMagazineBone(boneName)
+    -- Override check: if user set a specific magbone, only that bone matches
+    if vrmod.IsMagboneOverride then
+        local ply = LocalPlayer()
+        if IsValid(ply) then
+            local wep = ply:GetActiveWeapon()
+            if IsValid(wep) then
+                local result = vrmod.IsMagboneOverride(wep:GetClass(), boneName)
+                if result ~= nil then return result end -- override decided
+            end
+        end
+    end
+    -- Original auto-detect logic
     boneName = string.lower(boneName)
     local magBonesConVar = GetConVar("vrmod_mag_bones")
     local keywordStr = magBonesConVar and magBonesConVar:GetString() or "mag,ammo,clip,cylin,shell,magazine"
@@ -287,5 +299,12 @@ hook.Add("VRMod_Exit", "VRMod_ARC9_MagBoneCleanup", function()
     ResetARC9MagState()
     magBoneCache = {}
     vrmod.ARC9Log("ARC9 magbone fix cleaned up")
+end)
+
+-- Clear cache when weapon bone config changes
+hook.Add("VRMod_WeaponBoneConfigChanged", "VRMod_ARC9_MagBoneCacheInvalidate", function(weaponClass)
+    -- magBoneCache is keyed by weapon entity, not class string
+    -- Clear all entries since we can't easily map class to entity
+    magBoneCache = {}
 end)
 --------[vrmod_arc9_magbone_fix.lua]End--------

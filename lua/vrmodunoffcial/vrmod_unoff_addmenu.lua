@@ -429,9 +429,10 @@ hook.Add(
 		end
 		AddControl(autoadjustvm)
 		local muzzleboneBtn = vgui.Create("DButton", gameplaySettings)
-		muzzleboneBtn:SetText("Muzzle Bone Override")
+		muzzleboneBtn:SetText("Weapon Bone Config")
 		muzzleboneBtn.DoClick = function()
 			RunConsoleCommand("vrmod_muzzle_bone_select")
+			RunConsoleCommand("vrmod_weapon_bone_config")
 		end
 		AddControl(muzzleboneBtn)
 		local pickupweight = vgui.Create("DNumSlider", gameplaySettings)
