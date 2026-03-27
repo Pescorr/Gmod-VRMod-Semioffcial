@@ -110,8 +110,16 @@ CreateClientConVar("vrmod_gmod_optimization", "1", true, FCVAR_ARCHIVE, "VRMod o
 -- VRMod開始時の最適化処理
 local function ApplyVRModOptimization()
     local optimizationLevel = GetConVar("vrmod_gmod_optimization"):GetInt()
+
+    -- Lv1: VRModから変更を行わない
     if optimizationLevel == 1 then
+        return
+    end
+
+    -- Lv2: 最適化を切る（リセット）
+    if optimizationLevel == 2 then
         RunConsoleCommand("gmod_mcore_test", "0")
+        RunConsoleCommand("mat_queue_mode", "-1")
         RunConsoleCommand("r_WaterDrawReflection", "1")
         RunConsoleCommand("r_WaterDrawRefraction", "1")
         RunConsoleCommand("r_waterforceexpensive", "1")
@@ -119,16 +127,26 @@ local function ApplyVRModOptimization()
         RunConsoleCommand("vrmod_mirror_optimization", "0")
         RunConsoleCommand("vrmod_reflective_glass_toggle", "0")
         RunConsoleCommand("vrmod_disable_mirrors", "0")
+        RunConsoleCommand("mat_specular", "1")
+        RunConsoleCommand("mat_spectate", "1")
     end
 
-    if optimizationLevel == 2 then
-        local conVars = {{"gmod_mcore_test", "0"}, {"vrmod_mirror_optimization", "0"}, {"vrmod_reflective_glass_toggle", "0"}, {"vrmod_disable_mirrors", "0"}, {"r_WaterDrawReflection", "0"}, {"r_WaterDrawRefraction", "0"}, {"r_waterforceexpensive", "0"}, {"r_waterforcereflectentities", "0"}}
-        for _, cvar in ipairs(conVars) do
-            RunConsoleCommand(cvar[1], cvar[2])
-        end
-    end
-
+    -- Lv3: 最適化ON（gmod_mcore_test 0 = VR安全）
     if optimizationLevel == 3 then
+        RunConsoleCommand("gmod_mcore_test", "0")
+        RunConsoleCommand("vrmod_mirror_optimization", "1")
+        RunConsoleCommand("vrmod_reflective_glass_toggle", "1")
+        RunConsoleCommand("vrmod_disable_mirrors", "1")
+        RunConsoleCommand("r_WaterDrawReflection", "0")
+        RunConsoleCommand("r_WaterDrawRefraction", "0")
+        RunConsoleCommand("r_waterforceexpensive", "0")
+        RunConsoleCommand("r_waterforcereflectentities", "0")
+        RunConsoleCommand("mat_specular", "0")
+        RunConsoleCommand("mat_spectate", "0")
+    end
+
+    -- Lv4: 最大最適化（gmod_mcore_test 1 ※右目点滅の可能性あり）
+    if optimizationLevel == 4 then
         RunConsoleCommand("gmod_mcore_test", "1")
         RunConsoleCommand("mat_queue_mode", "1")
         RunConsoleCommand("vrmod_mirror_optimization", "1")
@@ -138,17 +156,8 @@ local function ApplyVRModOptimization()
         RunConsoleCommand("r_WaterDrawRefraction", "0")
         RunConsoleCommand("r_waterforceexpensive", "0")
         RunConsoleCommand("r_waterforcereflectentities", "0")
-    end
-
-    if optimizationLevel == 4 then
-        RunConsoleCommand("gmod_mcore_test", "1")
-        RunConsoleCommand("vrmod_mirror_optimization", "1")
-        RunConsoleCommand("vrmod_reflective_glass_toggle", "1")
-        RunConsoleCommand("vrmod_disable_mirrors", "1")
-        RunConsoleCommand("r_WaterDrawReflection", "0")
-        RunConsoleCommand("r_WaterDrawRefraction", "0")
-        RunConsoleCommand("r_waterforceexpensive", "0")
-        RunConsoleCommand("r_waterforcereflectentities", "0")
+        RunConsoleCommand("mat_specular", "0")
+        RunConsoleCommand("mat_spectate", "0")
     end
 end
 

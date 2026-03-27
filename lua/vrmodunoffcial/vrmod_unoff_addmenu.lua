@@ -785,8 +785,8 @@ hook.Add(
 		local farz = graphicsSettings:NumSlider("Visible Range of Map", "r_farz", 0, 16384, 0)
 		farz:SetTooltip("sv_cheats 1 is required")
 		local optimizationLevel = graphicsSettings:NumSlider("VRMod Optimization Level", "vrmod_gmod_optimization", 0, 4, 0)
-		optimizationLevel:SetTooltip("0: No optimization\n1: Basic optimization\n2: Medium optimization\n3: Strong optimization (may affect visual quality)\n3: Extreme optimization (Eye Flash WARNING)")
-		local optimizationDescription = graphicsSettings:Help("Optimization Levels:\n" .. "0: No optimization applied\n" .. "1: Basic - Disables gmod_mcore_test\n" .. "2: Medium - Disables water reflections and refractions\n" .. "3: Strong - Applies mirror optimizations and disables reflective surfaces\n" .. "4: Extreme - gmod_mcore_test Enable (!!Eye Flash WARNING!!)")
+		optimizationLevel:SetTooltip("0: No optimization\n1: No changes from VRMod\n2: Reset (disable optimizations)\n3: Optimization ON (VR safe)\n4: Max optimization (Eye Flash WARNING)")
+		local optimizationDescription = graphicsSettings:Help("Optimization Levels:\n" .. "0: No optimization applied\n" .. "1: No changes - VRMod does not modify any ConVars\n" .. "2: Reset - Restores water reflections, disables mirror optimization\n" .. "3: Optimization ON - Water/mirrors/specular OFF, gmod_mcore_test 0 (VR safe)\n" .. "4: Max optimization - All of Lv3 + gmod_mcore_test 1 (!!Right eye flash WARNING!!)")
 		optimizationDescription:SetAutoStretchVertical(true)
 
 		-- Apply Optimization Button
@@ -889,7 +889,8 @@ hook.Add(
 				changedValues[name] = math.Round(value)
 				valueLabel:SetText(tostring(math.Round(value)))
 			end
-			local currentValue = GetConVar(name):GetInt()
+			local cvar = GetConVar(name)
+			local currentValue = cvar and cvar:GetInt() or default
 			slider:SetValue(currentValue)
 			valueLabel:SetText(tostring(currentValue))
 			defaultButton.DoClick = function()
@@ -919,7 +920,7 @@ hook.Add(
 		MenuTab12.Paint = function(self, w, h) end
 		local scroll = vgui.Create("DScrollPanel", MenuTab12)
 		scroll:Dock(FILL)
-		local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 1, 8000, "Distance at which details are visible", 1200}, {"mat_fastspecular", 0, 1, "Distance at which details are visible", 1}, {"mat_wateroverlaysize", 2, 1200, "Distance at which details are visible", 256}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}}
+		local optimizeconvar2 = {{"r_shadowmaxrendered", 1, 32, "Maximum number of shadows rendered", 32}, {"r_flashlightdepthres", 1, 1024, "Flashlight shadow map resolution", 512}, {"mat_picmip", -10, 20, "Texture quality (lower is better)", 0}, {"r_lod", -1, 10, "Level of detail", 0}, {"r_rootlod", -1, 10, "Root level of detail", 0}, {"ai_expression_frametime", 0.1, 2, "AI expression update frequency", 0.5}, {"cl_detaildist", 1, 8000, "Distance at which details are visible", 1200}, {"mat_fastspecular", 0, 1, "Distance at which details are visible", 1}, {"mat_wateroverlaysize", 2, 1200, "Distance at which details are visible", 256}, {"r_drawdetailprops", 0, 2, "Draw detail props", 1}, {"mat_specular", 0, 1, "Specular reflections", 1}, {"mat_spectate", 0, 1, "Spectate rendering (disable for VR perf)", 0}}
 		local changedValues = {}
 		for i, convar_item in ipairs(optimizeconvar2) do
 			local name, min, max, description, default = unpack(convar_item)
@@ -950,7 +951,8 @@ hook.Add(
 				changedValues[name] = value
 				valueLabel:SetText(string.format("%.2f", value))
 			end
-			local currentValue = GetConVar(name):GetFloat()
+			local cvar = GetConVar(name)
+			local currentValue = cvar and cvar:GetFloat() or default
 			slider:SetValue(currentValue)
 			valueLabel:SetText(string.format("%.2f", currentValue))
 			defaultButton.DoClick = function()
