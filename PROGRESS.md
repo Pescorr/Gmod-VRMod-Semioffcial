@@ -1,6 +1,6 @@
 # vrmod_semioffcial_addonplus 進捗管理
 
-**最終更新**: 2026-03-26（S25: デスクトップカメラ共存 + 鏡修正）
+**最終更新**: 2026-03-27（Post-S25: 最適化レベル修正 + README整備 + GitHub更新）
 
 ---
 
@@ -87,6 +87,25 @@
 ---
 
 **次のアクション**: Phase 2（VR Key Bridge UI: VRアクション→キーコードバインディングエディタ＋vrmod.InputEmu_TapKeyで発火）、スポーンメニュータブVRテスト検証、BACKLOG緑ゾーンからの選択的バグ修正、x64 Mode VRテスト、ARC9改良
+
+---
+
+## Post-S25 コミット記録（2026-03-27）
+
+S25以降、セッション番号を振らずに行った修正・整備作業の記録。
+
+| コミット | 内容 |
+|---------|------|
+| `0b76e0f` | S19-S25: Account handover snapshot (7 sessions of work) — S19-S25の全作業を一括コミット |
+| `784b40a` | Restore S14-S18 changes from OpenBeta backup |
+| `f731ac7` | Update .gitignore |
+| `2a5d859` | Clean up development artifacts and backup files |
+| `6eee7cd` | Unified weapon bone config and UI — マズルボーン設定統合 |
+| `2d19fec` | Remove obsolete muzzle bone command call |
+| `176bb95` | Refine VR optimization levels and UI — **最適化レベルLv1-4修正**: Lv1=変更なし、Lv2=リセット、Lv3=最適化(mcore 0)、Lv4=最大最適化(mcore 1)。mat_spectate 0とmat_specular 0を追加 |
+| `cdc2a7a` | 2026-03-27 |
+| `566045c` | Update README with feature list — README全面書き直し（機能一覧表形式） |
+| `6306d33` | Remove unfinished features from README — 未完成機能(Key Bridge, 武器カスタマイズGUIブリッジ)を削除 |
 
 ---
 
