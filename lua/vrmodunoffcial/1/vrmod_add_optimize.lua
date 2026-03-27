@@ -128,7 +128,6 @@ local function ApplyVRModOptimization()
         RunConsoleCommand("vrmod_reflective_glass_toggle", "0")
         RunConsoleCommand("vrmod_disable_mirrors", "0")
         RunConsoleCommand("mat_specular", "1")
-        RunConsoleCommand("mat_spectate", "1")
     end
 
     -- Lv3: 最適化ON（gmod_mcore_test 0 = VR安全）
@@ -142,7 +141,6 @@ local function ApplyVRModOptimization()
         RunConsoleCommand("r_waterforceexpensive", "0")
         RunConsoleCommand("r_waterforcereflectentities", "0")
         RunConsoleCommand("mat_specular", "0")
-        RunConsoleCommand("mat_spectate", "0")
     end
 
     -- Lv4: 最大最適化（gmod_mcore_test 1 ※右目点滅の可能性あり）
@@ -157,7 +155,6 @@ local function ApplyVRModOptimization()
         RunConsoleCommand("r_waterforceexpensive", "0")
         RunConsoleCommand("r_waterforcereflectentities", "0")
         RunConsoleCommand("mat_specular", "0")
-        RunConsoleCommand("mat_spectate", "0")
     end
 end
 
