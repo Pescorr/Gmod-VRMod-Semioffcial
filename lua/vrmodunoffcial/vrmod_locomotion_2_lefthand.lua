@@ -1,6 +1,8 @@
 --******************************************************************************************************************************
 local cv_allowtp = CreateClientConVar("vrmod_allow_teleport", 1, true, FCVAR_REPLICATED)
 local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client", 0, true, FCVAR_ARCHIVE)
+-- Teleport hand selection: 0=left, 1=right, 2=head
+local cv_tp_hand = CreateClientConVar("vrmod_unoff_teleport_hand", "0", true, FCVAR_ARCHIVE, "Teleport aim source: 0=Left Hand, 1=Right Hand, 2=Head", 0, 2)
 if SERVER then
 	util.AddNetworkString("vrmod_teleport")
 	vrmod.NetReceiveLimited(
@@ -46,7 +48,15 @@ hook.Add(
 					"VRMod_PreRender",
 					"teleport",
 					function()
-						local controllerPos, controllerDir = g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang:Forward()
+						local tpHand = cv_tp_hand:GetInt()
+					local controllerPos, controllerDir
+					if tpHand == 2 then
+						controllerPos, controllerDir = g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang:Forward()
+					elseif tpHand == 1 then
+						controllerPos, controllerDir = g_VR.tracking.pose_righthand.pos, g_VR.tracking.pose_righthand.ang:Forward()
+					else
+						controllerPos, controllerDir = g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_lefthand.ang:Forward()
+					end
 						prevPos = controllerPos
 						local hit = false
 						for i = 2, 17 do

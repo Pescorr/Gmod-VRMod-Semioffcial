@@ -8,10 +8,17 @@ local vrScrH = CreateClientConVar("vrmod_ScrH", ScrH(), true, FCVAR_ARCHIVE)
 local vrScrW = CreateClientConVar("vrmod_ScrW", ScrW(), true, FCVAR_ARCHIVE)
 -- All active popups
 local allPopups = {}
+-- Panels skipped from VRUtilMenuOpen (desktop-only when vrmod_ui_desktop_mirror=1)
+local desktopOnlyPopups = {}
 meta.MakePopup = function(...)
 	local args = {...}
 	orig(unpack(args))
 	if not g_VR.threePoints then return end
+	-- Selective desktop mirror: skip VR registration, keep panel on desktop only
+	if convarValues.vrmod_ui_desktop_mirror == 1 then
+		table.insert(desktopOnlyPopups, args[1])
+		return
+	end
 	local panel = args[1]
 	local uid = "popup_" .. popupCount
 	-- Add the new popup to the list
@@ -178,6 +185,19 @@ hook.Add(
 		for _, uid in ipairs(allPopups) do
 			VRUtilMenuRenderPanel(uid)
 		end
+		-- Track desktop-only popup validity for auto mirror start/stop
+		-- Count only visible panels (spawnmenu uses Close()/SetVisible(false), not Remove())
+		local visibleCount = 0
+		for i = #desktopOnlyPopups, 1, -1 do
+			if not IsValid(desktopOnlyPopups[i]) then
+				table.remove(desktopOnlyPopups, i)
+			elseif desktopOnlyPopups[i]:IsVisible() then
+				visibleCount = visibleCount + 1
+			end
+		end
+		if g_VR then
+			g_VR.desktopPopupCount = visibleCount
+		end
 	end
 )
 
@@ -196,5 +216,8 @@ hook.Add(
 	function(ply)
 		if ply ~= LocalPlayer() then return end
 		vgui.GetWorldPanel():SetSize(vrScrW:GetInt(), vrScrH:GetInt())
+		-- Clean up desktop-only popup tracking
+		desktopOnlyPopups = {}
+		if g_VR then g_VR.desktopPopupCount = 0 end
 	end
 )

@@ -8,9 +8,10 @@ hook.Add(
 	"VRMod_Menu",
 	"addsettingsholster",
 	function(frame)
-		if not frame.pickupSheet then return end
-		local sheet = vgui.Create("DPropertySheet", frame.pickupSheet)
-		frame.pickupSheet:AddSheet("VRHolster", sheet)
+		if not frame or not frame.DPropertySheet then return end
+
+		local ok, err = pcall(function()
+		local sheet = vgui.Create("DPropertySheet")
 		sheet:Dock(FILL)
 
 		-- S20 Problem 6: Type2を最初に表示（Type1より使いやすいため）
@@ -224,6 +225,21 @@ hook.Add(
 		type1LeftDisplayCategory:SetFont("DermaDefaultBold")
 		form3:CheckBox("Visible Range (Left)", "vrmod_weppouch_visiblerange_left")
 		form3:CheckBox("Visible Name (Left)", "vrmod_weppouch_visiblename_left")
+
+		-- Dual-mode registration
+		if frame.Settings02Register then
+			local success = frame.Settings02Register("holster", "VRHolster", "icon16/basket.png", sheet)
+			if not success then
+				frame.DPropertySheet:AddSheet("VRHolster", sheet, "icon16/basket.png")
+			end
+		else
+			frame.DPropertySheet:AddSheet("VRHolster", sheet, "icon16/basket.png")
+		end
+
+		end) -- pcall end
+		if not ok then
+			print("[VRMod] Menu hook error (addsettingsholster): " .. tostring(err))
+		end
 	end
 )
 

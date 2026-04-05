@@ -45,7 +45,7 @@ hook.Add(
 	function(action, pressed)
 		if hook.Call("VRMod_AllowDefaultAction", nil, action) == false then return end
 		if action == "boolean_primaryfire" then
-			if not g_VR.menuFocus then
+			if not g_VR.menuFocus or g_VR.desktopMirrorTransparentInput then
 				LocalPlayer():ConCommand(pressed and "+attack" or "-attack")
 			end
 
@@ -53,7 +53,7 @@ hook.Add(
 		end
 
 		if action == "boolean_secondaryfire" then
-			if not g_VR.menuFocus then
+			if not g_VR.menuFocus or g_VR.desktopMirrorTransparentInput then
 				if cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then return end
 				LocalPlayer():ConCommand(pressed and "+attack2" or "-attack2")
 			end
@@ -213,13 +213,13 @@ hook.Add(
 			return
 		end
 
-		if (action == "boolean_left_primaryfire") and not g_VR.menuFocus and cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then
+		if (action == "boolean_left_primaryfire") and (not g_VR.menuFocus or g_VR.desktopMirrorTransparentInput) and cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then
 			LocalPlayer():ConCommand(pressed and "+attack" or "-attack")
 
 			return
 		end
 
-		if (action == "boolean_left_secondaryfire") and not g_VR.menuFocus and cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then
+		if (action == "boolean_left_secondaryfire") and (not g_VR.menuFocus or g_VR.desktopMirrorTransparentInput) and cl_lefthand:GetBool() and cl_lefthandfire:GetBool() then
 			LocalPlayer():ConCommand(pressed and "+attack2" or "-attack2")
 
 			return

@@ -1,0 +1,48 @@
+VRMod Semiofficial Linux Module - Build Setup
+================================================
+
+このフォルダの内容をGitHubリポジトリにアップロードしてLinux版モジュールをビルドする。
+
+■ 手順
+
+1. GitHubで新しいリポジトリを作成
+   - 名前: vrmod-linux-build (なんでもOK)
+   - Public (無料無制限) を選択
+   - Initialize with README は不要
+
+2. 以下のファイル構造でアップロード:
+
+   vrmod-linux-build/
+     .github/workflows/build.yml   ← このフォルダの .github/workflows/build.yml
+     src/vrmod.cpp                  ← ../src/vrmod.cpp (修正済み版)
+     deps/gmod/Interface.h          ← ../deps/gmod/Interface.h
+     deps/gmod/LuaBase.h            ← ../deps/gmod/LuaBase.h
+     deps/gmod/SourceCompat.h       ← ../deps/gmod/SourceCompat.h
+     deps/gmod/Types.h              ← ../deps/gmod/Types.h
+     deps/gmod/UserData.h           ← ../deps/gmod/UserData.h
+     deps/openvr/openvr.h           ← ../deps/openvr/openvr.h
+
+   ※ .lib ファイルは不要（Linux版は .so を自動ダウンロードする）
+
+3. pushすると自動的にGitHub Actionsが走る
+   - Actions タブでビルド結果を確認
+   - "Verify binaries" ステップで正常性を確認
+   - 成功したら Artifacts から "linux-modules" をダウンロード
+
+4. ダウンロードしたファイルを配置:
+   - gmcl_vrmod_linux.dll   → data_static/vrmod_module_bin/gmcl_vrmod_linux.dat
+   - gmcl_vrmod_linux64.dll → data_static/vrmod_module_bin/gmcl_vrmod_linux64.dat
+   (.dll → .dat にリネーム)
+
+5. vrmod_module_installer.lua の expectedSize を実サイズに更新
+
+■ Verify出力の見方
+
+  file: "ELF 32-bit LSB shared object" / "ELF 64-bit LSB shared object" → 正常
+  nm -D: "T gmod13_open" と "T gmod13_close" が存在 → 正常
+  サイズ: 元VRMod(40KB/46KB)と同程度かやや大きい → 正常
+
+■ 用済み後
+
+  リポジトリは削除してOK（Artifactsさえダウンロードすれば不要）。
+  次回ビルド時は再作成。

@@ -108,7 +108,10 @@ cvars.AddChangeCallback("vrmod_reflective_glass_toggle", OnReflectiveGlassToggle
 cvars.AddChangeCallback("vrmod_disable_mirrors", OnDisableMirrorsChanged)
 CreateClientConVar("vrmod_gmod_optimization", "1", true, FCVAR_ARCHIVE, "VRMod optimization level", 0, 4)
 -- VRMod開始時の最適化処理
-local function ApplyVRModOptimization()
+-- isAuto=true: VRMod_Startからの自動呼び出し（危険ConVarをスキップ）
+-- isAuto=false/nil: 手動ボタン等からの呼び出し（全ConVar適用）
+-- 危険ConVar: mat_specular, mat_queue_mode — マテリアル全リロードを引き起こしHMDフリーズの原因になる
+local function ApplyVRModOptimization(isAuto)
     local optimizationLevel = GetConVar("vrmod_gmod_optimization"):GetInt()
 
     -- Lv1: VRModから変更を行わない
@@ -119,7 +122,6 @@ local function ApplyVRModOptimization()
     -- Lv2: 最適化を切る（リセット）
     if optimizationLevel == 2 then
         RunConsoleCommand("gmod_mcore_test", "0")
-        RunConsoleCommand("mat_queue_mode", "-1")
         RunConsoleCommand("r_WaterDrawReflection", "1")
         RunConsoleCommand("r_WaterDrawRefraction", "1")
         RunConsoleCommand("r_waterforceexpensive", "1")
@@ -127,7 +129,10 @@ local function ApplyVRModOptimization()
         RunConsoleCommand("vrmod_mirror_optimization", "0")
         RunConsoleCommand("vrmod_reflective_glass_toggle", "0")
         RunConsoleCommand("vrmod_disable_mirrors", "0")
-        RunConsoleCommand("mat_specular", "1")
+        if not isAuto then
+            RunConsoleCommand("mat_queue_mode", "-1")
+            RunConsoleCommand("mat_specular", "1")
+        end
     end
 
     -- Lv3: 最適化ON（gmod_mcore_test 0 = VR安全）
@@ -140,13 +145,14 @@ local function ApplyVRModOptimization()
         RunConsoleCommand("r_WaterDrawRefraction", "0")
         RunConsoleCommand("r_waterforceexpensive", "0")
         RunConsoleCommand("r_waterforcereflectentities", "0")
-        RunConsoleCommand("mat_specular", "0")
+        if not isAuto then
+            RunConsoleCommand("mat_specular", "0")
+        end
     end
 
     -- Lv4: 最大最適化（gmod_mcore_test 1 ※右目点滅の可能性あり）
     if optimizationLevel == 4 then
         RunConsoleCommand("gmod_mcore_test", "1")
-        RunConsoleCommand("mat_queue_mode", "1")
         RunConsoleCommand("vrmod_mirror_optimization", "1")
         RunConsoleCommand("vrmod_reflective_glass_toggle", "1")
         RunConsoleCommand("vrmod_disable_mirrors", "1")
@@ -154,21 +160,38 @@ local function ApplyVRModOptimization()
         RunConsoleCommand("r_WaterDrawRefraction", "0")
         RunConsoleCommand("r_waterforceexpensive", "0")
         RunConsoleCommand("r_waterforcereflectentities", "0")
-        RunConsoleCommand("mat_specular", "0")
+        if not isAuto then
+            RunConsoleCommand("mat_queue_mode", "1")
+            RunConsoleCommand("mat_specular", "0")
+        end
     end
 end
 
--- コンソールコマンド
-concommand.Add("vrmod_apply_optimization", ApplyVRModOptimization)
+-- コンソールコマンド（Optimize Nowボタン）
+-- VR稼働中: exit → 適用（マテリアルリロード） → 5秒後にstart で自動復帰
+-- VR非稼働: そのまま全ConVar適用
+concommand.Add("vrmod_apply_optimization", function()
+    if g_VR and g_VR.active then
+        RunConsoleCommand("vrmod_exit")
+        timer.Simple(1.0, function()
+            ApplyVRModOptimization(false)
+            timer.Simple(4.0, function()
+                RunConsoleCommand("vrmod_start")
+            end)
+        end)
+    else
+        ApplyVRModOptimization(false)
+    end
+end)
+
 if SERVER then return end
-local optimizeConVars = {"r_3dsky", "r_shadows", "r_farz", "r_WaterDrawReflection", "r_WaterDrawRefraction", "r_waterforceexpensive", "r_waterforcereflectentities", "vrmod_mirror_optimization", "vrmod_reflective_glass_toggle", "vrmod_disable_mirrors", "gmod_mcore_test", "mat_queue_mode"}
--- 新しいコマンド "vrmod_gmod_optimization_reset" を追加
+local optimizeConVars = {"r_3dsky", "r_shadows", "r_farz", "r_WaterDrawReflection", "r_WaterDrawRefraction", "r_waterforceexpensive", "r_waterforcereflectentities", "vrmod_mirror_optimization", "vrmod_reflective_glass_toggle", "vrmod_disable_mirrors", "gmod_mcore_test", "mat_queue_mode", "mat_specular"}
 local originalConVarValues = {}
 local function RecordConVarValues()
-    for _, cvar in ipairs(optimizeConVars) do
-        local name = cvar[1]
-        if GetConVar(name) then
-            originalConVarValues[name] = GetConVar(name):GetString()
+    for _, name in ipairs(optimizeConVars) do
+        local cv = GetConVar(name)
+        if cv then
+            originalConVarValues[name] = cv:GetString()
         end
     end
 end
@@ -184,29 +207,15 @@ local function RestoreConVarValues()
     end
 end
 
--- VRMod開始時のフック
--- hook.Add(
---     "CreateMove",
---     "RecordVRModOptimization",
---     function()
---         hook.Remove("CreateMove", "RecordVRModOptimization")
---         timer.Simple(
---             2,
---             function()
---                 RecordConVarValues()
---             end
---         )
---     end
--- )
-hook.Add("VRMod_Start", "ApplyVRModOptimization", ApplyVRModOptimization)
-hook.Add(
-    "VRMod_Exit",
-    "RestoreVRModOptimization",
-    function()
-        RestoreConVarValues()
-        ApplyVRModOptimization()
-    end
-)
+-- VRMod開始時: 元の値を記録してから安全なConVarのみ適用
+hook.Add("VRMod_Start", "ApplyVRModOptimization", function()
+    RecordConVarValues()
+    ApplyVRModOptimization(true)
+end)
+-- VRMod終了時: 記録した元の値に復元のみ（再適用はしない）
+hook.Add("VRMod_Exit", "RestoreVRModOptimization", function()
+    RestoreConVarValues()
+end)
 
 concommand.Add(
     "vrmod_gmod_optimize_save",
@@ -219,7 +228,7 @@ concommand.Add(
     "vrmod_gmod_optimize_load",
     function(ply, cmd, args)
         RestoreConVarValues()
-        ApplyVRModOptimization()
+        ApplyVRModOptimization(false)
     end
 )
 

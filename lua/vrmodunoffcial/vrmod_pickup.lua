@@ -11,12 +11,12 @@ function vrmod_pickup_lua()
 
 	local _, convarValues = vrmod.GetConvars()
 	vrmod.AddCallbackedConvar("vrmod_pickup_limit", nil, 1, FCVAR_REPLICATED + FCVAR_NOTIFY + FCVAR_ARCHIVE, "", 0, 3, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
-	vrmod.AddCallbackedConvar("vrmod_pickup_centered", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+	vrmod.AddCallbackedConvar("vrmod_pickup_centered", nil, 0, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 1, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	-- S14: Tick自動ドロップモード（0=無効＝10年間の旧挙動, 1=有効＝オリジナル同等）
 	vrmod.AddCallbackedConvar("vrmod_pickup_tick_autodrop", nil, 0, FCVAR_REPLICATED + FCVAR_ARCHIVE, "Tick auto-drop: 0=disabled(legacy), 1=enabled(original)", 0, 1, tonumber)
 	-- 0=classic（変更前の挙動）, 1=new（Fix4逆順反復+Fix5統一Exit）
 	vrmod.AddCallbackedConvar("vrmod_pickup_newmode", nil, 0, FCVAR_REPLICATED + FCVAR_ARCHIVE, "Pickup mode: 0=classic, 1=new(reverse iter+unified exit)", 0, 1, tonumber)
-	vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
+	vrmod.AddCallbackedConvar("vrmod_pickup_range", nil, 1.01, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0.0, 999.0, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 	vrmod.AddCallbackedConvar("vrmod_pickup_weight", nil, 100, FCVAR_REPLICATED + FCVAR_ARCHIVE, "", 0, 99999, tonumber) --cvarName, valueName, defaultValue, flags, helptext, min, max, conversionFunc, callbackFunc
 vrmod.AddCallbackedConvar("vrmod_pickup_allow_default", nil, 1, FCVAR_REPLICATED + FCVAR_ARCHIVE, "Allow default pickup behavior for VR players", 0, 1, tonumber)
 
@@ -213,13 +213,13 @@ vrmod.AddCallbackedConvar("vrmod_pickup_allow_default", nil, 1, FCVAR_REPLICATED
 					pickupController = ents.Create("vrmod_pickup")
 					pickupController:Spawn()
 					pickupController.ShadowParams = {
-						secondstoarrive = 0.00005, --1/cv_tickrate:GetInt()
+						secondstoarrive = 0.0001, --1/cv_tickrate:GetInt()
 						maxangular = 5000,
 						maxangulardamp = 5000,
-						maxspeed = 2000000,
-						maxspeeddamp = 20000,
-						dampfactor = 0.3,
-						teleportdistance = 2000,
+						maxspeed = 1000000,
+						maxspeeddamp = 10000,
+						dampfactor = 0.5,
+						teleportdistance = 0,
 						deltatime = 0,
 					}
 

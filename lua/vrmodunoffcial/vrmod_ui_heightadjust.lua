@@ -236,6 +236,13 @@ function VRUtilOpenHeightMenu()
 		)
 	end
 
+	-- Auto reset body on mirror open
+	RunConsoleCommand("vrmod_character_stop")
+	timer.Simple(0.5, function()
+		RunConsoleCommand("vrmod_character_start")
+	end)
+
+	local expandedGroup = nil -- nil, "head", or "save"
 	local buttons, renderControls
 	buttons = {
 		{
@@ -421,140 +428,178 @@ function VRUtilOpenHeightMenu()
 				)
 			end
 		},
-		{
-			x = 0,
-			y = 450,
-			w = 50,
-			h = 50,
-			text = "HideNear\nHMD\n-",
-			font = "Trebuchet18",
-			text_x = 25,
-			text_y = 5,
-			enabled = g_VR.view.znear >= 0.5,
-			fn = function()
-				g_VR.view.znear = g_VR.view.znear - 0.5
-			end
-		},
-		{
-			x = 100,
-			y = 450,
-			w = 50,
-			h = 50,
-			text = "HideNear\nHMD\n+",
-			font = "Trebuchet18",
-			text_x = 25,
-			text_y = 5,
-			enabled = g_VR.view.znear <= 20.0,
-			fn = function()
-				g_VR.view.znear = g_VR.view.znear + 0.5
-			end
-		},
-		{
-			x = 0,
-			y = 350,
-			w = 50,
-			h = 50,
-			text = "Hide\nHead",
-			font = "Trebuchet18",
-			text_x = 25,
-			text_y = 5,
-			enabled = true,
+	}
+
+	-- Accordion group: Head (Hide Head, HMD znear)
+	local headGroupButtons = {
+		{x = 0, y = 0, w = 100, h = 50, text = "Hide\nHead", font = "Trebuchet18", text_x = 50, text_y = 5, enabled = true,
 			fn = function()
 				local current = GetConVar("vrmod_hide_head"):GetBool()
 				RunConsoleCommand("vrmod_hide_head", current and "0" or "1")
 				RunConsoleCommand("vrmod_character_stop")
-				timer.Simple(
-					1,
-					function()
-						RunConsoleCommand("vrmod_character_start")
-					end
-				)
-			end
-		},
-		{
-			x = 100,
-			y = 350,
-			w = 50,
-			h = 50,
-			text = "reset\nBody",
-			font = "Trebuchet18",
-			text_x = 25,
-			text_y = 5,
-			enabled = true,
-			fn = function()
-				-- local current = GetConVar("vrmod_hide_body"):GetBool()
-				-- RunConsoleCommand("vrmod_hide_body", current and "0" or "1")
-				RunConsoleCommand("vrmod_character_stop")
-				timer.Simple(
-					1,
-					function()
-						RunConsoleCommand("vrmod_character_start")
-					end
-				)
-			end
-		},
+				timer.Simple(1, function() RunConsoleCommand("vrmod_character_start") end)
+			end},
+		{x = 0, y = 0, w = 50, h = 50, text = "HideNear\nHMD\n-", font = "Trebuchet18", text_x = 25, text_y = 5,
+			enabled = g_VR.view.znear >= 0.5,
+			fn = function() g_VR.view.znear = g_VR.view.znear - 0.5 end},
+		{x = 55, y = 0, w = 50, h = 50, text = "HideNear\nHMD\n+", font = "Trebuchet18", text_x = 25, text_y = 5,
+			enabled = g_VR.view.znear <= 20.0,
+			fn = function() g_VR.view.znear = g_VR.view.znear + 0.5 end},
 	}
 
-	-- {
-	-- 	x = 0,
-	-- 	y = 405,
-	-- 	w = 50,
-	-- 	h = 50,
-	-- 	text = "Hide\nArms",
-	-- 	font = "Trebuchet18",
-	-- 	text_x = 25,
-	-- 	text_y = 5,
-	-- 	enabled = true,
-	-- 	fn = function()
-	-- 		local current = GetConVar("vrmod_hide_arms"):GetBool()
-	-- 		RunConsoleCommand("vrmod_hide_arms", current and "0" or "1")
-	-- 		RunConsoleCommand("vrmod_character_stop")
-	-- 		timer.Simple(2, function()
-	-- 			 RunConsoleCommand("vrmod_character_start")
-	-- 		end)
-	-- 	end
-	-- },
-	-- {
-	-- 	x = 100,
-	-- 	y = 405,
-	-- 	w = 50,
-	-- 	h = 50,
-	-- 	text = "Hide\nLegs",
-	-- 	font = "Trebuchet18",
-	-- 	text_x = 25,
-	-- 	text_y = 5,
-	-- 	enabled = true,
-	-- 	fn = function()
-	-- 		local current = GetConVar("vrmod_hide_legs"):GetBool()
-	-- 		RunConsoleCommand("vrmod_hide_legs", current and "0" or "1")
-	-- 		RunConsoleCommand("vrmod_character_stop")
-	-- 		timer.Simple(2, function()
-	-- 			 RunConsoleCommand("vrmod_character_start")
-	-- 		end)
-	-- 	end
-	-- },
+	-- Accordion group: Save (Save, Load, Wizard)
+	local saveGroupButtons = {
+		{x = 0, y = 0, w = 48, h = 35, text = "Save", font = "Trebuchet18", text_x = 24, text_y = 9, enabled = true,
+			fn = function()
+				if vrmod.PlayerModelPresets then vrmod.PlayerModelPresets.SaveCurrentModel() end
+			end},
+		{x = 52, y = 0, w = 48, h = 35, text = "Load", font = "Trebuchet18", text_x = 24, text_y = 9, enabled = true,
+			fn = function()
+				if vrmod.PlayerModelPresets then vrmod.PlayerModelPresets.LoadCurrentModel() end
+			end},
+		{x = 0, y = 0, w = 100, h = 40, text = "Setup\nWizard", font = "Trebuchet18", text_x = 50, text_y = 3, enabled = true,
+			fn = function()
+				if vrmod.HeightWizard then vrmod.HeightWizard.Start() end
+			end},
+	}
+
+	-- Accordion layout constants
+	local ACCORDION_Y = 255
+	local HEADER_H = 30
+	local HEADER_W = 100
+	local GROUP_GAP = 5
+
+	-- Compute dynamic y positions for accordion contents
+	local function getAccordionPositions()
+		local headY = ACCORDION_Y
+		local nextY = headY + HEADER_H + GROUP_GAP
+
+		if expandedGroup == "head" then
+			headGroupButtons[1].y = nextY
+			nextY = nextY + headGroupButtons[1].h + GROUP_GAP
+			headGroupButtons[2].y = nextY
+			headGroupButtons[3].y = nextY
+			nextY = nextY + headGroupButtons[2].h + GROUP_GAP
+		end
+
+		local saveY = nextY
+		if expandedGroup == "save" then
+			local sy = saveY + HEADER_H + GROUP_GAP
+			saveGroupButtons[1].y = sy
+			saveGroupButtons[2].y = sy
+			sy = sy + saveGroupButtons[1].h + GROUP_GAP
+			saveGroupButtons[3].y = sy
+		end
+
+		return headY, saveY
+	end
+
+	-- Helper: draw a single button
+	local function drawButton(v)
+		local alpha = v.enabled and 255 or 128
+		surface.SetDrawColor(0, 0, 0, alpha)
+		surface.DrawRect(v.x, v.y, v.w, v.h)
+		draw.DrawText(v.text, v.font, v.x + v.text_x, v.y + v.text_y, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	end
+
+	-- Helper: draw accordion header
+	local function drawHeader(y, label, isExpanded)
+		surface.SetDrawColor(40, 40, 40, 255)
+		surface.DrawRect(0, y, HEADER_W, HEADER_H)
+		local prefix = isExpanded and "[-] " or "[+] "
+		draw.DrawText(prefix .. label, "Trebuchet18", HEADER_W / 2, y + 7, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	end
+
 	renderControls = function()
 		VRUtilMenuRenderStart("heightmenu")
-		surface.SetDrawColor(0, 0, 0, 255)
+
+		-- Always-visible buttons (right column + Seated)
 		for k, v in ipairs(buttons) do
-			local color = v.enabled and 255 or 128
-			surface.SetDrawColor(0, 0, 0, color)
-			surface.DrawRect(v.x, v.y, v.w, v.h)
-			draw.DrawText(v.text, v.font, v.x + v.text_x, v.y + v.text_y, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			drawButton(v)
+		end
+
+		-- Compute accordion layout
+		local headY, saveY = getAccordionPositions()
+
+		-- Head accordion
+		drawHeader(headY, "Head", expandedGroup == "head")
+		if expandedGroup == "head" then
+			for _, v in ipairs(headGroupButtons) do drawButton(v) end
+		end
+
+		-- Save accordion
+		drawHeader(saveY, "Save", expandedGroup == "save")
+		if expandedGroup == "save" then
+			for _, v in ipairs(saveGroupButtons) do drawButton(v) end
 		end
 
 		VRUtilMenuRenderEnd()
 	end
 
 	renderControls()
+	vrmod.HeightMenuRender = renderControls
 	hook.Add(
 		"VRMod_Input",
 		"vrmodheightmenuinput",
 		function(action, pressed)
 			if g_VR.menuFocus == "heightmenu" and action == "boolean_primaryfire" and pressed then
+				if vrmod.HeightWizard and vrmod.HeightWizard.IsActive() then
+					vrmod.HeightWizard.HandleInput(g_VR.menuCursorX, g_VR.menuCursorY)
+					return
+				end
+
+				local cx, cy = g_VR.menuCursorX, g_VR.menuCursorY
+
+				-- Always-visible buttons
 				for k, v in ipairs(buttons) do
-					if v.enabled and g_VR.menuCursorX > v.x and g_VR.menuCursorX < v.x + v.w and g_VR.menuCursorY > v.y and g_VR.menuCursorY < v.y + v.h then
+					if v.enabled and cx > v.x and cx < v.x + v.w and cy > v.y and cy < v.y + v.h then
 						v.fn()
+						return
+					end
+				end
+
+				-- Accordion headers and group buttons
+				local headY, saveY = getAccordionPositions()
+
+				-- Head header click
+				if cx >= 0 and cx <= HEADER_W and cy >= headY and cy <= headY + HEADER_H then
+					if expandedGroup == "head" then
+						expandedGroup = nil
+					else
+						expandedGroup = "head"
+					end
+					renderControls()
+					return
+				end
+
+				-- Head group buttons (only when expanded)
+				if expandedGroup == "head" then
+					for _, v in ipairs(headGroupButtons) do
+						if v.enabled and cx > v.x and cx < v.x + v.w and cy > v.y and cy < v.y + v.h then
+							v.fn()
+							return
+						end
+					end
+				end
+
+				-- Save header click
+				if cx >= 0 and cx <= HEADER_W and cy >= saveY and cy <= saveY + HEADER_H then
+					if expandedGroup == "save" then
+						expandedGroup = nil
+					else
+						expandedGroup = "save"
+					end
+					renderControls()
+					return
+				end
+
+				-- Save group buttons (only when expanded)
+				if expandedGroup == "save" then
+					for _, v in ipairs(saveGroupButtons) do
+						if v.enabled and cx > v.x and cx < v.x + v.w and cy > v.y and cy < v.y + v.h then
+							v.fn()
+							return
+						end
 					end
 				end
 			end

@@ -53,81 +53,24 @@ local function AddTreeNode(tree, label, key, icon, showPanel)
 end
 
 -- DTree Navigation Helper: Extracts tabs from a hidden DPropertySheet into the DTree
-local function ExtractSheet(hiddenSheet, tree, showPanel, registerPanel)
-	if not IsValid(hiddenSheet) then return end
-	local items = hiddenSheet:GetItems()
-	if not items then return end
-	for _, item in ipairs(items) do
-		if item.Tab and item.Panel then
-			local tabName = item.Tab:GetText():Trim()
-			local key = "mod_" .. tabName
-			registerPanel(key, item.Panel)
-			AddTreeNode(tree, tabName, key, "icon16/plugin.png", showPanel)
-		end
-	end
-	hiddenSheet:Remove()
-end
+-- ExtractSheet removed (S32: modules now use frame.DPropertySheet directly)
 
 -- Helper: Creates Utility panel (standalone, returns panel)
 local function CreateUtilityPanel()
 	local scrollPanel = vgui.Create("DScrollPanel")
 	local utilityTab = vgui.Create("DPanel", scrollPanel)
 	utilityTab:Dock(TOP)
-	utilityTab:SetTall(365)
+	utilityTab:SetTall(270)
 	utilityTab.Paint = function(self, w, h) end
-	-- Preset Management Section
-	local presetLabel = vgui.Create("DLabel", utilityTab)
-	presetLabel:SetPos(20, 10)
-	presetLabel:SetText("=== Settings Preset Management ===")
-	presetLabel:SetFont("DermaDefaultBold")
-	presetLabel:SizeToContents()
-	local presetNameEntry = vgui.Create("DTextEntry", utilityTab)
-	presetNameEntry:SetPos(20, 35)
-	presetNameEntry:SetSize(330, 25)
-	presetNameEntry:SetPlaceholderText("Enter preset name...")
-	local savePresetBtn = vgui.Create("DButton", utilityTab)
-	savePresetBtn:SetText("Save Preset")
-	savePresetBtn:SetPos(20, 65)
-	savePresetBtn:SetSize(100, 25)
-	savePresetBtn.DoClick = function()
-		local name = presetNameEntry:GetValue()
-		if name == "" then
-			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "Please enter a preset name!")
-			return
-		end
-		RunConsoleCommand("vrmod_preset_save", name)
-		chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Preset '" .. name .. "' saved!")
-	end
-	local loadPresetBtn = vgui.Create("DButton", utilityTab)
-	loadPresetBtn:SetText("Load Preset")
-	loadPresetBtn:SetPos(130, 65)
-	loadPresetBtn:SetSize(100, 25)
-	loadPresetBtn.DoClick = function()
-		local name = presetNameEntry:GetValue()
-		if name == "" then
-			chat.AddText(Color(255, 0, 0), "[VRMod] ", Color(255, 255, 255), "Please enter a preset name!")
-			return
-		end
-		RunConsoleCommand("vrmod_preset_load", name)
-		chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Preset '" .. name .. "' loaded!")
-	end
-	local listPresetsBtn = vgui.Create("DButton", utilityTab)
-	listPresetsBtn:SetText("List Presets")
-	listPresetsBtn:SetPos(240, 65)
-	listPresetsBtn:SetSize(110, 25)
-	listPresetsBtn.DoClick = function()
-		RunConsoleCommand("vrmod_preset_list")
-		chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Preset list printed to console")
-	end
 	-- Screen & VGUI Section
 	local screenLabel = vgui.Create("DLabel", utilityTab)
-	screenLabel:SetPos(20, 105)
+	screenLabel:SetPos(20, 10)
 	screenLabel:SetText("=== Screen & VGUI ===")
 	screenLabel:SetFont("DermaDefaultBold")
 	screenLabel:SizeToContents()
 	local scrAutoBtn = vgui.Create("DButton", utilityTab)
 	scrAutoBtn:SetText("Auto-Detect Screen Resolution")
-	scrAutoBtn:SetPos(20, 130)
+	scrAutoBtn:SetPos(20, 35)
 	scrAutoBtn:SetSize(165, 25)
 	scrAutoBtn.DoClick = function()
 		RunConsoleCommand("vrmod_Scr_Auto")
@@ -135,7 +78,7 @@ local function CreateUtilityPanel()
 	end
 	local vguiResetBtn = vgui.Create("DButton", utilityTab)
 	vguiResetBtn:SetText("Reset VGUI Panels")
-	vguiResetBtn:SetPos(195, 130)
+	vguiResetBtn:SetPos(195, 35)
 	vguiResetBtn:SetSize(155, 25)
 	vguiResetBtn.DoClick = function()
 		RunConsoleCommand("vrmod_vgui_reset")
@@ -144,14 +87,14 @@ local function CreateUtilityPanel()
 
 	-- Config Data Generation Section
 	local configLabel = vgui.Create("DLabel", utilityTab)
-	configLabel:SetPos(20, 165)
+	configLabel:SetPos(20, 70)
 	configLabel:SetText("=== VR Config Data Generation ===")
 	configLabel:SetFont("DermaDefaultBold")
 	configLabel:SizeToContents()
 
 	local generateConfigBtn = vgui.Create("DButton", utilityTab)
-	generateConfigBtn:SetText("Generate VR Config Data (Fix x64 Issues)")
-	generateConfigBtn:SetPos(20, 190)
+	generateConfigBtn:SetText("Generate VR Config Data")
+	generateConfigBtn:SetPos(20, 95)
 	generateConfigBtn:SetSize(330, 30)
 	generateConfigBtn.DoClick = function()
 		RunConsoleCommand("vrmod_data_vmt_generate_test")
@@ -159,34 +102,34 @@ local function CreateUtilityPanel()
 	end
 
 	local autoGenerateCheckbox = utilityTab:Add("DCheckBoxLabel")
-	autoGenerateCheckbox:SetPos(20, 225)
-	autoGenerateCheckbox:SetText("Auto-generate on VR startup (recommended for x64 compatibility)")
+	autoGenerateCheckbox:SetPos(20, 130)
+	autoGenerateCheckbox:SetText("Auto-generate on VR startup")
 	autoGenerateCheckbox:SetConVar("vrmod_unoff_auto_generate_config")
 	autoGenerateCheckbox:SizeToContents()
 
 	-- Core VR Control Section
 	local coreLabel = vgui.Create("DLabel", utilityTab)
-	coreLabel:SetPos(20, 255)
+	coreLabel:SetPos(20, 160)
 	coreLabel:SetText("=== Core VR Control ===")
 	coreLabel:SetFont("DermaDefaultBold")
 	coreLabel:SizeToContents()
 	local startVRBtn = vgui.Create("DButton", utilityTab)
 	startVRBtn:SetText("Start VR")
-	startVRBtn:SetPos(20, 280)
+	startVRBtn:SetPos(20, 185)
 	startVRBtn:SetSize(80, 25)
 	startVRBtn.DoClick = function()
 		RunConsoleCommand("vrmod_start")
 	end
 	local exitVRBtn = vgui.Create("DButton", utilityTab)
 	exitVRBtn:SetText("Exit VR")
-	exitVRBtn:SetPos(110, 280)
+	exitVRBtn:SetPos(110, 185)
 	exitVRBtn:SetSize(80, 25)
 	exitVRBtn.DoClick = function()
 		RunConsoleCommand("vrmod_exit")
 	end
 	local resetVRBtn = vgui.Create("DButton", utilityTab)
 	resetVRBtn:SetText("Reset All Settings")
-	resetVRBtn:SetPos(200, 280)
+	resetVRBtn:SetPos(200, 185)
 	resetVRBtn:SetSize(150, 25)
 	resetVRBtn.DoClick = function()
 		RunConsoleCommand("vrmod_reset")
@@ -194,7 +137,7 @@ local function CreateUtilityPanel()
 	end
 	local infoVRBtn = vgui.Create("DButton", utilityTab)
 	infoVRBtn:SetText("Print VR Info")
-	infoVRBtn:SetPos(20, 310)
+	infoVRBtn:SetPos(20, 215)
 	infoVRBtn:SetSize(165, 25)
 	infoVRBtn.DoClick = function()
 		RunConsoleCommand("vrmod_info")
@@ -202,7 +145,7 @@ local function CreateUtilityPanel()
 	end
 	local luaResetBtn = vgui.Create("DButton", utilityTab)
 	luaResetBtn:SetText("Reset Lua Modules")
-	luaResetBtn:SetPos(195, 310)
+	luaResetBtn:SetPos(195, 215)
 	luaResetBtn:SetSize(155, 25)
 	luaResetBtn.DoClick = function()
 		RunConsoleCommand("vrmod_lua_reset")
@@ -315,6 +258,7 @@ hook.Add(
 		modeBtn:Dock(LEFT)
 		modeBtn:SetWide(240)
 		modeBtn:DockMargin(4, 2, 4, 2)
+		modeBtn:SetVisible(false) -- Guide View disabled — guide system disabled
 
 		-- Tree container (default view)
 		local treeContainer = vgui.Create("DPanel", settings02)
@@ -350,34 +294,7 @@ hook.Add(
 		-- DTree + content area (inside treeContainer)
 		local tree, contentContainer, showPanel, registerPanel = CreateTreeTab(treeContainer)
 
-		-- Hidden DPropertySheets for module compatibility
-		local hiddenVRplay = vgui.Create("DPropertySheet", settings02)
-		hiddenVRplay:SetVisible(false); hiddenVRplay:SetSize(0, 0)
-		frame.VRplaySheet = hiddenVRplay
-
-		local hiddenPickup = vgui.Create("DPropertySheet", settings02)
-		hiddenPickup:SetVisible(false); hiddenPickup:SetSize(0, 0)
-		frame.pickupSheet = hiddenPickup
-
-		local hiddenNonVRGun = vgui.Create("DPropertySheet", settings02)
-		hiddenNonVRGun:SetVisible(false); hiddenNonVRGun:SetSize(0, 0)
-		frame.nonVRGunSheet = hiddenNonVRGun
-
-		local hiddenHud = vgui.Create("DPropertySheet", settings02)
-		hiddenHud:SetVisible(false); hiddenHud:SetSize(0, 0)
-		frame.hudSheet = hiddenHud
-
-		local hiddenDebug = vgui.Create("DPropertySheet", settings02)
-		hiddenDebug:SetVisible(false); hiddenDebug:SetSize(0, 0)
-		frame.debugSheet = hiddenDebug
-
-		local hiddenQmBtn = vgui.Create("DPropertySheet", settings02)
-		hiddenQmBtn:SetVisible(false); hiddenQmBtn:SetSize(0, 0)
-		frame.quickmenuBtnSheet = hiddenQmBtn
-
-		local hiddenSettings02 = vgui.Create("DPropertySheet", settings02)
-		hiddenSettings02:SetVisible(false); hiddenSettings02:SetSize(0, 0)
-		frame.Settings02Sheet = hiddenSettings02
+		-- Module hidden sheets removed (S32: modules are now individual addons using frame.DPropertySheet directly)
 
 		-- ========================================
 		-- Panel: VR
@@ -402,6 +319,14 @@ hook.Add(
 		teleport:SetText("[Teleport Enable]")
 		teleport:SetConVar("vrmod_allow_teleport_client")
 		AddControl(teleport)
+		local tphand = vgui.Create("DNumSlider", gameplaySettings)
+		tphand:SetText("[Teleport Hand]\n0 = Left Hand  1 = Right Hand  2 = Head")
+		tphand:SetMin(0)
+		tphand:SetMax(2)
+		tphand:SetDecimals(0)
+		tphand:SetConVar("vrmod_unoff_teleport_hand")
+		tphand:SetTooltip("Select which source is used to aim the teleport beam.\n0 = Left Hand, 1 = Right Hand, 2 = Head (HMD)")
+		AddControl(tphand)
 		local flashlightattach = vgui.Create("DNumSlider", gameplaySettings)
 		flashlightattach:SetText("[Flashlight Attachment]\n0 = Right Hand 1 = Left Hand\n 2 = HMD")
 		flashlightattach:SetMin(0)
@@ -422,12 +347,6 @@ hook.Add(
 			RunConsoleCommand("vrmod_weaponconfig")
 		end
 		AddControl(weaponconfig)
-		local autoadjustvm = vgui.Create("DButton", gameplaySettings)
-		autoadjustvm:SetText("Auto-adjust Current Weapon (Quick)")
-		autoadjustvm.DoClick = function()
-			RunConsoleCommand("vrmod_viewmodel_autoadjust")
-		end
-		AddControl(autoadjustvm)
 		local muzzleboneBtn = vgui.Create("DButton", gameplaySettings)
 		muzzleboneBtn:SetText("Weapon Bone Config")
 		muzzleboneBtn.DoClick = function()
@@ -708,8 +627,8 @@ hook.Add(
 		menuoutline:SetConVar("vrmod_ui_outline")
 		local uirender = uiSettings:CheckBox("UI Render Alternative")
 		uirender:SetConVar("vrmod_ui_realtime")
-		local cameraoverride = uiSettings:CheckBox("Desktop Camera Override")
-		cameraoverride:SetTooltip("OFF: If using a camera mod, the GMod window will show the camera view")
+		local cameraoverride = uiSettings:CheckBox("Desktop 3rd Person Camera")
+		cameraoverride:SetTooltip("ON: Desktop shows 3rd person camera view. OFF: Desktop shows VR HMD perspective.")
 		cameraoverride:SetConVar("vrmod_cameraoverride")
 		local keyboarduichat = uiSettings:CheckBox("Keyboard UI Chat Key")
 		keyboarduichat:SetConVar("vrmod_keyboard_uichatkey")
@@ -975,9 +894,10 @@ hook.Add(
 		end -- Opt.Gmod panel
 
 		-- ========================================
-		-- Panel: Quick Menu
+		-- Panel: Quick Menu (DPropertySheet with Settings + Editor tabs)
 		-- ========================================
 		do
+		local quickMenuSheet = vgui.Create("DPropertySheet")
 		local quickMenuSettings = vgui.Create("DForm")
 		quickMenuSettings:DockPadding(0, 0, 0, 0)
 		local mapbrowser = quickMenuSettings:CheckBox("Map Browser")
@@ -1008,7 +928,9 @@ hook.Add(
 		quickmenudefault.DoClick = function()
 			VRModResetCategory("quickmenu")
 		end
-		registerPanel("quickmenu", quickMenuSettings)
+		quickMenuSheet:AddSheet("Settings", quickMenuSettings, "icon16/cog.png")
+		frame.quickmenuBtnSheet = quickMenuSheet
+		registerPanel("quickmenu", quickMenuSheet)
 		AddTreeNode(tree, "Quick Menu", "quickmenu", "icon16/application_view_tile.png", showPanel)
 		end -- Quick Menu panel
 
@@ -1016,21 +938,49 @@ hook.Add(
 		-- Panel: VRStop Key
 		-- ========================================
 		do
-		local PanelEMSTOP = vgui.Create("DPanel")
-		PanelEMSTOP.Paint = function(self, w, h) end
-		local emergStopKeyBinder = vgui.Create("DBinder", PanelEMSTOP)
-		emergStopKeyBinder:SetPos(20, 20)
-		emergStopKeyBinder:SetSize(300, 20)
+		local stopScroll = vgui.Create("DScrollPanel")
+		local stopForm = vgui.Create("DForm", stopScroll)
+		stopForm:Dock(TOP)
+		stopForm:DockMargin(5, 5, 5, 5)
+		stopForm:SetName("Emergency Stop")
+		stopForm.Paint = function(self, w, h)
+			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
+		end
+		local binderLabel = stopForm:Help("Emergency Stop Key:")
+		local binderContainer = vgui.Create("DPanel")
+		binderContainer:SetTall(25)
+		binderContainer.Paint = function() end
+		local emergStopKeyBinder = vgui.Create("DBinder", binderContainer)
+		emergStopKeyBinder:Dock(FILL)
 		emergStopKeyBinder:SetConVar("vrmod_emergencystop_key")
-		local emergStopHoldTime = vgui.Create("DNumSlider", PanelEMSTOP)
-		emergStopHoldTime:SetPos(20, 50)
-		emergStopHoldTime:SetSize(330, 30)
-		emergStopHoldTime:SetText("Hold Time for \n Emergency Stop (Seconds)")
-		emergStopHoldTime:SetMin(0.0)
-		emergStopHoldTime:SetMax(10.0)
-		emergStopHoldTime:SetDecimals(2)
-		emergStopHoldTime:SetConVar("vrmod_emergencystop_time")
-		registerPanel("vrstop", PanelEMSTOP)
+		stopForm:AddItem(binderContainer)
+		stopForm:NumSlider("Hold Time (Seconds)", "vrmod_emergencystop_time", 0, 10, 2)
+
+		local fpsForm = vgui.Create("DForm", stopScroll)
+		fpsForm:Dock(TOP)
+		fpsForm:DockMargin(5, 5, 5, 5)
+		fpsForm:SetName("FPS Guard")
+		fpsForm.Paint = function(self, w, h)
+			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
+		end
+		fpsForm:CheckBox("FPS Guard Enable", "vrmod_unoff_fps_guard")
+		fpsForm:NumSlider("FPS Drop Threshold (ms)", "vrmod_unoff_fps_guard_threshold_ms", 10, 200, 0)
+		fpsForm:NumSlider("Retry Count", "vrmod_unoff_fps_guard_retry", 0, 10, 0)
+		fpsForm:Help("Automatically stops VR when frame time exceeds threshold.")
+
+		local emergFpsForm = vgui.Create("DForm", stopScroll)
+		emergFpsForm:Dock(TOP)
+		emergFpsForm:DockMargin(5, 5, 5, 5)
+		emergFpsForm:SetName("Emergency FPS Stop")
+		emergFpsForm.Paint = function(self, w, h)
+			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
+		end
+		emergFpsForm:CheckBox("Emergency FPS Enable", "vrmod_unoff_emergency_fps_enabled")
+		emergFpsForm:NumSlider("FPS Threshold", "vrmod_unoff_emergency_fps_threshold", 1, 30, 0)
+		emergFpsForm:NumSlider("Duration (Seconds)", "vrmod_unoff_emergency_fps_duration", 0, 15, 1)
+		emergFpsForm:Help("Stops VR if FPS stays below threshold for the specified duration.")
+
+		registerPanel("vrstop", stopScroll)
 		AddTreeNode(tree, "VRStop Key", "vrstop", "icon16/stop.png", showPanel)
 		end -- VRStop Key panel
 
@@ -1199,30 +1149,6 @@ hook.Add(
 
 		commandsForm:Help("Visualize collision boxes, playspace boundaries, and network traffic")
 
-		-- Compatibility Testing
-		local compatCategory = commandsForm:Help("=== Compatibility Testing ===")
-		compatCategory:SetFont("DermaDefaultBold")
-
-		local x64AnimBtn = commandsForm:Button("Switch to x64 Animation")
-		x64AnimBtn.DoClick = function()
-			RunConsoleCommand("vrmod_compat_test_x64")
-			chat.AddText(Color(255, 165, 0), "[VRMod] ", Color(255, 255, 255), "Switched to x64 animation. Map reload required.")
-		end
-
-		local semiAnimBtn = commandsForm:Button("Switch to Semiofficial Animation")
-		semiAnimBtn.DoClick = function()
-			RunConsoleCommand("vrmod_compat_test_semi")
-			chat.AddText(Color(255, 165, 0), "[VRMod] ", Color(255, 255, 255), "Switched to semiofficial animation. Map reload required.")
-		end
-
-		local compatStatusBtn = commandsForm:Button("Show Compatibility Status")
-		compatStatusBtn.DoClick = function()
-			RunConsoleCommand("vrmod_compat_status")
-			chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Compatibility status printed to console")
-		end
-
-		commandsForm:Help("Test different animation systems (requires map reload)")
-
 		-- Device Information
 		local deviceCategory = commandsForm:Help("=== Device Information ===")
 		deviceCategory:SetFont("DermaDefaultBold")
@@ -1361,6 +1287,73 @@ hook.Add(
 		end -- Vehicle panel
 
 		-- ========================================
+		-- Panel: Magazine
+		-- ========================================
+		do
+		local magScroll = vgui.Create("DScrollPanel")
+
+		local magForm = vgui.Create("DForm", magScroll)
+		magForm:Dock(TOP)
+		magForm:DockMargin(5, 5, 5, 5)
+		magForm:SetName("VR Magazine System")
+		magForm.Paint = function(self, w, h)
+			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
+		end
+		magForm:CheckBox("Enable VR Magazine System", "vrmod_mag_system_enable")
+		magForm:CheckBox("Enable Magazine Pouch", "vrmod_unoff_mag_pouch_enable")
+		magForm:Help("Magazine Pouch: reach left hand to body pouch + Pickup to spawn vrmagent.")
+		magForm:CheckBox("VR Magazine bone or bonegroup", "vrmod_mag_ejectbone_type")
+		magForm:TextEntry("Magazine Enter Sound", "vrmod_magent_sound")
+		magForm:NumSlider("Magazine Enter Range", "vrmod_magent_range", 1, 100, 0)
+		magForm:TextEntry("Magazine Enter Model", "vrmod_magent_model")
+		magForm:CheckBox("[WIP] WeaponModel Mag Grab/Eject", "vrmod_mag_ejectbone_enable")
+
+		local magPosForm = vgui.Create("DForm", magScroll)
+		magPosForm:Dock(TOP)
+		magPosForm:DockMargin(5, 5, 5, 5)
+		magPosForm:SetName("Magazine Position")
+		magPosForm.Paint = function(self, w, h)
+			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
+		end
+		magPosForm:NumSlider("Position X", "vrmod_mag_pos_x", -20, 20, 2)
+		magPosForm:NumSlider("Position Y", "vrmod_mag_pos_y", -20, 20, 2)
+		magPosForm:NumSlider("Position Z", "vrmod_mag_pos_z", -20, 20, 2)
+		magPosForm:NumSlider("Angle Pitch", "vrmod_mag_ang_p", -180, 180, 2)
+		magPosForm:NumSlider("Angle Yaw", "vrmod_mag_ang_y", -180, 180, 2)
+		magPosForm:NumSlider("Angle Roll", "vrmod_mag_ang_r", -180, 180, 2)
+		magPosForm:TextEntry("Magazine Bone Names", "vrmod_mag_bones")
+
+		local pouchForm = vgui.Create("DForm", magScroll)
+		pouchForm:Dock(TOP)
+		pouchForm:DockMargin(5, 5, 5, 5)
+		pouchForm:SetName("Pouch Position (shared with ArcVR)")
+		pouchForm.Paint = function(self, w, h)
+			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
+		end
+		local pouchLocCombo = pouchForm:ComboBox("Pouch Location", "vrmod_unoff_pouch_location")
+		pouchLocCombo:AddChoice("Pelvis (Hip)", "pelvis")
+		pouchLocCombo:AddChoice("Head", "head")
+		pouchLocCombo:AddChoice("Spine (Chest)", "spine")
+		pouchForm:NumSlider("Pouch Distance", "vrmod_unoff_pouch_dist", 1, 50, 1)
+		pouchForm:CheckBox("Infinite Pouch (any distance)", "vrmod_unoff_pouch_infinite")
+		pouchForm:CheckBox("Sync to ArcVR ConVars", "vrmod_unoff_pouch_sync_arcvr")
+
+		local arc9Form = vgui.Create("DForm", magScroll)
+		arc9Form:Dock(TOP)
+		arc9Form:DockMargin(5, 5, 5, 5)
+		arc9Form:SetName("ARC9 Weapon Settings")
+		arc9Form.Paint = function(self, w, h)
+			draw.RoundedBox(4, 0, 0, w, h, Color(240, 240, 240))
+		end
+		arc9Form:CheckBox("Enable ARC9 VR Integration", "vrmod_arc9_enable")
+		arc9Form:CheckBox("Enable ARC9 Magazine Bone Fix", "vrmod_arc9_magbone_fix_enable")
+		arc9Form:CheckBox("ARC9 Mag Bone: Follow Left Hand / Hide Only", "vrmod_arc9_magbone_track")
+
+		registerPanel("magazine", magScroll)
+		AddTreeNode(tree, "Magazine", "magazine", "icon16/basket.png", showPanel)
+		end -- Magazine panel
+
+		-- ========================================
 		-- Panel: Utility
 		-- ========================================
 		do
@@ -1377,6 +1370,371 @@ hook.Add(
 		registerPanel("cardboard", cardboardPanel)
 		AddTreeNode(tree, "Cardboard", "cardboard", "icon16/phone.png", showPanel)
 		end -- Cardboard panel
+
+		-- ========================================
+		-- Panel: C++ Module (Status, Settings, Actions)
+		-- ========================================
+		do
+		local scrollPanel = vgui.Create("DScrollPanel")
+
+		-- === Section 1: Module Status ===
+		local statusSection = vgui.Create("DLabel", scrollPanel)
+		statusSection:Dock(TOP)
+		statusSection:DockMargin(10, 10, 10, 4)
+		statusSection:SetText("=== Module Status ===")
+		statusSection:SetFont("DermaDefaultBold")
+		statusSection:SizeToContents()
+
+		-- Status info panel with color-coded background
+		local statusPanel = vgui.Create("DPanel", scrollPanel)
+		statusPanel:Dock(TOP)
+		statusPanel:DockMargin(10, 2, 10, 8)
+		statusPanel:SetTall(140)
+
+		local moduleVerRaw = g_VR and g_VR.moduleVersion or nil
+		local moduleSemiVer = g_VR and g_VR.moduleSemiVersion or nil
+		local moduleVer = (moduleSemiVer and moduleSemiVer > 0) and moduleSemiVer or moduleVerRaw
+		local moduleName = g_VR and g_VR.moduleName or "unknown"
+		local isInstalled = moduleVerRaw and moduleVerRaw > 0
+		local _, _, latestVer = vrmod.GetModuleVersion()
+
+		local isLinux = system.IsLinux()
+		local dll32Name = isLinux and "gmcl_vrmod_linux.dll" or "gmcl_vrmod_win32.dll"
+		local dll64Name = isLinux and "gmcl_vrmod_linux64.dll" or "gmcl_vrmod_win64.dll"
+		local dat32Name = isLinux and "gmcl_vrmod_linux.dat" or "gmcl_vrmod_win32.dat"
+		local win32Exists = file.Exists("lua/bin/" .. dll32Name, "GAME")
+		local win64Exists = file.Exists("lua/bin/" .. dll64Name, "GAME")
+		local datExtracted = file.Exists("vrmod_module/" .. dat32Name, "DATA")
+
+		local statusColor
+		if isInstalled then
+			statusColor = Color(30, 80, 30, 200)
+		elseif moduleVer == 0 then
+			statusColor = Color(120, 30, 30, 200)
+		else
+			statusColor = Color(100, 80, 20, 200)
+		end
+
+		statusPanel.Paint = function(self, w, h)
+			draw.RoundedBox(6, 0, 0, w, h, statusColor)
+		end
+
+		local statusText
+		if isInstalled then
+			statusText = "Installed"
+		elseif moduleVer == 0 then
+			statusText = "Error (loaded but failed)"
+		else
+			statusText = "Not installed"
+		end
+
+		local infoLines = {
+			{ "Status:", statusText },
+			{ "Version:", isInstalled and ("v" .. tostring(moduleVer)) or "N/A" },
+			{ "Type:", isInstalled and moduleName or "N/A" },
+			{ "Latest:", latestVer and ("v" .. tostring(latestVer)) or "N/A" },
+			{ (isLinux and "linux" or "win32") .. " DLL:", win32Exists and "Found" or "Missing" },
+			{ (isLinux and "linux64" or "win64") .. " DLL:", win64Exists and "Found" or "Missing" },
+			{ "Extracted .dat:", datExtracted and "Found" or "Missing" },
+		}
+
+		local yPos = 8
+		for _, line in ipairs(infoLines) do
+			local lbl = vgui.Create("DLabel", statusPanel)
+			lbl:SetPos(12, yPos)
+			lbl:SetText(line[1])
+			lbl:SetFont("DermaDefaultBold")
+			lbl:SetTextColor(Color(200, 200, 200))
+			lbl:SizeToContents()
+
+			local val = vgui.Create("DLabel", statusPanel)
+			val:SetPos(130, yPos)
+			val:SetText(line[2])
+			if line[2] == "Missing" or line[2] == "Error (loaded but failed)" then
+				val:SetTextColor(Color(255, 100, 100))
+			elseif line[2] == "Found" or line[2] == "Installed" then
+				val:SetTextColor(Color(100, 255, 100))
+			elseif line[2] == "Not installed" then
+				val:SetTextColor(Color(255, 220, 100))
+			else
+				val:SetTextColor(Color(255, 255, 255))
+			end
+			val:SizeToContents()
+			yPos = yPos + 18
+		end
+
+		-- === Section 2: Settings ===
+		local settingsSection = vgui.Create("DLabel", scrollPanel)
+		settingsSection:Dock(TOP)
+		settingsSection:DockMargin(10, 6, 10, 4)
+		settingsSection:SetText("=== Settings ===")
+		settingsSection:SetFont("DermaDefaultBold")
+		settingsSection:SizeToContents()
+
+		-- Input Mode combo
+		local modePanel = vgui.Create("DPanel", scrollPanel)
+		modePanel:Dock(TOP)
+		modePanel:DockMargin(10, 2, 10, 4)
+		modePanel:SetTall(28)
+		modePanel:SetPaintBackground(false)
+
+		local modeLabel = vgui.Create("DLabel", modePanel)
+		modeLabel:SetPos(4, 5)
+		modeLabel:SetText("Input Mode:")
+		modeLabel:SizeToContents()
+
+		local modeCombo = vgui.Create("DComboBox", modePanel)
+		modeCombo:SetPos(130, 2)
+		modeCombo:SetSize(220, 24)
+		modeCombo:AddChoice("SteamVR Bindings (Default)", 0)
+		modeCombo:AddChoice("Lua Keybinding", 1)
+		local cv_inputmode = GetConVar("vrmod_unoff_inputmode")
+		if cv_inputmode then
+			modeCombo:SetValue(cv_inputmode:GetInt() == 1 and "Lua Keybinding" or "SteamVR Bindings (Default)")
+		end
+		modeCombo.OnSelect = function(self, index, value, data)
+			RunConsoleCommand("vrmod_unoff_inputmode", tostring(data))
+		end
+
+		-- Module Error Lock checkbox
+		local errorLock = vgui.Create("DCheckBoxLabel", scrollPanel)
+		errorLock:Dock(TOP)
+		errorLock:DockMargin(14, 2, 10, 4)
+		errorLock:SetText("Module Error: Lock VRMod Menu")
+		errorLock:SetConVar("vrmod_error_hard")
+		errorLock:SizeToContents()
+
+		-- === Section 3: Actions ===
+		local actionsSection = vgui.Create("DLabel", scrollPanel)
+		actionsSection:Dock(TOP)
+		actionsSection:DockMargin(10, 8, 10, 4)
+		actionsSection:SetText("=== Actions ===")
+		actionsSection:SetFont("DermaDefaultBold")
+		actionsSection:SizeToContents()
+
+		local reExtractBtn = vgui.Create("DButton", scrollPanel)
+		reExtractBtn:Dock(TOP)
+		reExtractBtn:DockMargin(10, 2, 10, 2)
+		reExtractBtn:SetTall(26)
+		reExtractBtn:SetText("Re-extract Module Files")
+		reExtractBtn.DoClick = function()
+			RunConsoleCommand("vrmod_module_extract")
+			chat.AddText(Color(255, 200, 0), "[VRMod] ", Color(255, 255, 255), "Module files re-extracted. Check console for details.")
+		end
+
+		local keybindBtn = vgui.Create("DButton", scrollPanel)
+		keybindBtn:Dock(TOP)
+		keybindBtn:DockMargin(10, 2, 10, 2)
+		keybindBtn:SetTall(26)
+		keybindBtn:SetText("Open Keybinding Editor")
+		keybindBtn.DoClick = function()
+			RunConsoleCommand("vrmod_keybinding_menu")
+		end
+
+		local folderBtn = vgui.Create("DButton", scrollPanel)
+		folderBtn:Dock(TOP)
+		folderBtn:DockMargin(10, 2, 10, 2)
+		folderBtn:SetTall(26)
+		folderBtn:SetText("Open Module Folder Guide")
+		folderBtn.DoClick = function()
+			if vrmod_OpenModuleFolder then
+				vrmod_OpenModuleFolder()
+			else
+				chat.AddText(Color(255, 200, 0), "[VRMod] ", Color(255, 255, 255), "Go to: garrysmod/data/vrmod_module/")
+			end
+		end
+
+		local diagBtn = vgui.Create("DButton", scrollPanel)
+		diagBtn:Dock(TOP)
+		diagBtn:DockMargin(10, 2, 10, 2)
+		diagBtn:SetTall(26)
+		diagBtn:SetText("Print Module Diagnostics")
+		diagBtn.DoClick = function()
+			local ver, req, latest = vrmod.GetModuleVersion()
+			print("========================================")
+			print("[VRMod Module Diagnostics]")
+			print("  Module Version (compat): " .. tostring(ver))
+			print("  Module Version (semi): " .. tostring(g_VR and g_VR.moduleSemiVersion or "N/A"))
+			print("  Required Version: " .. tostring(req))
+			print("  Latest Version: " .. tostring(latest))
+			print("  Module Name: " .. tostring(g_VR and g_VR.moduleName or "N/A"))
+			local _isLinux = system.IsLinux()
+			local _d32 = _isLinux and "gmcl_vrmod_linux.dll" or "gmcl_vrmod_win32.dll"
+			local _d64 = _isLinux and "gmcl_vrmod_linux64.dll" or "gmcl_vrmod_win64.dll"
+			local _dat32 = _isLinux and "gmcl_vrmod_linux.dat" or "gmcl_vrmod_win32.dat"
+			local _dat64 = _isLinux and "gmcl_vrmod_linux64.dat" or "gmcl_vrmod_win64.dat"
+			print("  Platform: " .. (system.IsWindows() and "Windows" or _isLinux and "Linux" or system.IsOSX() and "OSX" or "Unknown"))
+			print("  " .. _d32 .. ": " .. (file.Exists("lua/bin/" .. _d32, "GAME") and "Found" or "Missing"))
+			print("  " .. _d64 .. ": " .. (file.Exists("lua/bin/" .. _d64, "GAME") and "Found" or "Missing"))
+			print("  Extracted " .. _dat32 .. ": " .. (file.Exists("vrmod_module/" .. _dat32, "DATA") and "Found" or "Missing"))
+			print("  Extracted " .. _dat64 .. ": " .. (file.Exists("vrmod_module/" .. _dat64, "DATA") and "Found" or "Missing"))
+			print("  install.txt: " .. (file.Exists("vrmod_module/install.txt", "DATA") and "Found" or "Missing"))
+			print("========================================")
+			chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), "Module diagnostics printed to console.")
+		end
+
+		-- === Section 4: Troubleshooting ===
+		local troubleSection = vgui.Create("DLabel", scrollPanel)
+		troubleSection:Dock(TOP)
+		troubleSection:DockMargin(10, 10, 10, 4)
+		troubleSection:SetText("=== Troubleshooting ===")
+		troubleSection:SetFont("DermaDefaultBold")
+		troubleSection:SizeToContents()
+
+		local troubleText = vgui.Create("DLabel", scrollPanel)
+		troubleText:Dock(TOP)
+		troubleText:DockMargin(14, 2, 10, 4)
+		troubleText:SetText(
+			"If module is not working:\n" ..
+			"1. Go to garrysmod/data/vrmod_module/\n" ..
+			"2. Rename install.txt -> install.bat\n" ..
+			"3. Run install.bat, then restart Gmod\n" ..
+			"4. If antivirus blocks it, add GarrysMod\n" ..
+			"   folder to your AV exclusions\n" ..
+			"5. Windows Defender: Settings > Virus\n" ..
+			"   protection > Exclusions"
+		)
+		troubleText:SetAutoStretchVertical(true)
+		troubleText:SetWrap(true)
+		troubleText:SetTextColor(Color(200, 200, 180))
+
+		registerPanel("cppmodule", scrollPanel)
+		AddTreeNode(tree, "C++ Module", "cppmodule", "icon16/brick.png", showPanel)
+		end -- C++ Module panel
+
+		-- ========================================
+		-- Panel: Key Mapping (VR Action → Keyboard Key)
+		-- ========================================
+		do
+		local keyMapScroll = vgui.Create("DScrollPanel")
+
+		-- === Enable / Layer Status ===
+		local enableSection = vgui.Create("DLabel", keyMapScroll)
+		enableSection:Dock(TOP)
+		enableSection:DockMargin(10, 10, 10, 4)
+		enableSection:SetText("=== Input Emulation Status ===")
+		enableSection:SetFont("DermaDefaultBold")
+		enableSection:SizeToContents()
+
+		local statusPanel = vgui.Create("DPanel", keyMapScroll)
+		statusPanel:Dock(TOP)
+		statusPanel:DockMargin(10, 2, 10, 6)
+		statusPanel:SetTall(62)
+
+		local hasCpp = (VRMOD_SendKeyEvent ~= nil)
+		local hasLua = (vrmod ~= nil and vrmod.InputEmu_SetKey ~= nil)
+		local statusBgColor = (hasLua and hasCpp) and Color(30, 80, 30, 200) or (hasLua and Color(80, 80, 20, 200) or Color(100, 30, 30, 200))
+		statusPanel.Paint = function(self, w, h) draw.RoundedBox(6, 0, 0, w, h, statusBgColor) end
+
+		local statusLines = {
+			{ "Layer 1 (Lua detour):", hasLua and "Available" or "Unavailable", hasLua },
+			{ "Layer 2 (C++ PostMessage):", hasCpp and "Available (v102+)" or "Not available (module v102+ required)", hasCpp },
+			{ "Note:", hasCpp and "Both layers active — full compatibility" or "Lua-only mode: covers Lua callers. C++ layer needs module v102+", nil },
+		}
+		local yOff = 6
+		for _, info in ipairs(statusLines) do
+			local lbl = vgui.Create("DLabel", statusPanel)
+			lbl:SetPos(10, yOff)
+			lbl:SetText(info[1])
+			lbl:SetFont("DermaDefaultBold")
+			lbl:SetTextColor(Color(200, 200, 200))
+			lbl:SizeToContents()
+			local val = vgui.Create("DLabel", statusPanel)
+			val:SetPos(180, yOff)
+			val:SetText(info[2])
+			if info[3] == true then val:SetTextColor(Color(100, 255, 100))
+			elseif info[3] == false then val:SetTextColor(Color(255, 180, 80))
+			else val:SetTextColor(Color(180, 180, 180)) end
+			val:SizeToContents()
+			yOff = yOff + 18
+		end
+
+		-- Enable checkbox
+		local enableCheck = vgui.Create("DCheckBoxLabel", keyMapScroll)
+		enableCheck:Dock(TOP)
+		enableCheck:DockMargin(14, 4, 10, 2)
+		enableCheck:SetText("Enable Input Emulation (vrmod_unoff_input_emu)")
+		enableCheck:SetConVar("vrmod_unoff_input_emu")
+		enableCheck:SizeToContents()
+
+		-- C++ inject checkbox
+		local cppCheck = vgui.Create("DCheckBoxLabel", keyMapScroll)
+		cppCheck:Dock(TOP)
+		cppCheck:DockMargin(14, 2, 10, 4)
+		cppCheck:SetText("Enable C++ Engine Injection (vrmod_unoff_cpp_keyinject)")
+		cppCheck:SetConVar("vrmod_unoff_cpp_keyinject")
+		cppCheck:SizeToContents()
+
+		-- === Key Assignment ===
+		local mapSection = vgui.Create("DLabel", keyMapScroll)
+		mapSection:Dock(TOP)
+		mapSection:DockMargin(10, 8, 10, 4)
+		mapSection:SetText("=== Key Assignment ===")
+		mapSection:SetFont("DermaDefaultBold")
+		mapSection:SizeToContents()
+
+		local helpText = vgui.Create("DLabel", keyMapScroll)
+		helpText:Dock(TOP)
+		helpText:DockMargin(14, 0, 10, 6)
+		helpText:SetText("Click a keyboard key, then press a VR controller button to assign.")
+		helpText:SetTextColor(Color(180, 180, 160))
+		helpText:SizeToContents()
+
+		local editorBtn = vgui.Create("DButton", keyMapScroll)
+		editorBtn:Dock(TOP)
+		editorBtn:DockMargin(10, 2, 10, 4)
+		editorBtn:SetTall(30)
+		editorBtn:SetText("Open Visual Keyboard Editor")
+		editorBtn.DoClick = function()
+			RunConsoleCommand("vrmod_input_emu_editor")
+		end
+
+		-- === Debug ===
+		local debugSection = vgui.Create("DLabel", keyMapScroll)
+		debugSection:Dock(TOP)
+		debugSection:DockMargin(10, 8, 10, 4)
+		debugSection:SetText("=== Debug ===")
+		debugSection:SetFont("DermaDefaultBold")
+		debugSection:SizeToContents()
+
+		local diagBtn = vgui.Create("DButton", keyMapScroll)
+		diagBtn:Dock(TOP)
+		diagBtn:DockMargin(10, 2, 10, 4)
+		diagBtn:SetTall(26)
+		diagBtn:SetText("Print Current Mapping")
+		diagBtn.DoClick = function()
+			RunConsoleCommand("vrmod_unoff_input_emu_status")
+		end
+
+		registerPanel("keymapping", keyMapScroll)
+		AddTreeNode(tree, "Key Mapping", "keymapping", "icon16/keyboard.png", showPanel)
+		end -- Key Mapping panel
+
+		-- ========================================
+		-- Settings02Register API: 個別モジュールアドオン用
+		-- frame.Settings02Register(key, label, icon, panel) を公開
+		-- モジュール側: frame.Settings02Register が存在すれば DTree に登録、
+		--              なければ frame.DPropertySheet:AddSheet() にフォールバック
+		-- ========================================
+		frame.Settings02Register = function(key, label, icon, panel)
+			if not key or not label then
+				print("[VRMod Settings02] Register failed: missing key or label (" .. tostring(key) .. ", " .. tostring(label) .. ")")
+				return false
+			end
+			if not IsValid(panel) then
+				print("[VRMod Settings02] Register failed: invalid panel for '" .. tostring(label) .. "'")
+				return false
+			end
+			local ok, err = pcall(function()
+				registerPanel(key, panel)
+				AddTreeNode(tree, label, key, icon or "icon16/plugin.png", showPanel)
+			end)
+			if not ok then
+				print("[VRMod Settings02] Register error for '" .. tostring(label) .. "': " .. tostring(err))
+				return false
+			end
+			return true
+		end
 
 		-- ========================================
 		-- Panel: Modules (Feature Loading Control)
@@ -1403,10 +1761,10 @@ hook.Add(
 
 		-- Addon-only ConVarが存在すればフォルダ0/1もリストに含める
 		if GetConVar("vrmod_unoff_load_0") then
-			folderNames["0"] = "Core/API"
+			folderNames["0"] = "Core(API)"
 		end
 		if GetConVar("vrmod_unoff_load_1") then
-			folderNames["1"] = "Auto-settings/Optimize"
+			folderNames["1"] = "Core(Modules)"
 		end
 
 		-- ソート用キー
@@ -1552,16 +1910,6 @@ hook.Add(
 		showPanel("vr")
 		tree:SetSelectedItem(vrNode)
 
-		-- Deferred module extraction: after all hooks run, extract hidden sheet tabs into DTree
-		timer.Simple(0, function()
-			if not IsValid(tree) then return end
-			ExtractSheet(frame.VRplaySheet, tree, showPanel, registerPanel)
-			ExtractSheet(frame.pickupSheet, tree, showPanel, registerPanel)
-			ExtractSheet(frame.nonVRGunSheet, tree, showPanel, registerPanel)
-			ExtractSheet(frame.hudSheet, tree, showPanel, registerPanel)
-			ExtractSheet(frame.debugSheet, tree, showPanel, registerPanel)
-			ExtractSheet(frame.quickmenuBtnSheet, tree, showPanel, registerPanel)
-			ExtractSheet(frame.Settings02Sheet, tree, showPanel, registerPanel)
-		end)
+		-- ExtractSheet removed (S32: modules are now individual addons using frame.DPropertySheet directly)
 	end
 )

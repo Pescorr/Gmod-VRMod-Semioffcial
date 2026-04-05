@@ -1,9 +1,9 @@
--- Addon-only mode: 他VRModのConVarテーブルを上書きしないようスキップ
+-- Addon-only mode: skip to avoid overwriting other VRMod's ConVar table
 if VRMOD_ADDON_ONLY_MODE then return end
 
 local addonVersion = 133
 local requiredModuleVersion = 20
-local latestModuleVersion = 21
+local latestModuleVersion = 103
 g_VR = g_VR or {}
 vrmod = vrmod or {}
 local convars, convarValues = {}, {}
@@ -41,7 +41,7 @@ if CLIENT then
 	function vrmod.GetStartupError()
 		local error = nil
 		if errorenable:GetBool() then
-			if not g_VR.moduleVersion then
+			if not g_VR.moduleVersion or g_VR.moduleVersion == 0 then
 				if not file.Exists("lua/bin/gmcl_vrmod_win32.dll", "GAME") then
 					error = "Module not installed. Read the workshop description for instructions.\n"
 				else
@@ -571,7 +571,7 @@ if CLIENT then
 
 	-- local leftEyeSemaphore = nil
 	-- local rightEyeSemaphore = nil
-	-- -- 左目の描画処理
+	-- -- Left eye rendering
 	-- local function LeftEyeRenderThread()
 	-- 	while true do
 	-- 		leftEyeSemaphore:wait()
@@ -585,7 +585,7 @@ if CLIENT then
 	-- 	end
 	-- end
 
-	-- -- 右目の描画処理
+	-- -- Right eye rendering
 	-- local function RightEyeRenderThread()
 	-- 	while true do
 	-- 		rightEyeSemaphore:wait()
@@ -628,15 +628,15 @@ if CLIENT then
 
 	-- 		if g_VR.menuFocus then return end
 	-- 		render.PushRenderTarget(g_VR.rt)
-	-- 		-- セマフォの初期化
+	-- 		-- Initialize semaphores
 	-- 		leftEyeSemaphore = semaphore.new(1)
 	-- 		rightEyeSemaphore = semaphore.new(0)
-	-- 		-- 左目と右目の描画スレッドを開始
+	-- 		-- Start left and right eye render threads
 	-- 		local leftEyeThread = coroutine.create(LeftEyeRenderThread)
 	-- 		local rightEyeThread = coroutine.create(RightEyeRenderThread)
 	-- 		coroutine.resume(leftEyeThread)
 	-- 		coroutine.resume(rightEyeThread)
-	-- 		-- 両目の描画が完了するまで待機
+	-- 		-- Wait until both eyes finish rendering
 	-- 		leftEyeSemaphore:wait()
 	-- 		rightEyeSemaphore:wait()
 	-- 		render.PopRenderTarget(g_VR.rt)
@@ -818,3 +818,270 @@ hook.Remove = function(...)
 	args[1] = hookTranslations[args[1]] or args[1]
 	orig(unpack(args))
 end
+
+-- =========================================================================
+-- v103 API: Event Polling, Frame Timing, Skeleton Bones, Overlay
+-- All new features are opt-in and ConVar controlled.
+-- C++ functions are called via pcall for safety.
+-- =========================================================================
+
+if CLIENT then
+
+-- === ConVars for v103 features ===
+local cvar_event_polling = CreateClientConVar("vrmod_unoff_event_polling", "1", true, FCVAR_ARCHIVE,
+	"Enable VR event polling (device connect/disconnect detection)", 0, 1)
+local cvar_fps_guard_frametiming = CreateClientConVar("vrmod_unoff_fps_guard_frametiming", "1", true, FCVAR_ARCHIVE,
+	"FPS Guard: frame timing based performance monitoring", 0, 1)
+local cvar_fps_guard_disconnect = CreateClientConVar("vrmod_unoff_fps_guard_disconnect", "1", true, FCVAR_ARCHIVE,
+	"FPS Guard: auto suspend rendering on HMD disconnect", 0, 1)
+local cvar_skeleton_bones = CreateClientConVar("vrmod_unoff_skeleton_bones", "0", true, FCVAR_ARCHIVE,
+	"Enable full skeletal bone data (31 bones per hand, higher CPU cost)", 0, 1)
+local cvar_overlay = CreateClientConVar("vrmod_unoff_overlay", "1", true, FCVAR_ARCHIVE,
+	"Enable IVROverlay system", 0, 1)
+
+-- === B4+B5: Event Polling API ===
+-- Raw C++ functions (vrmod.PollNextEvent etc) are set by the module loader.
+-- These wrapper functions add pcall protection and ConVar gating.
+
+vrmod.Event = vrmod.Event or {}
+
+function vrmod.Event.IsEnabled()
+	return cvar_event_polling:GetBool()
+end
+
+function vrmod.Event.PollAll()
+	if not cvar_event_polling:GetBool() then return nil end
+	if not VRMOD_PollNextEvent then return nil end
+	local events = {}
+	while true do
+		local ok, result = pcall(VRMOD_PollNextEvent)
+		if not ok or not result then break end
+		events[#events + 1] = result
+	end
+	return #events > 0 and events or nil
+end
+
+function vrmod.Event.IsDeviceConnected(deviceIndex)
+	if not VRMOD_IsTrackedDeviceConnected then return nil end
+	local ok, result = pcall(VRMOD_IsTrackedDeviceConnected, deviceIndex)
+	if not ok then return nil end
+	return result
+end
+
+function vrmod.Event.GetDeviceClass(deviceIndex)
+	if not VRMOD_GetTrackedDeviceClass then return nil end
+	local ok, result = pcall(VRMOD_GetTrackedDeviceClass, deviceIndex)
+	if not ok then return nil end
+	return result
+end
+
+function vrmod.Event.GetBatteryLevel(deviceIndex)
+	if not VRMOD_GetFloatTrackedDeviceProperty then return nil end
+	-- Prop_DeviceBatteryPercentage_Float = 1015
+	local ok, result = pcall(VRMOD_GetFloatTrackedDeviceProperty, deviceIndex, 1015)
+	if not ok or result == false then return nil end
+	return result
+end
+
+function vrmod.Event.GetDeviceProperty(deviceIndex, propId)
+	if not VRMOD_GetFloatTrackedDeviceProperty then return nil end
+	local ok, result = pcall(VRMOD_GetFloatTrackedDeviceProperty, deviceIndex, propId)
+	if not ok or result == false then return nil end
+	return result
+end
+
+function vrmod.Event.GetDeviceStringProperty(deviceIndex, propId)
+	if not VRMOD_GetStringTrackedDeviceProperty then return nil end
+	local ok, result = pcall(VRMOD_GetStringTrackedDeviceProperty, deviceIndex, propId)
+	if not ok or result == false then return nil end
+	return result
+end
+
+function vrmod.Event.ShouldPause()
+	if not VRMOD_ShouldApplicationPause then return false end
+	local ok, result = pcall(VRMOD_ShouldApplicationPause)
+	return ok and result or false
+end
+
+function vrmod.Event.ShouldReduceRendering()
+	if not VRMOD_ShouldApplicationReduceRenderingWork then return false end
+	local ok, result = pcall(VRMOD_ShouldApplicationReduceRenderingWork)
+	return ok and result or false
+end
+
+-- === B3: Frame Timing API ===
+
+vrmod.Performance = vrmod.Performance or {}
+
+function vrmod.Performance.GetFrameTiming(framesAgo)
+	if not VRMOD_GetFrameTiming then return nil end
+	local ok, result = pcall(VRMOD_GetFrameTiming, framesAgo or 0)
+	if not ok or result == false then return nil end
+	return result
+end
+
+function vrmod.Performance.GetFrameTimeRemaining()
+	if not VRMOD_GetFrameTimeRemaining then return nil end
+	local ok, result = pcall(VRMOD_GetFrameTimeRemaining)
+	if not ok then return nil end
+	return result
+end
+
+function vrmod.Performance.IsMotionSmoothingEnabled()
+	if not VRMOD_IsMotionSmoothingEnabled then return nil end
+	local ok, result = pcall(VRMOD_IsMotionSmoothingEnabled)
+	if not ok then return nil end
+	return result
+end
+
+function vrmod.Performance.FadeToColor(seconds, r, g, b, a, background)
+	if not VRMOD_FadeToColor then return end
+	pcall(VRMOD_FadeToColor, seconds, r, g, b, a, background or false)
+end
+
+function vrmod.Performance.SuspendRendering(suspend)
+	if not VRMOD_VRSuspendRendering then return end
+	pcall(VRMOD_VRSuspendRendering, suspend)
+end
+
+function vrmod.Performance.IsFrameTimingEnabled()
+	return cvar_fps_guard_frametiming:GetBool()
+end
+
+function vrmod.Performance.IsDisconnectGuardEnabled()
+	return cvar_fps_guard_disconnect:GetBool()
+end
+
+-- === B1: Full Skeletal Bone Data API ===
+
+vrmod.Skeleton = vrmod.Skeleton or {}
+
+function vrmod.Skeleton.IsEnabled()
+	return cvar_skeleton_bones:GetBool()
+end
+
+function vrmod.Skeleton.SetEnabled(enable)
+	RunConsoleCommand("vrmod_unoff_skeleton_bones", enable and "1" or "0")
+end
+
+function vrmod.Skeleton.GetBoneData(actionName, motionRange)
+	if not cvar_skeleton_bones:GetBool() then return nil end
+	if not VRMOD_GetSkeletalBoneData then return nil end
+	local ok, result = pcall(VRMOD_GetSkeletalBoneData, actionName, motionRange or 0)
+	if not ok or result == false then return nil end
+	return result
+end
+
+-- === A1: IVROverlay API ===
+
+vrmod.Overlay = vrmod.Overlay or {}
+
+function vrmod.Overlay.IsEnabled()
+	return cvar_overlay:GetBool()
+end
+
+function vrmod.Overlay.IsSupported()
+	return VRMOD_CreateOverlay ~= nil
+end
+
+function vrmod.Overlay.Create(key, name)
+	if not cvar_overlay:GetBool() then return nil, "Overlay disabled by ConVar" end
+	if not VRMOD_CreateOverlay then return nil, "Module does not support overlays" end
+	local ok, handle, err = pcall(VRMOD_CreateOverlay, key, name)
+	if not ok then return nil, "pcall failed: " .. tostring(handle) end
+	if handle == false then return nil, err or "CreateOverlay failed" end
+	return handle
+end
+
+function vrmod.Overlay.Destroy(handle)
+	if not VRMOD_DestroyOverlay then return false end
+	local ok, result = pcall(VRMOD_DestroyOverlay, handle)
+	return ok and result or false
+end
+
+function vrmod.Overlay.SetTexture(handle)
+	if not VRMOD_SetOverlayTexture then return false end
+	local ok, result = pcall(VRMOD_SetOverlayTexture, handle)
+	return ok and result or false
+end
+
+function vrmod.Overlay.Control(handle, cmdTable)
+	if not VRMOD_OverlayControl then return false end
+	local ok, result = pcall(VRMOD_OverlayControl, handle, cmdTable)
+	return ok and result or false
+end
+
+-- Convenience wrappers
+function vrmod.Overlay.Show(handle) return vrmod.Overlay.Control(handle, {cmd = "show"}) end
+function vrmod.Overlay.Hide(handle) return vrmod.Overlay.Control(handle, {cmd = "hide"}) end
+function vrmod.Overlay.SetWidth(handle, w) return vrmod.Overlay.Control(handle, {cmd = "setWidth", value = w}) end
+function vrmod.Overlay.SetAlpha(handle, a) return vrmod.Overlay.Control(handle, {cmd = "setAlpha", value = a}) end
+function vrmod.Overlay.SetColor(handle, r, g, b) return vrmod.Overlay.Control(handle, {cmd = "setColor", r = r, g = g, b = b}) end
+function vrmod.Overlay.SetSortOrder(handle, order) return vrmod.Overlay.Control(handle, {cmd = "setSortOrder", value = order}) end
+function vrmod.Overlay.SetTextureBounds(handle, uMin, vMin, uMax, vMax)
+	return vrmod.Overlay.Control(handle, {cmd = "setTextureBounds", uMin = uMin, vMin = vMin, uMax = uMax, vMax = vMax})
+end
+function vrmod.Overlay.SetTransformAbsolute(handle, origin, matrix)
+	return vrmod.Overlay.Control(handle, {cmd = "setTransformAbsolute", origin = origin, matrix = matrix})
+end
+function vrmod.Overlay.AttachToDevice(handle, deviceIndex, matrix)
+	return vrmod.Overlay.Control(handle, {cmd = "setTransformTrackedDevice", deviceIndex = deviceIndex, matrix = matrix})
+end
+function vrmod.Overlay.IsVisible(handle)
+	if not VRMOD_OverlayControl then return false end
+	local ok, result = pcall(VRMOD_OverlayControl, handle, {cmd = "isVisible"})
+	return ok and result or false
+end
+
+-- Overlay texture initialization (call after ShareTextureFinish, before creating overlays)
+function vrmod.Overlay.InitTexture()
+	if not cvar_overlay:GetBool() then return false, "Overlay disabled" end
+	if not VRMOD_ShareOverlayTextureBegin then return false, "Module does not support overlay textures" end
+	local ok, err = pcall(VRMOD_ShareOverlayTextureBegin)
+	if not ok then return false, "ShareOverlayTextureBegin failed: " .. tostring(err) end
+	return true
+end
+
+function vrmod.Overlay.FinishTexture()
+	if not VRMOD_ShareOverlayTextureFinish then return false, "Module does not support overlay textures" end
+	local ok, err = pcall(VRMOD_ShareOverlayTextureFinish)
+	if not ok then return false, "ShareOverlayTextureFinish failed: " .. tostring(err) end
+	return true
+end
+
+-- === v103 Event Constants (for Lua-side event type checking) ===
+vrmod.VREvent = vrmod.VREvent or {}
+vrmod.VREvent.TrackedDeviceActivated = 100
+vrmod.VREvent.TrackedDeviceDeactivated = 101
+vrmod.VREvent.TrackedDeviceUpdated = 102
+vrmod.VREvent.UserInteractionStarted = 103
+vrmod.VREvent.UserInteractionEnded = 104
+vrmod.VREvent.IpdChanged = 105
+vrmod.VREvent.EnterStandbyMode = 106
+vrmod.VREvent.LeaveStandbyMode = 107
+vrmod.VREvent.TrackedDeviceRoleChanged = 108
+vrmod.VREvent.ButtonPress = 200
+vrmod.VREvent.ButtonUnpress = 201
+vrmod.VREvent.Quit = 700
+vrmod.VREvent.ProcessQuit = 701
+
+-- === v103 Device Property Constants ===
+vrmod.VRProp = vrmod.VRProp or {}
+vrmod.VRProp.BatteryPercentage = 1015
+vrmod.VRProp.DeviceIsCharging = 1026
+
+-- === v103 Device Class Constants ===
+vrmod.VRDeviceClass = vrmod.VRDeviceClass or {}
+vrmod.VRDeviceClass.Invalid = 0
+vrmod.VRDeviceClass.HMD = 1
+vrmod.VRDeviceClass.Controller = 2
+vrmod.VRDeviceClass.GenericTracker = 3
+vrmod.VRDeviceClass.TrackingReference = 4
+
+-- === v103 Tracking Universe Constants (for overlay transforms) ===
+vrmod.VRTrackingUniverse = vrmod.VRTrackingUniverse or {}
+vrmod.VRTrackingUniverse.Seated = 0
+vrmod.VRTrackingUniverse.Standing = 1
+vrmod.VRTrackingUniverse.RawAndUncalibrated = 2
+
+end -- CLIENT

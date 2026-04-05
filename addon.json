@@ -1,5 +1,5 @@
 {
-  "title": "[VRmod]VRMod-SemiOffcialVersion OPENBETA",
+  "title": "[VRmod]VRMod-SemiOffcial Core OPENBETA",
   "type": "tool",
   "tags": [
     "fun",
@@ -17,6 +17,7 @@
     "_ul",
     "nul",
     "*.code-workspace",
-    "GmodVR -APIDocument.txt"
+    "GmodVR -APIDocument.txt",
+    "module/*"
   ]
 }

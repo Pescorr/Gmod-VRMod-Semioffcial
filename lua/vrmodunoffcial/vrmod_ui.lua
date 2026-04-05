@@ -13,6 +13,7 @@ function vrmod_ui_lua()
 		vrmod.AddCallbackedConvar("vrmod_attach_heightmenu", nil, 2, FCVAR_ARCHIVE, "", 0, 2, tonumber)
 		vrmod.AddCallbackedConvar("vre_ui_attachtohand", nil, 1, FCVAR_ARCHIVE, "", 0, 1, tonumber)
 		vrmod.AddCallbackedConvar("vrmod_unoff_desktop_ui_mirror", nil, 1, FCVAR_ARCHIVE, "Show VR UI panels on desktop window", 0, 1, tonumber)
+		vrmod.AddCallbackedConvar("vrmod_ui_desktop_mirror", nil, 0, FCVAR_ARCHIVE, "Selective desktop mirror: VR-native menus stay in VR, desktop popups go to mirror", 0, 1, tonumber)
 		local uioutline = CreateClientConVar("vrmod_ui_outline", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 		local uikeyboard = CreateClientConVar("vrmod_keyboard_uichatkey", 1, true, FCVAR_ARCHIVE, nil, 0, 1)
 		local uirendertype = CreateClientConVar("vrmod_dev_ui_rendertype_ex", 0, true, FCVAR_ARCHIVE, nil, 0, 1)
@@ -146,7 +147,9 @@ function vrmod_ui_lua()
 					menuFocusPanel:SetMouseInputEnabled(true)
 				end
 
-				gui.EnableScreenClicker(menuFocusPanel ~= nil)
+				if not g_VR.desktopMirrorMode or menuFocusPanel ~= nil then
+					gui.EnableScreenClicker(menuFocusPanel ~= nil)
+				end
 				prevFocusPanel = menuFocusPanel
 			end
 
@@ -154,7 +157,7 @@ function vrmod_ui_lua()
 				render.SetMaterial(mat_beam)
 				render.DrawBeam(g_VR.tracking.pose_righthand.pos, menuFocusCursorWorldPos, 0.1, 0, 1, Color(0, 0, 255))
 				input.SetCursorPos(g_VR.menuCursorX, g_VR.menuCursorY)
-				-- realtime ui start
+				-- realtime ui start (always: mirror needs RT content to be up-to-date)
 				if convarValues.vrmod_ui_realtime == 1 then
 					VRUtilMenuRenderPanel(g_VR.menuFocus)
 				end
@@ -211,7 +214,7 @@ function vrmod_ui_lua()
 			)
 
 			if panel then
-				if convarValues.vrmod_unoff_desktop_ui_mirror ~= 1 then
+				if convarValues.vrmod_unoff_desktop_ui_mirror ~= 1 or convarValues.vrmod_ui_desktop_mirror == 1 then
 					panel:SetPaintedManually(true)
 				end
 				VRUtilMenuRenderPanel(uid)
@@ -260,7 +263,9 @@ function vrmod_ui_lua()
 				hook.Remove("PostDrawTranslucentRenderables", "vrutil_hook_drawmenus")
 				g_VR.menuFocus = false
 				menusExist = false
-				gui.EnableScreenClicker(false)
+				if not g_VR.desktopMirrorMode then
+					gui.EnableScreenClicker(false)
+				end
 			end
 		end
 
@@ -276,6 +281,13 @@ function vrmod_ui_lua()
 			"VRMod_Input",
 			"ui",
 			function(action, pressed)
+				-- V2 Mirror Mode: skip GUI input when no VR menu is focused (mirror handles it)
+				-- When a VR menu IS focused (keyboard, quickmenu etc.), fall through to classic
+				-- handling so gui.InternalMousePressed fires correctly
+				if g_VR.desktopMirrorMode and not g_VR.menuFocus then
+					return -- nil return: chain continues to mirror input hook
+				end
+				-- Classic mode: original code unchanged below
 				if g_VR.menuFocus and action == "boolean_primaryfire" then
 					if pressed then
 						gui.InternalMousePressed(MOUSE_LEFT)

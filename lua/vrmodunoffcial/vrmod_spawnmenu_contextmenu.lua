@@ -14,6 +14,7 @@ local vre_gbradial_menu = CreateClientConVar("vrmod_quickmenu_vre_gbradial_menu"
 local vrmod_quickmenu_chat = CreateClientConVar("vrmod_quickmenu_chat", "1")
 local vrmod_togglemirror = CreateClientConVar("vrmod_quickmenu_togglemirror", "1")
 local vrmod_quickmenu_togglevehiclemode = CreateClientConVar("vrmod_quickmenu_togglevehiclemode", "1")
+local vrmod_quickmenu_keyboard = CreateClientConVar("vrmod_quickmenu_keyboard", "1")
 local vrmod_quickmenu_noclip = CreateClientConVar("vrmod_quickmenu_noclip", "1")
 local spawn_menu = CreateClientConVar("vrmod_quickmenu_spawn_menu", "1")
 local context_menu = CreateClientConVar("vrmod_quickmenu_context_menu", "1")
@@ -243,6 +244,19 @@ hook.Add(
             )
         else
             vrmod.RemoveInGameMenuItem("chat")
+        end
+
+        if vrmod_quickmenu_keyboard:GetBool() then
+            vrmod.AddInGameMenuItem(
+                "Keyboard",
+                1,
+                1,
+                function()
+                    LocalPlayer():ConCommand("vrmod_keyboard")
+                end
+            )
+        else
+            vrmod.RemoveInGameMenuItem("Keyboard")
         end
 
         if not vrmod_quickmenu_arccw:GetBool() then

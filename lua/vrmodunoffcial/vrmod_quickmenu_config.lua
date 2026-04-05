@@ -243,7 +243,7 @@ end
 -- ConVar Creation
 -----------------------------------------------------------
 
-CreateClientConVar("vrmod_quickmenu_use_custom", "0", true, false,
+CreateClientConVar("vrmod_quickmenu_use_custom", "1", true, false,
     "Use custom quick menu configuration", 0, 1)
 
 -----------------------------------------------------------

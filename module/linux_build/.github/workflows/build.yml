@@ -1,0 +1,76 @@
+name: Build Linux Module
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib libgl-dev
+
+      - name: Download OpenVR Linux libraries
+        run: |
+          set -e
+          mkdir -p deps/openvr/lib_linux32 deps/openvr/lib_linux64
+          wget -q --no-check-certificate -O deps/openvr/lib_linux32/libopenvr_api.so \
+            https://github.com/ValveSoftware/openvr/raw/823135df1783009cb468d0fc4190816254f7687d/lib/linux32/libopenvr_api.so
+          wget -q --no-check-certificate -O deps/openvr/lib_linux64/libopenvr_api.so \
+            https://github.com/ValveSoftware/openvr/raw/823135df1783009cb468d0fc4190816254f7687d/lib/linux64/libopenvr_api.so
+          echo "=== Downloaded OpenVR libs ==="
+          ls -la deps/openvr/lib_linux32/ deps/openvr/lib_linux64/
+          echo "=== Verify they are ELF shared objects (not HTML error pages) ==="
+          file deps/openvr/lib_linux32/libopenvr_api.so
+          file deps/openvr/lib_linux64/libopenvr_api.so
+
+      - name: Build 32-bit Linux module
+        run: |
+          g++ -fPIC -shared -m32 -O3 -I ./deps \
+            src/vrmod.cpp \
+            -o gmcl_vrmod_linux.dll \
+            -L ./deps/openvr/lib_linux32 -lopenvr_api -ldl \
+            -Wl,-rpath='$ORIGIN'
+
+      - name: Build 64-bit Linux module
+        run: |
+          g++ -fPIC -shared -m64 -O3 -I ./deps \
+            src/vrmod.cpp \
+            -o gmcl_vrmod_linux64.dll \
+            -L ./deps/openvr/lib_linux64 -lopenvr_api -ldl \
+            -Wl,-rpath='$ORIGIN'
+
+      - name: Verify binaries
+        run: |
+          echo "=== File type ==="
+          file gmcl_vrmod_linux.dll gmcl_vrmod_linux64.dll
+          echo ""
+          echo "=== File sizes ==="
+          ls -la gmcl_vrmod_linux.dll gmcl_vrmod_linux64.dll
+          echo ""
+          echo "=== Exported symbols (must have gmod13_open and gmod13_close) ==="
+          echo "--- 32-bit ---"
+          nm -D gmcl_vrmod_linux.dll | grep -E "gmod13_open|gmod13_close"
+          echo "--- 64-bit ---"
+          nm -D gmcl_vrmod_linux64.dll | grep -E "gmod13_open|gmod13_close"
+          echo ""
+          echo "=== Dynamic dependencies ==="
+          echo "--- 32-bit ---"
+          ldd gmcl_vrmod_linux.dll || true
+          echo "--- 64-bit ---"
+          ldd gmcl_vrmod_linux64.dll || true
+          echo ""
+          echo "=== ELF header check (first 5 bytes) ==="
+          xxd -l 5 gmcl_vrmod_linux.dll
+          xxd -l 5 gmcl_vrmod_linux64.dll
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-modules
+          path: |
+            gmcl_vrmod_linux.dll
+            gmcl_vrmod_linux64.dll

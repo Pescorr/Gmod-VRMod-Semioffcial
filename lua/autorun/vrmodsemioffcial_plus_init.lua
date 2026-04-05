@@ -2,8 +2,8 @@ AddCSLuaFile()
 
 -- フォルダ番号 → 機能名マップ（表示用）
 local FOLDER_INFO = {
-    ["0"]  = "Core/API",
-    ["1"]  = "Auto-settings/Optimize",
+    ["0"]  = "Core(API)",
+    ["1"]  = "Core(Modules)",
     ["2"]  = "Holster Type2",
     ["3"]  = "Foregrip",
     ["4"]  = "Magbone/ARC9",
@@ -18,6 +18,9 @@ local FOLDER_INFO = {
     ["13"] = "RealMech",
     ["14"] = "Throw",
     ["15"] = "Hand Sync",
+    ["16"] = "Ragdoll Grab",
+    ["17"] = "Ragdoll Puppeteer",
+    ["18"] = "Time Crisis",
 }
 
 -- Legacy v133 に存在したフォルダ（これだけロードする）
@@ -55,8 +58,8 @@ function VRMod_SemiOffcial_Include()
             -- Addon-only: 他VRModがベースシステムをロード済み → メニューだけ追加
             VRMOD_ADDON_ONLY_MODE = true
             print("[VRMod SemiOffcial] Addon-only mode: external VRMod detected, modules loaded by external init")
-            AddCSLuaFile("vrmodUnoffcial/0/vrmod_addononly_menu.lua")
-            include("vrmodUnoffcial/0/vrmod_addononly_menu.lua")
+            AddCSLuaFile("vrmodUnoffcial/1/vrmod_addononly_menu.lua")
+            include("vrmodUnoffcial/1/vrmod_addononly_menu.lua")
         else
             -- 通常モード: 他VRModが全システムをロード済み → 二重ロード防止
             print("[VRMod SemiOffcial] External VRMod detected - skipping to avoid double-load")

@@ -14,7 +14,7 @@ function vrmod_character_lua()
 	end
 
 	local cv_animation_convar = CreateClientConVar("vrmod_animation_Enable", "1", true, FCVAR_ARCHIVE)
-	local cv_yaw_optimized = CreateClientConVar("vrmod_unoff_yaw_optimized", "1", true, FCVAR_ARCHIVE, "Optimized character yaw calculation (0=original, 1=optimized)", 0, 1)
+	-- (vrmod_unoff_yaw_optimized removed in S37)
 	local cv_floatinghands_nosync = CreateClientConVar("vrmod_unoff_floatinghands_nosync", "0", true, FCVAR_ARCHIVE, "When floatinghands is ON, skip IK sync to player model (0=normal, 1=skip)", 0, 1)
 	-- cv_animationの代わりにcv_animation_convarを使用
 	if CLIENT then
@@ -34,7 +34,7 @@ function vrmod_character_lua()
 	g_VR.openHandAngles = g_VR.defaultOpenHandAngles
 	g_VR.closedHandAngles = g_VR.defaultClosedHandAngles
 	local characterInfo = {}
-	vrmod.characterInfo = characterInfo  -- Expose for x64mode modules (bone_skip, spine_precalc)
+	vrmod.characterInfo = characterInfo
 	local activePlayers = {}
 	local zeroVec, zeroAng = Vector(), Angle()
 
@@ -83,8 +83,6 @@ function vrmod_character_lua()
 		local net = g_VR.net[steamid]
 		if not characterInfo or not characterInfo[steamid] or not characterInfo[steamid].boneinfo then return end
 		local charinfo = characterInfo[steamid]
-		-- x64mode: skip redundant bone updates when idle (set by bone_skip module)
-		if charinfo.x64mode_skipBoneUpdate then charinfo.x64mode_skipBoneUpdate = false; return end
 		local boneinfo = charinfo.boneinfo
 		local bones = charinfo.bones
 		if not net or not net.lerpedFrame then return end
@@ -639,38 +637,16 @@ function vrmod_character_lua()
 			if not g_VR.tracking.pose_lefthand or not g_VR.tracking.pose_righthand then return end
 			local leftPos, rightPos, hmdPos, hmdAng = g_VR.tracking.pose_lefthand.pos, g_VR.tracking.pose_righthand.pos, g_VR.tracking.hmd.pos, g_VR.tracking.hmd.ang
 
-			if cv_yaw_optimized:GetBool() then
-				-- Optimized mode: math.atan2 + degenerate check (x64 86c6567参考)
-				local lpos_local = WorldToLocal(leftPos, zeroAng, hmdPos, hmdAng)
-				local rpos_local = WorldToLocal(rightPos, zeroAng, hmdPos, hmdAng)
-				if lpos_local.y > rpos_local.y then
-					local dx = rightPos.x - leftPos.x
-					local dy = rightPos.y - leftPos.y
-					handYaw = math.deg(math.atan2(dy, dx)) + 90
-				end
-
-				local fwd = up:Cross(g_VR.tracking.hmd.ang:Right())
-				if fwd:LengthSqr() < 1e-6 then
-					fwd = Angle(0, g_VR.tracking.hmd.ang.yaw, 0):Forward()
-				end
-				local forwardYaw = fwd:Angle().yaw
-				local relativeToForward = math.NormalizeAngle(handYaw - forwardYaw)
-				local targetYaw = forwardYaw + math.Clamp(relativeToForward, -45, 45)
-				local diff = math.NormalizeAngle(targetYaw - g_VR.characterYaw)
-				g_VR.characterYaw = math.NormalizeAngle(g_VR.characterYaw + diff * 8 * RealFrameTime())
-			else
-				-- Original mode: WorldToLocal approach
-				if WorldToLocal(leftPos, zeroAng, hmdPos, hmdAng).y > WorldToLocal(rightPos, zeroAng, hmdPos, hmdAng).y then
-					handYaw = Vector(rightPos.x - leftPos.x, rightPos.y - leftPos.y, 0):Angle().yaw + 90
-				end
-
-				local forwardAng = up:Cross(g_VR.tracking.hmd.ang:Right()):Angle()
-				local _, tmp = WorldToLocal(zeroVec, Angle(0, handYaw, 0), zeroVec, forwardAng)
-				local targetYaw = forwardAng.yaw + math.Clamp(tmp.yaw, -45, 45)
-				local _, tmp_yaw_diff = WorldToLocal(zeroVec, Angle(0, targetYaw, 0), zeroVec, Angle(0, g_VR.characterYaw, 0))
-				local diff = tmp_yaw_diff.yaw
-				g_VR.characterYaw = math.NormalizeAngle(g_VR.characterYaw + diff * 8 * RealFrameTime())
+			if WorldToLocal(leftPos, zeroAng, hmdPos, hmdAng).y > WorldToLocal(rightPos, zeroAng, hmdPos, hmdAng).y then
+				handYaw = Vector(rightPos.x - leftPos.x, rightPos.y - leftPos.y, 0):Angle().yaw + 90
 			end
+
+			local forwardAng = up:Cross(g_VR.tracking.hmd.ang:Right()):Angle()
+			local _, tmp = WorldToLocal(zeroVec, Angle(0, handYaw, 0), zeroVec, forwardAng)
+			local targetYaw = forwardAng.yaw + math.Clamp(tmp.yaw, -45, 45)
+			local _, tmp_yaw_diff = WorldToLocal(zeroVec, Angle(0, targetYaw, 0), zeroVec, Angle(0, g_VR.characterYaw, 0))
+			local diff = tmp_yaw_diff.yaw
+			g_VR.characterYaw = math.NormalizeAngle(g_VR.characterYaw + diff * 8 * RealFrameTime())
 		end
 	end
 

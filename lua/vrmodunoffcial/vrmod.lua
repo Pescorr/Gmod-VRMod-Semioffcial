@@ -374,7 +374,13 @@ function vrmod_lua()
 
 		local moduleLoaded = false
 		g_VR.moduleVersion = 0
-		if file.Exists("lua/bin/gmcl_vrmod_win32.dll", "GAME") then
+		local moduleDllName
+		if system.IsLinux() then
+			moduleDllName = jit.arch == "x64" and "gmcl_vrmod_linux64.dll" or "gmcl_vrmod_linux.dll"
+		else
+			moduleDllName = "gmcl_vrmod_win32.dll"
+		end
+		if file.Exists("lua/bin/" .. moduleDllName, "GAME") then
 			local tmp = vrmod
 			vrmod = {}
 			moduleLoaded = pcall(
@@ -389,6 +395,17 @@ function vrmod_lua()
 
 			vrmod = tmp
 			g_VR.moduleVersion = moduleLoaded and VRMOD_GetVersion and VRMOD_GetVersion() or 0
+			g_VR.moduleSemiVersion = moduleLoaded and VRMOD_GetSemiVersion and VRMOD_GetSemiVersion() or 0
+			-- Module name detection (use semiVersion for semiofficial detection)
+			if g_VR.moduleSemiVersion >= 100 then
+				g_VR.moduleName = "semiofficial"
+			elseif g_VR.moduleVersion >= 23 then
+				g_VR.moduleName = "x64"
+			elseif g_VR.moduleVersion >= 20 then
+				g_VR.moduleName = "original"
+			else
+				g_VR.moduleName = "unknown"
+			end
 		end
 
 		local convarOverrides = {}
@@ -623,7 +640,7 @@ function vrmod_lua()
 			)
 
 			local localply = LocalPlayer()
-			local cameraover = CreateClientConVar("vrmod_cameraoverride", 1, true, FCVAR_ARCHIVE)
+			local cameraover = CreateClientConVar("vrmod_cameraoverride", 0, true, FCVAR_ARCHIVE)
 			local currentViewEnt = localply
 			local pos1, ang1
 			local uselefthand = CreateClientConVar("vrmod_LeftHand", 0, true, FCVAR_ARCHIVE)
@@ -689,6 +706,23 @@ function vrmod_lua()
 					end
 
 					g_VR.sixPoints = (g_VR.tracking.pose_waist and g_VR.tracking.pose_leftfoot and g_VR.tracking.pose_rightfoot) ~= nil
+
+					-- v103: Event polling (ConVar gated)
+					if vrmod.Event and vrmod.Event.IsEnabled and vrmod.Event.IsEnabled() and VRMOD_PollNextEvent then
+						local eventSafety = 0
+						while eventSafety < 64 do
+							local ok, event = pcall(VRMOD_PollNextEvent)
+							if not ok or not event then break end
+							hook.Call("VRMod_Event", nil, event.type, event.deviceIndex, event.age)
+							if event.type == 101 then -- TrackedDeviceDeactivated
+								hook.Call("VRMod_DeviceDisconnected", nil, event.deviceIndex)
+							elseif event.type == 100 then -- TrackedDeviceActivated
+								hook.Call("VRMod_DeviceConnected", nil, event.deviceIndex)
+							end
+							eventSafety = eventSafety + 1
+						end
+					end
+
 					hook.Call("VRMod_Tracking")
 					--handle input
 					g_VR.input, g_VR.changedInputs = VRMOD_GetActions()
@@ -911,7 +945,7 @@ function vrmod_lua()
 
 					hook.Call("VRMod_PostRender")
 
-					return cameraover:GetBool()
+					return not cameraover:GetBool()
 				end
 			)
 
@@ -984,7 +1018,7 @@ function vrmod_lua()
 						fov = fv
 					}
 				end
-				if not cameraover:GetBool() then
+				if cameraover:GetBool() then
 					local hmdPos = g_VR.tracking.hmd.pos
 					local hmdAng = g_VR.tracking.hmd.ang
 					local flat = Angle(0, hmdAng.y, 0)

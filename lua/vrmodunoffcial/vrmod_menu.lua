@@ -56,6 +56,38 @@ local function OpenMenu()
 		return frame
 	end
 
+	-- Module install guide (independent of vrmod_error_hard)
+	if not g_VR.moduleVersion then
+		local installPanel = vgui.Create("DPanel", frame)
+		installPanel:Dock(TOP)
+		installPanel:SetTall(90)
+		installPanel:DockMargin(5, 5, 5, 5)
+		installPanel.Paint = function(self, w, h)
+			draw.RoundedBox(6, 0, 0, w, h, Color(80, 40, 40, 200))
+		end
+
+		local lbl = vgui.Create("DLabel", installPanel)
+		lbl:SetText("Module not installed.\n1. Go to garrysmod/data/vrmod_module/\n2. Rename install.txt -> install.bat\n3. Run install.bat, then restart Gmod")
+		lbl:SetFont("DermaDefaultBold")
+		lbl:SetTextColor(Color(255, 220, 100))
+		lbl:Dock(FILL)
+		lbl:DockMargin(10, 5, 10, 5)
+		lbl:SetWrap(true)
+
+		local btn = vgui.Create("DButton", installPanel)
+		btn:SetText("Open Module Folder")
+		btn:Dock(BOTTOM)
+		btn:DockMargin(10, 0, 10, 5)
+		btn:SetTall(25)
+		function btn:DoClick()
+			if vrmod_OpenModuleFolder then
+				vrmod_OpenModuleFolder()
+			else
+				print("[VRMod] Go to: garrysmod/data/vrmod_module/")
+			end
+		end
+	end
+
 	local sheet = vgui.Create("DPropertySheet", frame)
 	sheet:SetPadding(4)
 	sheet:Dock(FILL)
@@ -80,7 +112,8 @@ local function OpenMenu()
 		tmp:SizeToContents()
 		tmp:SetPos(5, 5)
 	else
-		tmp:SetText("Addon version: " .. vrmod.GetVersion() .. "semioffcial" .. "\nModule version: ")
+		local displayModVer = (g_VR.moduleSemiVersion and g_VR.moduleSemiVersion > 0) and g_VR.moduleSemiVersion or g_VR.moduleVersion
+		tmp:SetText("Addon version: " .. vrmod.GetVersion() .. "semioffcial" .. "\nModule version: " .. tostring(displayModVer or "N/A"))
 		tmp:SizeToContents()
 		tmp:SetPos(5, 5)
 	end
@@ -126,7 +159,10 @@ local function OpenMenu()
 
 		table.sort(names)
 		for k, v in ipairs(names) do
-			hooks[v](frame)
+			local ok, err = pcall(hooks[v], frame)
+			if not ok then
+				print("[VRMod] Menu hook '" .. v .. "' error: " .. tostring(err))
+			end
 		end
 	end
 

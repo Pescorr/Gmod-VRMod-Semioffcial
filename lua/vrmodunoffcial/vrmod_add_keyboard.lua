@@ -1,31 +1,348 @@
 if CLIENT then
-	local pressTime = 0
-	local chatLog = {}
-	local chatPanel = nil
-	local nametags = false
-	local VRClipboard = CreateClientConVar("vrmod_Clipboard", "", false, false, "")
-	hook.Add("VRMod_Start", "voicepermissions", function(ply) end)
-	local function ToggleKeyboard()
-		if VRUtilIsMenuOpen("keyboard_only") then
-			VRUtilMenuClose("keyboard_only")
 
-			return
+	-- Layout preference (0=Classic, 1=Full)
+	local cv_layout = CreateClientConVar("vrmod_unoff_keyboard_layout", "0", true, false,
+		"VR Keyboard layout: 0=Classic, 1=Full")
+
+	-- ============================================================================
+	-- Character -> BUTTON_CODE mapping (for classic key injection mode)
+	-- ============================================================================
+
+	local CHAR_TO_KEY = {
+		["a"] = KEY_A, ["b"] = KEY_B, ["c"] = KEY_C, ["d"] = KEY_D,
+		["e"] = KEY_E, ["f"] = KEY_F, ["g"] = KEY_G, ["h"] = KEY_H,
+		["i"] = KEY_I, ["j"] = KEY_J, ["k"] = KEY_K, ["l"] = KEY_L,
+		["m"] = KEY_M, ["n"] = KEY_N, ["o"] = KEY_O, ["p"] = KEY_P,
+		["q"] = KEY_Q, ["r"] = KEY_R, ["s"] = KEY_S, ["t"] = KEY_T,
+		["u"] = KEY_U, ["v"] = KEY_V, ["w"] = KEY_W, ["x"] = KEY_X,
+		["y"] = KEY_Y, ["z"] = KEY_Z,
+		["1"] = KEY_1, ["2"] = KEY_2, ["3"] = KEY_3, ["4"] = KEY_4,
+		["5"] = KEY_5, ["6"] = KEY_6, ["7"] = KEY_7, ["8"] = KEY_8,
+		["9"] = KEY_9, ["0"] = KEY_0,
+		[" "] = KEY_SPACE, ["."] = KEY_PERIOD, [","] = KEY_COMMA,
+	}
+	for k, v in pairs(table.Copy(CHAR_TO_KEY)) do
+		CHAR_TO_KEY[string.upper(k)] = v
+	end
+
+	-- ============================================================================
+	-- Full keyboard sizing constants (for VR)
+	-- ============================================================================
+
+	local VR_KW  = 40   -- base key width
+	local VR_KH  = 33   -- key height
+	local VR_KG  = 2    -- gap between keys
+	local VR_RG  = 3    -- gap between rows
+	local VR_PAD = 6    -- panel padding
+
+	-- ============================================================================
+	-- Cached Color constants (avoid creating inside Paint functions)
+	-- ============================================================================
+
+	local CLR_BLACK_128       = Color(0, 0, 0, 128)
+	local CLR_BLACK_160       = Color(0, 0, 0, 160)
+	local CLR_BLACK_200       = Color(0, 0, 0, 200)
+	local CLR_BLACK_255       = Color(0, 0, 0, 255)
+	local CLR_WHITE           = Color(255, 255, 255)
+	local CLR_WHITE_FULL      = Color(255, 255, 255, 255)
+	local CLR_GREEN_FLASH     = Color(0, 255, 0)
+	local CLR_GRAY_128        = Color(128, 128, 128, 255)
+	local CLR_GRAY_HOVER      = Color(80, 80, 100, 200)
+	local CLR_LABEL_DIM       = Color(200, 200, 200)
+	local CLR_LABEL_CYAN      = Color(100, 200, 255)
+	local CLR_LABEL_GREEN     = Color(100, 255, 150)
+	local CLR_LABEL_YELLOW    = Color(200, 200, 150)
+	local CLR_TEXT_NORMAL      = Color(210, 210, 215)
+	local CLR_TEXT_ASSIGN      = Color(140, 220, 155, 210)
+
+	-- Input mode key backgrounds
+	local CLR_INKEY_BG         = Color(20, 20, 25, 220)
+	local CLR_INKEY_BG_HOVER   = Color(60, 60, 70, 230)
+	local CLR_INKEY_BG_HELD    = Color(30, 70, 50, 235)
+	local CLR_INKEY_BORDER     = Color(80, 80, 90)
+	local CLR_INKEY_BORDER_HOV = Color(130, 130, 160)
+	local CLR_INKEY_BORDER_HELD = Color(60, 160, 80)
+
+	-- Assignment mode backgrounds
+	local CLR_ASGN_BG         = Color(42, 42, 48, 235)
+	local CLR_ASGN_BG_HOVER   = Color(58, 58, 68, 240)
+	local CLR_ASGN_YES_BG     = Color(25, 85, 35, 235)
+	local CLR_ASGN_YES_HOVER  = Color(35, 110, 50, 240)
+	local CLR_ASGN_BORDER     = Color(70, 70, 80)
+	local CLR_ASGN_BORDER_HOV = Color(120, 120, 150)
+	local CLR_ASGN_YES_BORDER = Color(50, 140, 60)
+	local CLR_ASGN_YES_BRD_H  = Color(80, 180, 90)
+	local CLR_ASGN_SEL_BORDER = Color(255, 220, 50)
+
+	-- Bottom bar button colors
+	local CLR_BARBTN_BG       = Color(50, 50, 50, 200)
+	local CLR_BARBTN_ACTIVE   = Color(30, 80, 130, 220)
+	local CLR_BARBTN_BORDER   = Color(100, 150, 200, 255)
+	local CLR_ASGN_BTN_BG     = Color(80, 60, 20, 220)
+	local CLR_ASGN_BTN_BORDER = Color(180, 150, 50, 255)
+	local CLR_ASGN_BTN_TEXT   = Color(255, 200, 80)
+	local CLR_BARBTN_GREEN_BG = Color(30, 80, 50, 220)
+	local CLR_BARBTN_GREEN_BD = Color(60, 150, 80, 255)
+	local CLR_BARBTN_YELLOW_BG = Color(60, 50, 30, 220)
+	local CLR_BARBTN_YELLOW_BD = Color(150, 130, 60, 255)
+	local CLR_BARBTN_PAGE_BG  = Color(40, 40, 60, 220)
+	local CLR_BARBTN_PAGE_BD  = Color(90, 90, 140, 255)
+	local CLR_BARBTN_PAGE_ACT = Color(60, 40, 80, 220)
+	local CLR_BARBTN_PAGE_ABD = Color(140, 90, 180, 255)
+
+	-- Status bar colors
+	local CLR_STATUS_BG       = Color(20, 20, 30, 200)
+	local CLR_STATUS_BORDER   = Color(60, 60, 80)
+	local CLR_STATUS_TEXT      = Color(180, 180, 200)
+	local CLR_STATUS_OK        = Color(100, 200, 120)
+	local CLR_STATUS_WARN      = Color(200, 150, 80)
+
+	-- Close button colors
+	local CLR_CLOSE_BG         = Color(100, 30, 30, 200)
+	local CLR_CLOSE_BG_HOVER   = Color(180, 40, 40, 240)
+	local CLR_CLOSE_BORDER     = Color(200, 60, 60)
+
+	-- ============================================================================
+	-- ACTION_SHORT table (short names for assignment mode key faces)
+	-- ============================================================================
+
+	local ACTION_SHORT = {
+		["boolean_primaryfire"]        = "Prim(R)",
+		["boolean_secondaryfire"]      = "Sec(R)",
+		["boolean_left_primaryfire"]   = "Prim(L)",
+		["boolean_left_secondaryfire"] = "Sec(L)",
+		["boolean_reload"]             = "Reload",
+		["boolean_use"]                = "Use",
+		["boolean_flashlight"]         = "Flash",
+		["boolean_sprint"]             = "Sprint",
+		["boolean_jump"]               = "Jump",
+		["boolean_crouch"]             = "Crouch",
+		["boolean_walkkey"]            = "Walk",
+		["boolean_forword"]            = "Fwd",
+		["boolean_back"]               = "Back",
+		["boolean_left"]               = "MvLeft",
+		["boolean_right"]              = "MvRight",
+		["boolean_undo"]               = "Undo",
+		["boolean_chat"]               = "Chat",
+		["boolean_menucontext"]        = "CtxMenu",
+		["boolean_spawnmenu"]          = "Spawn",
+		["boolean_slot1"]              = "Slot1",
+		["boolean_slot2"]              = "Slot2",
+		["boolean_slot3"]              = "Slot3",
+		["boolean_slot4"]              = "Slot4",
+		["boolean_slot5"]              = "Slot5",
+		["boolean_slot6"]              = "Slot6",
+	}
+
+	-- ============================================================================
+	-- Helper: inject a key with visual feedback on a DLabel/DButton
+	-- ============================================================================
+
+	local function InjectKeyWithFlash(buttonCode, keyPanel)
+		if not buttonCode or buttonCode <= 0 then return end
+
+		-- Dual-layer tap (0.1s hold)
+		if vrmod and vrmod.InputEmu_TapKey then
+			vrmod.InputEmu_TapKey(buttonCode)
+		elseif vrmod and vrmod.InputEmu_SetKey then
+			-- Fallback: Lua-only tap
+			vrmod.InputEmu_SetKey(buttonCode, true)
+			timer.Simple(0.1, function()
+				if vrmod and vrmod.InputEmu_SetKey then
+					vrmod.InputEmu_SetKey(buttonCode, nil)
+				end
+			end)
 		end
+
+		-- Visual feedback: flash green
+		if IsValid(keyPanel) then
+			keyPanel:SetTextColor(CLR_GREEN_FLASH)
+			timer.Simple(0.15, function()
+				if IsValid(keyPanel) then
+					keyPanel:SetTextColor(CLR_WHITE)
+				end
+			end)
+		end
+	end
+
+	-- ============================================================================
+	-- Helper: inject Shift+key combo for Page 2 symbols
+	-- ============================================================================
+
+	local function InjectShiftCombo(baseCode, btn)
+		if not vrmod or not vrmod.InputEmu_SetKeyDual then return end
+		-- Hold shift (both Lua and C++ layers)
+		vrmod.InputEmu_SetKeyDual(KEY_LSHIFT, true)
+		-- Small delay, then tap the base key
+		timer.Simple(0.03, function()
+			if vrmod and vrmod.InputEmu_TapKey then
+				vrmod.InputEmu_TapKey(baseCode)
+			end
+			-- Release shift after tap completes
+			timer.Simple(0.12, function()
+				if vrmod and vrmod.InputEmu_SetKeyDual then
+					vrmod.InputEmu_SetKeyDual(KEY_LSHIFT, nil)
+				end
+			end)
+		end)
+		-- Visual feedback
+		if IsValid(btn) then
+			btn:SetTextColor(CLR_GREEN_FLASH)
+			timer.Simple(0.15, function()
+				if IsValid(btn) then btn:SetTextColor(CLR_WHITE) end
+			end)
+		end
+	end
+
+	-- ============================================================================
+	-- Menu UIDs (separate UIDs = separate RenderTargets, avoids RT cache size mismatch)
+	-- ============================================================================
+
+	local UID_CLASSIC = "keyboard_classic"
+	local UID_FULL    = "keyboard_full"
+
+	-- ============================================================================
+	-- Forward declare ToggleKeyboard (needed for layout switch callbacks)
+	-- ============================================================================
+
+	local ToggleKeyboard
+
+	-- ============================================================================
+	-- Auto-hide timer: close keyboard after 6 seconds of no VGUI cursor focus
+	-- ============================================================================
+
+	local KEYBOARD_AUTOHIDE_TIMER = "vrmod_keyboard_autohide"
+	local keyboardNoFocusTime = 0
+
+	local function StartKeyboardAutoHide(uid)
+		keyboardNoFocusTime = 0
+		timer.Create(KEYBOARD_AUTOHIDE_TIMER, 1, 0, function()
+			if not VRUtilIsMenuOpen(uid) then
+				timer.Remove(KEYBOARD_AUTOHIDE_TIMER)
+				return
+			end
+			if g_VR.menuFocus then
+				keyboardNoFocusTime = 0
+			else
+				keyboardNoFocusTime = keyboardNoFocusTime + 1
+				if keyboardNoFocusTime >= 6 then
+					VRUtilMenuClose(uid)
+					timer.Remove(KEYBOARD_AUTOHIDE_TIMER)
+				end
+			end
+		end)
+	end
+
+	local function StopKeyboardAutoHide()
+		timer.Remove(KEYBOARD_AUTOHIDE_TIMER)
+		keyboardNoFocusTime = 0
+	end
+
+	-- ============================================================================
+	-- Open Classic Keyboard (original compact layout)
+	-- ============================================================================
+
+	local function OpenClassicKeyboard()
+		local injectMode = false
 
 		local keyboardPanel = vgui.Create("DPanel")
 		keyboardPanel:SetPos(0, 0)
-		keyboardPanel:SetSize(555, 255) -- 幅を555に変更
+		keyboardPanel:SetSize(555, 290)
 		function keyboardPanel:Paint(w, h)
-			surface.SetDrawColor(Color(0, 0, 0, 128))
+			surface.SetDrawColor(CLR_BLACK_128)
 			surface.DrawRect(0, 0, w, h)
-			surface.SetDrawColor(Color(0, 0, 0, 255))
+			surface.SetDrawColor(CLR_BLACK_255)
 			surface.DrawOutlinedRect(0, 0, w, h)
+		end
+
+		-- Close button (top-right)
+		local closeBtn = vgui.Create("DLabel", keyboardPanel)
+		closeBtn:SetPos(555 - 32, 2)
+		closeBtn:SetSize(28, 18)
+		closeBtn:SetText("X")
+		closeBtn:SetFont("DermaDefaultBold")
+		closeBtn:SetTextColor(CLR_WHITE)
+		closeBtn:SetContentAlignment(5)
+		closeBtn:SetMouseInputEnabled(true)
+		closeBtn:SetCursor("hand")
+		closeBtn.Paint = function(self, w, h)
+			local bg = self:IsHovered() and CLR_CLOSE_BG_HOVER or CLR_CLOSE_BG
+			draw.RoundedBox(2, 0, 0, w, h, bg)
+			surface.SetDrawColor(CLR_CLOSE_BORDER)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+		end
+		closeBtn.OnMousePressed = function()
+			StopKeyboardAutoHide()
+			VRUtilMenuClose(UID_CLASSIC)
 		end
 
 		local lowerCase = "1234567890\1\nqwertyuiop\nasdfghjkl\2\n\3zxcvbnm.\4\3\n "
 		local upperCase = "!@%\"/+=?-_\1\nQWERTYUIOP\nASDFGHJKL\2\n\3ZXCVBNM,\4\3\n "
 		local selectedCase = lowerCase
 		local keys = {}
+
+		-- Mode indicator label
+		local modeLabel = vgui.Create("DLabel", keyboardPanel)
+		modeLabel:SetPos(5, 260)
+		modeLabel:SetSize(250, 25)
+		modeLabel:SetFont("HudSelectionText")
+		modeLabel:SetTextColor(CLR_LABEL_DIM)
+		modeLabel:SetText("Mode: Text Input")
+
+		-- Mode toggle: Text / Inject
+		local modeBtn = vgui.Create("DLabel", keyboardPanel)
+		modeBtn:SetPos(260, 260)
+		modeBtn:SetSize(120, 25)
+		modeBtn:SetFont("HudSelectionText")
+		modeBtn:SetTextColor(CLR_LABEL_CYAN)
+		modeBtn:SetText("[Key Inject]")
+		modeBtn:SetContentAlignment(5)
+		modeBtn:SetMouseInputEnabled(true)
+		modeBtn.Paint = function(self, w, h)
+			surface.SetDrawColor(injectMode and CLR_BARBTN_ACTIVE or CLR_BARBTN_BG)
+			surface.DrawRect(0, 0, w, h)
+			surface.SetDrawColor(CLR_BARBTN_BORDER)
+			surface.DrawOutlinedRect(0, 0, w, h)
+		end
+		modeBtn.OnMousePressed = function()
+			injectMode = not injectMode
+			if injectMode then
+				modeLabel:SetText("Mode: Key Inject")
+				modeLabel:SetTextColor(CLR_LABEL_CYAN)
+				modeBtn:SetText("[Text Input]")
+			else
+				modeLabel:SetText("Mode: Text Input")
+				modeLabel:SetTextColor(CLR_LABEL_DIM)
+				modeBtn:SetText("[Key Inject]")
+			end
+		end
+
+		-- Layout switch: Classic -> Full (only if InputEmu API available)
+		local fullAvailable = vrmod and vrmod.InputEmu_TapKey ~= nil
+		if fullAvailable then
+			local fullBtn = vgui.Create("DLabel", keyboardPanel)
+			fullBtn:SetPos(385, 260)
+			fullBtn:SetSize(165, 25)
+			fullBtn:SetFont("HudSelectionText")
+			fullBtn:SetTextColor(CLR_LABEL_GREEN)
+			fullBtn:SetText("[Full Keyboard >>]")
+			fullBtn:SetContentAlignment(5)
+			fullBtn:SetMouseInputEnabled(true)
+			fullBtn.Paint = function(self, w, h)
+				surface.SetDrawColor(CLR_BARBTN_GREEN_BG)
+				surface.DrawRect(0, 0, w, h)
+				surface.SetDrawColor(CLR_BARBTN_GREEN_BD)
+				surface.DrawOutlinedRect(0, 0, w, h)
+			end
+			fullBtn.OnMousePressed = function()
+				RunConsoleCommand("vrmod_unoff_keyboard_layout", "1")
+				VRUtilMenuClose(UID_CLASSIC)
+				timer.Simple(0.05, function()
+					if ToggleKeyboard then ToggleKeyboard() end
+				end)
+			end
+		end
+
 		local function updateKeyboard()
 			for i = 1, #selectedCase do
 				if selectedCase[i] == "\n" then continue end
@@ -44,72 +361,833 @@ if CLIENT then
 			keys[i] = vgui.Create("DLabel", keyboardPanel)
 			local key = keys[i]
 			key:SetPos(x, y)
-			key:SetSize(selectedCase[i] == " " and 250 or selectedCase[i] == "\2" and 65 or selectedCase[i] == "\4" and 50 or 45, 45) -- chatボタンのサイズを50に変更
-			key:SetTextColor(Color(255, 255, 255, 255))
+			key:SetSize(selectedCase[i] == " " and 250 or selectedCase[i] == "\2" and 65 or selectedCase[i] == "\4" and 50 or 45, 45)
+			key:SetTextColor(CLR_WHITE_FULL)
 			key:SetFont((selectedCase[i] == "\1" or selectedCase[i] == "\2" or selectedCase[i] == "\3" or selectedCase[i] == "\4") and "HudSelectionText" or "vrmod_Verdana37")
 			key:SetText(selectedCase[i] == "\1" and "Back" or selectedCase[i] == "\2" and "Enter" or selectedCase[i] == "\4" and "Shift" or selectedCase[i])
 			key:SetMouseInputEnabled(true)
 			key:SetContentAlignment(5)
 			key.OnMousePressed = function()
-				if key:GetText() == "Back" then
-					local activeTextEntry = vgui.GetKeyboardFocus()
-					if IsValid(activeTextEntry) then
-						local text = activeTextEntry:GetText()
-						local start, endt = activeTextEntry:GetSelectedTextRange()
-						if start ~= endt then
-							activeTextEntry:SetText(string.sub(text, 1, start) .. string.sub(text, endt + 1))
-							activeTextEntry:SetCaretPos(start)
-						else
-							activeTextEntry:SetText(string.sub(text, 1, #text - 1))
-						end
+				if injectMode then
+					-- === Key Injection Mode ===
+					local txt = key:GetText()
+					if txt == "Shift" then
+						selectedCase = (selectedCase == lowerCase) and upperCase or lowerCase
+						updateKeyboard()
+						return
 					end
-				elseif key:GetText() == "Enter" then
-				elseif key:GetText() == "Shift" then
-					selectedCase = (selectedCase == lowerCase) and upperCase or lowerCase
-					updateKeyboard()
-				-- elseif key:GetText() == "exit" then
-				-- 	VRUtilMenuClose("keyboard_only")
-					-- LocalPlayer():ConCommand("vrmod_chatmode")
+					local buttonCode
+					if txt == "Back" then
+						buttonCode = KEY_BACKSPACE
+					elseif txt == "Enter" then
+						buttonCode = KEY_ENTER
+					elseif txt == " " then
+						buttonCode = KEY_SPACE
+					else
+						buttonCode = CHAR_TO_KEY[txt]
+					end
+					InjectKeyWithFlash(buttonCode, key)
 				else
-					local activeTextEntry = vgui.GetKeyboardFocus()
-					if IsValid(activeTextEntry) then
-						local text = activeTextEntry:GetText()
-						local start, endt = activeTextEntry:GetSelectedTextRange()
-						if start ~= endt then
-							activeTextEntry:SetText(string.sub(text, 1, start) .. key:GetText() .. string.sub(text, endt + 1))
-							activeTextEntry:SetCaretPos(start + 1)
-						else
-							activeTextEntry:SetText(text .. key:GetText())
+					-- === Original Text Input Mode ===
+					if key:GetText() == "Back" then
+						local activeTextEntry = vgui.GetKeyboardFocus()
+						if IsValid(activeTextEntry) then
+							local text = activeTextEntry:GetText()
+							local start, endt = activeTextEntry:GetSelectedTextRange()
+							if start ~= endt then
+								activeTextEntry:SetText(string.sub(text, 1, start) .. string.sub(text, endt + 1))
+								activeTextEntry:SetCaretPos(start)
+							else
+								activeTextEntry:SetText(string.sub(text, 1, #text - 1))
+							end
+						end
+					elseif key:GetText() == "Enter" then
+						-- no-op in text mode
+					elseif key:GetText() == "Shift" then
+						selectedCase = (selectedCase == lowerCase) and upperCase or lowerCase
+						updateKeyboard()
+					else
+						local activeTextEntry = vgui.GetKeyboardFocus()
+						if IsValid(activeTextEntry) then
+							local text = activeTextEntry:GetText()
+							local start, endt = activeTextEntry:GetSelectedTextRange()
+							if start ~= endt then
+								activeTextEntry:SetText(string.sub(text, 1, start) .. key:GetText() .. string.sub(text, endt + 1))
+								activeTextEntry:SetCaretPos(start + 1)
+							else
+								activeTextEntry:SetText(text .. key:GetText())
+							end
 						end
 					end
 				end
 			end
 
 			function key:Paint(w, h)
-				surface.SetDrawColor(Color(0, 0, 0, 200))
+				local hovered = self:IsHovered()
+				surface.SetDrawColor(hovered and CLR_GRAY_HOVER or CLR_BLACK_200)
 				surface.DrawRect(0, 0, w, h)
-				surface.SetDrawColor(Color(128, 128, 128, 255))
+				surface.SetDrawColor(CLR_GRAY_128)
 				surface.DrawOutlinedRect(0, 0, w, h)
 			end
 
-			x = x + (selectedCase[i] == "\4" and 55 or 50) -- chatボタンの後のxの増分を55に変更
+			x = x + (selectedCase[i] == "\4" and 55 or 50)
 		end
 
 		VRUtilMenuOpen(
-			"keyboard_only",
+			UID_CLASSIC,
 			605,
-			255,
+			290,
 			keyboardPanel,
 			1,
-			Vector(4, 6, 5.5),
+			Vector(8, 6, 5.5),
 			Angle(0, -90, 10),
 			0.03,
 			true,
 			function()
+				StopKeyboardAutoHide()
 				keyboardPanel:Remove()
 				keyboardPanel = nil
 			end
 		)
+		StartKeyboardAutoHide(UID_CLASSIC)
+	end
+
+	-- ============================================================================
+	-- Open Full Keyboard (unified layout, multi-mode)
+	-- ============================================================================
+
+	local function OpenFullKeyboard()
+		-- Safety: fallback to classic if API not available
+		if not vrmod or not vrmod.InputEmu_TapKey then
+			print("[VR Keyboard] InputEmu API not available, falling back to Classic layout")
+			RunConsoleCommand("vrmod_unoff_keyboard_layout", "0")
+			OpenClassicKeyboard()
+			return
+		end
+
+		local layout = vrmod.UNIFIED_KEYBOARD_LAYOUT
+		if not layout then
+			print("[VR Keyboard] UNIFIED_KEYBOARD_LAYOUT not found, falling back to Classic layout")
+			RunConsoleCommand("vrmod_unoff_keyboard_layout", "0")
+			OpenClassicKeyboard()
+			return
+		end
+
+		-- Calculate dimensions from unified layout
+		local basePanelW, basePanelH, numpadX = vrmod.CalcKeyboardDimensions(VR_KW, VR_KH, VR_KG, VR_RG, VR_PAD)
+
+		-- Extra height for status bar + mode buttons bar
+		local STATUS_BAR_H = 20
+		local MODE_BAR_H   = 28
+		local EXTRA_H      = STATUS_BAR_H + MODE_BAR_H + VR_RG * 2 + VR_PAD
+		local fullPanelW = basePanelW
+		local fullPanelH = basePanelH + EXTRA_H
+
+		-- ====================================================================
+		-- Mode state
+		-- ====================================================================
+		-- Modes: 1 = Key Inject, 2 = Text Input, 3 = Assignment
+		local MODE_INJECT = 1
+		local MODE_TEXT   = 2
+		local MODE_ASSIGN = 3
+
+		local hasCpp = vrmod.InputEmu_IsCppAvailable and pcall(vrmod.InputEmu_IsCppAvailable) and vrmod.InputEmu_IsCppAvailable()
+		local currentMode = hasCpp and MODE_INJECT or MODE_TEXT
+		local currentPage = 1  -- 1 = normal keys, 2 = shift/symbols
+
+		-- Assignment mode state
+		local selectedCode = nil
+		local selectedPanel = nil
+		local keyPanels = {}  -- code -> panel mapping
+
+		local function CancelCapture()
+			if IsValid(selectedPanel) then selectedPanel.isSelected = false end
+			selectedCode = nil
+			selectedPanel = nil
+			if vrmod.InputEmu_CancelCapture then pcall(vrmod.InputEmu_CancelCapture) end
+		end
+
+		local function RefreshAssignments()
+			local ok, reverseMap = pcall(vrmod.InputEmu_GetReverseMap)
+			if not ok then reverseMap = {} end
+			for code, btn in pairs(keyPanels) do
+				if IsValid(btn) then
+					btn.assignedActions = reverseMap[code] or {}
+				end
+			end
+		end
+
+		-- ====================================================================
+		-- Key hold state (Inject mode Page 1: hold while VR trigger pressed)
+		-- ====================================================================
+		local heldKeyCode = nil
+		local heldKeyBtn = nil
+
+		local function ReleaseHeldKey()
+			if not heldKeyCode then return end
+			if vrmod and vrmod.InputEmu_SetKeyDual then
+				pcall(vrmod.InputEmu_SetKeyDual, heldKeyCode, nil)
+			end
+			if IsValid(heldKeyBtn) then
+				heldKeyBtn.isHeld = false
+			end
+			heldKeyCode = nil
+			heldKeyBtn = nil
+		end
+
+		-- VRMod_Exit failsafe: release held key on VR exit/death/disconnect
+		local HOLD_CLEANUP_HOOK = "vrmod_keyboard_hold_cleanup"
+		hook.Add("VRMod_Exit", HOLD_CLEANUP_HOOK, function()
+			ReleaseHeldKey()
+		end)
+
+		-- ====================================================================
+		-- Main panel
+		-- ====================================================================
+		local panel = vgui.Create("DPanel")
+		panel:SetPos(0, 0)
+		panel:SetSize(fullPanelW, fullPanelH)
+		panel.Paint = function(self, w, h)
+			surface.SetDrawColor(CLR_BLACK_160)
+			surface.DrawRect(0, 0, w, h)
+			surface.SetDrawColor(CLR_BLACK_255)
+			surface.DrawOutlinedRect(0, 0, w, h)
+		end
+
+		-- Close button (top-right)
+		local closeBtn = vgui.Create("DPanel", panel)
+		closeBtn:SetPos(fullPanelW - VR_PAD - 30, 2)
+		closeBtn:SetSize(28, 18)
+		closeBtn:SetMouseInputEnabled(true)
+		closeBtn:SetCursor("hand")
+		closeBtn.Paint = function(self, w, h)
+			local bg = self:IsHovered() and CLR_CLOSE_BG_HOVER or CLR_CLOSE_BG
+			draw.RoundedBox(2, 0, 0, w, h, bg)
+			surface.SetDrawColor(CLR_CLOSE_BORDER)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+			draw.SimpleText("X", "DermaDefaultBold", w / 2, h / 2, CLR_WHITE, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		end
+		closeBtn.OnMousePressed = function()
+			CancelCapture()
+			StopKeyboardAutoHide()
+			VRUtilMenuClose(UID_FULL)
+		end
+
+		-- Forward-declare UI elements that need updating
+		local statusLabel, statusInfoLabel, modeLabel
+		local pageBtnRef, modeBtnInputRef, modeBtnAssignRef
+		local statusBarPanel
+
+		-- ====================================================================
+		-- Update functions (called on mode/page change)
+		-- ====================================================================
+		local function GetKeyLabel(keyDef)
+			local label = keyDef[2]
+			local shiftLabel = keyDef[4]
+			if currentPage == 2 and shiftLabel then
+				return shiftLabel
+			end
+			return label
+		end
+
+		local function UpdateAllKeyLabels()
+			for code, btn in pairs(keyPanels) do
+				if IsValid(btn) and btn.keyDef then
+					btn.keyLabel = GetKeyLabel(btn.keyDef)
+				end
+			end
+		end
+
+		local function UpdateModeUI()
+			ReleaseHeldKey()  -- Failsafe: release on mode switch
+			if IsValid(modeLabel) then
+				if currentMode == MODE_INJECT then
+					modeLabel:SetText("Mode: Key Inject")
+					modeLabel:SetTextColor(CLR_LABEL_CYAN)
+				elseif currentMode == MODE_TEXT then
+					modeLabel:SetText("Mode: Text Input")
+					modeLabel:SetTextColor(CLR_LABEL_DIM)
+				elseif currentMode == MODE_ASSIGN then
+					modeLabel:SetText("Mode: Assignment")
+					modeLabel:SetTextColor(CLR_ASGN_BTN_TEXT)
+				end
+			end
+
+			-- Page button: visible only in input modes
+			if IsValid(pageBtnRef) then
+				pageBtnRef:SetVisible(currentMode ~= MODE_ASSIGN)
+			end
+
+			-- Status bar: visible only in assignment mode
+			if IsValid(statusBarPanel) then
+				statusBarPanel:SetVisible(currentMode == MODE_ASSIGN)
+			end
+
+			-- Mode button highlighting
+			if IsValid(modeBtnInputRef) then
+				modeBtnInputRef.isActive = (currentMode == MODE_INJECT or currentMode == MODE_TEXT)
+			end
+			if IsValid(modeBtnAssignRef) then
+				modeBtnAssignRef.isActive = (currentMode == MODE_ASSIGN)
+			end
+
+			-- When entering assignment mode, refresh assignments and reset page
+			if currentMode == MODE_ASSIGN then
+				currentPage = 1
+				UpdateAllKeyLabels()
+				RefreshAssignments()
+			end
+		end
+
+		local function UpdatePageUI()
+			if IsValid(pageBtnRef) then
+				if currentPage == 1 then
+					pageBtnRef:SetText("[Page 1: Keys]")
+				else
+					pageBtnRef:SetText("[Page 2: Symbols]")
+				end
+			end
+			UpdateAllKeyLabels()
+		end
+
+		-- ====================================================================
+		-- Key paint functions
+		-- ====================================================================
+		local function PaintKeyInputMode(self, w, h)
+			local isHeld = self.isHeld
+			local isHovered = self:IsHovered()
+			local bg = isHeld and CLR_INKEY_BG_HELD or (isHovered and CLR_INKEY_BG_HOVER or CLR_INKEY_BG)
+			draw.RoundedBox(3, 0, 0, w, h, bg)
+			local border = isHeld and CLR_INKEY_BORDER_HELD or (isHovered and CLR_INKEY_BORDER_HOV or CLR_INKEY_BORDER)
+			surface.SetDrawColor(border)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+			-- Label (centered)
+			local textClr = isHeld and CLR_LABEL_GREEN or CLR_TEXT_NORMAL
+			draw.SimpleText(self.keyLabel or "", "DermaDefaultBold", w / 2, h / 2, textClr, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		end
+
+		local function PaintKeyAssignMode(self, w, h)
+			local isAssigned = self.assignedActions and #self.assignedActions > 0
+			local isHovered = self:IsHovered()
+			local isSel = self.isSelected
+
+			local bg
+			if isSel then
+				local pulse = math.sin(CurTime() * 5) * 0.3 + 0.7
+				bg = Color(math.floor(200 * pulse), math.floor(160 * pulse), 0, 235)
+			elseif isAssigned then
+				bg = isHovered and CLR_ASGN_YES_HOVER or CLR_ASGN_YES_BG
+			else
+				bg = isHovered and CLR_ASGN_BG_HOVER or CLR_ASGN_BG
+			end
+			draw.RoundedBox(3, 0, 0, w, h, bg)
+
+			local border
+			if isSel then
+				border = CLR_ASGN_SEL_BORDER
+			elseif isAssigned then
+				border = isHovered and CLR_ASGN_YES_BRD_H or CLR_ASGN_YES_BORDER
+			else
+				border = isHovered and CLR_ASGN_BORDER_HOV or CLR_ASGN_BORDER
+			end
+			surface.SetDrawColor(border)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+
+			-- Key label
+			local labelY = isAssigned and (h * 0.3) or (h * 0.5)
+			draw.SimpleText(self.keyLabel or "", "DermaDefaultBold", w / 2, labelY, CLR_TEXT_NORMAL, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+
+			-- Assigned action names
+			if isAssigned and not isSel then
+				local txt = ""
+				for i, act in ipairs(self.assignedActions) do
+					if i > 1 then txt = txt .. " " end
+					txt = txt .. (ACTION_SHORT[act] or "?")
+				end
+				local maxChars = math.max(3, math.floor(w / 6))
+				if #txt > maxChars then txt = string.sub(txt, 1, maxChars - 1) .. ".." end
+				draw.SimpleText(txt, "DermaDefault", w / 2, h * 0.72, CLR_TEXT_ASSIGN, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			end
+		end
+
+		-- ====================================================================
+		-- Key click handler
+		-- ====================================================================
+		local function OnKeyClicked(btn, code, keyDef)
+			if code <= 0 then return end
+
+			if currentMode == MODE_INJECT then
+				-- Key Inject mode
+				if currentPage == 1 then
+					-- Hold mode: press and hold until OnMouseReleased
+					ReleaseHeldKey()  -- Release previous key first
+					if vrmod and vrmod.InputEmu_SetKeyDual then
+						pcall(vrmod.InputEmu_SetKeyDual, code, true)
+					end
+					heldKeyCode = code
+					heldKeyBtn = btn
+					btn.isHeld = true
+				else
+					-- Page 2: shift combo for keys with shiftLabel
+					local shiftLabel = keyDef[4]
+					if shiftLabel then
+						InjectShiftCombo(code, btn)
+					else
+						-- Keys without shiftLabel (F1-F12, arrows, modifiers, mouse, numpad): inject normally
+						InjectKeyWithFlash(code, btn)
+					end
+				end
+
+			elseif currentMode == MODE_TEXT then
+				-- Text Input mode
+				local activeTE = vgui.GetKeyboardFocus()
+				if currentPage == 1 then
+					-- Page 1: insert label character
+					local label = keyDef[2]
+					if code == KEY_BACKSPACE then
+						if IsValid(activeTE) then
+							local text = activeTE:GetText()
+							local start, endt = activeTE:GetSelectedTextRange()
+							if start ~= endt then
+								activeTE:SetText(string.sub(text, 1, start) .. string.sub(text, endt + 1))
+								activeTE:SetCaretPos(start)
+							else
+								activeTE:SetText(string.sub(text, 1, #text - 1))
+							end
+						end
+					elseif code == KEY_ENTER then
+						-- no-op for text input
+					elseif code == KEY_SPACE then
+						if IsValid(activeTE) then
+							activeTE:SetText(activeTE:GetText() .. " ")
+						end
+					elseif code == KEY_TAB then
+						if IsValid(activeTE) then
+							activeTE:SetText(activeTE:GetText() .. "\t")
+						end
+					else
+						-- Insert the label character (letters, numbers, symbols)
+						if IsValid(activeTE) and label and #label == 1 then
+							activeTE:SetText(activeTE:GetText() .. label)
+						end
+					end
+				else
+					-- Page 2: insert shiftLabel character
+					local shiftLabel = keyDef[4]
+					if shiftLabel and IsValid(activeTE) then
+						activeTE:SetText(activeTE:GetText() .. shiftLabel)
+					elseif not shiftLabel then
+						-- No shiftLabel, fall back to page 1 behavior
+						local label = keyDef[2]
+						if code == KEY_BACKSPACE then
+							if IsValid(activeTE) then
+								local text = activeTE:GetText()
+								local start, endt = activeTE:GetSelectedTextRange()
+								if start ~= endt then
+									activeTE:SetText(string.sub(text, 1, start) .. string.sub(text, endt + 1))
+									activeTE:SetCaretPos(start)
+								else
+									activeTE:SetText(string.sub(text, 1, #text - 1))
+								end
+							end
+						elseif code == KEY_SPACE then
+							if IsValid(activeTE) then
+								activeTE:SetText(activeTE:GetText() .. " ")
+							end
+						elseif code == KEY_TAB then
+							if IsValid(activeTE) then
+								activeTE:SetText(activeTE:GetText() .. "\t")
+							end
+						elseif IsValid(activeTE) and label and #label == 1 then
+							activeTE:SetText(activeTE:GetText() .. label)
+						end
+					end
+				end
+				-- Visual feedback
+				if IsValid(btn) then
+					btn:SetTextColor(CLR_GREEN_FLASH)
+					timer.Simple(0.15, function()
+						if IsValid(btn) then btn:SetTextColor(CLR_WHITE) end
+					end)
+				end
+
+			elseif currentMode == MODE_ASSIGN then
+				-- Assignment mode: click to select, then capture VR input
+				if selectedCode == code and IsValid(selectedPanel) then
+					-- Clicking same key again: cancel capture
+					CancelCapture()
+					if IsValid(statusLabel) then
+						statusLabel:SetText("Capture cancelled. Click a key to assign.")
+					end
+					return
+				end
+
+				-- Deselect previous
+				if IsValid(selectedPanel) then selectedPanel.isSelected = false end
+
+				-- Select this key
+				selectedCode = code
+				selectedPanel = btn
+				btn.isSelected = true
+
+				if IsValid(statusLabel) then
+					statusLabel:SetText("Press a VR controller button to assign to [" .. (btn.keyLabel or "?") .. "]...")
+				end
+
+				-- Start VR capture
+				if vrmod.InputEmu_StartCapture then
+					pcall(vrmod.InputEmu_StartCapture, function(action)
+						if not action then
+							-- Capture cancelled or failed
+							if IsValid(btn) then btn.isSelected = false end
+							selectedCode = nil
+							selectedPanel = nil
+							if IsValid(statusLabel) then
+								statusLabel:SetText("Capture cancelled. Click a key to assign.")
+							end
+							return
+						end
+
+						-- Assign action to this key
+						if vrmod.InputEmu_AssignKeyToAction then
+							pcall(vrmod.InputEmu_AssignKeyToAction, action, code)
+						end
+
+						-- Deselect
+						if IsValid(btn) then btn.isSelected = false end
+						selectedCode = nil
+						selectedPanel = nil
+
+						-- Refresh all assignments
+						RefreshAssignments()
+
+						local shortName = ACTION_SHORT[action] or action
+						if IsValid(statusLabel) then
+							statusLabel:SetText("Assigned [" .. shortName .. "] to [" .. (btn.keyLabel or "?") .. "]. Click another key or switch mode.")
+						end
+					end)
+				end
+			end
+		end
+
+		-- ====================================================================
+		-- Key double-click handler (assignment mode: remove/reassign context menu)
+		-- ====================================================================
+		local function OnKeyDoubleClicked(btn, code)
+			if currentMode ~= MODE_ASSIGN then return end
+			if not btn.assignedActions or #btn.assignedActions == 0 then return end
+
+			local menu = DermaMenu()
+			for _, act in ipairs(btn.assignedActions) do
+				local shortName = ACTION_SHORT[act] or act
+				menu:AddOption("Remove: " .. shortName, function()
+					if vrmod.InputEmu_RemoveAction then
+						pcall(vrmod.InputEmu_RemoveAction, act)
+					end
+					RefreshAssignments()
+					if IsValid(statusLabel) then
+						statusLabel:SetText("Removed [" .. shortName .. "] from [" .. (btn.keyLabel or "?") .. "].")
+					end
+				end)
+			end
+			menu:AddSpacer()
+			menu:AddOption("Reassign (new capture)", function()
+				OnKeyClicked(btn, code, btn.keyDef)
+			end)
+			menu:Open()
+		end
+
+		-- ====================================================================
+		-- Build keyboard keys from unified layout
+		-- ====================================================================
+		local kbStartY = VR_PAD
+
+		for rowIdx, row in ipairs(layout) do
+			local x = VR_PAD
+			local y = kbStartY + (rowIdx - 1) * (VR_KH + VR_RG)
+
+			for _, keyDef in ipairs(row) do
+				local code  = keyDef[1]
+				local label = keyDef[2]
+				local wMult = keyDef[3]
+				local keyW  = math.floor(wMult * VR_KW)
+
+				if code == -1 then
+					-- Gap spacer
+					x = x + keyW + VR_KG
+					continue
+				end
+
+				if code == -2 then
+					-- Numpad anchor: jump to fixed X position
+					x = numpadX
+					continue
+				end
+
+				local btn = vgui.Create("DPanel", panel)
+				btn:SetPos(x, y)
+				btn:SetSize(keyW, VR_KH)
+				btn:SetMouseInputEnabled(true)
+				btn:SetCursor("hand")
+
+				-- Store metadata on the button
+				btn.keyDef = keyDef
+				btn.keyLabel = GetKeyLabel(keyDef)
+				btn.assignedActions = {}
+				btn.isSelected = false
+				btn.ACTION_SHORT = ACTION_SHORT
+				btn.lastClickTime = 0
+
+				-- Dynamic paint based on current mode
+				btn.Paint = function(self, w, h)
+					if currentMode == MODE_ASSIGN then
+						PaintKeyAssignMode(self, w, h)
+					else
+						PaintKeyInputMode(self, w, h)
+					end
+				end
+
+				-- Click handling
+				btn.OnMousePressed = function(self, mouseCode)
+					if mouseCode == MOUSE_LEFT then
+						local now = CurTime()
+						local timeSinceLast = now - self.lastClickTime
+						self.lastClickTime = now
+						if timeSinceLast < 0.4 and currentMode == MODE_ASSIGN then
+							-- Double-click in assignment mode
+							OnKeyDoubleClicked(self, code)
+						else
+							OnKeyClicked(self, code, keyDef)
+						end
+					elseif mouseCode == MOUSE_RIGHT then
+						-- Right-click: context menu in assignment mode
+						if currentMode == MODE_ASSIGN then
+							OnKeyDoubleClicked(self, code)
+						end
+					end
+				end
+
+				-- Release held key on mouse up (Inject Page 1 hold mode)
+				btn.OnMouseReleased = function(self, mouseCode)
+					if mouseCode == MOUSE_LEFT then
+						ReleaseHeldKey()
+					end
+				end
+
+				-- Track key panels by code
+				keyPanels[code] = btn
+
+				x = x + keyW + VR_KG
+			end
+		end
+
+		-- ====================================================================
+		-- Bottom area: status bar + mode buttons
+		-- ====================================================================
+		local kbBottomY = kbStartY + #layout * (VR_KH + VR_RG)
+
+		-- Status bar (only visible in assignment mode)
+		statusBarPanel = vgui.Create("DPanel", panel)
+		statusBarPanel:SetPos(VR_PAD, kbBottomY)
+		statusBarPanel:SetSize(fullPanelW - VR_PAD * 2, STATUS_BAR_H)
+		statusBarPanel:SetVisible(currentMode == MODE_ASSIGN)
+		statusBarPanel.Paint = function(self, w, h)
+			draw.RoundedBox(2, 0, 0, w, h, CLR_STATUS_BG)
+			surface.SetDrawColor(CLR_STATUS_BORDER)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+		end
+
+		statusLabel = vgui.Create("DLabel", statusBarPanel)
+		statusLabel:SetPos(4, 0)
+		statusLabel:SetSize(fullPanelW * 0.6, STATUS_BAR_H)
+		statusLabel:SetFont("DermaDefault")
+		statusLabel:SetTextColor(CLR_STATUS_TEXT)
+		statusLabel:SetText("Click a key to assign a VR controller action.")
+
+		-- System info (right side of status bar)
+		statusInfoLabel = vgui.Create("DLabel", statusBarPanel)
+		statusInfoLabel:SetPos(fullPanelW * 0.6, 0)
+		statusInfoLabel:SetSize(fullPanelW * 0.4 - VR_PAD * 2 - 8, STATUS_BAR_H)
+		statusInfoLabel:SetFont("DermaDefault")
+		statusInfoLabel:SetContentAlignment(6)  -- right-aligned
+		do
+			local vrActive = g_VR and g_VR.active
+			local cppOk = hasCpp
+			local modVer = g_VR and g_VR.moduleVersion or 0
+			local infoText = (vrActive and "VR:ON" or "VR:OFF") .. " | " .. (cppOk and "C++:OK" or "C++:NO") .. " | v" .. tostring(modVer)
+			statusInfoLabel:SetTextColor(cppOk and CLR_STATUS_OK or CLR_STATUS_WARN)
+			statusInfoLabel:SetText(infoText)
+		end
+
+		-- Mode buttons bar
+		local modeBarY = kbBottomY + STATUS_BAR_H + VR_RG
+
+		-- Mode label (left)
+		modeLabel = vgui.Create("DLabel", panel)
+		modeLabel:SetPos(VR_PAD, modeBarY)
+		modeLabel:SetSize(140, MODE_BAR_H)
+		modeLabel:SetFont("DermaDefaultBold")
+		modeLabel:SetContentAlignment(4)  -- left-center
+
+		-- Input mode toggle button
+		local modeBtnInput = vgui.Create("DPanel", panel)
+		modeBtnInput:SetPos(VR_PAD + 145, modeBarY)
+		modeBtnInput:SetSize(70, MODE_BAR_H)
+		modeBtnInput:SetMouseInputEnabled(true)
+		modeBtnInput:SetCursor("hand")
+		modeBtnInput.isActive = (currentMode == MODE_INJECT or currentMode == MODE_TEXT)
+		modeBtnInput.Paint = function(self, w, h)
+			local bg = self.isActive and CLR_BARBTN_ACTIVE or CLR_BARBTN_BG
+			draw.RoundedBox(2, 0, 0, w, h, bg)
+			surface.SetDrawColor(CLR_BARBTN_BORDER)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+			local label = (currentMode == MODE_INJECT) and "[Inject]" or "[Input]"
+			draw.SimpleText(label, "DermaDefaultBold", w / 2, h / 2, CLR_LABEL_CYAN, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		end
+		modeBtnInput.OnMousePressed = function()
+			CancelCapture()
+			if currentMode == MODE_ASSIGN then
+				currentMode = hasCpp and MODE_INJECT or MODE_TEXT
+			else
+				-- Toggle between inject and text
+				if currentMode == MODE_INJECT then
+					currentMode = MODE_TEXT
+				else
+					currentMode = MODE_INJECT
+				end
+			end
+			UpdateModeUI()
+		end
+		modeBtnInputRef = modeBtnInput
+
+		-- Assignment mode button
+		local modeBtnAssign = vgui.Create("DPanel", panel)
+		modeBtnAssign:SetPos(VR_PAD + 220, modeBarY)
+		modeBtnAssign:SetSize(70, MODE_BAR_H)
+		modeBtnAssign:SetMouseInputEnabled(true)
+		modeBtnAssign:SetCursor("hand")
+		modeBtnAssign.isActive = (currentMode == MODE_ASSIGN)
+		modeBtnAssign.Paint = function(self, w, h)
+			local bg = self.isActive and CLR_ASGN_BTN_BG or CLR_BARBTN_BG
+			draw.RoundedBox(2, 0, 0, w, h, bg)
+			surface.SetDrawColor(self.isActive and CLR_ASGN_BTN_BORDER or CLR_BARBTN_BORDER)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+			draw.SimpleText("[Assign]", "DermaDefaultBold", w / 2, h / 2, CLR_ASGN_BTN_TEXT, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		end
+		modeBtnAssign.OnMousePressed = function()
+			if currentMode == MODE_ASSIGN then
+				CancelCapture()
+				currentMode = hasCpp and MODE_INJECT or MODE_TEXT
+			else
+				currentMode = MODE_ASSIGN
+			end
+			UpdateModeUI()
+		end
+		modeBtnAssignRef = modeBtnAssign
+
+		-- Page toggle button (center)
+		local pageBtn = vgui.Create("DPanel", panel)
+		pageBtn:SetPos(VR_PAD + 300, modeBarY)
+		pageBtn:SetSize(120, MODE_BAR_H)
+		pageBtn:SetMouseInputEnabled(true)
+		pageBtn:SetCursor("hand")
+		pageBtn:SetVisible(currentMode ~= MODE_ASSIGN)
+		pageBtn.Paint = function(self, w, h)
+			local isPage2 = (currentPage == 2)
+			local bg = isPage2 and CLR_BARBTN_PAGE_ACT or CLR_BARBTN_PAGE_BG
+			draw.RoundedBox(2, 0, 0, w, h, bg)
+			surface.SetDrawColor(isPage2 and CLR_BARBTN_PAGE_ABD or CLR_BARBTN_PAGE_BD)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+			local txt = isPage2 and "[Page 2: Symbols]" or "[Page 1: Keys]"
+			draw.SimpleText(txt, "DermaDefaultBold", w / 2, h / 2, CLR_WHITE, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		end
+		pageBtn.OnMousePressed = function()
+			ReleaseHeldKey()  -- Failsafe: release on page switch
+			if currentPage == 1 then
+				currentPage = 2
+			else
+				currentPage = 1
+			end
+			UpdatePageUI()
+		end
+		pageBtnRef = pageBtn
+
+		-- Classic switch button (right)
+		local classicBtn = vgui.Create("DPanel", panel)
+		classicBtn:SetPos(fullPanelW - VR_PAD - 120, modeBarY)
+		classicBtn:SetSize(120, MODE_BAR_H)
+		classicBtn:SetMouseInputEnabled(true)
+		classicBtn:SetCursor("hand")
+		classicBtn.Paint = function(self, w, h)
+			draw.RoundedBox(2, 0, 0, w, h, CLR_BARBTN_YELLOW_BG)
+			surface.SetDrawColor(CLR_BARBTN_YELLOW_BD)
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+			draw.SimpleText("[<< Classic]", "DermaDefaultBold", w / 2, h / 2, CLR_LABEL_YELLOW, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		end
+		classicBtn.OnMousePressed = function()
+			CancelCapture()
+			RunConsoleCommand("vrmod_unoff_keyboard_layout", "0")
+			VRUtilMenuClose(UID_FULL)
+			timer.Simple(0.05, function()
+				if ToggleKeyboard then ToggleKeyboard() end
+			end)
+		end
+
+		-- Initialize mode UI
+		UpdateModeUI()
+		UpdatePageUI()
+
+		-- ====================================================================
+		-- Open VR menu
+		-- ====================================================================
+		VRUtilMenuOpen(
+			UID_FULL,
+			fullPanelW + 10,
+			fullPanelH,
+			panel,
+			1,
+			Vector(8, 6, 5.5),
+			Angle(0, -90, 10),
+			0.025,
+			true,
+			function()
+				ReleaseHeldKey()
+				CancelCapture()
+				StopKeyboardAutoHide()
+				hook.Remove("VRMod_Exit", HOLD_CLEANUP_HOOK)
+				keyPanels = {}
+				panel:Remove()
+				panel = nil
+			end
+		)
+		StartKeyboardAutoHide(UID_FULL)
+	end
+
+	-- ============================================================================
+	-- Keyboard toggle (dispatch based on layout preference)
+	-- ============================================================================
+
+	ToggleKeyboard = function()
+		-- Close whichever layout is currently open
+		if VRUtilIsMenuOpen(UID_CLASSIC) then
+			StopKeyboardAutoHide()
+			VRUtilMenuClose(UID_CLASSIC)
+			return
+		end
+		if VRUtilIsMenuOpen(UID_FULL) then
+			StopKeyboardAutoHide()
+			VRUtilMenuClose(UID_FULL)
+			return
+		end
+
+		local useFull = cv_layout:GetInt() == 1
+		local fullAvailable = vrmod and vrmod.InputEmu_TapKey ~= nil
+
+		if useFull and fullAvailable then
+			OpenFullKeyboard()
+		else
+			OpenClassicKeyboard()
+		end
 	end
 
 	concommand.Add("vrmod_keyboard", ToggleKeyboard)
