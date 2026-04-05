@@ -1,7 +1,0 @@
-# VRMod Menu Reorganization Plan v2
-# Saved from user export 2026-03-14
-# This is the DEFINITIVE reorganization plan
-
-## Root tabs: Settings (unchanged) + Settings02 (restructured)
-## Settings02 sub-tabs: Preset, VRplay, Misc, Server, debug, x64 Mode, VRStop Key
-## All other root tabs absorbed into Settings02

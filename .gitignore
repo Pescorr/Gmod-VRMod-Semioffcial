@@ -8,3 +8,29 @@ handoff/
 
 # Backup files
 backup_*/
+
+# Claude Code local settings
+.claude/
+
+# Development tools
+tools/
+
+# Upload markers and scripts
+_ul
+create_upload.sh
+
+# VS Code workspace
+*.code-workspace
+
+# Disabled Lua files (not part of active addon)
+*.luadisable
+
+# Backup files in source tree
+*.backup
+
+# Module GitHub upload copy (separate repo)
+module/github_upload/
+
+# Module build artifacts
+module/build_log.txt
+module/temp_run.bat
