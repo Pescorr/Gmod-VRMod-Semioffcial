@@ -81,8 +81,9 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
     setForm:DockMargin(4, 0, 4, 8)
 
     setForm:CheckBox("Enable Module", "vrmod_unoff_puppeteer_enable")
+    setForm:CheckBox("Show in Quick Menu", "vrmod_unoff_puppeteer_quickmenu")
     setForm:CheckBox("Hide Player Model", "vrmod_unoff_puppeteer_hide_player")
-    setForm:CheckBox("Leg Animation (auto: skeleton copy / FBT IK)", "vrmod_unoff_puppeteer_leg_mode")
+    setForm:CheckBox("Leg Animation (auto: procedural walk / FBT IK)", "vrmod_unoff_puppeteer_leg_mode")
     setForm:CheckBox("Physics Affects Player (momentum)", "vrmod_unoff_puppeteer_phys_effects_ply")
 
     -- Tuning
@@ -113,6 +114,26 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
     actionHelp:SetAutoStretchVertical(true)
     actionHelp:Dock(TOP)
     actionHelp:DockMargin(8, 0, 8, 8)
+
+    -- Head Hiding
+    local headForm = vgui.Create("DForm", scroll)
+    headForm:SetName("Head Hiding (VR First Person)")
+    headForm:Dock(TOP)
+    headForm:DockMargin(4, 0, 4, 8)
+
+    local headDesc = vgui.Create("DLabel", headForm)
+    headDesc:SetText("Hide the puppet's head from your VR view to prevent it blocking your vision.\nOther players and desktop view will still see the head normally.")
+    headDesc:SetWrap(true)
+    headDesc:SetAutoStretchVertical(true)
+    headDesc:Dock(TOP)
+    headDesc:DockMargin(4, 0, 4, 4)
+
+    local headCombo = headForm:ComboBox("Hide Head Mode", "vrmod_unoff_puppeteer_hide_head")
+    headCombo:AddChoice("Scale (hide completely)", "0")
+    headCombo:AddChoice("Offset (push behind)", "1")
+    headCombo:AddChoice("Disabled (show head)", "2")
+
+    headForm:NumSlider("Offset Distance (Y)", "vrmod_unoff_puppeteer_hide_head_y", -50, 50, 0)
 
     -- Display
     local dispForm = vgui.Create("DForm", scroll)

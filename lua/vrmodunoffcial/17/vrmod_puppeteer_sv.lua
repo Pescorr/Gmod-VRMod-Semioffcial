@@ -60,7 +60,7 @@ local cv_momentum_scale = CreateConVar(
 local cv_leg_mode = CreateConVar(
     "vrmod_unoff_puppeteer_leg_mode", "0",
     FCVAR_REPLICATED + FCVAR_ARCHIVE,
-    "Leg animation: 0=static, 1=auto (skeleton copy or FBT tracker IK)", 0, 1
+    "Leg animation: 0=static, 1=auto (procedural walk or FBT tracker IK)", 0, 1
 )
 
 -- ============================================================================
@@ -98,6 +98,10 @@ local BONE_INDEX = {}
 for i, name in ipairs(BONE_TABLE) do
     BONE_INDEX[name] = i
 end
+
+-- Leg bone indices (for legMode override)
+-- 7=L_Foot, 8=L_Calf, 9=L_Thigh, 13=R_Foot, 14=R_Calf, 15=R_Thigh
+local LEG_BONE_INDICES = {[7]=true, [8]=true, [9]=true, [13]=true, [14]=true, [15]=true}
 
 -- Short names for convenience
 local B = {
@@ -169,10 +173,14 @@ end
 -- ============================================================================
 
 --- Apply rigging state: driven bones get EnableMotion(false), free bones get EnableMotion(true)
+--- When legMode >= 1, leg chain kinematic is gated by thigh bone:
+---   L_Thigh (boneRig[9])  controls L_Thigh + L_Calf + L_Foot
+---   R_Thigh (boneRig[15]) controls R_Thigh + R_Calf + R_Foot
 local function ApplyRigging(data)
     local rag = data.ragdoll
     local boneMap = data.boneMap
     local boneRig = data.boneRig
+    local legMode = cv_leg_mode:GetInt() >= 1
 
     if not IsValid(rag) then return end
 
@@ -181,7 +189,16 @@ local function ApplyRigging(data)
         if physIdx then
             local phys = rag:GetPhysicsObjectNum(physIdx)
             if IsValid(phys) then
-                local isDriven = boneRig[i]
+                -- Chain-level: when legMode >= 1, thigh gates its entire leg chain
+                local legChainDriven = false
+                if legMode and LEG_BONE_INDICES[i] then
+                    if i == 7 or i == 8 or i == 9 then     -- left leg chain
+                        legChainDriven = boneRig[9]         -- L_Thigh is the gate
+                    elseif i == 13 or i == 14 or i == 15 then -- right leg chain
+                        legChainDriven = boneRig[15]        -- R_Thigh is the gate
+                    end
+                end
+                local isDriven = boneRig[i] or legChainDriven
                 if isDriven then
                     -- Save velocity before freezing (for later momentum restoration)
                     data.savedVel[physIdx] = phys:GetVelocity()
@@ -211,6 +228,13 @@ local function SetBoneRig(data, boneIdx, isDriven)
     data.boneRig[boneIdx] = isDriven
     ApplyRigging(data)
 end
+
+-- Re-apply rigging when legMode changes mid-game (updates EnableMotion on leg bones)
+cvars.AddChangeCallback("vrmod_unoff_puppeteer_leg_mode", function()
+    for steamid, data in pairs(activePuppets) do
+        ApplyRigging(data)
+    end
+end, "puppeteer_legmode")
 
 -- ============================================================================
 -- 2-Bone IK Solver
@@ -342,23 +366,13 @@ local function CreatePuppet(ply)
         end
     end
 
-    -- Cache player leg bone IDs for skeleton copy mode
-    local plyLegBones = {
-        l_thigh = ply:LookupBone("ValveBiped.Bip01_L_Thigh"),
-        l_calf  = ply:LookupBone("ValveBiped.Bip01_L_Calf"),
-        l_foot  = ply:LookupBone("ValveBiped.Bip01_L_Foot"),
-        r_thigh = ply:LookupBone("ValveBiped.Bip01_R_Thigh"),
-        r_calf  = ply:LookupBone("ValveBiped.Bip01_R_Calf"),
-        r_foot  = ply:LookupBone("ValveBiped.Bip01_R_Foot"),
-    }
-
-    -- Hide player model
+    -- Hide player model (rag_morph pattern: material + DrawWorldModel only, NO SetNoDraw)
+    -- SetNoDraw(true) blocks BuildBonePositions (confirmed by VRMod source comment)
     local oldMaterial = nil
     if cv_hide_player:GetBool() then
         oldMaterial = ply:GetMaterial()
-        ply:SetMaterial("models/effects/vol_light001")
         ply:DrawWorldModel(false)
-        ply:SetNoDraw(true)
+        ply:SetMaterial("models/effects/vol_light001")
     end
 
     -- Build initial rigging (default: upper body driven, legs physics)
@@ -377,10 +391,10 @@ local function CreatePuppet(ply)
         forearmLen  = forearmLen,
         upperLegLen = upperLegLen,
         lowerLegLen = lowerLegLen,
-        plyLegBones = plyLegBones,
         oldMaterial = oldMaterial,
         savedVel    = {},
         savedAngVel = {},
+        walkPhase   = 0,     -- procedural walk cycle phase (radians)
     }
 
     activePuppets[steamid] = data
@@ -411,7 +425,6 @@ local function RemovePuppet(ply)
             ply:SetMaterial("")
         end
         ply:DrawWorldModel(true)
-        ply:SetNoDraw(false)
     end
 
     activePuppets[steamid] = nil
@@ -635,12 +648,13 @@ hook.Add("Think", "VRMod_Puppeteer_Think", function()
         local ragVelCount = 0
 
         --- Set a driven bone's position (RagMorph pattern)
-        local function SetDrivenBone(boneName, pos, ang)
+        --- @param force boolean|nil  If true, bypass boneRig check (used by legMode)
+        local function SetDrivenBone(boneName, pos, ang, force)
             local boneIdx = BONE_INDEX[boneName]
             if not boneIdx then return end
 
-            -- Only drive if this bone is rigged as "driven"
-            if not boneRig[boneIdx] then return end
+            -- Only drive if this bone is rigged as "driven" (or forced by legMode)
+            if not force and not boneRig[boneIdx] then return end
 
             local physIdx = boneMap[boneName]
             if not physIdx then return end
@@ -694,52 +708,101 @@ hook.Add("Think", "VRMod_Puppeteer_Think", function()
                 local refPos = ply:GetPos()
                 local refAng = ply:InVehicle() and ply:GetVehicle():GetAngles() or Angle()
                 local waistWorld, waistAngW = LocalToWorld(lf.waistPos, lf.waistAng, refPos, refAng)
-                local lfootWorld, lfootAngW = LocalToWorld(lf.leftfootPos, lf.leftfootAng, refPos, refAng)
-                local rfootWorld, rfootAngW = LocalToWorld(lf.rightfootPos, lf.rightfootAng, refPos, refAng)
 
-                -- Pelvis from waist tracker (more accurate than HMD-offset)
-                pelvisPos = waistWorld
-                pelvisAng = Angle(0, waistAngW.y, 0)
-                SetDrivenBone(B.pelvis, pelvisPos, pelvisAng)
+                -- Pelvis from waist tracker (gated by boneRig[1])
+                if boneRig[1] then
+                    pelvisPos = waistWorld
+                    pelvisAng = Angle(0, waistAngW.y, 0)
+                    SetDrivenBone(B.pelvis, pelvisPos, pelvisAng, true)
+                end
 
-                -- Left leg IK
+                -- Left leg IK (gated by L_Thigh boneRig[9], force=true for chain)
                 if boneRig[9] then
+                    local lfootWorld, lfootAngW = LocalToWorld(lf.leftfootPos, lf.leftfootAng, refPos, refAng)
                     local hipL = pelvisPos - pelvisAng:Right() * shoulderW - Vector(0, 0, 2)
                     local kneeL = SolveTwoBoneIK(hipL, lfootWorld, data.upperLegLen, data.lowerLegLen, -pelvisAng:Forward())
-                    SetDrivenBone(B.l_thigh, hipL, AngleBetween(hipL, kneeL))
-                    SetDrivenBone(B.l_calf, kneeL, AngleBetween(kneeL, lfootWorld))
-                    SetDrivenBone(B.l_foot, lfootWorld, lfootAngW)
+                    SetDrivenBone(B.l_thigh, hipL, AngleBetween(hipL, kneeL), true)
+                    SetDrivenBone(B.l_calf, kneeL, AngleBetween(kneeL, lfootWorld), true)
+                    SetDrivenBone(B.l_foot, lfootWorld, lfootAngW, true)
                 end
 
-                -- Right leg IK
+                -- Right leg IK (gated by R_Thigh boneRig[15], force=true for chain)
                 if boneRig[15] then
+                    local rfootWorld, rfootAngW = LocalToWorld(lf.rightfootPos, lf.rightfootAng, refPos, refAng)
                     local hipR = pelvisPos + pelvisAng:Right() * shoulderW - Vector(0, 0, 2)
                     local kneeR = SolveTwoBoneIK(hipR, rfootWorld, data.upperLegLen, data.lowerLegLen, -pelvisAng:Forward())
-                    SetDrivenBone(B.r_thigh, hipR, AngleBetween(hipR, kneeR))
-                    SetDrivenBone(B.r_calf, kneeR, AngleBetween(kneeR, rfootWorld))
-                    SetDrivenBone(B.r_foot, rfootWorld, rfootAngW)
+                    SetDrivenBone(B.r_thigh, hipR, AngleBetween(hipR, kneeR), true)
+                    SetDrivenBone(B.r_calf, kneeR, AngleBetween(kneeR, rfootWorld), true)
+                    SetDrivenBone(B.r_foot, rfootWorld, rfootAngW, true)
                 end
             else
-                -- Skeleton Copy mode: copy player walking animation (rag_morph style)
-                local plb = data.plyLegBones
-                if boneRig[9] and plb.l_thigh then
-                    local tPos, tAng = ply:GetBonePosition(plb.l_thigh)
-                    local cPos, cAng = ply:GetBonePosition(plb.l_calf)
-                    local fPos, fAng = ply:GetBonePosition(plb.l_foot)
-                    if tPos then
-                        SetDrivenBone(B.l_thigh, tPos, tAng)
-                        SetDrivenBone(B.l_calf, cPos, cAng)
-                        SetDrivenBone(B.l_foot, fPos, fAng)
+                -- Procedural Walk: velocity-based foot animation with IK
+                -- (GetBonePosition doesn't work in VR: locomotion uses SetPos(),
+                --  so server-side walking animations never trigger)
+                -- Gated by thigh bones: boneRig[9] (left) / boneRig[15] (right)
+                if boneRig[9] or boneRig[15] then
+                    local speed2D = plyVel:Length2D()
+                    local dt = engine.TickInterval()
+                    local legLen = data.upperLegLen + data.lowerLegLen
+
+                    -- Walking direction from HMD yaw
+                    local walkFwd = Angle(0, hmdAng.y, 0):Forward()
+                    local hipRight = pelvisAng:Right()
+
+                    -- Advance walk cycle proportional to speed
+                    if speed2D > 5 then
+                        data.walkPhase = data.walkPhase + speed2D * 0.06 * dt
                     end
-                end
-                if boneRig[15] and plb.r_thigh then
-                    local tPos, tAng = ply:GetBonePosition(plb.r_thigh)
-                    local cPos, cAng = ply:GetBonePosition(plb.r_calf)
-                    local fPos, fAng = ply:GetBonePosition(plb.r_foot)
-                    if tPos then
-                        SetDrivenBone(B.r_thigh, tPos, tAng)
-                        SetDrivenBone(B.r_calf, cPos, cAng)
-                        SetDrivenBone(B.r_foot, fPos, fAng)
+
+                    -- Walk parameters scale with speed (0 when idle = natural stance)
+                    local strideLen = math.Clamp(speed2D * 0.15, 0, 20)
+                    local stepHeight = math.Clamp(speed2D * 0.02, 0, 5)
+                    local phase = data.walkPhase
+                    local kneeHint = -pelvisAng:Forward()
+                    local footAng = Angle(0, hmdAng.y, 0)
+
+                    -- Left leg (gated by L_Thigh boneRig[9], force=true for chain)
+                    if boneRig[9] then
+                        local hipL = pelvisPos - hipRight * shoulderW - Vector(0, 0, 2)
+                        local lSway = math.sin(phase) * strideLen
+                        local lLift = math.max(0, math.sin(phase)) * stepHeight
+                        local lfootXY = hipL + walkFwd * lSway
+
+                        local trL = util.TraceLine({
+                            start = Vector(lfootXY.x, lfootXY.y, hipL.z),
+                            endpos = Vector(lfootXY.x, lfootXY.y, hipL.z - legLen * 1.3),
+                            filter = {ply, data.ragdoll},
+                            mask = MASK_SOLID,
+                        })
+                        local groundL = trL.Hit and trL.HitPos.z or (hipL.z - legLen * 0.95)
+                        local lfootPos = Vector(lfootXY.x, lfootXY.y, groundL + lLift)
+
+                        local kneeL = SolveTwoBoneIK(hipL, lfootPos, data.upperLegLen, data.lowerLegLen, kneeHint)
+                        SetDrivenBone(B.l_thigh, hipL, AngleBetween(hipL, kneeL), true)
+                        SetDrivenBone(B.l_calf, kneeL, AngleBetween(kneeL, lfootPos), true)
+                        SetDrivenBone(B.l_foot, lfootPos, footAng, true)
+                    end
+
+                    -- Right leg (gated by R_Thigh boneRig[15], force=true for chain)
+                    if boneRig[15] then
+                        local hipR = pelvisPos + hipRight * shoulderW - Vector(0, 0, 2)
+                        local rSway = math.sin(phase + math.pi) * strideLen
+                        local rLift = math.max(0, math.sin(phase + math.pi)) * stepHeight
+                        local rfootXY = hipR + walkFwd * rSway
+
+                        local trR = util.TraceLine({
+                            start = Vector(rfootXY.x, rfootXY.y, hipR.z),
+                            endpos = Vector(rfootXY.x, rfootXY.y, hipR.z - legLen * 1.3),
+                            filter = {ply, data.ragdoll},
+                            mask = MASK_SOLID,
+                        })
+                        local groundR = trR.Hit and trR.HitPos.z or (hipR.z - legLen * 0.95)
+                        local rfootPos = Vector(rfootXY.x, rfootXY.y, groundR + rLift)
+
+                        local kneeR = SolveTwoBoneIK(hipR, rfootPos, data.upperLegLen, data.lowerLegLen, kneeHint)
+                        SetDrivenBone(B.r_thigh, hipR, AngleBetween(hipR, kneeR), true)
+                        SetDrivenBone(B.r_calf, kneeR, AngleBetween(kneeR, rfootPos), true)
+                        SetDrivenBone(B.r_foot, rfootPos, footAng, true)
                     end
                 end
             end

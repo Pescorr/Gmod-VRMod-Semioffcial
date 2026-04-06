@@ -30,6 +30,24 @@ local cv_show_hud = CreateClientConVar(
     "Show puppeteer status in HUD", 0, 1
 )
 
+local cv_quickmenu = CreateClientConVar(
+    "vrmod_unoff_puppeteer_quickmenu", "1",
+    true, FCVAR_ARCHIVE,
+    "Show puppet toggle in VR quick menu", 0, 1
+)
+
+local cv_hide_head = CreateClientConVar(
+    "vrmod_unoff_puppeteer_hide_head", "0",
+    true, FCVAR_ARCHIVE,
+    "Hide puppet head in VR (0=scale, 1=offset, 2=disabled)", 0, 2
+)
+
+local cv_hide_head_y = CreateClientConVar(
+    "vrmod_unoff_puppeteer_hide_head_y", "20",
+    true, FCVAR_ARCHIVE,
+    "Head offset distance for offset mode", -50, 50
+)
+
 -- ============================================================================
 -- Constants
 -- ============================================================================
@@ -40,12 +58,26 @@ local SAVE_PATH = "vrmod/puppeteer_rig.json"
 local DEFAULT_RIG = { false, false, true, true, false, false, false, false, false, true, false, false, false, false, false }
 
 -- ============================================================================
+-- Constants (head hide)
+-- ============================================================================
+
+local VEC_ZERO = Vector(0, 0, 0)
+local VEC_ONE  = Vector(1, 1, 1)
+local VEC_TINY = Vector(0.01, 0.01, 0.01)
+
+-- ============================================================================
 -- State
 -- ============================================================================
 
 local puppetActive = false
 local puppetRagdoll = nil
+local puppetHeadBone = nil       -- cached head bone ID for RenderOverride
+local origRenderOverride = nil   -- backup of any pre-existing RenderOverride
 local currentRig = {}  -- Current rigging state [1..15] = true/false
+
+-- Forward declarations (defined later, needed by net.Receive)
+local ApplyHeadHideOverride
+local RemoveHeadHideOverride
 
 -- Initialize currentRig with defaults
 for i = 1, 15 do
@@ -135,6 +167,7 @@ net.Receive("vrmod_puppeteer_state", function()
         end)
     else
         print("[Puppeteer] Puppet deactivated")
+        RemoveHeadHideOverride(puppetRagdoll)
         puppetRagdoll = nil
     end
 end)
@@ -219,11 +252,121 @@ hook.Add("PostDrawTranslucentRenderables", "VRMod_Puppeteer_3DIndicator", functi
 end)
 
 -- ============================================================================
+-- Head hide: RenderOverride per-pass approach
+-- ============================================================================
+-- Uses RenderOverride so bone manipulation happens inside each render pass.
+-- VR pass: hide head → SetupBones → DrawModel → restore
+-- Desktop pass: DrawModel normally (head visible)
+-- This avoids bone cache cross-contamination between passes.
+
+--- Apply head-hiding RenderOverride to the puppet ragdoll.
+ApplyHeadHideOverride = function(rag)
+    if not IsValid(rag) then return end
+
+    local headBone = rag:LookupBone("ValveBiped.Bip01_Head1")
+    if not headBone then return end
+
+    puppetHeadBone = headBone
+
+    -- Backup any pre-existing RenderOverride (e.g. from pickup system)
+    if rag.RenderOverride and rag.RenderOverride ~= rag.vrmod_puppeteer_headhide then
+        origRenderOverride = rag.RenderOverride
+    end
+
+    local function headHideRender(self)
+        if not IsValid(self) then return end
+
+        local mode = cv_hide_head:GetInt()
+        local isVR = g_VR and g_VR.isVRRendering or false
+
+        if mode == 2 or not isVR then
+            -- Disabled or desktop pass: ensure head visible, draw normally
+            self:ManipulateBoneScale(headBone, VEC_ONE)
+            self:ManipulateBonePosition(headBone, VEC_ZERO)
+            self:DrawModel()
+            return
+        end
+
+        -- VR pass: hide head based on mode
+        if mode == 0 then
+            -- Scale mode: completely hide
+            self:ManipulateBoneScale(headBone, VEC_ZERO)
+            self:ManipulateBonePosition(headBone, VEC_ZERO)
+        elseif mode == 1 then
+            -- Offset mode: shrink + push back
+            self:ManipulateBoneScale(headBone, VEC_TINY)
+            self:ManipulateBonePosition(headBone, Vector(0, cv_hide_head_y:GetFloat(), 0))
+        end
+
+        self:SetupBones()
+        self:DrawModel()
+
+        -- Restore immediately (safety for any mid-frame queries)
+        self:ManipulateBoneScale(headBone, VEC_ONE)
+        self:ManipulateBonePosition(headBone, VEC_ZERO)
+    end
+
+    rag.RenderOverride = headHideRender
+    rag.vrmod_puppeteer_headhide = headHideRender
+end
+
+--- Remove head-hiding RenderOverride and restore bones.
+RemoveHeadHideOverride = function(rag)
+    if not IsValid(rag) then return end
+
+    -- Only remove if it's our override
+    if rag.RenderOverride == rag.vrmod_puppeteer_headhide then
+        rag.RenderOverride = origRenderOverride  -- restore original (or nil)
+    end
+    rag.vrmod_puppeteer_headhide = nil
+    origRenderOverride = nil
+
+    -- Restore bone state
+    if puppetHeadBone and rag:GetBoneMatrix(puppetHeadBone) then
+        rag:ManipulateBoneScale(puppetHeadBone, VEC_ONE)
+        rag:ManipulateBonePosition(puppetHeadBone, VEC_ZERO)
+    end
+    puppetHeadBone = nil
+end
+
+--- Think hook: apply RenderOverride once ragdoll is found
+hook.Add("Think", "VRMod_Puppeteer_HeadHide", function()
+    if not puppetActive then return end
+    if cv_hide_head:GetInt() == 2 then return end  -- disabled
+
+    if not IsValid(puppetRagdoll) then return end
+
+    -- Apply if not yet applied, or re-apply if overwritten by another mod
+    if not puppetRagdoll.vrmod_puppeteer_headhide or puppetRagdoll.RenderOverride ~= puppetRagdoll.vrmod_puppeteer_headhide then
+        ApplyHeadHideOverride(puppetRagdoll)
+    end
+end)
+
+-- ============================================================================
+-- Quick Menu integration
+-- ============================================================================
+
+hook.Add("VRMod_OpenQuickMenu", "VRMod_Puppeteer_QuickMenu", function()
+    if not vrmod or not vrmod.AddInGameMenuItem then return end
+
+    if cv_quickmenu:GetBool() then
+        vrmod.AddInGameMenuItem("puppet", 2, 3, function()
+            RunConsoleCommand("vrmod_puppeteer_toggle")
+        end)
+    else
+        if vrmod.RemoveInGameMenuItem then
+            vrmod.RemoveInGameMenuItem("puppet")
+        end
+    end
+end)
+
+-- ============================================================================
 -- Cleanup on VR exit
 -- ============================================================================
 
 hook.Add("VRMod_Exit", "VRMod_Puppeteer_CLExit", function()
     puppetActive = false
+    RemoveHeadHideOverride(puppetRagdoll)
     puppetRagdoll = nil
 end)
 
