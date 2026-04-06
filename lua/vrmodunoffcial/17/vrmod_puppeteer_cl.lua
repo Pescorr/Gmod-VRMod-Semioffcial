@@ -72,7 +72,8 @@ local VEC_TINY = Vector(0.01, 0.01, 0.01)
 local puppetActive = false
 local puppetRagdoll = nil
 local puppetHeadBone = nil       -- cached head bone ID for RenderOverride
-local origRenderOverride = nil   -- backup of any pre-existing RenderOverride
+local origRenderOverride = nil   -- backup of any pre-existing RenderOverride (ragdoll)
+local origPlayerRenderOverride = nil  -- backup of player's RenderOverride (VR body hide)
 local currentRig = {}  -- Current rigging state [1..15] = true/false
 
 -- Forward declarations (defined later, needed by net.Receive)
@@ -159,6 +160,14 @@ net.Receive("vrmod_puppeteer_state", function()
         print("[Puppeteer] Puppet activated — sending saved rigging to server")
         puppetRagdoll = nil  -- Will be found next frame
 
+        -- Hide player body in VR HMD (VRMod's DrawModel bypasses SetColor)
+        local ply = LocalPlayer()
+        local hideCV = GetConVar("vrmod_unoff_puppeteer_hide_player")
+        if IsValid(ply) and (not hideCV or hideCV:GetBool()) then
+            origPlayerRenderOverride = ply.RenderOverride
+            ply.RenderOverride = function() end
+        end
+
         -- Send saved rigging to server (overrides default)
         timer.Simple(0.1, function()
             if puppetActive then
@@ -169,6 +178,13 @@ net.Receive("vrmod_puppeteer_state", function()
         print("[Puppeteer] Puppet deactivated")
         RemoveHeadHideOverride(puppetRagdoll)
         puppetRagdoll = nil
+
+        -- Restore player body rendering
+        local ply = LocalPlayer()
+        if IsValid(ply) then
+            ply.RenderOverride = origPlayerRenderOverride
+            origPlayerRenderOverride = nil
+        end
     end
 end)
 
@@ -248,7 +264,7 @@ hook.Add("PostDrawTranslucentRenderables", "VRMod_Puppeteer_3DIndicator", functi
 
     local mat = Material("sprites/light_glow02_add")
     render.SetMaterial(mat)
-    render.DrawSprite(headPos + Vector(0, 0, 10), 6, 6, Color(80, 255, 80, 120))
+    render.DrawSprite(headPos + Vector(0, 0, 10), 6, 6, Color(0, 0, 0, 0))
 end)
 
 -- ============================================================================
@@ -368,6 +384,13 @@ hook.Add("VRMod_Exit", "VRMod_Puppeteer_CLExit", function()
     puppetActive = false
     RemoveHeadHideOverride(puppetRagdoll)
     puppetRagdoll = nil
+
+    -- Restore player body rendering
+    local ply = LocalPlayer()
+    if IsValid(ply) then
+        ply.RenderOverride = origPlayerRenderOverride
+        origPlayerRenderOverride = nil
+    end
 end)
 
 -- ============================================================================

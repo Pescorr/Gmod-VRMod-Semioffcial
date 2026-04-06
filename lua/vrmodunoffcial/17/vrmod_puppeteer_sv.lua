@@ -366,13 +366,15 @@ local function CreatePuppet(ply)
         end
     end
 
-    -- Hide player model (rag_morph pattern: material + DrawWorldModel only, NO SetNoDraw)
-    -- SetNoDraw(true) blocks BuildBonePositions (confirmed by VRMod source comment)
-    local oldMaterial = nil
+    -- Hide player model: DrawWorldModel(false) + fully transparent render
+    -- NO SetNoDraw: it blocks BuildBonePositions (confirmed by VRMod source comment)
+    local oldColor, oldRenderMode
     if cv_hide_player:GetBool() then
-        oldMaterial = ply:GetMaterial()
+        oldColor = ply:GetColor()
+        oldRenderMode = ply:GetRenderMode()
         ply:DrawWorldModel(false)
-        ply:SetMaterial("models/effects/vol_light001")
+        ply:SetRenderMode(RENDERMODE_TRANSCOLOR)
+        ply:SetColor(Color(0, 0, 0, 0))
     end
 
     -- Build initial rigging (default: upper body driven, legs physics)
@@ -391,7 +393,8 @@ local function CreatePuppet(ply)
         forearmLen  = forearmLen,
         upperLegLen = upperLegLen,
         lowerLegLen = lowerLegLen,
-        oldMaterial = oldMaterial,
+        oldColor      = oldColor,
+        oldRenderMode = oldRenderMode,
         savedVel    = {},
         savedAngVel = {},
         walkPhase   = 0,     -- procedural walk cycle phase (radians)
@@ -419,12 +422,17 @@ local function RemovePuppet(ply)
     end
 
     if IsValid(ply) then
-        if data.oldMaterial then
-            ply:SetMaterial(data.oldMaterial)
-        else
-            ply:SetMaterial("")
-        end
         ply:DrawWorldModel(true)
+        if data.oldColor then
+            ply:SetColor(data.oldColor)
+        else
+            ply:SetColor(Color(255, 255, 255, 255))
+        end
+        if data.oldRenderMode then
+            ply:SetRenderMode(data.oldRenderMode)
+        else
+            ply:SetRenderMode(RENDERMODE_NORMAL)
+        end
     end
 
     activePuppets[steamid] = nil
