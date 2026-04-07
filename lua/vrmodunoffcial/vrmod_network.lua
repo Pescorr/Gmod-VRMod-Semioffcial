@@ -545,6 +545,18 @@ if CLIENT then
 					if pm ~= nil and pm ~= "models/player.mdl" and pm ~= "" then
 						VRUtilClientStart()
 						timer.Remove("vrutil_timer_tryautostart")
+
+						-- AutoStart freeze fix: HMD静止画バグ回避のためVRを1回再起動
+						-- マップロード直後の共有テクスチャがマテリアルリロードで無効化されるため
+						timer.Simple(2, function()
+							if not g_VR.active then return end
+							print("[VRMod] Auto VR Start: restarting to fix display...")
+							VRUtilClientExit()
+							timer.Simple(1.5, function()
+								if g_VR.active then return end
+								VRUtilClientStart()
+							end)
+						end)
 					end
 				end)
 			end

@@ -40,7 +40,7 @@ local PRESET_CONVARS = {
 -- ========================================
 
 local PRESET_VALIDATORS = {
-	vrmod_scale                 = { type = "number", min = 10,    max = 100  },
+	vrmod_scale                 = { type = "number", min = 1,     max = 200  },
 	vrmod_characterEyeHeight    = { type = "number", min = 0,     max = 100  },
 	vrmod_characterHeadToHmdDist = { type = "number", min = -20,  max = 20   },
 	vrmod_crouchthreshold       = { type = "number", min = 0,     max = 100  },
@@ -72,7 +72,8 @@ local function ValidateValue(cvarName, value)
 		if rule.min and num < rule.min then return false, "below min " .. rule.min .. " (got " .. num .. ")" end
 		if rule.max and num > rule.max then return false, "above max " .. rule.max .. " (got " .. num .. ")" end
 	elseif rule.type == "bool" then
-		if str ~= "0" and str ~= "1" then return false, "must be 0 or 1 (got '" .. str .. "')" end
+		local num = tonumber(str)
+		if num == nil or (num ~= 0 and num ~= 1) then return false, "must be 0 or 1 (got '" .. str .. "')" end
 	elseif rule.type == "act" then
 		-- Empty = use default, otherwise must match ACT_UPPERCASE_NAME pattern
 		if str ~= "" and not string.match(str, "^ACT_[%u%d_]+$") then

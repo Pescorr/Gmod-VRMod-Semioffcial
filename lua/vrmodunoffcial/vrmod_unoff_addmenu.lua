@@ -1737,8 +1737,9 @@ hook.Add(
 		end
 
 		-- ========================================
-		-- Panel: Modules (Feature Loading Control)
+		-- Panel: Modules (Feature Loading Control) — disabled: unstable
 		-- ========================================
+		--[[
 		do
 		local modulesScroll = vgui.Create("DScrollPanel")
 
@@ -1905,6 +1906,7 @@ hook.Add(
 		registerPanel("modules", modulesScroll)
 		AddTreeNode(tree, "Modules", "modules", "icon16/bricks.png", showPanel)
 		end -- Modules panel
+		--]]
 
 		-- Show first panel (VR) by default
 		showPanel("vr")

@@ -107,20 +107,55 @@ local function GetDamageTypeFromSurface(surfaceProps)
     return DMG_CLUB, "CONCRETE"
 end
 
--- Handle blocking mechanics
+-- Handle blocking mechanics (edge detection + debounce)
+local wasBlocking = false
+local pendingTime = 0
+local BLOCK_DEBOUNCE = 0.15
+
 hook.Add(
     "VRMod_Tracking",
     "vrmod_melee_blocking",
     function()
-        if not cv_emulateblocking:GetBool() then return end
+        if not cv_emulateblocking:GetBool() then
+            if wasBlocking then
+                LocalPlayer():ConCommand(cv_emulateblockrelease:GetString())
+                wasBlocking = false
+            end
+            pendingTime = 0
+            return
+        end
+
         local leftHandAng = g_VR.tracking.pose_lefthand.ang
         local rightHandAng = g_VR.tracking.pose_righthand.ang
-        local leftBlocking = leftHandAng.z >= blockingThresholdLow:GetFloat() and leftHandAng.z <= blockingThresholdHigh:GetFloat()
-        local rightBlocking = rightHandAng.z >= blockingThresholdLow:GetFloat() and rightHandAng.z <= blockingThresholdHigh:GetFloat()
-        if (dummylefthand:GetBool() and leftBlocking) or (not dummylefthand:GetBool() and rightBlocking) then
-            LocalPlayer():ConCommand(cv_emulateblockbutton:GetString())
-        else
-            LocalPlayer():ConCommand(cv_emulateblockrelease:GetString())
+        local leftBlocking = leftHandAng.z >= blockingThresholdLow:GetFloat()
+            and leftHandAng.z <= blockingThresholdHigh:GetFloat()
+        local rightBlocking = rightHandAng.z >= blockingThresholdLow:GetFloat()
+            and rightHandAng.z <= blockingThresholdHigh:GetFloat()
+
+        local isBlocking = (dummylefthand:GetBool() and leftBlocking)
+            or (not dummylefthand:GetBool() and rightBlocking)
+
+        -- No state change: reset timer, do nothing
+        if isBlocking == wasBlocking then
+            pendingTime = 0
+            return
+        end
+
+        -- State change detected: start debounce timer
+        if pendingTime == 0 then
+            pendingTime = CurTime()
+            return
+        end
+
+        -- Debounce elapsed: commit state, send command once
+        if CurTime() - pendingTime >= BLOCK_DEBOUNCE then
+            if isBlocking then
+                LocalPlayer():ConCommand(cv_emulateblockbutton:GetString())
+            else
+                LocalPlayer():ConCommand(cv_emulateblockrelease:GetString())
+            end
+            wasBlocking = isBlocking
+            pendingTime = 0
         end
     end
 )
