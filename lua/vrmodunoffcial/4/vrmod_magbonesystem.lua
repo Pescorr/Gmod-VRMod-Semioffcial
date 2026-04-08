@@ -449,6 +449,8 @@ function vrmod_advanced_magazine()
         -- =================================================================
         local cv_mag_pouch_enable = CreateClientConVar("vrmod_unoff_mag_pouch_enable", "1", true, FCVAR_ARCHIVE, "Enable magazine pouch (spawn vrmagent from body pouch on pickup)")
         local lastMagPouchSpawnTime = 0
+        -- Plan A: Type2ホルスター同等のpickup再トリガー用ペンディング状態
+        local magent_pickup_pending = { active = false, leftHand = true, time = 0 }
 
         hook.Add(
             "VRMod_Input",
@@ -484,10 +486,51 @@ function vrmod_advanced_magazine()
                 net.WriteBool(true) -- isLeftHand
                 net.SendToServer()
 
+                -- Plan A: 再トリガー用ペンディング登録（Type2ホルスター同等パターン）
+                magent_pickup_pending.active = true
+                magent_pickup_pending.leftHand = true
+                magent_pickup_pending.time = CurTime()
+
                 -- フィードバック: サウンド + ハプティクス
                 surface.PlaySound("common/wpn_select.wav")
                 if VRMOD_TriggerHaptic then
                     pcall(VRMOD_TriggerHaptic, "vibration_left", 0, 0.5, 20, 1)
+                end
+            end
+        )
+
+        -- Plan A: サーバーのpickup成功通知を受けたら現在の手の位置・角度で再トリガー
+        -- 共通pickupハンドラ(vrmod_test_pickup_entspawn.lua)がhandAng=Angle()でpickupを呼ぶため
+        -- localAngが崩れる問題を、Type2ホルスターと同じ再トリガーパターンで補正する
+        hook.Add(
+            "VRMod_Pickup",
+            "VRMagPouch_ClientRePickup",
+            function(ply, ent)
+                if ply ~= LocalPlayer() then return end
+                if not IsValid(ent) or ent:GetClass() ~= "vrmod_magent" then return end
+                if not magent_pickup_pending.active then return end
+                if CurTime() - magent_pickup_pending.time >= 1.0 then
+                    magent_pickup_pending.active = false
+                    return
+                end
+                local leftHand = magent_pickup_pending.leftHand
+                magent_pickup_pending.active = false
+                -- 次tickで現在の手姿勢を使って再pickup
+                timer.Simple(0, function()
+                    if vrmod and vrmod.Pickup then
+                        vrmod.Pickup(leftHand, false)
+                    end
+                end)
+            end
+        )
+
+        -- Plan A: ペンディング自動クリーンアップ（Type2ホルスター同等の2.5秒）
+        hook.Add(
+            "Think",
+            "VRMagPouch_CleanupPending",
+            function()
+                if magent_pickup_pending.active and CurTime() - magent_pickup_pending.time >= 2.5 then
+                    magent_pickup_pending.active = false
                 end
             end
         )
