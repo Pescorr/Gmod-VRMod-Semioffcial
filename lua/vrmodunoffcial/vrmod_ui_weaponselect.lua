@@ -1,9 +1,12 @@
 if SERVER then return end
+
+local L = VRModL or function(_, fb) return fb or "" end
+
 surface.CreateFont(
 	"vrmod_HalfLife2",
 	{
 		font = "HalfLife2",
-		extended = false,
+		extended = true,
 		size = 50,
 		weight = 0,
 		blursize = 0,
@@ -16,7 +19,7 @@ surface.CreateFont(
 	"vrmod_HalfLife2Small",
 	{
 		font = "HalfLife2",
-		extended = false,
+		extended = true,
 		size = 25,
 		weight = 0,
 		blursize = 0,
@@ -29,6 +32,7 @@ surface.CreateFont(
 	"vrmod_Verdana37",
 	{
 		font = "Verdana",
+		extended = true,
 		size = 37,
 		weight = 600,
 		antialias = true,
@@ -226,19 +230,19 @@ function VRUtilWeaponMenuOpen()
 			--draw.SimpleText( renderCount, "HudSelectionText", 0, 512, Color( 255, 250, 0, 255 ), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM )
 			--health
 			draw.RoundedBox(8, 0, 0, 145, 53, Color(0, 0, 0, 128))
-			draw.SimpleText("HEALTH", "HudSelectionText", 10, 45, Color(255, values.health > 19 and 250 or 0, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+			draw.SimpleText(L("HEALTH", "HEALTH"), "HudSelectionText", 10, 45, Color(255, values.health > 19 and 250 or 0, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 			draw.SimpleText(values.health, "vrmod_HalfLife2", 140, 50, Color(255, values.health > 19 and 250 or 0, 0, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 			--suit
 			draw.RoundedBox(8, 149, 0, 130, 53, Color(0, 0, 0, 128))
-			draw.SimpleText("SUIT", "HudSelectionText", 165, 45, Color(255, 250, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+			draw.SimpleText(L("SUIT", "SUIT"), "HudSelectionText", 165, 45, Color(255, 250, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 			draw.SimpleText(values.suit, "vrmod_HalfLife2", 270, 50, Color(255, 250, 0, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 			--ammo
 			draw.RoundedBox(8, 283, 0, 150, 53, Color(0, 0, 0, 128))
-			draw.SimpleText("AMMO", "HudSelectionText", 290, 45, Color(255, values.clip == 0 and 0 or 250, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+			draw.SimpleText(L("AMMO", "AMMO"), "HudSelectionText", 290, 45, Color(255, values.clip == 0 and 0 or 250, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 			draw.SimpleText(values.clip, "vrmod_HalfLife2", 338, 50, Color(255, values.clip == 0 and 0 or 250, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 			draw.SimpleText(values.total, "vrmod_HalfLife2Small", 429, 47, Color(255, values.clip == 0 and 0 or 250, 0, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 			draw.RoundedBox(8, 437, 0, 75, 53, Color(0, 0, 0, 128))
-			draw.SimpleText("ALT", "HudSelectionText", 440, 45, Color(255, 250, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+			draw.SimpleText(L("ALT", "ALT"), "HudSelectionText", 440, 45, Color(255, 250, 0, 255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 			draw.SimpleText(values.alt, "vrmod_HalfLife2", 512, 50, Color(255, 250, 0, 255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 			--hovered item name
 			draw.RoundedBox(8, 0, 57, 512, 53, Color(0, 0, 0, 128))

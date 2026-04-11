@@ -1,6 +1,7 @@
 --------[vrmod_holstermenu_type1.lua]Start--------
 AddCSLuaFile()
 if SERVER then return end
+local L = VRModL or function(_, fb) return fb or "" end
 
 hook.Add(
 	"VRMod_Menu",
@@ -19,46 +20,46 @@ hook.Add(
 
 		-- === Right Hand Holster ===
 		local formRight = vgui.Create("DForm", scroll)
-		formRight:SetName("Right Hand Holster")
+		formRight:SetName(L("Right Hand Holster", "Right Hand Holster"))
 		formRight:Dock(TOP)
 		formRight:DockMargin(5, 5, 5, 5)
 
 		-- Pelvis
-		local pelvisLabel = formRight:Help("=== Pelvis ===")
+		local pelvisLabel = formRight:Help(L("=== Pelvis ===", "=== Pelvis ==="))
 		pelvisLabel:SetFont("DermaDefaultBold")
-		formRight:CheckBox("Enable Pelvis Holster", "vrmod_weppouch_Pelvis")
-		formRight:NumSlider("Range", "vrmod_weppouch_dist_Pelvis", 0, 100, 1)
-		formRight:CheckBox("Weapon Lock", "vrmod_weppouch_weapon_lock_Pelvis")
-		formRight:TextEntry("Stored Weapon (Read-only)", "vrmod_weppouch_weapon_Pelvis")
-		formRight:CheckBox("Enable Custom Command", "vrmod_weppouch_customcvar_pelvis_enable")
-		formRight:TextEntry("Custom Pickup Command", "vrmod_weppouch_customcvar_pelvis_cmd")
-		formRight:TextEntry("Custom Put Command", "vrmod_weppouch_customcvar_pelvis_put_cmd")
+		formRight:CheckBox(L("Enable Pelvis Holster", "Enable Pelvis Holster"), "vrmod_weppouch_Pelvis")
+		formRight:NumSlider(L("Range", "Range"), "vrmod_weppouch_dist_Pelvis", 0, 100, 1)
+		formRight:CheckBox(L("Weapon Lock", "Weapon Lock"), "vrmod_weppouch_weapon_lock_Pelvis")
+		formRight:TextEntry(L("Stored Weapon (Read-only)", "Stored Weapon (Read-only)"), "vrmod_weppouch_weapon_Pelvis")
+		formRight:CheckBox(L("Enable Custom Command", "Enable Custom Command"), "vrmod_weppouch_customcvar_pelvis_enable")
+		formRight:TextEntry(L("Custom Pickup Command", "Custom Pickup Command"), "vrmod_weppouch_customcvar_pelvis_cmd")
+		formRight:TextEntry(L("Custom Put Command", "Custom Put Command"), "vrmod_weppouch_customcvar_pelvis_put_cmd")
 
 		-- Head
-		local headLabel = formRight:Help("=== Head ===")
+		local headLabel = formRight:Help(L("=== Head ===", "=== Head ==="))
 		headLabel:SetFont("DermaDefaultBold")
-		formRight:CheckBox("Enable Head Holster", "vrmod_weppouch_Head")
-		formRight:NumSlider("Range", "vrmod_weppouch_dist_head", 0, 100, 1)
-		formRight:CheckBox("Weapon Lock", "vrmod_weppouch_weapon_lock_Head")
-		formRight:TextEntry("Stored Weapon (Read-only)", "vrmod_weppouch_weapon_Head")
-		formRight:CheckBox("Enable Custom Command", "vrmod_weppouch_customcvar_head_enable")
-		formRight:TextEntry("Custom Pickup Command", "vrmod_weppouch_customcvar_head_cmd")
-		formRight:TextEntry("Custom Put Command", "vrmod_weppouch_customcvar_head_put_cmd")
+		formRight:CheckBox(L("Enable Head Holster", "Enable Head Holster"), "vrmod_weppouch_Head")
+		formRight:NumSlider(L("Range", "Range"), "vrmod_weppouch_dist_head", 0, 100, 1)
+		formRight:CheckBox(L("Weapon Lock", "Weapon Lock"), "vrmod_weppouch_weapon_lock_Head")
+		formRight:TextEntry(L("Stored Weapon (Read-only)", "Stored Weapon (Read-only)"), "vrmod_weppouch_weapon_Head")
+		formRight:CheckBox(L("Enable Custom Command", "Enable Custom Command"), "vrmod_weppouch_customcvar_head_enable")
+		formRight:TextEntry(L("Custom Pickup Command", "Custom Pickup Command"), "vrmod_weppouch_customcvar_head_cmd")
+		formRight:TextEntry(L("Custom Put Command", "Custom Put Command"), "vrmod_weppouch_customcvar_head_put_cmd")
 
 		-- Spine
-		local spineLabel = formRight:Help("=== Spine ===")
+		local spineLabel = formRight:Help(L("=== Spine ===", "=== Spine ==="))
 		spineLabel:SetFont("DermaDefaultBold")
-		formRight:CheckBox("Enable Spine Holster", "vrmod_weppouch_Spine")
-		formRight:NumSlider("Range", "vrmod_weppouch_dist_spine", 0, 100, 1)
-		formRight:CheckBox("Weapon Lock", "vrmod_weppouch_weapon_lock_Spine")
-		formRight:TextEntry("Stored Weapon (Read-only)", "vrmod_weppouch_weapon_Spine")
-		formRight:CheckBox("Enable Custom Command", "vrmod_weppouch_customcvar_spine_enable")
-		formRight:TextEntry("Custom Pickup Command", "vrmod_weppouch_customcvar_spine_cmd")
-		formRight:TextEntry("Custom Put Command", "vrmod_weppouch_customcvar_spine_put_cmd")
+		formRight:CheckBox(L("Enable Spine Holster", "Enable Spine Holster"), "vrmod_weppouch_Spine")
+		formRight:NumSlider(L("Range", "Range"), "vrmod_weppouch_dist_spine", 0, 100, 1)
+		formRight:CheckBox(L("Weapon Lock", "Weapon Lock"), "vrmod_weppouch_weapon_lock_Spine")
+		formRight:TextEntry(L("Stored Weapon (Read-only)", "Stored Weapon (Read-only)"), "vrmod_weppouch_weapon_Spine")
+		formRight:CheckBox(L("Enable Custom Command", "Enable Custom Command"), "vrmod_weppouch_customcvar_spine_enable")
+		formRight:TextEntry(L("Custom Pickup Command", "Custom Pickup Command"), "vrmod_weppouch_customcvar_spine_cmd")
+		formRight:TextEntry(L("Custom Put Command", "Custom Put Command"), "vrmod_weppouch_customcvar_spine_put_cmd")
 
 		-- Restore Defaults (Right)
 		local resetRight = vgui.Create("DButton", scroll)
-		resetRight:SetText("Restore Defaults (Right)")
+		resetRight:SetText(L("Restore Defaults (Right)", "Restore Defaults (Right)"))
 		resetRight:Dock(TOP)
 		resetRight:DockMargin(5, 5, 5, 5)
 		resetRight:SetTall(30)
@@ -85,37 +86,37 @@ hook.Add(
 
 		-- === Left Hand Holster ===
 		local formLeft = vgui.Create("DForm", scroll)
-		formLeft:SetName("Left Hand Holster")
+		formLeft:SetName(L("Left Hand Holster", "Left Hand Holster"))
 		formLeft:Dock(TOP)
 		formLeft:DockMargin(5, 5, 5, 5)
 
 		-- Pelvis Left
-		local pelvisLeftLabel = formLeft:Help("=== Pelvis ===")
+		local pelvisLeftLabel = formLeft:Help(L("=== Pelvis ===", "=== Pelvis ==="))
 		pelvisLeftLabel:SetFont("DermaDefaultBold")
-		formLeft:CheckBox("Enable Pelvis Holster", "vrmod_weppouch_left_Pelvis")
-		formLeft:NumSlider("Range", "vrmod_weppouch_left_dist_Pelvis", 0, 100, 1)
-		formLeft:CheckBox("Weapon Lock", "vrmod_weppouch_weapon_lock_left_Pelvis")
-		formLeft:TextEntry("Stored Weapon (Read-only)", "vrmod_weppouch_weapon_left_Pelvis")
+		formLeft:CheckBox(L("Enable Pelvis Holster", "Enable Pelvis Holster"), "vrmod_weppouch_left_Pelvis")
+		formLeft:NumSlider(L("Range", "Range"), "vrmod_weppouch_left_dist_Pelvis", 0, 100, 1)
+		formLeft:CheckBox(L("Weapon Lock", "Weapon Lock"), "vrmod_weppouch_weapon_lock_left_Pelvis")
+		formLeft:TextEntry(L("Stored Weapon (Read-only)", "Stored Weapon (Read-only)"), "vrmod_weppouch_weapon_left_Pelvis")
 
 		-- Head Left
-		local headLeftLabel = formLeft:Help("=== Head ===")
+		local headLeftLabel = formLeft:Help(L("=== Head ===", "=== Head ==="))
 		headLeftLabel:SetFont("DermaDefaultBold")
-		formLeft:CheckBox("Enable Head Holster", "vrmod_weppouch_left_Head")
-		formLeft:NumSlider("Range", "vrmod_weppouch_left_dist_head", 0, 100, 1)
-		formLeft:CheckBox("Weapon Lock", "vrmod_weppouch_weapon_lock_left_Head")
-		formLeft:TextEntry("Stored Weapon (Read-only)", "vrmod_weppouch_weapon_left_Head")
+		formLeft:CheckBox(L("Enable Head Holster", "Enable Head Holster"), "vrmod_weppouch_left_Head")
+		formLeft:NumSlider(L("Range", "Range"), "vrmod_weppouch_left_dist_head", 0, 100, 1)
+		formLeft:CheckBox(L("Weapon Lock", "Weapon Lock"), "vrmod_weppouch_weapon_lock_left_Head")
+		formLeft:TextEntry(L("Stored Weapon (Read-only)", "Stored Weapon (Read-only)"), "vrmod_weppouch_weapon_left_Head")
 
 		-- Spine Left
-		local spineLeftLabel = formLeft:Help("=== Spine ===")
+		local spineLeftLabel = formLeft:Help(L("=== Spine ===", "=== Spine ==="))
 		spineLeftLabel:SetFont("DermaDefaultBold")
-		formLeft:CheckBox("Enable Spine Holster", "vrmod_weppouch_left_Spine")
-		formLeft:NumSlider("Range", "vrmod_weppouch_left_dist_spine", 0, 100, 1)
-		formLeft:CheckBox("Weapon Lock", "vrmod_weppouch_weapon_lock_left_Spine")
-		formLeft:TextEntry("Stored Weapon (Read-only)", "vrmod_weppouch_weapon_left_Spine")
+		formLeft:CheckBox(L("Enable Spine Holster", "Enable Spine Holster"), "vrmod_weppouch_left_Spine")
+		formLeft:NumSlider(L("Range", "Range"), "vrmod_weppouch_left_dist_spine", 0, 100, 1)
+		formLeft:CheckBox(L("Weapon Lock", "Weapon Lock"), "vrmod_weppouch_weapon_lock_left_Spine")
+		formLeft:TextEntry(L("Stored Weapon (Read-only)", "Stored Weapon (Read-only)"), "vrmod_weppouch_weapon_left_Spine")
 
 		-- Restore Defaults (Left)
 		local resetLeft = vgui.Create("DButton", scroll)
-		resetLeft:SetText("Restore Defaults (Left)")
+		resetLeft:SetText(L("Restore Defaults (Left)", "Restore Defaults (Left)"))
 		resetLeft:Dock(TOP)
 		resetLeft:DockMargin(5, 5, 5, 5)
 		resetLeft:SetTall(30)
@@ -133,14 +134,14 @@ hook.Add(
 
 		-- === Display Settings ===
 		local formDisplay = vgui.Create("DForm", scroll)
-		formDisplay:SetName("Display Settings")
+		formDisplay:SetName(L("Display Settings", "Display Settings"))
 		formDisplay:Dock(TOP)
 		formDisplay:DockMargin(5, 5, 5, 5)
 
-		formDisplay:CheckBox("Visible Range (Right)", "vrmod_weppouch_visiblerange")
-		formDisplay:CheckBox("Visible Name (Right)", "vrmod_weppouch_visiblename")
-		formDisplay:CheckBox("Visible Range (Left)", "vrmod_weppouch_visiblerange_left")
-		formDisplay:CheckBox("Visible Name (Left)", "vrmod_weppouch_visiblename_left")
+		formDisplay:CheckBox(L("Visible Range (Right)", "Visible Range (Right)"), "vrmod_weppouch_visiblerange")
+		formDisplay:CheckBox(L("Visible Name (Right)", "Visible Name (Right)"), "vrmod_weppouch_visiblename")
+		formDisplay:CheckBox(L("Visible Range (Left)", "Visible Range (Left)"), "vrmod_weppouch_visiblerange_left")
+		formDisplay:CheckBox(L("Visible Name (Left)", "Visible Name (Left)"), "vrmod_weppouch_visiblename_left")
 
 		-- Dual-mode registration
 		if frame.Settings02Register then

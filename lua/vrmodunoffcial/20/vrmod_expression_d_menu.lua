@@ -6,6 +6,8 @@
 AddCSLuaFile()
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 vrmod.Expression = vrmod.Expression or {}
 
 ---------------------------------------------------------------------------
@@ -23,49 +25,47 @@ hook.Add("VRMod_Menu", "addsettings_expression", function(frame)
         scroll:Dock(FILL)
 
         local form = vgui.Create("DForm", scroll)
-        form:SetName("Expression Settings")
+        form:SetName(L("Expression Settings", "Expression Settings"))
         form:Dock(TOP)
         form.Header:SetVisible(false)
         form.Paint = function(self, w, h) end
 
         -- Enable/Disable
-        form:CheckBox("Enable Expression System", "vrmod_unoff_expression_enable")
+        form:CheckBox(L("Enable Expression System", "Enable Expression System"), "vrmod_unoff_expression_enable")
         form:Help(
-            "Enables VRChat-style facial expressions driven by VR controller gestures.\n"
-            .. "Your character's face will change based on hand poses (peace sign, fist, thumbs up, etc.)."
+            L("Enables VRChat-style facial expressions driven by VR controller gestures.\nYour character's face will change based on hand poses (peace sign, fist, thumbs up, etc.).",
+              "Enables VRChat-style facial expressions driven by VR controller gestures.\nYour character's face will change based on hand poses (peace sign, fist, thumbs up, etc.).")
         )
 
         -- Gesture auto-detection
-        form:CheckBox("Auto-detect gestures (finger tracking)", "vrmod_unoff_expression_gesture")
+        form:CheckBox(L("Auto-detect gestures (finger tracking)", "Auto-detect gestures (finger tracking)"), "vrmod_unoff_expression_gesture")
         form:Help(
-            "ON: Automatically detect hand gestures from finger tracking data (best with Index controllers).\n"
-            .. "OFF: Use only manual expression selection."
+            L("ON: Automatically detect hand gestures from finger tracking data (best with Index controllers).\nOFF: Use only manual expression selection.",
+              "ON: Automatically detect hand gestures from finger tracking data (best with Index controllers).\nOFF: Use only manual expression selection.")
         )
 
         -- Sensitivity
-        local sensCombo = form:ComboBox("Detection Sensitivity", "vrmod_unoff_expression_sensitivity")
-        sensCombo:AddChoice("Low (wide dead zone)", "0")
-        sensCombo:AddChoice("Medium (default)", "1")
-        sensCombo:AddChoice("High (narrow dead zone)", "2")
+        local sensCombo = form:ComboBox(L("Detection Sensitivity", "Detection Sensitivity"), "vrmod_unoff_expression_sensitivity")
+        sensCombo:AddChoice(L("Low (wide dead zone)", "Low (wide dead zone)"), "0")
+        sensCombo:AddChoice(L("Medium (default)", "Medium (default)"), "1")
+        sensCombo:AddChoice(L("High (narrow dead zone)", "High (narrow dead zone)"), "2")
         form:Help(
-            "Adjusts how easily gestures are triggered.\n"
-            .. "Low = harder to trigger (fewer false positives).\n"
-            .. "High = easier to trigger (more responsive)."
+            L("Adjusts how easily gestures are triggered.\nLow = harder to trigger (fewer false positives).\nHigh = easier to trigger (more responsive).",
+              "Adjusts how easily gestures are triggered.\nLow = harder to trigger (fewer false positives).\nHigh = easier to trigger (more responsive).")
         )
 
         -- Intensity slider (10-500%)
-        form:NumSlider("Expression Intensity (%)", "vrmod_unoff_expression_intensity", 10, 500, 0)
+        form:NumSlider(L("Expression Intensity (%)", "Expression Intensity (%)"), "vrmod_unoff_expression_intensity", 10, 500, 0)
         form:Help(
-            "Maximum expression intensity when gesture is fully matched.\n"
-            .. "100% = normal, 200%+ = exaggerated (GMod broken face style).\n"
-            .. "Works as analog blend with Index controllers."
+            L("Maximum expression intensity when gesture is fully matched.\n100% = normal, 200%+ = exaggerated (GMod broken face style).\nWorks as analog blend with Index controllers.",
+              "Maximum expression intensity when gesture is fully matched.\n100% = normal, 200%+ = exaggerated (GMod broken face style).\nWorks as analog blend with Index controllers.")
         )
 
         -- Manual Expression Select
-        form:Help("\n--- Manual Expression Select ---")
+        form:Help("\n--- " .. L("Manual Expression Select", "Manual Expression Select") .. " ---")
 
         local selectLabel = vgui.Create("DLabel")
-        selectLabel:SetText("Expression Override")
+        selectLabel:SetText(L("Expression Override", "Expression Override"))
         selectLabel:SetDark(true)
         local selectCombo = vgui.Create("DComboBox")
         form:AddItem(selectLabel, selectCombo)
@@ -117,15 +117,15 @@ hook.Add("VRMod_Menu", "addsettings_expression", function(frame)
         end
 
         form:Help(
-            "Select an expression manually, or choose Auto to use gesture detection.\n"
-            .. "Manual selection overrides gesture detection until Auto is selected again."
+            L("Select an expression manually, or choose Auto to use gesture detection.\nManual selection overrides gesture detection until Auto is selected again.",
+              "Select an expression manually, or choose Auto to use gesture detection.\nManual selection overrides gesture detection until Auto is selected again.")
         )
 
         -----------------------------------------------------------------
         -- Per-gesture flex weight editor (collapsible sections)
         -----------------------------------------------------------------
-        form:Help("\n--- Flex Editor (per gesture) ---")
-        form:Help("Expand a gesture to edit its flex weights. Changes are saved automatically.")
+        form:Help("\n--- " .. L("Flex Editor (per gesture)", "Flex Editor (per gesture)") .. " ---")
+        form:Help(L("Expand a gesture to edit its flex weights. Changes are saved automatically.", "Expand a gesture to edit its flex weights. Changes are saved automatically."))
 
         -- Gather available flex names from the current player model
         local availableFlexes = vrmod.Expression.GetModelFlexNames()
@@ -212,7 +212,7 @@ hook.Add("VRMod_Menu", "addsettings_expression", function(frame)
                 end
 
                 -- Reset button
-                local resetBtn = editorForm:Button("Reset to Default")
+                local resetBtn = editorForm:Button(L("Reset to Default", "Reset to Default"))
                 resetBtn.DoClick = function()
                     vrmod.Expression.ResetPreset(gestID)
                     RebuildEditor()
@@ -223,11 +223,11 @@ hook.Add("VRMod_Menu", "addsettings_expression", function(frame)
         end
 
         -- Reset ALL button
-        local resetAllBtn = form:Button("Reset All Expressions to Default")
+        local resetAllBtn = form:Button(L("Reset All Expressions to Default", "Reset All Expressions to Default"))
         resetAllBtn.DoClick = function()
             vrmod.Expression.ResetAllPresets()
             -- Re-open menu to refresh all editors
-            Derma_Message("All expressions reset to default.\nReopen the menu to see changes.", "Expression Reset", "OK")
+            Derma_Message(L("All expressions reset to default.\nReopen the menu to see changes.", "All expressions reset to default.\nReopen the menu to see changes."), L("Expression Reset", "Expression Reset"), "OK")
         end
 
         -- Status display

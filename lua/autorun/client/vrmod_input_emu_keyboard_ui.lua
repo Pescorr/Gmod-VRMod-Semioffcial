@@ -9,6 +9,8 @@
 
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 local TAG = "[InputEmu Editor] "
 
 -- ============================================================================
@@ -254,9 +256,9 @@ local function OpenKeyboardEditor()
 			end)
 		end
 		menu:AddSpacer()
-		menu:AddOption("Cancel", function()
+		menu:AddOption(L("Cancel", "Cancel"), function()
 			CancelCapture()
-			UpdateStatus("Click a key to assign a VR controller action.")
+			UpdateStatus(L("Click a key to assign a VR controller action.", "Click a key to assign a VR controller action."))
 		end)
 		menu:Open()
 	end
@@ -310,7 +312,7 @@ local function OpenKeyboardEditor()
 	local frame = vgui.Create("DFrame")
 	frame:SetSize(frameW, frameH)
 	frame:Center()
-	frame:SetTitle("VR Key Assignment Editor")
+	frame:SetTitle(L("VR Key Assignment Editor", "VR Key Assignment Editor"))
 	frame:MakePopup()
 	frame:SetDeleteOnClose(true)
 	frame:SetSizable(false)
@@ -336,7 +338,7 @@ local function OpenKeyboardEditor()
 	local enableCheck = vgui.Create("DCheckBoxLabel", frame)
 	enableCheck:SetPos(PAD, topY)
 	enableCheck:SetSize(200, 18)
-	enableCheck:SetText("Enable Input Emulation")
+	enableCheck:SetText(L("Enable Input Emulation", "Enable Input Emulation"))
 	enableCheck:SetTextColor(Color(200, 200, 200))
 	enableCheck:SetConVar("vrmod_unoff_input_emu")
 
@@ -344,7 +346,7 @@ local function OpenKeyboardEditor()
 	local cppCheck = vgui.Create("DCheckBoxLabel", frame)
 	cppCheck:SetPos(PAD + 220, topY)
 	cppCheck:SetSize(200, 18)
-	cppCheck:SetText("C++ Engine Injection")
+	cppCheck:SetText(L("C++ Engine Injection", "C++ Engine Injection"))
 	cppCheck:SetTextColor(Color(180, 180, 180))
 	cppCheck:SetConVar("vrmod_unoff_cpp_keyinject")
 
@@ -447,7 +449,7 @@ local function OpenKeyboardEditor()
 
 				-- "Assign new" option
 				menu:AddSpacer()
-				menu:AddOption("Assign new action...", function()
+				menu:AddOption(L("Assign new action...", "Assign new action..."), function()
 					CancelCapture()
 					self.isSelected = true
 					selectedCode  = self.buttonCode
@@ -487,7 +489,7 @@ local function OpenKeyboardEditor()
 	statusLabel:SetSize(frameW - PAD * 2, 20)
 	statusLabel:SetFont("DermaDefaultBold")
 	statusLabel:SetTextColor(Color(200, 200, 200))
-	statusLabel:SetText("Click a key to assign a VR controller action.")
+	statusLabel:SetText(L("Click a key to assign a VR controller action.", "Click a key to assign a VR controller action."))
 
 	-- System info line
 	local infoLabel = vgui.Create("DLabel", frame)
@@ -514,7 +516,7 @@ local function OpenKeyboardEditor()
 	local clearBtn = vgui.Create("DButton", frame)
 	clearBtn:SetPos(PAD, btnY)
 	clearBtn:SetSize(100, btnH)
-	clearBtn:SetText("Clear All")
+	clearBtn:SetText(L("Clear All", "Clear All"))
 	clearBtn:SetTextColor(Color(255, 150, 150))
 	clearBtn.confirmPending = false
 	clearBtn.DoClick = function(self)
@@ -523,23 +525,23 @@ local function OpenKeyboardEditor()
 			CancelCapture()
 			vrmod.InputEmu_ClearAll()
 			RefreshKeyStates()
-			UpdateStatus("All key assignments cleared.", Color(255, 180, 100))
+			UpdateStatus(L("All key assignments cleared.", "All key assignments cleared."), Color(255, 180, 100))
 			self.confirmPending = false
-			self:SetText("Clear All")
+			self:SetText(L("Clear All", "Clear All"))
 			self:SetTextColor(Color(255, 150, 150))
 		else
 			-- First click: enter confirm state
 			self.confirmPending = true
-			self:SetText("Sure? Click!")
+			self:SetText(L("Sure? Click!", "Sure? Click!"))
 			self:SetTextColor(Color(255, 80, 80))
-			UpdateStatus("Click 'Sure? Click!' again to clear all, or click elsewhere to cancel.", Color(255, 180, 100))
+			UpdateStatus(L("Click 'Sure? Click!' again to clear all, or click elsewhere to cancel.", "Click 'Sure? Click!' again to clear all, or click elsewhere to cancel."), Color(255, 180, 100))
 			-- Auto-cancel after 3 seconds
 			timer.Simple(3, function()
 				if IsValid(self) and self.confirmPending then
 					self.confirmPending = false
-					self:SetText("Clear All")
+					self:SetText(L("Clear All", "Clear All"))
 					self:SetTextColor(Color(255, 150, 150))
-					UpdateStatus("Clear cancelled.", Color(200, 200, 200))
+					UpdateStatus(L("Clear cancelled.", "Clear cancelled."), Color(200, 200, 200))
 				end
 			end)
 		end
@@ -549,7 +551,7 @@ local function OpenKeyboardEditor()
 	local resetBtn = vgui.Create("DButton", frame)
 	resetBtn:SetPos(PAD + 100 + btnGap, btnY)
 	resetBtn:SetSize(130, btnH)
-	resetBtn:SetText("Reset Defaults")
+	resetBtn:SetText(L("Reset Defaults", "Reset Defaults"))
 	resetBtn.confirmPending = false
 	resetBtn.DoClick = function(self)
 		if self.confirmPending then
@@ -557,22 +559,22 @@ local function OpenKeyboardEditor()
 			CancelCapture()
 			vrmod.InputEmu_ResetMapping()
 			RefreshKeyStates()
-			UpdateStatus("Key assignments reset to defaults.", Color(100, 200, 255))
+			UpdateStatus(L("Key assignments reset to defaults.", "Key assignments reset to defaults."), Color(100, 200, 255))
 			self.confirmPending = false
-			self:SetText("Reset Defaults")
+			self:SetText(L("Reset Defaults", "Reset Defaults"))
 		else
 			-- First click: enter confirm state
 			self.confirmPending = true
-			self:SetText("Sure? Click!")
+			self:SetText(L("Sure? Click!", "Sure? Click!"))
 			self:SetTextColor(Color(255, 200, 80))
-			UpdateStatus("Click 'Sure? Click!' again to reset to defaults, or click elsewhere to cancel.", Color(255, 200, 80))
+			UpdateStatus(L("Click 'Sure? Click!' again to reset to defaults, or click elsewhere to cancel.", "Click 'Sure? Click!' again to reset to defaults, or click elsewhere to cancel."), Color(255, 200, 80))
 			-- Auto-cancel after 3 seconds
 			timer.Simple(3, function()
 				if IsValid(self) and self.confirmPending then
 					self.confirmPending = false
-					self:SetText("Reset Defaults")
+					self:SetText(L("Reset Defaults", "Reset Defaults"))
 					self:SetTextColor(Color(255, 255, 255))
-					UpdateStatus("Reset cancelled.", Color(200, 200, 200))
+					UpdateStatus(L("Reset cancelled.", "Reset cancelled."), Color(200, 200, 200))
 				end
 			end)
 		end
@@ -582,7 +584,7 @@ local function OpenKeyboardEditor()
 	local autoBtn = vgui.Create("DButton", frame)
 	autoBtn:SetPos(PAD + 100 + btnGap + 130 + btnGap, btnY)
 	autoBtn:SetSize(130, btnH)
-	autoBtn:SetText("Auto Assign")
+	autoBtn:SetText(L("Auto Assign", "Auto Assign"))
 	autoBtn:SetTextColor(Color(150, 200, 255))
 	autoBtn.confirmPending = false
 	autoBtn.DoClick = function(self)
@@ -594,21 +596,21 @@ local function OpenKeyboardEditor()
 			UpdateStatus("Auto-assigned " .. count .. " actions from current keybinds.", Color(100, 200, 255))
 			surface.PlaySound("buttons/button14.wav")
 			self.confirmPending = false
-			self:SetText("Auto Assign")
+			self:SetText(L("Auto Assign", "Auto Assign"))
 			self:SetTextColor(Color(150, 200, 255))
 		else
 			-- First click: enter confirm state
 			self.confirmPending = true
-			self:SetText("Sure? Click!")
+			self:SetText(L("Sure? Click!", "Sure? Click!"))
 			self:SetTextColor(Color(100, 180, 255))
-			UpdateStatus("Click 'Sure? Click!' again to auto-assign from current keybinds.", Color(150, 200, 255))
+			UpdateStatus(L("Click 'Sure? Click!' again to auto-assign from current keybinds.", "Click 'Sure? Click!' again to auto-assign from current keybinds."), Color(150, 200, 255))
 			-- Auto-cancel after 3 seconds
 			timer.Simple(3, function()
 				if IsValid(self) and self.confirmPending then
 					self.confirmPending = false
-					self:SetText("Auto Assign")
+					self:SetText(L("Auto Assign", "Auto Assign"))
 					self:SetTextColor(Color(150, 200, 255))
-					UpdateStatus("Auto assign cancelled.", Color(200, 200, 200))
+					UpdateStatus(L("Auto assign cancelled.", "Auto assign cancelled."), Color(200, 200, 200))
 				end
 			end)
 		end
@@ -618,7 +620,7 @@ local function OpenKeyboardEditor()
 	local closeBtn = vgui.Create("DButton", frame)
 	closeBtn:SetPos(frameW - PAD - 80, btnY)
 	closeBtn:SetSize(80, btnH)
-	closeBtn:SetText("Close")
+	closeBtn:SetText(L("Close", "Close"))
 	closeBtn.DoClick = function()
 		frame:Close()
 	end

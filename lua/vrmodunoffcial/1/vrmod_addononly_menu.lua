@@ -5,6 +5,8 @@
 if SERVER then return end
 if not VRMOD_ADDON_ONLY_MODE then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 -- フォルダ番号 → 表示名（initと同一定義）
 local FOLDER_NAMES = {
     ["0"]  = "Core/API",
@@ -125,7 +127,7 @@ hook.Add("VRMod_Menu", "vrmod_addononly_menu", function(frame)
     local modeLabel = vgui.Create("DLabel", modulesScroll)
     modeLabel:Dock(TOP)
     modeLabel:DockMargin(10, 8, 10, 2)
-    modeLabel:SetText("Addon-Only Mode Active")
+    modeLabel:SetText(L("Addon-Only Mode Active", "Addon-Only Mode Active"))
     modeLabel:SetFont("DermaDefaultBold")
     modeLabel:SetTextColor(Color(80, 200, 80))
     modeLabel:SetAutoStretchVertical(true)
@@ -133,7 +135,7 @@ hook.Add("VRMod_Menu", "vrmod_addononly_menu", function(frame)
     local modeDesc = vgui.Create("DLabel", modulesScroll)
     modeDesc:Dock(TOP)
     modeDesc:DockMargin(10, 0, 10, 4)
-    modeDesc:SetText("Root files are not loaded. Using external VRMod as base.")
+    modeDesc:SetText(L("Root files are not loaded. Using external VRMod as base.", "Root files are not loaded. Using external VRMod as base."))
     modeDesc:SetAutoStretchVertical(true)
     modeDesc:SetWrap(true)
     modeDesc:SetTextColor(Color(180, 180, 180))
@@ -142,7 +144,7 @@ hook.Add("VRMod_Menu", "vrmod_addononly_menu", function(frame)
     local restartWarning = vgui.Create("DLabel", modulesScroll)
     restartWarning:Dock(TOP)
     restartWarning:DockMargin(10, 6, 10, 4)
-    restartWarning:SetText("Changes require Gmod restart to take effect.")
+    restartWarning:SetText(L("Changes require Gmod restart to take effect.", "Changes require Gmod restart to take effect."))
     restartWarning:SetFont("DermaDefaultBold")
     restartWarning:SetTextColor(Color(255, 80, 80))
     restartWarning:SetAutoStretchVertical(true)
@@ -152,7 +154,7 @@ hook.Add("VRMod_Menu", "vrmod_addononly_menu", function(frame)
     disableBtn:Dock(TOP)
     disableBtn:DockMargin(10, 4, 10, 8)
     disableBtn:SetTall(25)
-    disableBtn:SetText("Disable Addon-Only Mode (requires restart)")
+    disableBtn:SetText(L("Disable Addon-Only Mode (requires restart)", "Disable Addon-Only Mode (requires restart)"))
     disableBtn.DoClick = function()
         RunConsoleCommand("vrmod_unoff_addon_only_mode", "0")
         chat.AddText(Color(255, 200, 0), "[VRMod] ", Color(255, 255, 255), "Addon-Only Mode will be disabled after restart.")

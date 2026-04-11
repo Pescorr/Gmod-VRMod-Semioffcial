@@ -1,8 +1,12 @@
 if SERVER then return end
+
+local L = VRModL or function(_, fb) return fb or "" end
+
 surface.CreateFont(
 	"vrmod_Trebuchet24",
 	{
 		font = "Trebuchet MS",
+		extended = true,
 		size = 24,
 		weight = 100
 	}
@@ -67,7 +71,7 @@ local function OpenMenu()
 		end
 
 		local lbl = vgui.Create("DLabel", installPanel)
-		lbl:SetText("Module not installed.\n1. Go to garrysmod/data/vrmod_module/\n2. Rename install.txt -> install.bat\n3. Run install.bat, then restart Gmod")
+		lbl:SetText(L("Module not installed.\n1. Go to garrysmod/data/vrmod_module/\n2. Rename install.txt -> install.bat\n3. Run install.bat, then restart Gmod", "Module not installed.\n1. Go to garrysmod/data/vrmod_module/\n2. Rename install.txt -> install.bat\n3. Run install.bat, then restart Gmod"))
 		lbl:SetFont("DermaDefaultBold")
 		lbl:SetTextColor(Color(255, 220, 100))
 		lbl:Dock(FILL)
@@ -75,7 +79,7 @@ local function OpenMenu()
 		lbl:SetWrap(true)
 
 		local btn = vgui.Create("DButton", installPanel)
-		btn:SetText("Open Module Folder")
+		btn:SetText(L("Open Module Folder", "Open Module Folder"))
 		btn:Dock(BOTTOM)
 		btn:DockMargin(10, 0, 10, 5)
 		btn:SetTall(25)
@@ -119,7 +123,7 @@ local function OpenMenu()
 	end
 
 	local tmp = vgui.Create("DButton", panel)
-	tmp:SetText("Exit")
+	tmp:SetText(L("Exit", "Exit"))
 	tmp:Dock(RIGHT)
 	tmp:DockMargin(0, 5, 5, 0)
 	tmp:SetWide(96)

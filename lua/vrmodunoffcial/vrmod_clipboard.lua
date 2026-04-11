@@ -4,6 +4,8 @@
 
 if not CLIENT then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 print("[VR Clipboard] Module loaded")
 
 local CLIPBOARD_FILE = "vrmod_clipboard.txt"
@@ -219,7 +221,7 @@ local function OpenClipboardPanel()
 	header:SetSize(innerW, 28)
 	header.Paint = function(self, w, h)
 		draw.RoundedBoxEx(4, 0, 0, w, h, COLOR_BG_HEADER, true, true, false, false)
-		draw.SimpleText("VR Clipboard", "HudSelectionText", 10, h / 2, COLOR_ACCENT, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+		draw.SimpleText(L("VR Clipboard", "VR Clipboard"), "HudSelectionText", 10, h / 2, COLOR_ACCENT, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 	end
 	yPos = yPos + 32
 
@@ -283,7 +285,7 @@ local function OpenClipboardPanel()
 		-- 中央にラベル
 		local labelW = 100
 		draw.RoundedBox(0, (w - labelW) / 2, 0, labelW, h, COLOR_BG)
-		draw.SimpleText("Saved Items", "HudSelectionText", w / 2, h / 2, COLOR_TEXT_DIM, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		draw.SimpleText(L("Saved Items", "Saved Items"), "HudSelectionText", w / 2, h / 2, COLOR_TEXT_DIM, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
 	yPos = yPos + 24
 
@@ -318,7 +320,7 @@ local function OpenClipboardPanel()
 			empty:Dock(TOP)
 			empty:DockMargin(0, 2, 0, 2)
 			empty.Paint = function(self, w, h)
-				draw.SimpleText("(no saved items)", "HudSelectionText", w / 2, h / 2, COLOR_TEXT_DIM, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(L("(no saved items)", "(no saved items)"), "HudSelectionText", w / 2, h / 2, COLOR_TEXT_DIM, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 			return
 		end

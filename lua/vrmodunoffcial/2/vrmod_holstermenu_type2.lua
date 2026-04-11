@@ -1,6 +1,7 @@
 --------[vrmod_holstermenu_type2.lua]Start--------
 AddCSLuaFile()
 if SERVER then return end
+local L = VRModL or function(_, fb) return fb or "" end
 
 hook.Add(
 	"VRMod_Menu",
@@ -19,34 +20,34 @@ hook.Add(
 
 		-- === Basic Settings ===
 		local formBasic = vgui.Create("DForm", scroll)
-		formBasic:SetName("Basic Settings")
+		formBasic:SetName(L("Basic Settings", "Basic Settings"))
 		formBasic:Dock(TOP)
 		formBasic:DockMargin(5, 5, 5, 5)
 
-		formBasic:CheckBox("System Enable", "vrmod_pouch_enabled")
-		formBasic:CheckBox("Visible Name (3D)", "vrmod_pouch_visiblename")
-		formBasic:CheckBox("Visible HUD", "vrmod_pouch_visiblename_hud")
-		formBasic:CheckBox("Left Hand Weapon Enable", "vrmod_pouch_lefthandwep_enable")
-		formBasic:CheckBox("L/R Sync Mode (share slots between hands)", "vrmod_pouch_lr_sync")
-		formBasic:TextEntry("Pickup Sound", "vrmod_pouch_pickup_sound")
+		formBasic:CheckBox(L("System Enable", "System Enable"), "vrmod_pouch_enabled")
+		formBasic:CheckBox(L("Visible Name (3D)", "Visible Name (3D)"), "vrmod_pouch_visiblename")
+		formBasic:CheckBox(L("Visible HUD", "Visible HUD"), "vrmod_pouch_visiblename_hud")
+		formBasic:CheckBox(L("Left Hand Weapon Enable", "Left Hand Weapon Enable"), "vrmod_pouch_lefthandwep_enable")
+		formBasic:CheckBox(L("L/R Sync Mode (share slots between hands)", "L/R Sync Mode (share slots between hands)"), "vrmod_pouch_lr_sync")
+		formBasic:TextEntry(L("Pickup Sound", "Pickup Sound"), "vrmod_pouch_pickup_sound")
 
 		-- === Release / Tediore ===
 		local formRelease = vgui.Create("DForm", scroll)
-		formRelease:SetName("Release / Tediore")
+		formRelease:SetName(L("Release / Tediore", "Release / Tediore"))
 		formRelease:Dock(TOP)
 		formRelease:DockMargin(5, 5, 5, 5)
 
-		formRelease:CheckBox("[release -> Emptyhand] Enable", "vrmod_pickupoff_weaponholster")
-		formRelease:CheckBox("[Tediore like reload] Enable", "vrmod_weapondrop_enable")
-		formRelease:CheckBox("Trash Weapon on Drop", "vrmod_weapondrop_trashwep")
+		formRelease:CheckBox(L("[release -> Emptyhand] Enable", "[release -> Emptyhand] Enable"), "vrmod_pickupoff_weaponholster")
+		formRelease:CheckBox(L("[Tediore like reload] Enable", "[Tediore like reload] Enable"), "vrmod_weapondrop_enable")
+		formRelease:CheckBox(L("Trash Weapon on Drop", "Trash Weapon on Drop"), "vrmod_weapondrop_trashwep")
 
 		-- === Dupe Settings ===
 		local formDupe = vgui.Create("DForm", scroll)
-		formDupe:SetName("Dupe Settings")
+		formDupe:SetName(L("Dupe Settings", "Dupe Settings"))
 		formDupe:Dock(TOP)
 		formDupe:DockMargin(5, 5, 5, 5)
 
-		formDupe:CheckBox("Reusable Dupe (infinite retrieve)", "vrmod_unoff_dupe_reusable")
+		formDupe:CheckBox(L("Reusable Dupe (infinite retrieve)", "Reusable Dupe (infinite retrieve)"), "vrmod_unoff_dupe_reusable")
 
 		-- === Per-Slot Settings ===
 		local slotNames = {
@@ -67,24 +68,24 @@ hook.Add(
 			formSlot:Dock(TOP)
 			formSlot:DockMargin(5, 5, 5, 5)
 
-			formSlot:CheckBox("Enable", "vrmod_unoff_pouch_slot_enabled_" .. i)
-			formSlot:TextEntry("Weapon (Read-only)", "vrmod_pouch_weapon_" .. i)
-			formSlot:TextEntry("Left Hand Weapon (Read-only)", "vrmod_pouch_weapon_" .. i .. "_left")
-			formSlot:NumSlider("Sphere Size", "vrmod_pouch_size_" .. i, 0, 50, 1)
+			formSlot:CheckBox(L("Enable", "Enable"), "vrmod_unoff_pouch_slot_enabled_" .. i)
+			formSlot:TextEntry(L("Weapon (Read-only)", "Weapon (Read-only)"), "vrmod_pouch_weapon_" .. i)
+			formSlot:TextEntry(L("Left Hand Weapon (Read-only)", "Left Hand Weapon (Read-only)"), "vrmod_pouch_weapon_" .. i .. "_left")
+			formSlot:NumSlider(L("Sphere Size", "Sphere Size"), "vrmod_pouch_size_" .. i, 0, 50, 1)
 
-			local shapeCombo = formSlot:ComboBox("Shape", "vrmod_unoff_pouch_shape_" .. i)
+			local shapeCombo = formSlot:ComboBox(L("Shape", "Shape"), "vrmod_unoff_pouch_shape_" .. i)
 			shapeCombo:AddChoice("sphere")
 			shapeCombo:AddChoice("box")
 
-			formSlot:NumSlider("Box Width (X)", "vrmod_unoff_pouch_box_width_" .. i, 1, 50, 2)
-			formSlot:NumSlider("Box Height (Y)", "vrmod_unoff_pouch_box_height_" .. i, 1, 50, 2)
-			formSlot:NumSlider("Box Depth Up (Z+)", "vrmod_unoff_pouch_box_depth_up_" .. i, 1, 50, 2)
-			formSlot:NumSlider("Box Depth Down (Z-)", "vrmod_unoff_pouch_box_depth_down_" .. i, 1, 50, 2)
+			formSlot:NumSlider(L("Box Width (X)", "Box Width (X)"), "vrmod_unoff_pouch_box_width_" .. i, 1, 50, 2)
+			formSlot:NumSlider(L("Box Height (Y)", "Box Height (Y)"), "vrmod_unoff_pouch_box_height_" .. i, 1, 50, 2)
+			formSlot:NumSlider(L("Box Depth Up (Z+)", "Box Depth Up (Z+)"), "vrmod_unoff_pouch_box_depth_up_" .. i, 1, 50, 2)
+			formSlot:NumSlider(L("Box Depth Down (Z-)", "Box Depth Down (Z-)"), "vrmod_unoff_pouch_box_depth_down_" .. i, 1, 50, 2)
 		end
 
 		-- === Restore Defaults ===
 		local resetButton = vgui.Create("DButton", scroll)
-		resetButton:SetText("Restore Default Settings")
+		resetButton:SetText(L("Restore Default Settings", "Restore Default Settings"))
 		resetButton:Dock(TOP)
 		resetButton:DockMargin(5, 10, 5, 10)
 		resetButton:SetTall(30)

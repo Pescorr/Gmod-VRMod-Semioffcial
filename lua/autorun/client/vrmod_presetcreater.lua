@@ -1,5 +1,8 @@
 -- vrmod_presets.lua
 if SERVER then return end
+
+local L = VRModL or function(_, fb) return fb or "" end
+
 local PRESET_FOLDER = "vrmod_presets"
 local PRESET_EXTENSION = ".txt"
 -- プリセットフォルダが存在しない場合は作成
@@ -854,7 +857,7 @@ hook.Add(
         presetNameEntry:SetPlaceholderText("Enter preset name")
         presetNameEntry:Dock(BOTTOM)
         local saveButton = vgui.Create("DButton", presetPanel)
-        saveButton:SetText("Save Preset")
+        saveButton:SetText(L("Save Preset", "Save Preset"))
         saveButton:Dock(BOTTOM)
         saveButton.DoClick = function()
             local presetName = presetNameEntry:GetValue()
@@ -868,7 +871,7 @@ hook.Add(
         end
 
         local loadButton = vgui.Create("DButton", presetPanel)
-        loadButton:SetText("Load Preset")
+        loadButton:SetText(L("Load Preset", "Load Preset"))
         loadButton:Dock(BOTTOM)
         loadButton.DoClick = function()
             local selected = presetList:GetSelectedLine()
@@ -879,7 +882,7 @@ hook.Add(
         end
 
         local deleteButton = vgui.Create("DButton", presetPanel)
-        deleteButton:SetText("Delete Preset")
+        deleteButton:SetText(L("Delete Preset", "Delete Preset"))
         deleteButton:Dock(BOTTOM)
         deleteButton.DoClick = function()
             local selected = presetList:GetSelectedLine()

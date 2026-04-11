@@ -1,5 +1,7 @@
 if CLIENT then
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 	-- Layout preference (0=Classic, 1=Full)
 	local cv_layout = CreateClientConVar("vrmod_unoff_keyboard_layout", "0", true, false,
 		"VR Keyboard layout: 0=Classic, 1=Full")
@@ -226,7 +228,7 @@ if CLIENT then
 			else
 				keyboardNoFocusTime = keyboardNoFocusTime + 1
 				if keyboardNoFocusTime >= 6 then
-					VRUtilMenuClose(uid)
+					--VRUtilMenuClose(uid)
 					timer.Remove(KEYBOARD_AUTOHIDE_TIMER)
 				end
 			end
@@ -287,7 +289,7 @@ if CLIENT then
 		modeLabel:SetSize(250, 25)
 		modeLabel:SetFont("HudSelectionText")
 		modeLabel:SetTextColor(CLR_LABEL_DIM)
-		modeLabel:SetText("Mode: Text Input")
+		modeLabel:SetText(L("Mode: Text Input", "Mode: Text Input"))
 
 		-- Mode toggle: Text / Inject
 		local modeBtn = vgui.Create("DLabel", keyboardPanel)
@@ -295,7 +297,7 @@ if CLIENT then
 		modeBtn:SetSize(120, 25)
 		modeBtn:SetFont("HudSelectionText")
 		modeBtn:SetTextColor(CLR_LABEL_CYAN)
-		modeBtn:SetText("[Key Inject]")
+		modeBtn:SetText(L("[Key Inject]", "[Key Inject]"))
 		modeBtn:SetContentAlignment(5)
 		modeBtn:SetMouseInputEnabled(true)
 		modeBtn.Paint = function(self, w, h)
@@ -307,13 +309,13 @@ if CLIENT then
 		modeBtn.OnMousePressed = function()
 			injectMode = not injectMode
 			if injectMode then
-				modeLabel:SetText("Mode: Key Inject")
+				modeLabel:SetText(L("Mode: Key Inject", "Mode: Key Inject"))
 				modeLabel:SetTextColor(CLR_LABEL_CYAN)
-				modeBtn:SetText("[Text Input]")
+				modeBtn:SetText(L("[Text Input]", "[Text Input]"))
 			else
-				modeLabel:SetText("Mode: Text Input")
+				modeLabel:SetText(L("Mode: Text Input", "Mode: Text Input"))
 				modeLabel:SetTextColor(CLR_LABEL_DIM)
-				modeBtn:SetText("[Key Inject]")
+				modeBtn:SetText(L("[Key Inject]", "[Key Inject]"))
 			end
 		end
 
@@ -325,7 +327,7 @@ if CLIENT then
 			fullBtn:SetSize(165, 25)
 			fullBtn:SetFont("HudSelectionText")
 			fullBtn:SetTextColor(CLR_LABEL_GREEN)
-			fullBtn:SetText("[Full Keyboard >>]")
+			fullBtn:SetText(L("[Full Keyboard >>]", "[Full Keyboard >>]"))
 			fullBtn:SetContentAlignment(5)
 			fullBtn:SetMouseInputEnabled(true)
 			fullBtn.Paint = function(self, w, h)
@@ -602,13 +604,13 @@ if CLIENT then
 			ReleaseHeldKey()  -- Failsafe: release on mode switch
 			if IsValid(modeLabel) then
 				if currentMode == MODE_INJECT then
-					modeLabel:SetText("Mode: Key Inject")
+					modeLabel:SetText(L("Mode: Key Inject", "Mode: Key Inject"))
 					modeLabel:SetTextColor(CLR_LABEL_CYAN)
 				elseif currentMode == MODE_TEXT then
-					modeLabel:SetText("Mode: Text Input")
+					modeLabel:SetText(L("Mode: Text Input", "Mode: Text Input"))
 					modeLabel:SetTextColor(CLR_LABEL_DIM)
 				elseif currentMode == MODE_ASSIGN then
-					modeLabel:SetText("Mode: Assignment")
+					modeLabel:SetText(L("Mode: Assignment", "Mode: Assignment"))
 					modeLabel:SetTextColor(CLR_ASGN_BTN_TEXT)
 				end
 			end
@@ -642,9 +644,9 @@ if CLIENT then
 		local function UpdatePageUI()
 			if IsValid(pageBtnRef) then
 				if currentPage == 1 then
-					pageBtnRef:SetText("[Page 1: Keys]")
+					pageBtnRef:SetText(L("[Page 1: Keys]", "[Page 1: Keys]"))
 				else
-					pageBtnRef:SetText("[Page 2: Symbols]")
+					pageBtnRef:SetText(L("[Page 2: Symbols]", "[Page 2: Symbols]"))
 				end
 			end
 			UpdateAllKeyLabels()
@@ -817,7 +819,7 @@ if CLIENT then
 					-- Clicking same key again: cancel capture
 					CancelCapture()
 					if IsValid(statusLabel) then
-						statusLabel:SetText("Capture cancelled. Click a key to assign.")
+						statusLabel:SetText(L("Capture cancelled. Click a key to assign.", "Capture cancelled. Click a key to assign."))
 					end
 					return
 				end
@@ -843,7 +845,7 @@ if CLIENT then
 							selectedCode = nil
 							selectedPanel = nil
 							if IsValid(statusLabel) then
-								statusLabel:SetText("Capture cancelled. Click a key to assign.")
+								statusLabel:SetText(L("Capture cancelled. Click a key to assign.", "Capture cancelled. Click a key to assign."))
 							end
 							return
 						end
@@ -1002,7 +1004,7 @@ if CLIENT then
 		statusLabel:SetSize(fullPanelW * 0.6, STATUS_BAR_H)
 		statusLabel:SetFont("DermaDefault")
 		statusLabel:SetTextColor(CLR_STATUS_TEXT)
-		statusLabel:SetText("Click a key to assign a VR controller action.")
+		statusLabel:SetText(L("Click a key to assign a VR controller action.", "Click a key to assign a VR controller action."))
 
 		-- System info (right side of status bar)
 		statusInfoLabel = vgui.Create("DLabel", statusBarPanel)
@@ -1041,7 +1043,7 @@ if CLIENT then
 			draw.RoundedBox(2, 0, 0, w, h, bg)
 			surface.SetDrawColor(CLR_BARBTN_BORDER)
 			surface.DrawOutlinedRect(0, 0, w, h, 1)
-			local label = (currentMode == MODE_INJECT) and "[Inject]" or "[Input]"
+			local label = (currentMode == MODE_INJECT) and L("[Inject]", "[Inject]") or L("[Input]", "[Input]")
 			draw.SimpleText(label, "DermaDefaultBold", w / 2, h / 2, CLR_LABEL_CYAN, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
 		modeBtnInput.OnMousePressed = function()
@@ -1072,7 +1074,7 @@ if CLIENT then
 			draw.RoundedBox(2, 0, 0, w, h, bg)
 			surface.SetDrawColor(self.isActive and CLR_ASGN_BTN_BORDER or CLR_BARBTN_BORDER)
 			surface.DrawOutlinedRect(0, 0, w, h, 1)
-			draw.SimpleText("[Assign]", "DermaDefaultBold", w / 2, h / 2, CLR_ASGN_BTN_TEXT, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText(L("[Assign]", "[Assign]"), "DermaDefaultBold", w / 2, h / 2, CLR_ASGN_BTN_TEXT, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
 		modeBtnAssign.OnMousePressed = function()
 			if currentMode == MODE_ASSIGN then
@@ -1098,7 +1100,7 @@ if CLIENT then
 			draw.RoundedBox(2, 0, 0, w, h, bg)
 			surface.SetDrawColor(isPage2 and CLR_BARBTN_PAGE_ABD or CLR_BARBTN_PAGE_BD)
 			surface.DrawOutlinedRect(0, 0, w, h, 1)
-			local txt = isPage2 and "[Page 2: Symbols]" or "[Page 1: Keys]"
+			local txt = isPage2 and L("[Page 2: Symbols]", "[Page 2: Symbols]") or L("[Page 1: Keys]", "[Page 1: Keys]")
 			draw.SimpleText(txt, "DermaDefaultBold", w / 2, h / 2, CLR_WHITE, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
 		pageBtn.OnMousePressed = function()
@@ -1122,7 +1124,7 @@ if CLIENT then
 			draw.RoundedBox(2, 0, 0, w, h, CLR_BARBTN_YELLOW_BG)
 			surface.SetDrawColor(CLR_BARBTN_YELLOW_BD)
 			surface.DrawOutlinedRect(0, 0, w, h, 1)
-			draw.SimpleText("[<< Classic]", "DermaDefaultBold", w / 2, h / 2, CLR_LABEL_YELLOW, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText(L("[<< Classic]", "[<< Classic]"), "DermaDefaultBold", w / 2, h / 2, CLR_LABEL_YELLOW, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
 		classicBtn.OnMousePressed = function()
 			CancelCapture()

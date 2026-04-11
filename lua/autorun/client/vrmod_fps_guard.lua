@@ -1,4 +1,5 @@
 --------[vrmod_fps_guard.lua]Start--------
+local L = VRModL or function(_, fb) return fb or "" end
 -- VR FPS Guard v3.0: フォーカス保護 + コンポジターブロック検知 + フレームタイミング + 切断保護
 --
 -- 4層のFPS崩壊防止:
@@ -14,7 +15,7 @@ if SERVER then return end
 local GUARD_VERSION = "3.0"
 
 -- === ConVars ===
-local cvar_enable = CreateClientConVar("vrmod_unoff_fps_guard", "1", true, FCVAR_ARCHIVE,
+local cvar_enable = CreateClientConVar("vrmod_unoff_fps_guard", "0", true, FCVAR_ARCHIVE,
 	"VR FPS protection (all layers) 0=off 1=on", 0, 1)
 local cvar_threshold = CreateClientConVar("vrmod_unoff_fps_guard_threshold_ms", "40", true, FCVAR_ARCHIVE,
 	"Block detection threshold in ms", 10, 200)
@@ -144,7 +145,7 @@ hook.Add("VRMod_Start", "vrmod_unoff_fps_guard_start", function()
 		if not system.HasFocus() then
 			render.Clear(0, 0, 0, 255, true, true)
 			cam.Start2D()
-			draw.DrawText("Please focus the game window", "DermaLarge",
+			draw.DrawText(L("[VR FPS Guard] \n Gmod window is not focused \n disable -> [vrmod_unoff_fps_guard_focus 0]", "[VR FPS Guard] \n Gmod window is not focused \n disable -> [vrmod_unoff_fps_guard_focus 0]"), "DermaLarge",
 				ScrW() / 2, ScrH() / 2, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER)
 			cam.End2D()
 			return true

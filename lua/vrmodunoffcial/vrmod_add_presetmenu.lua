@@ -1,4 +1,6 @@
 -- プリセット機能のUIを追加
+local L = VRModL or function(_, fb) return fb or "" end
+
 local function AddPresetUI(grid)
     local presetPanel = vgui.Create("DPanel")
     presetPanel:SetSize(300, 200)
@@ -17,7 +19,7 @@ local function AddPresetUI(grid)
     RefreshPresetList()
 
     local saveButton = vgui.Create("DButton", presetPanel)
-    saveButton:SetText("Save Preset")
+    saveButton:SetText(L("Save Preset", "Save Preset"))
     saveButton:Dock(BOTTOM)
     saveButton.DoClick = function()
         Derma_StringRequest(
@@ -32,7 +34,7 @@ local function AddPresetUI(grid)
     end
 
     local loadButton = vgui.Create("DButton", presetPanel)
-    loadButton:SetText("Load Preset")
+    loadButton:SetText(L("Load Preset", "Load Preset"))
     loadButton:Dock(BOTTOM)
     loadButton.DoClick = function()
         local selected = presetList:GetSelectedLine()
@@ -43,7 +45,7 @@ local function AddPresetUI(grid)
     end
 
     local deleteButton = vgui.Create("DButton", presetPanel)
-    deleteButton:SetText("Delete Preset")
+    deleteButton:SetText(L("Delete Preset", "Delete Preset"))
     deleteButton:Dock(BOTTOM)
     deleteButton.DoClick = function()
         local selected = presetList:GetSelectedLine()

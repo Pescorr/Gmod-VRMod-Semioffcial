@@ -4,6 +4,8 @@
 
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 local PANEL = {}
 
 -----------------------------------------------------------
@@ -29,14 +31,14 @@ function PANEL:Init()
     -- Enable checkbox
     self.enableCheck = vgui.Create("DCheckBoxLabel", self)
     self.enableCheck:SetPos(10, 10)
-    self.enableCheck:SetText("Enable Custom Quick Menu / カスタムクイックメニューを有効化")
+    self.enableCheck:SetText(L("Enable Custom Quick Menu", "Enable Custom Quick Menu"))
     self.enableCheck:SetConVar("vrmod_quickmenu_use_custom")
     self.enableCheck:SizeToContents()
 
     -- Item list
     self.listLabel = vgui.Create("DLabel", self)
     self.listLabel:SetPos(10, 40)
-    self.listLabel:SetText("Menu Items / メニューアイテム:")
+    self.listLabel:SetText(L("Menu Items:", "Menu Items:"))
     self.listLabel:SetTextColor(Color(255, 255, 255))
     self.listLabel:SizeToContents()
 
@@ -59,7 +61,7 @@ function PANEL:Init()
     self.addBtn = vgui.Create("DButton", self)
     self.addBtn:SetPos(320, 60)
     self.addBtn:SetSize(90, 25)
-    self.addBtn:SetText("Add / 追加")
+    self.addBtn:SetText(L("Add", "Add"))
     self.addBtn.DoClick = function()
         self:OpenItemDialog(nil)
     end
@@ -67,7 +69,7 @@ function PANEL:Init()
     self.editBtn = vgui.Create("DButton", self)
     self.editBtn:SetPos(320, 90)
     self.editBtn:SetSize(90, 25)
-    self.editBtn:SetText("Edit / 編集")
+    self.editBtn:SetText(L("Edit", "Edit"))
     self.editBtn:SetEnabled(false)
     self.editBtn.DoClick = function()
         if self.selectedIndex and self.items[self.selectedIndex] then
@@ -78,7 +80,7 @@ function PANEL:Init()
     self.deleteBtn = vgui.Create("DButton", self)
     self.deleteBtn:SetPos(320, 120)
     self.deleteBtn:SetSize(90, 25)
-    self.deleteBtn:SetText("Delete / 削除")
+    self.deleteBtn:SetText(L("Delete", "Delete"))
     self.deleteBtn:SetEnabled(false)
     self.deleteBtn.DoClick = function()
         if self.selectedIndex and self.items[self.selectedIndex] then
@@ -125,7 +127,7 @@ function PANEL:Init()
     self.saveBtn = vgui.Create("DButton", self)
     self.saveBtn:SetPos(320, 200)
     self.saveBtn:SetSize(90, 30)
-    self.saveBtn:SetText("Save / 保存")
+    self.saveBtn:SetText(L("Save", "Save"))
     self.saveBtn.DoClick = function()
         self:SaveConfig()
     end
@@ -133,7 +135,7 @@ function PANEL:Init()
     self.loadBtn = vgui.Create("DButton", self)
     self.loadBtn:SetPos(420, 200)
     self.loadBtn:SetSize(90, 30)
-    self.loadBtn:SetText("Reload / 再読込")
+    self.loadBtn:SetText(L("Reload", "Reload"))
     self.loadBtn.DoClick = function()
         self:LoadConfig()
     end
@@ -141,7 +143,7 @@ function PANEL:Init()
     -- Preview label
     self.previewLabel = vgui.Create("DLabel", self)
     self.previewLabel:SetPos(10, 250)
-    self.previewLabel:SetText("Preview (6x10 Grid) / プレビュー:")
+    self.previewLabel:SetText(L("Preview (6x10 Grid):", "Preview (6x10 Grid):"))
     self.previewLabel:SetTextColor(Color(255, 255, 255))
     self.previewLabel:SizeToContents()
 
@@ -195,13 +197,13 @@ end
 function PANEL:SaveConfig()
     local success = vrmod.SaveQuickMenuConfig(self.items)
     if success then
-        notification.AddLegacy("Quick Menu config saved!", NOTIFY_GENERIC, 2)
+        notification.AddLegacy(L("Quick Menu config saved!", "Quick Menu config saved!"), NOTIFY_GENERIC, 2)
         -- Re-apply if enabled
         if GetConVar("vrmod_quickmenu_use_custom"):GetBool() then
             vrmod.ApplyQuickMenuConfig()
         end
     else
-        notification.AddLegacy("Failed to save config!", NOTIFY_ERROR, 3)
+        notification.AddLegacy(L("Failed to save config!", "Failed to save config!"), NOTIFY_ERROR, 3)
     end
 end
 
@@ -258,7 +260,7 @@ function PANEL:OpenItemDialog(editIndex)
 
     local dialog = vgui.Create("DFrame")
     dialog:SetSize(350, 250)
-    dialog:SetTitle(isEdit and "Edit Item / アイテム編集" or "Add Item / アイテム追加")
+    dialog:SetTitle(isEdit and L("Edit Item", "Edit Item") or L("Add Item", "Add Item"))
     dialog:Center()
     dialog:MakePopup()
     dialog:SetDeleteOnClose(true)
@@ -268,7 +270,7 @@ function PANEL:OpenItemDialog(editIndex)
     -- Name
     local nameLabel = vgui.Create("DLabel", dialog)
     nameLabel:SetPos(10, y)
-    nameLabel:SetText("Name / 名前:")
+    nameLabel:SetText(L("Name:", "Name:"))
     nameLabel:SetTextColor(Color(255, 255, 255))
     nameLabel:SizeToContents()
 
@@ -315,7 +317,7 @@ function PANEL:OpenItemDialog(editIndex)
     -- Action Type
     local typeLabel = vgui.Create("DLabel", dialog)
     typeLabel:SetPos(10, y)
-    typeLabel:SetText("Action Type:")
+    typeLabel:SetText(L("Action Type:", "Action Type:"))
     typeLabel:SetTextColor(Color(255, 255, 255))
     typeLabel:SizeToContents()
 
@@ -330,7 +332,7 @@ function PANEL:OpenItemDialog(editIndex)
     -- Action Value
     local valueLabel = vgui.Create("DLabel", dialog)
     valueLabel:SetPos(10, y)
-    valueLabel:SetText("Action Value:")
+    valueLabel:SetText(L("Action Value:", "Action Value:"))
     valueLabel:SetTextColor(Color(255, 255, 255))
     valueLabel:SizeToContents()
 
@@ -353,7 +355,7 @@ function PANEL:OpenItemDialog(editIndex)
         local newValue = valueEntry:GetValue()
 
         if newName == "" or newValue == "" then
-            notification.AddLegacy("Name and Action Value are required!", NOTIFY_ERROR, 2)
+            notification.AddLegacy(L("Name and Action Value are required!", "Name and Action Value are required!"), NOTIFY_ERROR, 2)
             return
         end
 
@@ -379,7 +381,7 @@ function PANEL:OpenItemDialog(editIndex)
     local cancelBtn = vgui.Create("DButton", dialog)
     cancelBtn:SetPos(260, y)
     cancelBtn:SetSize(80, 30)
-    cancelBtn:SetText("Cancel")
+    cancelBtn:SetText(L("Cancel", "Cancel"))
     cancelBtn.DoClick = function()
         dialog:Close()
     end
@@ -406,7 +408,7 @@ hook.Add("VRMod_Menu", "addsettings_quickmenu_editor", function(frame)
     local editor = vgui.Create("VRMod_QuickMenuEditor", scroll)
     editor:Dock(TOP)
     editor:SetTall(520)
-    sheet:AddSheet("Quick Menu Editor", container, "icon16/application_view_tile.png")
+    sheet:AddSheet(L("Quick Menu Editor", "Quick Menu Editor"), container, "icon16/application_view_tile.png")
 end)
 
 print("[VRMod] Quick Menu Editor loaded (tab disabled)")

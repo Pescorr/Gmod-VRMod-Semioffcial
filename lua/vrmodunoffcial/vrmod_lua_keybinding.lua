@@ -1,5 +1,7 @@
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 --[[
 	vrmod_lua_keybinding.lua
 	Root file in vrmodunoffcial/ — loads AFTER vrmod.lua
@@ -421,7 +423,7 @@ concommand.Add("vrmod_keybinding_debug", function()
 
 	frame.Think = function()
 		if not g_VR or not g_VR.active then
-			label:SetText("VR not active")
+			label:SetText(L("VR not active", "VR not active"))
 			return
 		end
 
@@ -512,7 +514,7 @@ concommand.Add("vrmod_keybinding_menu", function()
 
 	local modeLabel = vgui.Create("DLabel", topBar)
 	modeLabel:SetPos(8, 8)
-	modeLabel:SetText("Input Mode:")
+	modeLabel:SetText(L("Input Mode:", "Input Mode:"))
 	modeLabel:SizeToContents()
 
 	local modeCombo = vgui.Create("DComboBox", topBar)
@@ -528,7 +530,7 @@ concommand.Add("vrmod_keybinding_menu", function()
 	local resetBtn = vgui.Create("DButton", topBar)
 	resetBtn:SetPos(520, 6)
 	resetBtn:SetSize(100, 24)
-	resetBtn:SetText("Reset Defaults")
+	resetBtn:SetText(L("Reset Defaults", "Reset Defaults"))
 	resetBtn.DoClick = function()
 		Derma_Query("Reset all keybindings to defaults?", "Confirm",
 			"Yes", function()
@@ -557,13 +559,13 @@ concommand.Add("vrmod_keybinding_menu", function()
 
 		local h1 = vgui.Create("DLabel", header)
 		h1:SetPos(8, 4)
-		h1:SetText("Physical Input")
+		h1:SetText(L("Physical Input", "Physical Input"))
 		h1:SetFont("DermaDefaultBold")
 		h1:SizeToContents()
 
 		local h2 = vgui.Create("DLabel", header)
 		h2:SetPos(260, 4)
-		h2:SetText("Mapped To (Game Action)")
+		h2:SetText(L("Mapped To (Game Action)", "Mapped To (Game Action)"))
 		h2:SetFont("DermaDefaultBold")
 		h2:SizeToContents()
 

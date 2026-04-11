@@ -7,6 +7,8 @@
 
 if not CLIENT then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 ------------------------------------------------------------------------
 -- ConVars (cached at load time, never call GetConVar() per frame)
 ------------------------------------------------------------------------
@@ -354,7 +356,7 @@ local function TimeCrisis_OnVRStart()
                         end
                         draw.SimpleText(displayName, "DermaDefault", 0, 25, COLOR_TEXT_WEAPON, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                     else
-                        draw.SimpleText("[ Empty ]", "DermaDefault", 0, 25, COLOR_TEXT_EMPTY, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(L("[ Empty ]", "[ Empty ]"), "DermaDefault", 0, 25, COLOR_TEXT_EMPTY, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                     end
                 cam.End3D2D()
             end
@@ -365,7 +367,7 @@ local function TimeCrisis_OnVRStart()
             local indicatorPos = g_VR.tracking.hmd.pos + VEC_HMD_OFFSET
             local indicatorAng = Angle(0, g_VR.tracking.hmd.ang.yaw - 90, 90)
             cam.Start3D2D(indicatorPos, indicatorAng, 0.08)
-                draw.SimpleText("COVER", "DermaLarge", 0, 0, COLOR_COVER_TEXT, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                draw.SimpleText(L("COVER", "COVER"), "DermaLarge", 0, 0, COLOR_COVER_TEXT, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
             cam.End3D2D()
         end
     end)

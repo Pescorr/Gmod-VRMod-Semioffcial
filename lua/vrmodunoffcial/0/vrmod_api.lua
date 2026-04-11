@@ -1,6 +1,8 @@
 -- Addon-only mode: skip to avoid overwriting other VRMod's ConVar table
 if VRMOD_ADDON_ONLY_MODE then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 local addonVersion = 133
 local requiredModuleVersion = 20
 local latestModuleVersion = 103
@@ -454,7 +456,7 @@ if CLIENT then
 			local dlabel = vgui.Create("DLabel", locomotionPanel)
 			dlabel:SetSize(100, 30)
 			dlabel:SetPos(5, -3)
-			dlabel:SetText("Locomotion:")
+			dlabel:SetText(L("Locomotion:", "Locomotion:"))
 			dlabel:SetColor(Color(0, 0, 0))
 			local locomotionControls = nil
 			local function updateLocomotionCPanel(index)

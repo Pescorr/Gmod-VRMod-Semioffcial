@@ -1,4 +1,6 @@
 --******************************************************************************************************************************
+local L = VRModL or function(_, fb) return fb or "" end
+
 local cv_allowtp = CreateClientConVar("vrmod_allow_teleport", 1,true, FCVAR_REPLICATED)
 local cv_usetp = CreateClientConVar("vrmod_allow_teleport_client",0,true,FCVAR_ARCHIVE)
 local cl_analogmoveonly = CreateClientConVar("vrmod_test_analogmoveonly",0,false,FCVAR_ARCHIVE)
@@ -237,23 +239,23 @@ local function options( panel )
 	tmp:Dock( TOP )
 	tmp:DockMargin( 5, 0, 0, 5 )
 	tmp:SetDark(true)
-	tmp:SetText("Controller oriented locomotion")
+	tmp:SetText(L("Controller oriented locomotion", "Controller oriented locomotion"))
 	tmp:SetChecked(convarValues.controllerOriented)
 	function tmp:OnChange(val)
 		convars.vrmod_controlleroriented:SetBool(val)
 	end
-			
+
 	local tmp = vgui.Create("DCheckBoxLabel")
 	panel:Add(tmp)
 	tmp:Dock( TOP )
 	tmp:DockMargin( 5, 0, 0, 0 )
 	tmp:SetDark(true)
-	tmp:SetText("Smooth turning")
+	tmp:SetText(L("Smooth turning", "Smooth turning"))
 	tmp:SetChecked(convarValues.smoothTurn)
 	function tmp:OnChange(val)
 		convars.vrmod_smoothturn:SetBool(val)
 	end
-			
+
 	local tmp = vgui.Create("DNumSlider")
 	panel:Add(tmp)
 	tmp:Dock( TOP )
@@ -263,7 +265,7 @@ local function options( panel )
 	tmp:SetDecimals(0)
 	tmp:SetValue(convarValues.smoothTurnRate)
 	tmp:SetDark(true)
-	tmp:SetText("Smooth turn rate")
+	tmp:SetText(L("Smooth turn rate", "Smooth turn rate"))
 	function tmp:OnValueChanged(val)
 		convars.vrmod_smoothturnrate:SetInt(val)
 	end

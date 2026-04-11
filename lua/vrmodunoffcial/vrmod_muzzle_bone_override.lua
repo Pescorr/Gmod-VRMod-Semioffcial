@@ -6,6 +6,8 @@
 
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 g_VR = g_VR or {}
 g_VR.muzzleBoneOverride = g_VR.muzzleBoneOverride or {}
 
@@ -394,7 +396,7 @@ local function OpenWeaponBoneConfig()
 
 	-- Info label
 	local infoLabel = vgui.Create("DLabel", frame)
-	infoLabel:SetText("Configure bone overrides for this weapon. Laser pointer shows muzzle direction.")
+	infoLabel:SetText(L("Configure bone overrides for this weapon. Laser pointer shows muzzle direction.", "Configure bone overrides for this weapon. Laser pointer shows muzzle direction."))
 	infoLabel:SetWrap(true)
 	infoLabel:Dock(TOP)
 	infoLabel:DockMargin(5, 5, 5, 5)
@@ -542,7 +544,7 @@ local function OpenWeaponBoneConfig()
 	-- Save button
 	--------------------------
 	local saveBtn = vgui.Create("DButton", frame)
-	saveBtn:SetText("Save")
+	saveBtn:SetText(L("Save", "Save"))
 	saveBtn:Dock(BOTTOM)
 	saveBtn:DockMargin(5, 2, 5, 5)
 	saveBtn.DoClick = function()
@@ -605,7 +607,7 @@ local function OpenWeaponBoneConfig()
 	-- Cancel button
 	--------------------------
 	local cancelBtn = vgui.Create("DButton", frame)
-	cancelBtn:SetText("Cancel")
+	cancelBtn:SetText(L("Cancel", "Cancel"))
 	cancelBtn:Dock(BOTTOM)
 	cancelBtn:DockMargin(5, 2, 5, 0)
 	cancelBtn.DoClick = function()

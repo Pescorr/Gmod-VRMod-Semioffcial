@@ -8,6 +8,8 @@
 AddCSLuaFile()
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 g_VR = g_VR or {}
 vrmod = vrmod or {}
 
@@ -44,7 +46,7 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
 
     -- Header
     local header = vgui.Create("DLabel", scroll)
-    header:SetText("VR Ragdoll Puppeteer (Experimental)")
+    header:SetText(L("VR Ragdoll Puppeteer (Experimental)", "VR Ragdoll Puppeteer (Experimental)"))
     header:SetFont("DermaDefaultBold")
     header:SetTextColor(Color(255, 200, 80))
     header:Dock(TOP)
@@ -53,9 +55,8 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
 
     local desc = vgui.Create("DLabel", scroll)
     desc:SetText(
-        "Control a ragdoll puppet with VR tracking.\n" ..
-        "Driven bones follow VR (kinematic). Free bones use physics (ragdoll).\n" ..
-        "Rigging settings are saved to data/vrmod/puppeteer_rig.json."
+        L("Control a ragdoll puppet with VR tracking.\nDriven bones follow VR (kinematic). Free bones use physics (ragdoll).\nRigging settings are saved to data/vrmod/puppeteer_rig.json.",
+          "Control a ragdoll puppet with VR tracking.\nDriven bones follow VR (kinematic). Free bones use physics (ragdoll).\nRigging settings are saved to data/vrmod/puppeteer_rig.json.")
     )
     desc:SetWrap(true)
     desc:SetAutoStretchVertical(true)
@@ -64,15 +65,15 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
 
     -- Toggle buttons
     local ctrlForm = vgui.Create("DForm", scroll)
-    ctrlForm:SetName("Puppet Control")
+    ctrlForm:SetName(L("Puppet Control", "Puppet Control"))
     ctrlForm:Dock(TOP)
     ctrlForm:DockMargin(4, 0, 4, 8)
 
-    ctrlForm:Button("Toggle Puppet ON/OFF", "vrmod_puppeteer_toggle")
-    ctrlForm:Button("Force ON", "vrmod_puppeteer_on")
-    ctrlForm:Button("Force OFF", "vrmod_puppeteer_off")
-    ctrlForm:Button("Freeze All Bones (Pose Mode)", "vrmod_puppeteer_freeze")
-    ctrlForm:Button("Unfreeze (Resume Rigging)", "vrmod_puppeteer_unfreeze")
+    ctrlForm:Button(L("Toggle Puppet ON/OFF", "Toggle Puppet ON/OFF"), "vrmod_puppeteer_toggle")
+    ctrlForm:Button(L("Force ON", "Force ON"), "vrmod_puppeteer_on")
+    ctrlForm:Button(L("Force OFF", "Force OFF"), "vrmod_puppeteer_off")
+    ctrlForm:Button(L("Freeze All Bones (Pose Mode)", "Freeze All Bones (Pose Mode)"), "vrmod_puppeteer_freeze")
+    ctrlForm:Button(L("Unfreeze (Resume Rigging)", "Unfreeze (Resume Rigging)"), "vrmod_puppeteer_unfreeze")
 
     -- Settings
     local setForm = vgui.Create("DForm", scroll)
@@ -80,29 +81,29 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
     setForm:Dock(TOP)
     setForm:DockMargin(4, 0, 4, 8)
 
-    setForm:CheckBox("Enable Module", "vrmod_unoff_puppeteer_enable")
-    setForm:CheckBox("Show in Quick Menu", "vrmod_unoff_puppeteer_quickmenu")
-    setForm:CheckBox("Hide Player Model", "vrmod_unoff_puppeteer_hide_player")
-    setForm:CheckBox("Leg Animation (auto: procedural walk / FBT IK)", "vrmod_unoff_puppeteer_leg_mode")
-    setForm:CheckBox("Physics Affects Player (momentum)", "vrmod_unoff_puppeteer_phys_effects_ply")
+    setForm:CheckBox(L("Enable Module", "Enable Module"), "vrmod_unoff_puppeteer_enable")
+    setForm:CheckBox(L("Show in Quick Menu", "Show in Quick Menu"), "vrmod_unoff_puppeteer_quickmenu")
+    setForm:CheckBox(L("Hide Player Model", "Hide Player Model"), "vrmod_unoff_puppeteer_hide_player")
+    setForm:CheckBox(L("Leg Animation (auto: procedural walk / FBT IK)", "Leg Animation (auto: procedural walk / FBT IK)"), "vrmod_unoff_puppeteer_leg_mode")
+    setForm:CheckBox(L("Physics Affects Player (momentum)", "Physics Affects Player (momentum)"), "vrmod_unoff_puppeteer_phys_effects_ply")
 
     -- Tuning
     local tuneForm = vgui.Create("DForm", scroll)
-    tuneForm:SetName("Body Tuning")
+    tuneForm:SetName(L("Body Tuning", "Body Tuning"))
     tuneForm:Dock(TOP)
     tuneForm:DockMargin(4, 0, 4, 8)
 
-    tuneForm:NumSlider("Pelvis Offset (from HMD)", "vrmod_unoff_puppeteer_pelvis_offset", 10, 60, 0)
-    tuneForm:NumSlider("Shoulder Half-Width", "vrmod_unoff_puppeteer_shoulder_width", 4, 16, 1)
-    tuneForm:NumSlider("Momentum Scale", "vrmod_unoff_puppeteer_momentum_scale", 0, 0.5, 2)
+    tuneForm:NumSlider(L("Pelvis Offset (from HMD)", "Pelvis Offset (from HMD)"), "vrmod_unoff_puppeteer_pelvis_offset", 10, 60, 0)
+    tuneForm:NumSlider(L("Shoulder Half-Width", "Shoulder Half-Width"), "vrmod_unoff_puppeteer_shoulder_width", 4, 16, 1)
+    tuneForm:NumSlider(L("Momentum Scale", "Momentum Scale"), "vrmod_unoff_puppeteer_momentum_scale", 0, 0.5, 2)
 
     -- VR Input Binding
     local inputForm = vgui.Create("DForm", scroll)
-    inputForm:SetName("VR Input Binding")
+    inputForm:SetName(L("VR Input Binding", "VR Input Binding"))
     inputForm:Dock(TOP)
     inputForm:DockMargin(4, 0, 4, 8)
 
-    inputForm:TextEntry("Toggle Action", "vrmod_unoff_puppeteer_toggle_action")
+    inputForm:TextEntry(L("Toggle Action", "Toggle Action"), "vrmod_unoff_puppeteer_toggle_action")
 
     local actionHelp = vgui.Create("DLabel", scroll)
     actionHelp:SetText(
@@ -117,21 +118,21 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
 
     -- Head Hiding
     local headForm = vgui.Create("DForm", scroll)
-    headForm:SetName("Head Hiding (VR First Person)")
+    headForm:SetName(L("Head Hiding (VR First Person)", "Head Hiding (VR First Person)"))
     headForm:Dock(TOP)
     headForm:DockMargin(4, 0, 4, 8)
 
     local headDesc = vgui.Create("DLabel", headForm)
-    headDesc:SetText("Hide the puppet's head from your VR view to prevent it blocking your vision.\nOther players and desktop view will still see the head normally.")
+    headDesc:SetText(L("Hide the puppet's head from your VR view to prevent it blocking your vision.\nOther players and desktop view will still see the head normally.", "Hide the puppet's head from your VR view to prevent it blocking your vision.\nOther players and desktop view will still see the head normally."))
     headDesc:SetWrap(true)
     headDesc:SetAutoStretchVertical(true)
     headDesc:Dock(TOP)
     headDesc:DockMargin(4, 0, 4, 4)
 
-    local headCombo = headForm:ComboBox("Hide Head Mode", "vrmod_unoff_puppeteer_hide_head")
-    headCombo:AddChoice("Scale (hide completely)", "0")
-    headCombo:AddChoice("Offset (push behind)", "1")
-    headCombo:AddChoice("Disabled (show head)", "2")
+    local headCombo = headForm:ComboBox(L("Hide Head Mode", "Hide Head Mode"), "vrmod_unoff_puppeteer_hide_head")
+    headCombo:AddChoice(L("Scale (hide completely)", "Scale (hide completely)"), "0")
+    headCombo:AddChoice(L("Offset (push behind)", "Offset (push behind)"), "1")
+    headCombo:AddChoice(L("Disabled (show head)", "Disabled (show head)"), "2")
 
     headForm:NumSlider("Offset Distance (Y)", "vrmod_unoff_puppeteer_hide_head_y", -50, 50, 0)
 
@@ -141,7 +142,7 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
     dispForm:Dock(TOP)
     dispForm:DockMargin(4, 0, 4, 8)
 
-    dispForm:CheckBox("Show HUD Indicator", "vrmod_unoff_puppeteer_show_hud")
+    dispForm:CheckBox(L("Show HUD Indicator", "Show HUD Indicator"), "vrmod_unoff_puppeteer_show_hud")
 
     -- ========================================
     -- Tab 2: Rigging (per-bone control)
@@ -155,7 +156,7 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
 
     -- Rigging header
     local rigHeader = vgui.Create("DLabel", rigScroll)
-    rigHeader:SetText("Bone Rigging (Driven vs Physics)")
+    rigHeader:SetText(L("Bone Rigging (Driven vs Physics)", "Bone Rigging (Driven vs Physics)"))
     rigHeader:SetFont("DermaDefaultBold")
     rigHeader:SetTextColor(Color(255, 200, 80))
     rigHeader:Dock(TOP)
@@ -164,9 +165,8 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
 
     local rigDesc = vgui.Create("DLabel", rigScroll)
     rigDesc:SetText(
-        "DRIVEN (checked) = follows VR tracking, stable\n" ..
-        "PHYSICS (unchecked) = ragdoll physics, dangles\n" ..
-        "Changes auto-save and apply immediately."
+        L("DRIVEN (checked) = follows VR tracking, stable\nPHYSICS (unchecked) = ragdoll physics, dangles\nChanges auto-save and apply immediately.",
+          "DRIVEN (checked) = follows VR tracking, stable\nPHYSICS (unchecked) = ragdoll physics, dangles\nChanges auto-save and apply immediately.")
     )
     rigDesc:SetWrap(true)
     rigDesc:SetAutoStretchVertical(true)
@@ -208,11 +208,11 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
 
     -- Quick actions
     local quickForm = vgui.Create("DForm", rigScroll)
-    quickForm:SetName("Quick Actions")
+    quickForm:SetName(L("Quick Actions", "Quick Actions"))
     quickForm:Dock(TOP)
     quickForm:DockMargin(4, 0, 4, 8)
 
-    local allDrivenBtn = quickForm:Button("All DRIVEN")
+    local allDrivenBtn = quickForm:Button(L("All DRIVEN", "All DRIVEN"))
     allDrivenBtn.DoClick = function()
         local newRig = {}
         for i = 1, 15 do newRig[i] = true end
@@ -224,7 +224,7 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
         end
     end
 
-    local allPhysBtn = quickForm:Button("All PHYSICS (full ragdoll)")
+    local allPhysBtn = quickForm:Button(L("All PHYSICS (full ragdoll)", "All PHYSICS (full ragdoll)"))
     allPhysBtn.DoClick = function()
         local newRig = {}
         for i = 1, 15 do newRig[i] = false end
@@ -242,7 +242,7 @@ hook.Add("VRMod_Menu", "addsettingsPuppeteer", function(frame)
     -- L_Foot(7)=off, L_Calf(8)=off, L_Thigh(9)=off,
     -- R_Hand(10)=ON, R_Forearm(11)=off, R_Upper(12)=off,
     -- R_Foot(13)=off, R_Calf(14)=off, R_Thigh(15)=off
-    local headHandsBtn = quickForm:Button("Head + Hands Only (recommended)")
+    local headHandsBtn = quickForm:Button(L("Head + Hands Only (recommended)", "Head + Hands Only (recommended)"))
     headHandsBtn.DoClick = function()
         local newRig = { false, false, true, true, false, false, false, false, false, true, false, false, false, false, false }
         if vrmod.Puppeteer and vrmod.Puppeteer.SetFullRig then

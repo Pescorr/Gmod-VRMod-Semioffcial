@@ -1,5 +1,7 @@
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 local open = false
 local button1on = 0
 local button2on = 0

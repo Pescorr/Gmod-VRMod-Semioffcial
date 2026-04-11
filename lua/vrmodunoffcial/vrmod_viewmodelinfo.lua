@@ -1,4 +1,6 @@
 if CLIENT then
+	local L = VRModL or function(_, fb) return fb or "" end
+
 	g_VR = g_VR or {}
 	g_VR.viewModelInfo = g_VR.viewModelInfo or {}
 	g_VR.viewModelInfo.autoOffsetAddPos = Vector(1, 0.2, 0)
@@ -294,7 +296,7 @@ if CLIENT then
 		UpdateListView()
 		-- 新規追加ボタン
 		local addButton = vgui.Create("DButton", frame)
-		addButton:SetText("New")
+		addButton:SetText(L("New", "New"))
 		addButton:Dock(BOTTOM)
 		addButton.DoClick = function()
 			local currentWeapon = LocalPlayer():GetActiveWeapon()
@@ -306,7 +308,7 @@ if CLIENT then
 
 		-- リセットボタン（現在持っている武器のプリセットを全て0に初期化）
 		local resetButton = vgui.Create("DButton", frame)
-		resetButton:SetText("Reset Current Weapon")
+		resetButton:SetText(L("Reset Current Weapon", "Reset Current Weapon"))
 		resetButton:Dock(BOTTOM)
 		resetButton.DoClick = function()
 			local wep = LocalPlayer():GetActiveWeapon()
@@ -349,7 +351,7 @@ if CLIENT then
 
 		-- ドラッグヒント
 		local tipLabel = vgui.Create("DLabel", frame)
-		tipLabel:SetText("Tip: Drag slider labels for fine adjustment")
+		tipLabel:SetText(L("Tip: Drag slider labels for fine adjustment", "Tip: Drag slider labels for fine adjustment"))
 		tipLabel:SetTextColor(Color(180, 180, 180))
 		tipLabel:Dock(TOP)
 		tipLabel:DockMargin(5, 2, 5, 2)
@@ -360,7 +362,7 @@ if CLIENT then
 		posPanel:SetHeight(100)
 		posPanel:SetPaintBackground(false)
 		local posLabel = vgui.Create("DLabel", posPanel)
-		posLabel:SetText("Offset Position:")
+		posLabel:SetText(L("Offset Position:", "Offset Position:"))
 		posLabel:Dock(TOP)
 		local posSliders = {}
 		for i, axis in ipairs({"X", "Y", "Z"}) do
@@ -380,7 +382,7 @@ if CLIENT then
 		angPanel:SetHeight(100)
 		angPanel:SetPaintBackground(false)
 		local angLabel = vgui.Create("DLabel", angPanel)
-		angLabel:SetText("Offset Angle:")
+		angLabel:SetText(L("Offset Angle:", "Offset Angle:"))
 		angLabel:Dock(TOP)
 		local angSliders = {}
 		for i, axis in ipairs({"P", "Y", "R"}) do
@@ -422,7 +424,7 @@ if CLIENT then
 		utilPanel:DockMargin(0, 5, 0, 5)
 
 		local autoBtn = vgui.Create("DButton", utilPanel)
-		autoBtn:SetText("Auto Adjust")
+		autoBtn:SetText(L("Auto Adjust", "Auto Adjust"))
 		autoBtn:Dock(LEFT)
 		autoBtn:SetWide(140)
 		autoBtn.DoClick = function()
@@ -440,7 +442,7 @@ if CLIENT then
 		end
 
 		local resetBtn = vgui.Create("DButton", utilPanel)
-		resetBtn:SetText("Reset to Zero")
+		resetBtn:SetText(L("Reset to Zero", "Reset to Zero"))
 		resetBtn:Dock(FILL)
 		resetBtn.DoClick = function()
 			for i = 1, 3 do
@@ -452,7 +454,7 @@ if CLIENT then
 
 		-- 適用ボタン
 		local applyButton = vgui.Create("DButton", frame)
-		applyButton:SetText("Apply")
+		applyButton:SetText(L("Apply", "Apply"))
 		applyButton:Dock(BOTTOM)
 		-- 適用ボタンのイベントハンドラ内
 		applyButton.DoClick = function()
@@ -468,7 +470,7 @@ if CLIENT then
 
 		-- 破棄ボタン
 		local cancelButton = vgui.Create("DButton", frame)
-		cancelButton:SetText("Cancel")
+		cancelButton:SetText(L("Cancel", "Cancel"))
 		cancelButton:Dock(BOTTOM)
 		cancelButton.DoClick = function()
 			-- 元の設定に戻す（ダイアログを開く前の値）

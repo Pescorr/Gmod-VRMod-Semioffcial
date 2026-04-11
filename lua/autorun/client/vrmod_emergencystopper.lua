@@ -28,7 +28,7 @@ CreateClientConVar("vrmod_emergencystop_key", KEY_F3, true, FCVAR_ARCHIVE, "Key 
 CreateClientConVar("vrmod_emergencystop_time", 0.0, true, FCVAR_ARCHIVE, "Time to hold the key for VR Emergency Stop (in seconds)")
 
 -- Low FPS emergency exit ConVars
-CreateClientConVar("vrmod_unoff_emergency_fps_enabled", "1", true, FCVAR_ARCHIVE, "Enable low FPS emergency VR exit", 0, 1)
+CreateClientConVar("vrmod_unoff_emergency_fps_enabled", "0", true, FCVAR_ARCHIVE, "Enable low FPS emergency VR exit", 0, 1)
 CreateClientConVar("vrmod_unoff_emergency_fps_threshold", "5", true, FCVAR_ARCHIVE, "FPS threshold for emergency exit", 1, 30)
 CreateClientConVar("vrmod_unoff_emergency_fps_duration", "2", true, FCVAR_ARCHIVE, "Seconds below threshold before emergency exit", 0, 15)
 

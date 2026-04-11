@@ -4,6 +4,8 @@
 AddCSLuaFile()
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 hook.Add("VRMod_Menu", "addsettings_desktop_mirror", function(frame)
     if not frame or not frame.DPropertySheet then return end
 
@@ -24,7 +26,7 @@ hook.Add("VRMod_Menu", "addsettings_desktop_mirror", function(frame)
     coreForm:Dock(TOP)
     coreForm:DockMargin(5, 5, 5, 0)
 
-    coreForm:CheckBox("Enable Desktop Mirror", "vrmod_desktop_mirror")
+    coreForm:CheckBox(L("Enable Desktop Mirror", "Enable Desktop Mirror"), "vrmod_desktop_mirror")
     coreForm:CheckBox("Realtime Capture", "vrmod_desktop_mirror_realtime")
     -- V2 features: only show when semiofficial is detected
     -- (g_VR.moduleSemiVersion >= 100 on semiofficial, 0 or nil on original)

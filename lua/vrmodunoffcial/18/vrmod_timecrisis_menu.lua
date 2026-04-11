@@ -7,6 +7,8 @@
 -- AddCSLuaFile is handled by vrmod_timecrisis_sv.lua
 if SERVER then return end
 
+local L = VRModL or function(_, fb) return fb or "" end
+
 hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
     if not frame or not frame.DPropertySheet then return end
 
@@ -26,7 +28,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     -- Header
     local header = vgui.Create("DLabel", scroll)
-    header:SetText("TIME CRISIS System")
+    header:SetText(L("TIME CRISIS System", "TIME CRISIS System"))
     header:SetFont("DermaDefaultBold")
     header:SetTextColor(Color(0, 200, 255))
     header:Dock(TOP)
@@ -35,12 +37,12 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     local desc = vgui.Create("DLabel", scroll)
     desc:SetText(
-        "Crouch in VR to enter cover mode:\n" ..
-        "  - You become invincible while crouching\n" ..
-        "  - You CANNOT attack while in cover\n" ..
-        "  - 4 ground holsters appear in a fan pattern\n" ..
-        "  - Stand up to fight normally\n\n" ..
-        "Inspired by TIME CRISIS arcade game."
+        L("Crouch in VR to enter cover mode:", "Crouch in VR to enter cover mode:") .. "\n" ..
+        "  - " .. L("You become invincible while crouching", "You become invincible while crouching") .. "\n" ..
+        "  - " .. L("You CANNOT attack while in cover", "You CANNOT attack while in cover") .. "\n" ..
+        "  - " .. L("4 ground holsters appear in a fan pattern", "4 ground holsters appear in a fan pattern") .. "\n" ..
+        "  - " .. L("Stand up to fight normally", "Stand up to fight normally") .. "\n\n" ..
+        L("Inspired by TIME CRISIS arcade game.", "Inspired by TIME CRISIS arcade game.")
     )
     desc:SetWrap(true)
     desc:SetAutoStretchVertical(true)
@@ -60,7 +62,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     -- Enable toggle
     local enableCheck = vgui.Create("DCheckBoxLabel", scroll)
-    enableCheck:SetText("Enable Time Crisis Mode")
+    enableCheck:SetText(L("Enable Time Crisis Mode", "Enable Time Crisis Mode"))
     enableCheck:SetFont("DermaDefaultBold")
     enableCheck:SetConVar("vrmod_unoff_timecrisis")
     enableCheck:SetDark(true)
@@ -70,7 +72,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     -- Movement restriction toggle
     local moveCheck = vgui.Create("DCheckBoxLabel", scroll)
-    moveCheck:SetText("Block movement while in cover")
+    moveCheck:SetText(L("Block movement while in cover", "Block movement while in cover"))
     moveCheck:SetConVar("vrmod_unoff_tc_block_movement")
     moveCheck:SetDark(true)
     moveCheck:Dock(TOP)
@@ -89,7 +91,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     -- Holster section header
     local holsterHeader = vgui.Create("DLabel", scroll)
-    holsterHeader:SetText("Ground Holster Settings")
+    holsterHeader:SetText(L("Ground Holster Settings", "Ground Holster Settings"))
     holsterHeader:SetFont("DermaDefaultBold")
     holsterHeader:SetTextColor(Color(60, 180, 255))
     holsterHeader:Dock(TOP)
@@ -98,7 +100,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     -- Holster distance slider
     local distSlider = vgui.Create("DNumSlider", scroll)
-    distSlider:SetText("Holster distance")
+    distSlider:SetText(L("Holster distance", "Holster distance"))
     distSlider:SetMin(5)
     distSlider:SetMax(40)
     distSlider:SetDecimals(0)
@@ -109,7 +111,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     -- Holster detection radius slider
     local radiusSlider = vgui.Create("DNumSlider", scroll)
-    radiusSlider:SetText("Detection radius")
+    radiusSlider:SetText(L("Detection radius", "Detection radius"))
     radiusSlider:SetMin(3)
     radiusSlider:SetMax(20)
     radiusSlider:SetDecimals(0)
@@ -130,7 +132,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     -- Slot contents display
     local slotHeader = vgui.Create("DLabel", scroll)
-    slotHeader:SetText("Holster Slot Contents")
+    slotHeader:SetText(L("Holster Slot Contents", "Holster Slot Contents"))
     slotHeader:SetFont("DermaDefaultBold")
     slotHeader:SetTextColor(Color(60, 180, 255))
     slotHeader:Dock(TOP)
@@ -138,7 +140,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
     slotHeader:SizeToContents()
 
     local slotDesc = vgui.Create("DLabel", scroll)
-    slotDesc:SetText("Store weapons by crouching and using the pickup button near a slot.\nClear a slot with the button below.")
+    slotDesc:SetText(L("Store weapons by crouching and using the pickup button near a slot.", "Store weapons by crouching and using the pickup button near a slot.") .. "\n" .. L("Clear a slot with the button below.", "Clear a slot with the button below."))
     slotDesc:SetWrap(true)
     slotDesc:SetAutoStretchVertical(true)
     slotDesc:SetTextColor(Color(180, 180, 180))
@@ -175,7 +177,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
             local cv = GetConVar(cvarName)
             local wepclass = cv and cv:GetString() or ""
             if wepclass == "" then
-                contentLabel:SetText("[ Empty ]")
+                contentLabel:SetText(L("[ Empty ]", "[ Empty ]"))
                 contentLabel:SetTextColor(Color(120, 120, 120))
             else
                 local displayName = wepclass
@@ -192,7 +194,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
         -- Clear button
         local clearBtn = vgui.Create("DButton", row)
-        clearBtn:SetText("Clear")
+        clearBtn:SetText(L("Clear", "Clear"))
         clearBtn:SetWide(50)
         clearBtn:Dock(RIGHT)
         clearBtn:DockMargin(4, 2, 4, 2)
@@ -222,7 +224,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
 
     -- Console commands reference
     local cmdHeader = vgui.Create("DLabel", scroll)
-    cmdHeader:SetText("Console Commands")
+    cmdHeader:SetText(L("Console Commands", "Console Commands"))
     cmdHeader:SetFont("DermaDefaultBold")
     cmdHeader:SetTextColor(Color(180, 180, 180))
     cmdHeader:Dock(TOP)

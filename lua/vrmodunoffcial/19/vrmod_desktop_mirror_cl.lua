@@ -17,14 +17,14 @@ if SERVER then return end
 -- ============================================================================
 local cvEnabled = CreateClientConVar("vrmod_desktop_mirror", "0", true, false,
     "Enable VR Desktop Mirror", 0, 1)
-local cvScale = CreateClientConVar("vrmod_desktop_mirror_scale", "0.03", true, false,
+local cvScale = CreateClientConVar("vrmod_desktop_mirror_scale", "0.050", true, false,
     "Desktop mirror world scale", 0.005, 0.1)
 local cvDistance = CreateClientConVar("vrmod_desktop_mirror_distance", "60", true, false,
     "Desktop mirror distance from origin (units)", 10, 200)
 -- Phase 2 ConVars
 local cvRealtime = CreateClientConVar("vrmod_desktop_mirror_realtime", "1", true, false,
     "Enable realtime capture mode", 0, 1)
-local cvInterval = CreateClientConVar("vrmod_desktop_mirror_interval", "0.1", true, false,
+local cvInterval = CreateClientConVar("vrmod_desktop_mirror_interval", "0.01", true, false,
     "Realtime capture interval in seconds", 0.01, 5.0)
 local cvAttach = CreateClientConVar("vrmod_desktop_mirror_attach", "3", true, false,
     "Attachment mode: 1=left hand, 2=right hand, 3=HMD follow, 4=world fixed", 1, 4)
@@ -499,7 +499,7 @@ local function HandleInput(action, pressed)
     local isClick = false
     if activeHand == "right" and action == "boolean_primaryfire" then
         isClick = true
-    elseif activeHand == "left" and action == "boolean_left_pickup" then
+    elseif activeHand == "left" and action == "boolean_left_primaryfire" then
         isClick = true
     end
 

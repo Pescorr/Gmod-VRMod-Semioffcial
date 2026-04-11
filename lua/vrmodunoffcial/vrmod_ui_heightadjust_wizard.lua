@@ -1,4 +1,5 @@
 if SERVER then return end
+local L = VRModL or function(_, fb) return fb or "" end
 
 -- ============================================
 -- Character Setup Wizard
@@ -73,7 +74,7 @@ local function DrawBackground()
 end
 
 local function DrawTitle(text, stepNum, totalSteps)
-	draw.DrawText("Step " .. stepNum .. "/" .. totalSteps, "Trebuchet18",
+	draw.DrawText(L("Step", "Step") .. " " .. stepNum .. "/" .. totalSteps, "Trebuchet18",
 		PANEL_W - 10, 8, Color(150, 150, 150), TEXT_ALIGN_RIGHT)
 	draw.DrawText(text, "Trebuchet24", 10, 5, Color(255, 255, 255))
 	surface.SetDrawColor(100, 100, 100)
@@ -555,7 +556,7 @@ function vrmod.HeightWizard.Finish()
 		VRUtilMenuRenderStart("heightmenu")
 		surface.SetDrawColor(0, 0, 0, 200)
 		surface.DrawRect(0, 0, PANEL_W, PANEL_H)
-		draw.DrawText("Setup Complete!", "Trebuchet24",
+		draw.DrawText(L("Setup Complete!", "Setup Complete!"), "Trebuchet24",
 			PANEL_W / 2, PANEL_H / 2 - 15, Color(100, 255, 100), TEXT_ALIGN_CENTER)
 		VRUtilMenuRenderEnd()
 	end

@@ -1,3 +1,5 @@
+local L = VRModL or function(_, fb) return fb or "" end
+
 function vrmod_lua()
 	g_VR = g_VR or {}
 	local convars, convarValues = vrmod.GetConvars()
@@ -133,7 +135,7 @@ function vrmod_lua()
 				local dlabel = vgui.Create("DLabel", panel)
 				dlabel:SetSize(100, 30)
 				dlabel:SetPos(0, -3)
-				dlabel:SetText("Desktop view:")
+				dlabel:SetText(L("Desktop view:", "Desktop view:"))
 				dlabel:SetColor(Color(0, 0, 0))
 				local DComboBox = vgui.Create("DComboBox", panel)
 				DComboBox:Dock(TOP)

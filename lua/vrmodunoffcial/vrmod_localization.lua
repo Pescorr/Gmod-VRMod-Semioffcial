@@ -141,6 +141,140 @@ VRMOD_LANG.ja = {
 	msg_unknown_category = "エラー: 不明なカテゴリ",
 }
 
+-- Chinese Simplified strings / 简体中文
+VRMOD_LANG.zh = {
+	-- Menu titles
+	menu_settings02 = "Settings02",
+	menu_vr = "VR  ",
+	menu_character = "角色",
+	menu_ui = "UI设置",
+	menu_gameplay = "游戏性",
+	menu_quickmenu = "��捷菜单",
+	menu_network = "网络",
+	menu_advanced = "高��设置",
+	menu_melee = "VR近战",
+	menu_magazine = "VR弹匣",
+	menu_foregrip = "VR握把",
+	menu_physgun = "VR物理枪",
+	menu_beam_pickup = "VR拾取",
+	-- Common buttons
+	btn_restore_defaults = "恢复默认设置",
+	btn_apply = "应用",
+	btn_reset = "重置",
+	btn_close = "关闭",
+	btn_toggle_mirror = "切换镜像",
+	btn_enable_seated = "启用\n坐姿\n偏移",
+	btn_disable_seated = "禁用\n坐姿\n偏移",
+	btn_reset_config = "重置\n配置",
+	btn_auto_scale = "自动\n缩放",
+	btn_auto_set = "自动\n设置",
+	btn_hide_head = "隐藏\n头部",
+	btn_reset_body = "重置\n身体",
+	btn_hide_near_hmd = "隐藏HMD\n附近物体",
+	btn_toggle_laser = "切换激光指示器",
+	btn_weapon_config = "��器视角模型设置",
+	-- Labels
+	label_scale = "角色缩放",
+	label_eye_height = "角色眼睛高度",
+	label_head_hmd_dist = "���部到HMD距离",
+	label_crouch_threshold = "蹲下阈值",
+	label_znear = "Z近裁面",
+	label_seated_mode = "启用坐姿偏移",
+	label_seated_offset = "坐姿偏移量",
+	label_jump_duck = "[跳跃键自动蹲下]\nON => 跳跃键 = IN_DUCK + IN_JUMP\nOFF => 跳跃键 = IN_JUMP",
+	label_teleport = "[传送启用]",
+	label_flashlight = "[手电筒安装位置]\n0 = 右手 1 = 左手\n 2 = HMD",
+	label_manual_pickup = "手动拾取 (by Hugo)",
+	label_pickup_weight = "拾取重量 (服务器)",
+	label_pickup_range = "拾取范围 (服务器)",
+	label_pickup_limit = "拾取限制 (服务器)",
+	-- Tooltips
+	tooltip_znear = "比此距离更近的物体将变为透明。如果看到头部的一部分，请增大此值。",
+	tooltip_seated = "从高度调整菜单中调整",
+	tooltip_flashlight = "0 = 右手、1 = 左手、2 = HMD",
+	-- Messages
+	msg_character_reset = "角色设置已恢复为默认值",
+	msg_melee_reset = "VR近战设置已恢复为默认值。",
+	msg_magazine_reset = "弹匣设置已恢复为默认值",
+	msg_gameplay_reset = "游戏性设置已恢复为默认值",
+	msg_ui_reset = "UI设置已恢复为默认值",
+	msg_quickmenu_reset = "快捷菜单设置已恢复为默认值",
+	msg_network_reset = "网络设置已恢复为默认值",
+	msg_advanced_reset = "高级设置已恢复为默认值",
+	msg_foregrip_reset = "握把设置已恢复为默认值",
+	msg_physgun_reset = "物理枪设置已恢复为默认值",
+	msg_beam_pickup_reset = "光束拾取设置已恢复为默认值",
+	msg_language_set = "语言已设置为: ",
+	msg_unknown_category = "错误: 未知类别",
+}
+
+-- Russian strings / Русский
+VRMOD_LANG.ru = {
+	-- Menu titles
+	menu_settings02 = "Settings02",
+	menu_vr = "VR  ",
+	menu_character = "Персонаж",
+	menu_ui = "Настройки UI",
+	menu_gameplay = "Геймплей",
+	menu_quickmenu = "Быстрое меню",
+	menu_network = "Сеть",
+	menu_advanced = "Дополнительно",
+	menu_melee = "VR Ближний бой",
+	menu_magazine = "VR Магазин",
+	menu_foregrip = "VR Хват",
+	menu_physgun = "VR Физпушка",
+	menu_beam_pickup = "VR Подбор",
+	-- Common buttons
+	btn_restore_defaults = "Сбросить настройки",
+	btn_apply = "Применить",
+	btn_reset = "Сброс",
+	btn_close = "Закрыть",
+	btn_toggle_mirror = "Переключить зеркало",
+	btn_enable_seated = "Включить\nсидячий\nрежим",
+	btn_disable_seated = "Выключить\nсидячий\nрежим",
+	btn_reset_config = "Сброс\nнастроек",
+	btn_auto_scale = "Авто\nмасштаб",
+	btn_auto_set = "Авто\nнастройка",
+	btn_hide_head = "Скрыть\nголову",
+	btn_reset_body = "Сброс\nтела",
+	btn_hide_near_hmd = "Скрыть\nрядом с HMD",
+	btn_toggle_laser = "Лазерный указатель",
+	btn_weapon_config = "Настройка модели оружия",
+	-- Labels
+	label_scale = "Масштаб персонажа",
+	label_eye_height = "Высота глаз персонажа",
+	label_head_hmd_dist = "Расстояние головы до HMD",
+	label_crouch_threshold = "Порог приседания",
+	label_znear = "Z ближняя плоскость",
+	label_seated_mode = "Включить сидячий режим",
+	label_seated_offset = "Смещение сидячего режима",
+	label_jump_duck = "[Авто-присед при прыжке]\nON => Прыжок = IN_DUCK + IN_JUMP\nOFF => Прыжок = IN_JUMP",
+	label_teleport = "[Телепортация]",
+	label_flashlight = "[Крепление фонарика]\n0 = Правая рука 1 = Левая рука\n 2 = HMD",
+	label_manual_pickup = "Ручной подбор (by Hugo)",
+	label_pickup_weight = "Вес подбора (Сервер)",
+	label_pickup_range = "Дальность подбора (Сервер)",
+	label_pickup_limit = "Лимит подбора (Сервер)",
+	-- Tooltips
+	tooltip_znear = "Объекты ближе этого расстояния станут прозрачными. Увеличьте, если видите части головы.",
+	tooltip_seated = "Настройте в меню регулировки высоты",
+	tooltip_flashlight = "0 = Правая рука, 1 = Левая рука, 2 = HMD",
+	-- Messages
+	msg_character_reset = "Настройки персонажа сброшены",
+	msg_melee_reset = "Настройки ближнего боя сброшены.",
+	msg_magazine_reset = "Настройки магазина сброшены",
+	msg_gameplay_reset = "Настройки геймплея сброшены",
+	msg_ui_reset = "Настройки UI сброшены",
+	msg_quickmenu_reset = "Настройки быстрого меню сброшены",
+	msg_network_reset = "Настройки сети сброшены",
+	msg_advanced_reset = "Дополнительные настройки сброшены",
+	msg_foregrip_reset = "Настройки хвата сброшены",
+	msg_physgun_reset = "Настройки физпушки сброшены",
+	msg_beam_pickup_reset = "Настройки подбора сброшены",
+	msg_language_set = "Язык установлен: ",
+	msg_unknown_category = "Ошибка: Неизвестная категория",
+}
+
 -- Get localized string with fallback chain
 -- フォールバックチェーンを使用してローカライズされた文字列を取得
 function VRModL(key, fallback)
@@ -164,7 +298,7 @@ end
 function VRModSetLanguage(lang_code)
 	if VRMOD_LANG[lang_code] then
 		VRMOD_LANG.current = lang_code
-		CreateClientConVar("vrmod_language", lang_code, true, FCVAR_ARCHIVE, "VRMod UI Language (en/ja)", 0, 0)
+		CreateClientConVar("vrmod_language", lang_code, true, FCVAR_ARCHIVE, "VRMod UI Language (en/ja/zh/ru)", 0, 0)
 		RunConsoleCommand("vrmod_language", lang_code)
 		print("[VRMod] " .. VRModL("msg_language_set") .. lang_code)
 
@@ -182,6 +316,10 @@ local function VRModDetectLanguage()
 	local gmod_lang = GetConVarString("gmod_language")
 	if gmod_lang == "ja" or gmod_lang == "japanese" then
 		return "ja"
+	elseif gmod_lang == "zh-cn" or gmod_lang == "zh-tw" or gmod_lang == "schinese" or gmod_lang == "tchinese" then
+		return "zh"
+	elseif gmod_lang == "ru" or gmod_lang == "russian" then
+		return "ru"
 	end
 
 	return "en" -- Default to English
@@ -218,7 +356,7 @@ concommand.Add(
 	function(ply, cmd, args)
 		if not args[1] then
 			print("[VRMod] Usage: vrmod_setlang <language_code>")
-			print("[VRMod] Available languages: en (English), ja (Japanese)")
+			print("[VRMod] Available languages: en (English), ja (Japanese), zh (Chinese), ru (Russian)")
 			print("[VRMod] Current language: " .. VRMOD_LANG.current)
 
 			return

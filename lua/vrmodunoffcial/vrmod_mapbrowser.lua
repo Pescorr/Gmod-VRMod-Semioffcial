@@ -1,4 +1,7 @@
 if SERVER then return end
+
+local L = VRModL or function(_, fb) return fb or "" end
+
 local window = nil
 local function CreateMapBrowserWindow()
 	if IsValid(window) then return window end
@@ -168,7 +171,7 @@ local function CreateMapBrowserWindow()
 	function DButton:Paint(w, h)
 		surface.SetDrawColor(0, 108, 204, 255)
 		surface.DrawRect(0, 0, w, h)
-		draw.SimpleText("Start Game", "Trebuchet24", w / 2, h / 2, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		draw.SimpleText(L("Start Game", "Start Game"), "Trebuchet24", w / 2, h / 2, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
 	for i = 1, #sortedMaps do
 		local DScrollPanel = vgui.Create("DScrollPanel", window)
