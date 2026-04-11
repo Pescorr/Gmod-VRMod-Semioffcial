@@ -105,12 +105,12 @@ function vrmod_lua()
 			"vrmod_options",
 			function(frame)
 				local form = frame.SettingsForm
-				form:CheckBox("Use floating hands", "vrmod_floatinghands")
-				form:CheckBox("  No PM sync (keep PM animations)", "vrmod_unoff_floatinghands_nosync")
-				form:CheckBox("Use weapon world models", "vrmod_useworldmodels")
-				form:CheckBox("Add laser pointer to tools/weapons", "vrmod_laserpointer")
+				form:CheckBox(L("Use floating hands", "Use floating hands"), "vrmod_floatinghands")
+				form:CheckBox(L("  No PM sync (keep PM animations)", "  No PM sync (keep PM animations)"), "vrmod_unoff_floatinghands_nosync")
+				form:CheckBox(L("Use weapon world models", "Use weapon world models"), "vrmod_useworldmodels")
+				form:CheckBox(L("Add laser pointer to tools/weapons", "Add laser pointer to tools/weapons"), "vrmod_laserpointer")
 				--
-				local tmp = form:CheckBox("Show height adjustment menu", "vrmod_heightmenu")
+				local tmp = form:CheckBox(L("Show height adjustment menu", "Show height adjustment menu"), "vrmod_heightmenu")
 				local checkTime = 0
 				function tmp:OnChange(checked)
 					--only triggers when checked manually (not when using reset button)
@@ -122,12 +122,12 @@ function vrmod_lua()
 				end
 
 				--
-				form:CheckBox("Alternative head angle manipulation method", "vrmod_althead")
-				form:ControlHelp("Less precise, compatibility for jigglebones")
-				form:CheckBox("Automatically start VR after map loads", "vrmod_autostart")
+				form:CheckBox(L("Alternative head angle manipulation method", "Alternative head angle manipulation method"), "vrmod_althead")
+				form:ControlHelp(L("Less precise, compatibility for jigglebones", "Less precise, compatibility for jigglebones"))
+				form:CheckBox(L("Automatically start VR after map loads", "Automatically start VR after map loads"), "vrmod_autostart")
 				-- form:CheckBox("Replace climbing mechanics (when available)", "")
-				form:CheckBox("Replace door use mechanics (when available)", "vrmod_doors")
-				form:CheckBox("Enable engine postprocessing", "vrmod_postprocess")
+				form:CheckBox(L("Replace door use mechanics (when available)", "Replace door use mechanics (when available)"), "vrmod_doors")
+				form:CheckBox(L("Enable engine postprocessing", "Enable engine postprocessing"), "vrmod_postprocess")
 				--
 				local panel = vgui.Create("DPanel")
 				panel:SetSize(300, 30)
@@ -140,9 +140,9 @@ function vrmod_lua()
 				local DComboBox = vgui.Create("DComboBox", panel)
 				DComboBox:Dock(TOP)
 				DComboBox:DockMargin(70, 0, 0, 5)
-				DComboBox:AddChoice("none")
-				DComboBox:AddChoice("left eye")
-				DComboBox:AddChoice("right eye")
+				DComboBox:AddChoice(L("none", "none"))
+				DComboBox:AddChoice(L("left eye", "left eye"))
+				DComboBox:AddChoice(L("right eye", "right eye"))
 				DComboBox.OnSelect = function(self, index, value)
 					convars.vrmod_desktopview:SetInt(index)
 				end
@@ -157,52 +157,52 @@ function vrmod_lua()
 
 				form:AddItem(panel)
 				--
-				form:Button("Edit custom controller input actions", "vrmod_actioneditor")
-				form:Button("Reset settings to default", "vrmod_reset")
+				form:Button(L("Edit custom controller input actions", "Edit custom controller input actions"), "vrmod_actioneditor")
+				form:Button(L("Reset settings to default", "Reset settings to default"), "vrmod_reset")
 				--
 				local offsetForm = vgui.Create("DForm", form)
-				offsetForm:SetName("Controller offsets")
+				offsetForm:SetName(L("Controller offsets", "Controller offsets"))
 				offsetForm:Dock(TOP)
 				offsetForm:DockMargin(10, 10, 10, 0)
 				offsetForm:DockPadding(0, 0, 0, 0)
 				offsetForm:SetExpanded(false)
-				local tmp = offsetForm:NumSlider("X", "vrmod_controlleroffset_x", -30, 30, 0)
+				local tmp = offsetForm:NumSlider(L("X", "X"), "vrmod_controlleroffset_x", -30, 30, 0)
 				tmp.PerformLayout = function(self)
 					self.TextArea:SetWide(30)
 					self.Label:SetWide(30)
 				end
 
-				tmp = offsetForm:NumSlider("Y", "vrmod_controlleroffset_y", -30, 30, 0)
+				tmp = offsetForm:NumSlider(L("Y", "Y"), "vrmod_controlleroffset_y", -30, 30, 0)
 				tmp.PerformLayout = function(self)
 					self.TextArea:SetWide(30)
 					self.Label:SetWide(30)
 				end
 
-				tmp = offsetForm:NumSlider("Z", "vrmod_controlleroffset_z", -30, 30, 0)
+				tmp = offsetForm:NumSlider(L("Z", "Z"), "vrmod_controlleroffset_z", -30, 30, 0)
 				tmp.PerformLayout = function(self)
 					self.TextArea:SetWide(30)
 					self.Label:SetWide(30)
 				end
 
-				tmp = offsetForm:NumSlider("Pitch", "vrmod_controlleroffset_pitch", -180, 180, 0)
+				tmp = offsetForm:NumSlider(L("Pitch", "Pitch"), "vrmod_controlleroffset_pitch", -180, 180, 0)
 				tmp.PerformLayout = function(self)
 					self.TextArea:SetWide(30)
 					self.Label:SetWide(30)
 				end
 
-				tmp = offsetForm:NumSlider("Yaw", "vrmod_controlleroffset_yaw", -180, 180, 0)
+				tmp = offsetForm:NumSlider(L("Yaw", "Yaw"), "vrmod_controlleroffset_yaw", -180, 180, 0)
 				tmp.PerformLayout = function(self)
 					self.TextArea:SetWide(30)
 					self.Label:SetWide(30)
 				end
 
-				tmp = offsetForm:NumSlider("Roll", "vrmod_controlleroffset_roll", -180, 180, 0)
+				tmp = offsetForm:NumSlider(L("Roll", "Roll"), "vrmod_controlleroffset_roll", -180, 180, 0)
 				tmp.PerformLayout = function(self)
 					self.TextArea:SetWide(30)
 					self.Label:SetWide(30)
 				end
 
-				local tmp = offsetForm:Button("Apply offsets", "")
+				local tmp = offsetForm:Button(L("Apply offsets", "Apply offsets"), "")
 				function tmp:OnReleased()
 					g_VR.rightControllerOffsetPos = Vector(convars.vrmod_controlleroffset_x:GetFloat(), convars.vrmod_controlleroffset_y:GetFloat(), convars.vrmod_controlleroffset_z:GetFloat())
 					g_VR.leftControllerOffsetPos = g_VR.rightControllerOffsetPos * Vector(1, -1, 1)

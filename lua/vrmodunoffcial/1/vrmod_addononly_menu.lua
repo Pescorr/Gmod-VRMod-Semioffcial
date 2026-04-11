@@ -97,7 +97,7 @@ hook.Add("VRMod_Menu", "vrmod_addononly_menu", function(frame)
     -- 「Addons」タブのコンテナ
     local addonsTab = vgui.Create("DPanel", frame.DPropertySheet)
     addonsTab.Paint = function() end
-    frame.DPropertySheet:AddSheet("Addons", addonsTab, "icon16/bricks.png")
+    frame.DPropertySheet:AddSheet(L("Addons", "Addons"), addonsTab, "icon16/bricks.png")
 
     -- DTree + コンテンツエリア構築
     local tree, contentContainer, showPanel, registerPanel = CreateTreeTab(addonsTab)

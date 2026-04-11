@@ -1,4 +1,5 @@
 if SERVER then return end
+local L = VRModL or function(_, fb) return fb or "" end
 g_VR = g_VR or {}
 g_VR.characterYaw = 0
 local convars, convarValues = vrmod.GetConvars()
@@ -54,8 +55,8 @@ hook.Add(
 	"VRMod_Menu",
 	"vrmod_n_seated",
 	function(frame)
-		frame.SettingsForm:CheckBox("Enable seated offset", "vrmod_seated")
-		frame.SettingsForm:ControlHelp("Adjust from height adjustment menu")
+		frame.SettingsForm:CheckBox(L("Enable seated offset", "Enable seated offset"), "vrmod_seated")
+		frame.SettingsForm:ControlHelp(L("Adjust from height adjustment menu", "Adjust from height adjustment menu"))
 	end
 )
 

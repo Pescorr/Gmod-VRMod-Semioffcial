@@ -1,5 +1,6 @@
 --
 if SERVER then return end
+local L = VRModL or function(_, fb) return fb or "" end
 local vrScrH = CreateClientConVar("vrmod_ScrH_hud", ScrH(), true, FCVAR_ARCHIVE)
 local vrScrW = CreateClientConVar("vrmod_ScrW_hud", ScrW(), true, FCVAR_ARCHIVE)
 local function CurvedPlane(w, h, segments, degrees, matrix)
@@ -147,7 +148,7 @@ hook.Add(
 	"VRMod_Menu",
 	"vrmod_hud",
 	function(frame)
-		frame.SettingsForm:CheckBox("Enable HUD", "vrmod_hud")
+		frame.SettingsForm:CheckBox(L("Enable HUD", "Enable HUD"), "vrmod_hud")
 	end
 )
 

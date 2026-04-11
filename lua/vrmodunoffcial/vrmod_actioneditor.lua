@@ -1,4 +1,5 @@
 if SERVER then return end
+local L = VRModL or function(_, fb) return fb or "" end
 
 g_VR = g_VR or {}
 g_VR.CustomActions = {}
@@ -19,11 +20,11 @@ concommand.Add( "vrmod_actioneditor", function( ply, cmd, args )
 	local window = vgui.Create("DFrame")
 	window:SetPos(ScrW()/2-350,ScrH()/2-256)
 	window:SetSize( 700, 512 )
-	window:SetTitle("VRMod Custom Input Action Editor")
+	window:SetTitle(L("VRMod Custom Input Action Editor", "VRMod Custom Input Action Editor"))
 	window:MakePopup()
 	
 	local DLabel = vgui.Create( "DLabel",window )
-	DLabel:SetText( "name                    [driving]    concmd on press                                                   concmd on release" )
+	DLabel:SetText( L("name                    [driving]    concmd on press                                                   concmd on release", "name                    [driving]    concmd on press                                                   concmd on release") )
 	DLabel:SetPos(15,31)
 	DLabel:SizeToContents()
 
@@ -115,7 +116,7 @@ concommand.Add( "vrmod_actioneditor", function( ply, cmd, args )
 			end
 			--remove button
 			local DButton = vgui.Create( "DButton",DPanel )
-			DButton:SetText( "REMOVE" )
+			DButton:SetText( L("REMOVE", "REMOVE") )
 			DButton:SetSize(54,20)
 			DButton:SetPos(608,0)
 			function DButton:DoClick()
@@ -133,7 +134,7 @@ concommand.Add( "vrmod_actioneditor", function( ply, cmd, args )
 	end
 
 	local DButton = vgui.Create( "DButton",window )
-	DButton:SetText( "ADD" )
+	DButton:SetText( L("ADD", "ADD") )
 	DButton:SetSize(54,20)
 	DButton:SetPos(614,31)
 	function DButton:DoClick()

@@ -520,9 +520,9 @@ concommand.Add("vrmod_keybinding_menu", function()
 	local modeCombo = vgui.Create("DComboBox", topBar)
 	modeCombo:SetPos(100, 6)
 	modeCombo:SetSize(200, 24)
-	modeCombo:AddChoice("SteamVR Bindings (Default)", 0)
-	modeCombo:AddChoice("Lua Keybinding (Recommended)", 1)
-	modeCombo:SetValue(cv_inputmode:GetInt() == 1 and "Lua Keybinding (Recommended)" or "SteamVR Bindings (Default)")
+	modeCombo:AddChoice(L("SteamVR Bindings (Default)", "SteamVR Bindings (Default)"), 0)
+	modeCombo:AddChoice(L("Lua Keybinding (Recommended)", "Lua Keybinding (Recommended)"), 1)
+	modeCombo:SetValue(cv_inputmode:GetInt() == 1 and L("Lua Keybinding (Recommended)", "Lua Keybinding (Recommended)") or L("SteamVR Bindings (Default)", "SteamVR Bindings (Default)"))
 	modeCombo.OnSelect = function(self, index, value, data)
 		RunConsoleCommand("vrmod_unoff_inputmode", tostring(data))
 	end
@@ -595,7 +595,7 @@ concommand.Add("vrmod_keybinding_menu", function()
 			-- Filter available actions by type compatibility
 			for _, logicalName in ipairs(AVAILABLE_LOGICAL_ACTIONS) do
 				if logicalName == "(none)" then
-					combo:AddChoice("(none)", "")
+					combo:AddChoice(L("(none)", "(none)"), "")
 				else
 					-- Type compatibility check
 					local logicalType = "boolean"
@@ -634,13 +634,13 @@ concommand.Add("vrmod_keybinding_menu", function()
 	local footPanel = vgui.Create("DPanel")
 	footPanel:SetPaintBackground(false)
 	CreateMappingPanel(footPanel, LKB.mapping, false)
-	tabs:AddSheet("On Foot", footPanel, "icon16/user.png")
+	tabs:AddSheet(L("On Foot", "On Foot"), footPanel, "icon16/user.png")
 
 	-- Driving tab
 	local drivePanel = vgui.Create("DPanel")
 	drivePanel:SetPaintBackground(false)
 	CreateMappingPanel(drivePanel, LKB.drivingMapping, true)
-	tabs:AddSheet("In Vehicle", drivePanel, "icon16/car.png")
+	tabs:AddSheet(L("In Vehicle", "In Vehicle"), drivePanel, "icon16/car.png")
 end)
 
 -------------------------------------------------------------------------------

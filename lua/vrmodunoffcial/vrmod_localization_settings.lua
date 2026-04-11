@@ -1986,4 +1986,605 @@ AddSettings("ru", {
     ["Setup Complete!"] = "Настройка завершена!",
 })
 
+-- ========================================
+-- Phase 6: Remaining UI strings (vrmod.lua, holstermenu, tabs, scattered)
+-- ========================================
+
+-- vrmod.lua settings panel
+AddSettings("ja", {
+    ["Use floating hands"] = "フローティングハンドを使用",
+    ["  No PM sync (keep PM animations)"] = "  PMモデル同期なし（PMアニメーション維持）",
+    ["Use weapon world models"] = "武器ワールドモデルを使用",
+    ["Add laser pointer to tools/weapons"] = "ツール/武器にレーザーポインターを追加",
+    ["Show height adjustment menu"] = "身長調整メニューを表示",
+    ["Alternative head angle manipulation method"] = "代替頭部角度操作方式",
+    ["Less precise, compatibility for jigglebones"] = "精度は低いが、ジグルボーン互換性あり",
+    ["Automatically start VR after map loads"] = "マップ読み込み後にVRを自動開始",
+    ["Replace door use mechanics (when available)"] = "ドア使用メカニクスを置換（利用可能時）",
+    ["Enable engine postprocessing"] = "エンジンポストプロセッシングを有効化",
+    ["none"] = "なし",
+    ["left eye"] = "左目",
+    ["right eye"] = "右目",
+    ["Edit custom controller input actions"] = "カスタムコントローラー入力アクションを編集",
+    ["Reset settings to default"] = "設定をデフォルトにリセット",
+    ["Controller offsets"] = "コントローラーオフセット",
+    ["Apply offsets"] = "オフセットを適用",
+})
+AddSettings("zh", {
+    ["Use floating hands"] = "使用浮动手部",
+    ["  No PM sync (keep PM animations)"] = "  不同步PM模型（保持PM动画）",
+    ["Use weapon world models"] = "使用武器世界模型",
+    ["Add laser pointer to tools/weapons"] = "为工具/武器添加激光指示器",
+    ["Show height adjustment menu"] = "显示身高调整菜单",
+    ["Alternative head angle manipulation method"] = "替代头部角度操控方式",
+    ["Less precise, compatibility for jigglebones"] = "精度较低，但兼容骨骼晃动",
+    ["Automatically start VR after map loads"] = "地图加载后自动启动VR",
+    ["Replace door use mechanics (when available)"] = "替换门使用机制（可用时）",
+    ["Enable engine postprocessing"] = "启用引擎后处理",
+    ["none"] = "无",
+    ["left eye"] = "左眼",
+    ["right eye"] = "右眼",
+    ["Edit custom controller input actions"] = "编辑自定义控制器输入动作",
+    ["Reset settings to default"] = "重置为默认设置",
+    ["Controller offsets"] = "控制器偏移",
+    ["Apply offsets"] = "应用偏移",
+})
+AddSettings("ru", {
+    ["Use floating hands"] = "Плавающие руки",
+    ["  No PM sync (keep PM animations)"] = "  Без синхронизации PM (сохранить анимации PM)",
+    ["Use weapon world models"] = "Мировые модели оружия",
+    ["Add laser pointer to tools/weapons"] = "Лазерный указатель для инструментов/оружия",
+    ["Show height adjustment menu"] = "Показать меню настройки роста",
+    ["Alternative head angle manipulation method"] = "Альтернативный метод управления углом головы",
+    ["Less precise, compatibility for jigglebones"] = "Менее точный, совместимость с jigglebones",
+    ["Automatically start VR after map loads"] = "Автозапуск VR после загрузки карты",
+    ["Replace door use mechanics (when available)"] = "Замена механики дверей (если доступно)",
+    ["Enable engine postprocessing"] = "Включить постобработку движка",
+    ["none"] = "нет",
+    ["left eye"] = "левый глаз",
+    ["right eye"] = "правый глаз",
+    ["Edit custom controller input actions"] = "Редактировать пользовательские действия ввода",
+    ["Reset settings to default"] = "Сбросить настройки по умолчанию",
+    ["Controller offsets"] = "Смещения контроллера",
+    ["Apply offsets"] = "Применить смещения",
+})
+
+-- Holster menu (Type2)
+AddSettings("ja", {
+    ["Type2"] = "Type2",
+    ["Type2 Holster Settings"] = "Type2ホルスター設定",
+    ["=== Basic Settings ==="] = "=== 基本設定 ===",
+    ["System Enable"] = "システム有効化",
+    ["Visible Name"] = "名前表示",
+    ["Visible HUD"] = "HUD表示",
+    ["Left Hand Weapon Enable"] = "左手武器を有効化",
+    ["L/R Sync Mode (share slots between hands)"] = "左右同期モード（スロット共有）",
+    ["Pickup Sound"] = "ピックアップ音",
+    ["=== Release / Tediore ==="] = "=== リリース / テディオール ===",
+    ["[release -> Emptyhand] Enable"] = "[リリース → 素手] 有効化",
+    ["[Tediore like reload] Enable"] = "[テディオール式リロード] 有効化",
+    ["Trash Weapon on Drop"] = "ドロップ時に武器を破棄",
+    ["=== Dupe Settings ==="] = "=== デュプリケート設定 ===",
+    ["Reusable Dupe (infinite retrieve)"] = "再利用可能デュプリケート（無限取り出し）",
+    ["Enable"] = "有効化",
+    ["Weapon/Entity (Read-only)"] = "武器/エンティティ（読み取り専用）",
+    ["Left Hand Weapon (Read-only)"] = "左手武器（読み取り専用）",
+    ["Sphere Size"] = "球体サイズ",
+    ["Shape"] = "形状",
+    ["sphere"] = "球体",
+    ["box"] = "ボックス",
+    ["Box Width (X)"] = "ボックス幅 (X)",
+    ["Box Height (Y)"] = "ボックス高さ (Y)",
+    ["Box Depth Up (Z+)"] = "ボックス深さ上 (Z+)",
+    ["Box Depth Down (Z-)"] = "ボックス深さ下 (Z-)",
+})
+AddSettings("zh", {
+    ["Type2"] = "Type2",
+    ["Type2 Holster Settings"] = "Type2枪套设置",
+    ["=== Basic Settings ==="] = "=== 基本设置 ===",
+    ["System Enable"] = "系统启用",
+    ["Visible Name"] = "显示名称",
+    ["Visible HUD"] = "显示HUD",
+    ["Left Hand Weapon Enable"] = "启用左手武器",
+    ["L/R Sync Mode (share slots between hands)"] = "左右同步模式（共享槽位）",
+    ["Pickup Sound"] = "拾取音效",
+    ["=== Release / Tediore ==="] = "=== 释放 / Tediore ===",
+    ["[release -> Emptyhand] Enable"] = "[释放 → 空手] 启用",
+    ["[Tediore like reload] Enable"] = "[Tediore式换弹] 启用",
+    ["Trash Weapon on Drop"] = "丢弃时销毁武器",
+    ["=== Dupe Settings ==="] = "=== 复制设置 ===",
+    ["Reusable Dupe (infinite retrieve)"] = "可重复使用复制（无限取回）",
+    ["Enable"] = "启用",
+    ["Weapon/Entity (Read-only)"] = "武器/实体（只读）",
+    ["Left Hand Weapon (Read-only)"] = "左手武器（只读）",
+    ["Sphere Size"] = "球体大小",
+    ["Shape"] = "形状",
+    ["sphere"] = "球体",
+    ["box"] = "方盒",
+    ["Box Width (X)"] = "方盒宽度 (X)",
+    ["Box Height (Y)"] = "方盒高度 (Y)",
+    ["Box Depth Up (Z+)"] = "方盒深度上 (Z+)",
+    ["Box Depth Down (Z-)"] = "方盒深度下 (Z-)",
+})
+AddSettings("ru", {
+    ["Type2"] = "Type2",
+    ["Type2 Holster Settings"] = "Настройки кобуры Type2",
+    ["=== Basic Settings ==="] = "=== Основные настройки ===",
+    ["System Enable"] = "Включить систему",
+    ["Visible Name"] = "Показывать имя",
+    ["Visible HUD"] = "Показывать HUD",
+    ["Left Hand Weapon Enable"] = "Оружие в левой руке",
+    ["L/R Sync Mode (share slots between hands)"] = "Синхронизация Л/П (общие слоты)",
+    ["Pickup Sound"] = "Звук подбора",
+    ["=== Release / Tediore ==="] = "=== Отпускание / Tediore ===",
+    ["[release -> Emptyhand] Enable"] = "[отпускание → пустая рука] Вкл.",
+    ["[Tediore like reload] Enable"] = "[перезарядка Tediore] Вкл.",
+    ["Trash Weapon on Drop"] = "Уничтожить оружие при сбросе",
+    ["=== Dupe Settings ==="] = "=== Настройки дупликации ===",
+    ["Reusable Dupe (infinite retrieve)"] = "Многоразовый дупликат (бесконечное извлечение)",
+    ["Enable"] = "Включить",
+    ["Weapon/Entity (Read-only)"] = "Оружие/Объект (только чтение)",
+    ["Left Hand Weapon (Read-only)"] = "Оружие левой руки (только чтение)",
+    ["Sphere Size"] = "Размер сферы",
+    ["Shape"] = "Форма",
+    ["sphere"] = "сфера",
+    ["box"] = "куб",
+    ["Box Width (X)"] = "Ширина (X)",
+    ["Box Height (Y)"] = "Высота (Y)",
+    ["Box Depth Up (Z+)"] = "Глубина вверх (Z+)",
+    ["Box Depth Down (Z-)"] = "Глубина вниз (Z-)",
+})
+
+-- Holster menu (Type1 + Display)
+AddSettings("ja", {
+    ["Type1"] = "Type1",
+    ["Right Hand Holster Settings"] = "右手ホルスター設定",
+    ["Left Hand Holster Settings"] = "左手ホルスター設定",
+    ["=== Pelvis Holster ==="] = "=== 腰ホルスター ===",
+    ["Enable Pelvis Holster"] = "腰ホルスターを有効化",
+    ["Range"] = "範囲",
+    ["Weapon Lock (Read-only)"] = "武器ロック（読み取り専用）",
+    ["Stored Weapon (Read-only)"] = "格納中の武器（読み取り専用）",
+    ["Enable Custom Command"] = "カスタムコマンドを有効化",
+    ["Custom Pickup Command"] = "カスタムピックアップコマンド",
+    ["Custom Put Command"] = "カスタムプットコマンド",
+    ["=== Head Holster ==="] = "=== 頭部ホルスター ===",
+    ["Enable Head Holster"] = "頭部ホルスターを有効化",
+    ["=== Spine Holster ==="] = "=== 背中ホルスター ===",
+    ["Enable Spine Holster"] = "背中ホルスターを有効化",
+    ["=== Pelvis Holster (Left) ==="] = "=== 腰ホルスター（左） ===",
+    ["=== Head Holster (Left) ==="] = "=== 頭部ホルスター（左） ===",
+    ["=== Spine Holster (Left) ==="] = "=== 背中ホルスター（左） ===",
+    ["Display"] = "表示",
+    ["Display Settings (Type1/Type2 Common)"] = "表示設定（Type1/Type2共通）",
+    ["=== Type1 Display ==="] = "=== Type1 表示 ===",
+    ["Visible Range"] = "範囲表示",
+    ["Head Visible"] = "頭部表示",
+    ["=== Type1 Left Display ==="] = "=== Type1 左手表示 ===",
+    ["Visible Range (Left)"] = "範囲表示（左）",
+    ["Visible Name (Left)"] = "名前表示（左）",
+    ["VRHolster"] = "VRホルスター",
+})
+AddSettings("zh", {
+    ["Type1"] = "Type1",
+    ["Right Hand Holster Settings"] = "右手枪套设置",
+    ["Left Hand Holster Settings"] = "左手枪套设置",
+    ["=== Pelvis Holster ==="] = "=== 腰部枪套 ===",
+    ["Enable Pelvis Holster"] = "启用腰部枪套",
+    ["Range"] = "范围",
+    ["Weapon Lock (Read-only)"] = "武器锁定（只读）",
+    ["Stored Weapon (Read-only)"] = "存储的武器（只读）",
+    ["Enable Custom Command"] = "启用自定义命令",
+    ["Custom Pickup Command"] = "自定义拾取命令",
+    ["Custom Put Command"] = "自定义放置命令",
+    ["=== Head Holster ==="] = "=== 头部枪套 ===",
+    ["Enable Head Holster"] = "启用头部枪套",
+    ["=== Spine Holster ==="] = "=== 背部枪套 ===",
+    ["Enable Spine Holster"] = "启用背部枪套",
+    ["=== Pelvis Holster (Left) ==="] = "=== 腰部枪套（左） ===",
+    ["=== Head Holster (Left) ==="] = "=== 头部枪套（左） ===",
+    ["=== Spine Holster (Left) ==="] = "=== 背部枪套（左） ===",
+    ["Display"] = "显示",
+    ["Display Settings (Type1/Type2 Common)"] = "显示设置（Type1/Type2通用）",
+    ["=== Type1 Display ==="] = "=== Type1 显示 ===",
+    ["Visible Range"] = "显示范围",
+    ["Head Visible"] = "显示头部",
+    ["=== Type1 Left Display ==="] = "=== Type1 左手显示 ===",
+    ["Visible Range (Left)"] = "显示范围（左）",
+    ["Visible Name (Left)"] = "显示名称（左）",
+    ["VRHolster"] = "VR枪套",
+})
+AddSettings("ru", {
+    ["Type1"] = "Type1",
+    ["Right Hand Holster Settings"] = "Настройки кобуры правой руки",
+    ["Left Hand Holster Settings"] = "Настройки кобуры левой руки",
+    ["=== Pelvis Holster ==="] = "=== Кобура на поясе ===",
+    ["Enable Pelvis Holster"] = "Включить кобуру на поясе",
+    ["Range"] = "Дальность",
+    ["Weapon Lock (Read-only)"] = "Блокировка оружия (только чтение)",
+    ["Stored Weapon (Read-only)"] = "Хранимое оружие (только чтение)",
+    ["Enable Custom Command"] = "Включить пользовательскую команду",
+    ["Custom Pickup Command"] = "Пользовательская команда подбора",
+    ["Custom Put Command"] = "Пользовательская команда размещения",
+    ["=== Head Holster ==="] = "=== Кобура на голове ===",
+    ["Enable Head Holster"] = "Включить кобуру на голове",
+    ["=== Spine Holster ==="] = "=== Кобура на спине ===",
+    ["Enable Spine Holster"] = "Включить кобуру на спине",
+    ["=== Pelvis Holster (Left) ==="] = "=== Кобура на поясе (левая) ===",
+    ["=== Head Holster (Left) ==="] = "=== Кобура на голове (левая) ===",
+    ["=== Spine Holster (Left) ==="] = "=== Кобура на спине (левая) ===",
+    ["Display"] = "Отображение",
+    ["Display Settings (Type1/Type2 Common)"] = "Настройки отображения (Type1/Type2 общие)",
+    ["=== Type1 Display ==="] = "=== Type1 Отображение ===",
+    ["Visible Range"] = "Видимый диапазон",
+    ["Head Visible"] = "Голова видима",
+    ["=== Type1 Left Display ==="] = "=== Type1 Левая отображение ===",
+    ["Visible Range (Left)"] = "Видимый диапазон (левый)",
+    ["Visible Name (Left)"] = "Видимое имя (левый)",
+    ["VRHolster"] = "VR кобура",
+})
+
+-- Slot names (holster Type2)
+AddSettings("ja", {
+    ["Slot 1 - Head Right"] = "スロット1 - 頭部右",
+    ["Slot 2 - Head Left"] = "スロット2 - 頭部左",
+    ["Slot 3 - Chest Right"] = "スロット3 - 胸部右",
+    ["Slot 4 - Chest Left"] = "スロット4 - 胸部左",
+    ["Slot 5 - Chest Center"] = "スロット5 - 胸部中央",
+    ["Slot 6 - Pelvis (Bone)"] = "スロット6 - 腰（ボーン）",
+    ["Slot 7 - Head (Bone)"] = "スロット7 - 頭部（ボーン）",
+    ["Slot 8 - Spine (Bone)"] = "スロット8 - 背骨（ボーン）",
+})
+AddSettings("zh", {
+    ["Slot 1 - Head Right"] = "槽位1 - 头部右",
+    ["Slot 2 - Head Left"] = "槽位2 - 头部左",
+    ["Slot 3 - Chest Right"] = "槽位3 - 胸部右",
+    ["Slot 4 - Chest Left"] = "槽位4 - 胸部左",
+    ["Slot 5 - Chest Center"] = "槽位5 - 胸部中央",
+    ["Slot 6 - Pelvis (Bone)"] = "槽位6 - 腰部（骨骼）",
+    ["Slot 7 - Head (Bone)"] = "槽位7 - 头部（骨骼）",
+    ["Slot 8 - Spine (Bone)"] = "槽位8 - 脊柱（骨骼）",
+})
+AddSettings("ru", {
+    ["Slot 1 - Head Right"] = "Слот 1 - Голова справа",
+    ["Slot 2 - Head Left"] = "Слот 2 - Голова слева",
+    ["Slot 3 - Chest Right"] = "Слот 3 - Грудь справа",
+    ["Slot 4 - Chest Left"] = "Слот 4 - Грудь слева",
+    ["Slot 5 - Chest Center"] = "Слот 5 - Грудь по центру",
+    ["Slot 6 - Pelvis (Bone)"] = "Слот 6 - Таз (кость)",
+    ["Slot 7 - Head (Bone)"] = "Слот 7 - Голова (кость)",
+    ["Slot 8 - Spine (Bone)"] = "Слот 8 - Позвоночник (кость)",
+})
+
+-- Tab names + misc UI
+AddSettings("ja", {
+    ["Settings"] = "設定",
+    ["Settings02"] = "設定02",
+    ["Addons"] = "アドオン",
+    ["On Foot"] = "歩行時",
+    ["In Vehicle"] = "乗車時",
+    ["Muzzle"] = "マズル",
+    ["Foregrip"] = "フォアグリップ",
+    ["Magazine"] = "マガジン",
+    ["VRMOD MENU"] = "VRMODメニュー",
+    ["Enable HUD"] = "HUDを有効化",
+    ["Enable SRanipal"] = "SRanipalを有効化",
+    ["For Vive Pro Eye / Vive Facial Tracker"] = "Vive Pro Eye / Vive Facial Tracker用",
+    ["Enable seated offset"] = "坐姿オフセットを有効化",
+    ["Adjust from height adjustment menu"] = "身長調整メニューから調整",
+})
+AddSettings("zh", {
+    ["Settings"] = "设置",
+    ["Settings02"] = "设置02",
+    ["Addons"] = "插件",
+    ["On Foot"] = "步行时",
+    ["In Vehicle"] = "乘车时",
+    ["Muzzle"] = "枪口",
+    ["Foregrip"] = "前握把",
+    ["Magazine"] = "弹匣",
+    ["VRMOD MENU"] = "VRMOD菜单",
+    ["Enable HUD"] = "启用HUD",
+    ["Enable SRanipal"] = "启用SRanipal",
+    ["For Vive Pro Eye / Vive Facial Tracker"] = "适用于Vive Pro Eye / Vive面部追踪器",
+    ["Enable seated offset"] = "启用坐姿偏移",
+    ["Adjust from height adjustment menu"] = "从身高调整菜单进行调整",
+})
+AddSettings("ru", {
+    ["Settings"] = "Настройки",
+    ["Settings02"] = "Настройки02",
+    ["Addons"] = "Дополнения",
+    ["On Foot"] = "Пешком",
+    ["In Vehicle"] = "В транспорте",
+    ["Muzzle"] = "Дульный срез",
+    ["Foregrip"] = "Передняя рукоять",
+    ["Magazine"] = "Магазин",
+    ["VRMOD MENU"] = "Меню VRMOD",
+    ["Enable HUD"] = "Включить HUD",
+    ["Enable SRanipal"] = "Включить SRanipal",
+    ["For Vive Pro Eye / Vive Facial Tracker"] = "Для Vive Pro Eye / Vive Facial Tracker",
+    ["Enable seated offset"] = "Включить смещение сидя",
+    ["Adjust from height adjustment menu"] = "Настройте в меню регулировки роста",
+})
+
+-- Quickmenu editor + keyboard binding + modules
+AddSettings("ja", {
+    ["Up"] = "上へ",
+    ["Down"] = "下へ",
+    ["Slot (0-5):"] = "スロット (0-5):",
+    ["Position (0-9):"] = "位置 (0-9):",
+    ["OK"] = "OK",
+    ["SteamVR Bindings (Default)"] = "SteamVRバインド（デフォルト）",
+    ["Lua Keybinding (Recommended)"] = "Luaキーバインド（推奨）",
+    ["(none)"] = "(なし)",
+    ["Changes require Gmod restart to take effect."] = "変更はGmodの再起動後に反映されます。",
+    ["=== Addon-Only Mode ==="] = "=== アドオン専用モード ===",
+    ["Addon-Only Mode (skip root files, use external VRMod)"] = "アドオン専用モード（ルートファイルをスキップ、外部VRModを使用）",
+    ["ON = Root files (vrmod.lua, input, character, etc.) are not loaded.\nUse this with legacy/original VRMod as your base VRMod.\nOnly numbered folder modules are loaded as add-on features."] = "ON = ルートファイル（vrmod.lua、入力、キャラクター等）を読み込みません。\nレガシー/オリジナルVRModをベースとして使用してください。\n番号付きフォルダモジュールのみアドオン機能として読み込まれます。",
+    ["=== Legacy Mode ==="] = "=== レガシーモード ===",
+    ["Legacy Mode (load only core features)"] = "レガシーモード（コア機能のみ読み込み）",
+    ["ON = only folders 0 (Core) and 1 (Auto-settings) load.\nAll features below are disabled regardless of their individual setting."] = "ON = フォルダ0（コア）と1（自動設定）のみ読み込み。\n以下の全機能は個別設定に関係なく無効化されます。",
+    ["=== Feature Modules ==="] = "=== 機能モジュール ===",
+    ["Press a VR controller button to assign to [%s]..."] = "VRコントローラーのボタンを押して [%s] に割り当て...",
+    ["Assigned [%s] to [%s]. Click another key or switch mode."] = "[%s] を [%s] に割り当てました。別のキーをクリックするかモードを切り替えてください。",
+    ["Removed [%s] from [%s]."] = "[%s] を [%s] から削除しました。",
+    ["Remove:"] = "削除:",
+    ["Reassign (new capture)"] = "再割り当て（新規キャプチャ）",
+})
+AddSettings("zh", {
+    ["Up"] = "上移",
+    ["Down"] = "下移",
+    ["Slot (0-5):"] = "槽位 (0-5):",
+    ["Position (0-9):"] = "位置 (0-9):",
+    ["OK"] = "确定",
+    ["SteamVR Bindings (Default)"] = "SteamVR绑定（默认）",
+    ["Lua Keybinding (Recommended)"] = "Lua按键绑定（推荐）",
+    ["(none)"] = "(无)",
+    ["Changes require Gmod restart to take effect."] = "更改需要重启Gmod才能生效。",
+    ["=== Addon-Only Mode ==="] = "=== 仅插件模式 ===",
+    ["Addon-Only Mode (skip root files, use external VRMod)"] = "仅插件模式（跳过根文件，使用外部VRMod）",
+    ["ON = Root files (vrmod.lua, input, character, etc.) are not loaded.\nUse this with legacy/original VRMod as your base VRMod.\nOnly numbered folder modules are loaded as add-on features."] = "ON = 不加载根文件（vrmod.lua、输入、角色等）。\n请将传统/原版VRMod作为基础VRMod使用。\n仅加载编号文件夹模块作为附加功能。",
+    ["=== Legacy Mode ==="] = "=== 传统模式 ===",
+    ["Legacy Mode (load only core features)"] = "传统模式（仅加载核心功能）",
+    ["ON = only folders 0 (Core) and 1 (Auto-settings) load.\nAll features below are disabled regardless of their individual setting."] = "ON = 仅加载文件夹0（核心）和1（自动设置）。\n以下所有功能无论单独设置如何都将被禁用。",
+    ["=== Feature Modules ==="] = "=== 功能模块 ===",
+    ["Press a VR controller button to assign to [%s]..."] = "按下VR控制器按钮以分配到 [%s]...",
+    ["Assigned [%s] to [%s]. Click another key or switch mode."] = "已将 [%s] 分配到 [%s]。点击另一个按键或切换模式。",
+    ["Removed [%s] from [%s]."] = "已从 [%s] 移除 [%s]。",
+    ["Remove:"] = "移除:",
+    ["Reassign (new capture)"] = "重新分配（新捕获）",
+})
+AddSettings("ru", {
+    ["Up"] = "Вверх",
+    ["Down"] = "Вниз",
+    ["Slot (0-5):"] = "Слот (0-5):",
+    ["Position (0-9):"] = "Позиция (0-9):",
+    ["OK"] = "OK",
+    ["SteamVR Bindings (Default)"] = "Привязки SteamVR (по умолчанию)",
+    ["Lua Keybinding (Recommended)"] = "Lua-привязки (рекомендуется)",
+    ["(none)"] = "(нет)",
+    ["Changes require Gmod restart to take effect."] = "Изменения требуют перезапуска Gmod.",
+    ["=== Addon-Only Mode ==="] = "=== Режим только дополнений ===",
+    ["Addon-Only Mode (skip root files, use external VRMod)"] = "Режим только дополнений (пропуск корневых файлов, внешний VRMod)",
+    ["ON = Root files (vrmod.lua, input, character, etc.) are not loaded.\nUse this with legacy/original VRMod as your base VRMod.\nOnly numbered folder modules are loaded as add-on features."] = "ON = Корневые файлы (vrmod.lua, ввод, персонаж и т.д.) не загружаются.\nИспользуйте с устаревшим/оригинальным VRMod как базой.\nЗагружаются только пронумерованные модули как дополнения.",
+    ["=== Legacy Mode ==="] = "=== Устаревший режим ===",
+    ["Legacy Mode (load only core features)"] = "Устаревший режим (только базовые функции)",
+    ["ON = only folders 0 (Core) and 1 (Auto-settings) load.\nAll features below are disabled regardless of their individual setting."] = "ON = загружаются только папки 0 (Ядро) и 1 (Автонастройки).\nВсе функции ниже отключены вне зависимости от настроек.",
+    ["=== Feature Modules ==="] = "=== Функциональные модули ===",
+    ["Press a VR controller button to assign to [%s]..."] = "Нажмите кнопку VR-контроллера для назначения [%s]...",
+    ["Assigned [%s] to [%s]. Click another key or switch mode."] = "[%s] назначено на [%s]. Нажмите другую клавишу или смените режим.",
+    ["Removed [%s] from [%s]."] = "[%s] удалено из [%s].",
+    ["Remove:"] = "Удалить:",
+    ["Reassign (new capture)"] = "Переназначить (новый захват)",
+})
+
+-- Sub-addon remaining strings
+AddSettings("ja", {
+    ["Add"] = "追加",
+    ["Status: Checking..."] = "ステータス: チェック中...",
+    ["Status:"] = "ステータス:",
+    ["Attachment Mode"] = "アタッチメントモード",
+    ["Current weapon: %s"] = "現在の武器: %s",
+    ["Attachments: %s"] = "アタッチメント: %s",
+    ["Attachments: (none)"] = "アタッチメント: (なし)",
+    ["Current weapon: (no ArcVR weapon)"] = "現在の武器: (ArcVR武器なし)",
+    ["Attachments: ---"] = "アタッチメント: ---",
+})
+AddSettings("zh", {
+    ["Add"] = "添加",
+    ["Status: Checking..."] = "状态: 检查中...",
+    ["Status:"] = "状态:",
+    ["Attachment Mode"] = "附着模式",
+    ["Current weapon: %s"] = "当前武器: %s",
+    ["Attachments: %s"] = "附件: %s",
+    ["Attachments: (none)"] = "附件: (无)",
+    ["Current weapon: (no ArcVR weapon)"] = "当前武器: (无ArcVR武器)",
+    ["Attachments: ---"] = "附件: ---",
+})
+AddSettings("ru", {
+    ["Add"] = "Добавить",
+    ["Status: Checking..."] = "Статус: Проверка...",
+    ["Status:"] = "Статус:",
+    ["Attachment Mode"] = "Режим крепления",
+    ["Current weapon: %s"] = "Текущее оружие: %s",
+    ["Attachments: %s"] = "Вложения: %s",
+    ["Attachments: (none)"] = "Вложения: (нет)",
+    ["Current weapon: (no ArcVR weapon)"] = "Текущее оружие: (нет оружия ArcVR)",
+    ["Attachments: ---"] = "Вложения: ---",
+})
+
+-- Phase 6 audit additions (actioneditor, quickmenu editor, HMD)
+AddSettings("ja", {
+    ["VRMod Custom Input Action Editor"] = "VRModカスタム入力アクションエディター",
+    ["name                    [driving]    concmd on press                                                   concmd on release"] = "名前                    [運転]    押した時のコマンド                                                   離した時のコマンド",
+    ["REMOVE"] = "削除",
+    ["ADD"] = "追加",
+    ["Console Command"] = "コンソールコマンド",
+    ["ConVar Toggle"] = "ConVarトグル",
+    ["HMD"] = "HMD",
+})
+AddSettings("zh", {
+    ["VRMod Custom Input Action Editor"] = "VRMod自定义输入动作编辑器",
+    ["name                    [driving]    concmd on press                                                   concmd on release"] = "名称                    [驾驶]    按下时的命令                                                   松开时的命令",
+    ["REMOVE"] = "移除",
+    ["ADD"] = "添加",
+    ["Console Command"] = "控制台命令",
+    ["ConVar Toggle"] = "ConVar切换",
+    ["HMD"] = "HMD",
+})
+AddSettings("ru", {
+    ["VRMod Custom Input Action Editor"] = "Редактор пользовательских действий VRMod",
+    ["name                    [driving]    concmd on press                                                   concmd on release"] = "имя                    [вождение]    команда при нажатии                                                   команда при отпускании",
+    ["REMOVE"] = "УДАЛИТЬ",
+    ["ADD"] = "ДОБАВИТЬ",
+    ["Console Command"] = "Консольная команда",
+    ["ConVar Toggle"] = "Переключение ConVar",
+    ["HMD"] = "HMD",
+})
+
+-- C++ Module page + Tree node labels
+AddSettings("ja", {
+    -- Status panel
+    ["Status:"] = "ステータス:",
+    ["Version:"] = "バージョン:",
+    ["Type:"] = "タイプ:",
+    ["Latest:"] = "最新:",
+    ["Extracted .dat:"] = "展開済み .dat:",
+    ["Installed"] = "インストール済み",
+    ["Not installed"] = "未インストール",
+    ["Error (loaded but failed)"] = "エラー（読み込み後に失敗）",
+    ["Found"] = "検出",
+    ["Missing"] = "未検出",
+    -- Troubleshooting
+    ["If module is not working:\n" ..
+    "1. Go to garrysmod/data/vrmod_module/\n" ..
+    "2. Rename install.txt -> install.bat\n" ..
+    "3. Run install.bat, then restart Gmod\n" ..
+    "4. If antivirus blocks it, add GarrysMod\n" ..
+    "   folder to your AV exclusions\n" ..
+    "5. Windows Defender: Settings > Virus\n" ..
+    "   protection > Exclusions"] =
+    "モジュールが動作しない場合:\n" ..
+    "1. garrysmod/data/vrmod_module/ を開く\n" ..
+    "2. install.txt を install.bat にリネーム\n" ..
+    "3. install.bat を実行し、Gmodを再起動\n" ..
+    "4. ウイルス対策ソフトがブロックする場合、\n" ..
+    "   GarrysMod フォルダを除外リストに追加\n" ..
+    "5. Windows Defender: 設定 > ウイルスと\n" ..
+    "   脅威の防止 > 除外",
+    -- Tree nodes
+    ["C++ Module"] = "C++モジュール",
+    ["Character"] = "キャラクター",
+    ["Optimize"] = "最適化",
+    ["Opt.VR"] = "VR最適化",
+    ["Opt.Gmod"] = "Gmod最適化",
+    ["Quick Menu"] = "クイックメニュー",
+    ["VRStop Key"] = "VR停止キー",
+    ["Misc"] = "その他",
+    ["Animation"] = "アニメーション",
+    ["Graphics02"] = "グラフィック02",
+    ["Network(Server)"] = "ネットワーク(サーバー)",
+    ["Commands"] = "コマンド",
+    ["Vehicle"] = "乗り物",
+    ["Utility"] = "ユーティリティ",
+    ["Cardboard"] = "Cardboard",
+    ["Key Mapping"] = "キーマッピング",
+    ["Modules"] = "モジュール",
+})
+AddSettings("zh", {
+    -- Status panel
+    ["Status:"] = "状态:",
+    ["Version:"] = "版本:",
+    ["Type:"] = "类型:",
+    ["Latest:"] = "最新版:",
+    ["Extracted .dat:"] = "已解压 .dat:",
+    ["Installed"] = "已安装",
+    ["Not installed"] = "未安装",
+    ["Error (loaded but failed)"] = "错误（加载后失败）",
+    ["Found"] = "已找到",
+    ["Missing"] = "缺失",
+    -- Troubleshooting
+    ["If module is not working:\n" ..
+    "1. Go to garrysmod/data/vrmod_module/\n" ..
+    "2. Rename install.txt -> install.bat\n" ..
+    "3. Run install.bat, then restart Gmod\n" ..
+    "4. If antivirus blocks it, add GarrysMod\n" ..
+    "   folder to your AV exclusions\n" ..
+    "5. Windows Defender: Settings > Virus\n" ..
+    "   protection > Exclusions"] =
+    "模块不工作时:\n" ..
+    "1. 打开 garrysmod/data/vrmod_module/\n" ..
+    "2. 将 install.txt 重命名为 install.bat\n" ..
+    "3. 运行 install.bat，然后重启Gmod\n" ..
+    "4. 如果杀毒软件阻止，请将GarrysMod\n" ..
+    "   文件夹添加到杀毒软件排除列表\n" ..
+    "5. Windows Defender: 设置 > 病毒和\n" ..
+    "   威胁防护 > 排除项",
+    -- Tree nodes
+    ["C++ Module"] = "C++模块",
+    ["Character"] = "角色",
+    ["Optimize"] = "优化",
+    ["Opt.VR"] = "VR优化",
+    ["Opt.Gmod"] = "Gmod优化",
+    ["Quick Menu"] = "快捷菜单",
+    ["VRStop Key"] = "VR停止键",
+    ["Misc"] = "杂项",
+    ["Animation"] = "动画",
+    ["Graphics02"] = "图形02",
+    ["Network(Server)"] = "网络(服务器)",
+    ["Commands"] = "命令",
+    ["Vehicle"] = "载具",
+    ["Utility"] = "工具",
+    ["Cardboard"] = "Cardboard",
+    ["Key Mapping"] = "按键映射",
+    ["Modules"] = "模块",
+})
+AddSettings("ru", {
+    -- Status panel
+    ["Status:"] = "Статус:",
+    ["Version:"] = "Версия:",
+    ["Type:"] = "Тип:",
+    ["Latest:"] = "Последняя:",
+    ["Extracted .dat:"] = "Извлечённый .dat:",
+    ["Installed"] = "Установлен",
+    ["Not installed"] = "Не установлен",
+    ["Error (loaded but failed)"] = "Ошибка (загружен, но сбой)",
+    ["Found"] = "Найден",
+    ["Missing"] = "Отсутствует",
+    -- Troubleshooting
+    ["If module is not working:\n" ..
+    "1. Go to garrysmod/data/vrmod_module/\n" ..
+    "2. Rename install.txt -> install.bat\n" ..
+    "3. Run install.bat, then restart Gmod\n" ..
+    "4. If antivirus blocks it, add GarrysMod\n" ..
+    "   folder to your AV exclusions\n" ..
+    "5. Windows Defender: Settings > Virus\n" ..
+    "   protection > Exclusions"] =
+    "Если модуль не работает:\n" ..
+    "1. Откройте garrysmod/data/vrmod_module/\n" ..
+    "2. Переименуйте install.txt -> install.bat\n" ..
+    "3. Запустите install.bat, перезапустите Gmod\n" ..
+    "4. Если антивирус блокирует, добавьте папку\n" ..
+    "   GarrysMod в исключения антивируса\n" ..
+    "5. Windows Defender: Настройки > Защита от\n" ..
+    "   вирусов > Исключения",
+    -- Tree nodes
+    ["C++ Module"] = "Модуль C++",
+    ["Character"] = "Персонаж",
+    ["Optimize"] = "Оптимизация",
+    ["Opt.VR"] = "Опт. VR",
+    ["Opt.Gmod"] = "Опт. Gmod",
+    ["Quick Menu"] = "Быстрое меню",
+    ["VRStop Key"] = "Клавиша остановки VR",
+    ["Misc"] = "Разное",
+    ["Animation"] = "Анимация",
+    ["Graphics02"] = "Графика02",
+    ["Network(Server)"] = "Сеть (Сервер)",
+    ["Commands"] = "Команды",
+    ["Vehicle"] = "Транспорт",
+    ["Utility"] = "Утилиты",
+    ["Cardboard"] = "Cardboard",
+    ["Key Mapping"] = "Назначение клавиш",
+    ["Modules"] = "Модули",
+})
+
 print("[VRMod] Settings localization extension loaded")

@@ -1,4 +1,5 @@
 if CLIENT then
+	local L = VRModL or function(_, fb) return fb or "" end
 
 	local lip_error, eye_error = nil, nil
 	local _, convarValues = vrmod.AddCallbackedConvar("vrmod_use_sranipal", nil, "0", nil, nil, nil, nil, tobool)
@@ -62,8 +63,8 @@ if CLIENT then
 	
 	hook.Add("VRMod_Menu","vrmod_n_sranipal",function(frame)
 		if VRMOD_SRanipalInit == nil then return end
-		frame.SettingsForm:CheckBox("Enable SRanipal", "vrmod_use_sranipal")
-		frame.SettingsForm:ControlHelp("For Vive Pro Eye / Vive Facial Tracker")
+		frame.SettingsForm:CheckBox(L("Enable SRanipal", "Enable SRanipal"), "vrmod_use_sranipal")
+		frame.SettingsForm:ControlHelp(L("For Vive Pro Eye / Vive Facial Tracker", "For Vive Pro Eye / Vive Facial Tracker"))
 	end)
 			
 	hook.Add("VRMod_Start","sranipal",function(ply)

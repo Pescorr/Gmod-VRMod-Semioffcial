@@ -51,7 +51,7 @@ hook.Add("VRMod_Menu", "addsettings_desktop_mirror", function(frame)
 
     -- Attachment Mode (DComboBox via DForm:AddItem)
     local attachLabel = vgui.Create("DLabel")
-    attachLabel:SetText("Attachment Mode")
+    attachLabel:SetText(L("Attachment Mode", "Attachment Mode"))
     attachLabel:SetDark(true)
 
     local attachCombo = vgui.Create("DComboBox")

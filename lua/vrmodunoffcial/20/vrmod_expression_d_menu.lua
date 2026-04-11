@@ -199,7 +199,7 @@ hook.Add("VRMod_Menu", "addsettings_expression", function(frame)
                     local addBtn = vgui.Create("DButton", addRow)
                     addBtn:Dock(RIGHT)
                     addBtn:SetWide(60)
-                    addBtn:SetText("Add")
+                    addBtn:SetText(L("Add", "Add"))
                     addBtn.DoClick = function()
                         local _, data = addCombo:GetSelected()
                         if data and data ~= "" then
@@ -236,7 +236,7 @@ hook.Add("VRMod_Menu", "addsettings_expression", function(frame)
         statusLabel:DockMargin(8, 12, 8, 0)
         statusLabel:SetFont("DermaDefaultBold")
         statusLabel:SetTextColor(Color(200, 200, 200))
-        statusLabel:SetText("Status: Checking...")
+        statusLabel:SetText(L("Status: Checking...", "Status: Checking..."))
         statusLabel:SetAutoStretchVertical(true)
 
         -- Update status periodically
@@ -283,7 +283,7 @@ hook.Add("VRMod_Menu", "addsettings_expression", function(frame)
                     table.insert(parts, "Blend: " .. math.floor(state.blendFactor * 100) .. "%")
                 end
 
-                self:SetText("Status: " .. table.concat(parts, " | "))
+                self:SetText(L("Status:", "Status:") .. " " .. table.concat(parts, " | "))
             end
         end
 

@@ -241,7 +241,7 @@ hook.Add(
 
 		-- Settings02 container
 		local settings02 = vgui.Create("DPanel", frame.DPropertySheet)
-		frame.DPropertySheet:AddSheet("Settings02", settings02)
+		frame.DPropertySheet:AddSheet(L("Settings02", "Settings02"), settings02)
 		settings02:Dock(FILL)
 		settings02.Paint = function() end
 
@@ -387,7 +387,7 @@ hook.Add(
 		end
 		AddControl(GamePlay_defaultbutton)
 		registerPanel("vr", scrollPanel)
-		vrNode = AddTreeNode(tree, "VR", "vr", "icon16/basket.png", showPanel)
+		vrNode = AddTreeNode(tree, L("VR", "VR"), "vr", "icon16/basket.png", showPanel)
 		end -- VR panel
 
 		-- ========================================
@@ -593,7 +593,7 @@ hook.Add(
 		end
 		AddControl(vrdefault)
 		registerPanel("character", scrollPanel)
-		AddTreeNode(tree, "Character", "character", "icon16/user.png", showPanel)
+		AddTreeNode(tree, L("Character", "Character"), "character", "icon16/user.png", showPanel)
 		end -- Character panel
 
 		-- ========================================
@@ -615,15 +615,15 @@ hook.Add(
 		local quickmenuattach = uiSettings:ComboBox(L("Quickmenu Attach Position", "Quickmenu Attach Position"), "vrmod_attach_quickmenu")
 		quickmenuattach:AddChoice(L("Left Hand", "Left Hand"), "1")
 		quickmenuattach:AddChoice(L("Right Hand", "Right Hand"), "4")
-		quickmenuattach:AddChoice("HMD", "3")
+		quickmenuattach:AddChoice(L("HMD", "HMD"), "3")
 		local weaponmenuattach = uiSettings:ComboBox(L("Weapon Menu Attach Position", "Weapon Menu Attach Position"), "vrmod_attach_weaponmenu")
 		weaponmenuattach:AddChoice(L("Left Hand", "Left Hand"), "1")
 		weaponmenuattach:AddChoice(L("Right Hand", "Right Hand"), "4")
-		weaponmenuattach:AddChoice("HMD", "3")
+		weaponmenuattach:AddChoice(L("HMD", "HMD"), "3")
 		local popupattach = uiSettings:ComboBox(L("Popup Window Attach Position", "Popup Window Attach Position"), "vrmod_attach_popup")
 		popupattach:AddChoice(L("Left Hand", "Left Hand"), "1")
 		popupattach:AddChoice(L("Right Hand", "Right Hand"), "4")
-		popupattach:AddChoice("HMD", "3")
+		popupattach:AddChoice(L("HMD", "HMD"), "3")
 		local menuoutline = uiSettings:CheckBox(L("Menu & UI Red Outline", "Menu & UI Red Outline"))
 		menuoutline:SetConVar("vrmod_ui_outline")
 		local uirender = uiSettings:CheckBox(L("UI Render Alternative", "UI Render Alternative"))
@@ -688,7 +688,7 @@ hook.Add(
 		rightColumn2:Add(uidefault)
 
 		registerPanel("ui", uiScrollPanel)
-		AddTreeNode(tree, "UI", "ui", "icon16/photos.png", showPanel)
+		AddTreeNode(tree, L("UI", "UI"), "ui", "icon16/photos.png", showPanel)
 		end -- UI panel
 		-- ========================================
 		-- Panel: Optimize
@@ -767,7 +767,7 @@ hook.Add(
 		graphicsSettings:Help(L("Reset both multipliers to default value (2.0)", "Reset both multipliers to default value (2.0)"))
 
 		registerPanel("optimize", graphicsScrollPanel)
-		AddTreeNode(tree, "Optimize", "optimize", "icon16/picture.png", showPanel)
+		AddTreeNode(tree, L("Optimize", "Optimize"), "optimize", "icon16/picture.png", showPanel)
 		end -- Optimize panel
 
 		-- ========================================
@@ -829,7 +829,7 @@ hook.Add(
 			changedValues = {}
 		end
 		registerPanel("optvr", MenuTab11)
-		AddTreeNode(tree, "Opt.VR", "optvr", "icon16/cog_add.png", showPanel)
+		AddTreeNode(tree, L("Opt.VR", "Opt.VR"), "optvr", "icon16/cog_add.png", showPanel)
 		end -- Opt.VR panel
 
 		-- ========================================
@@ -891,7 +891,7 @@ hook.Add(
 			changedValues = {}
 		end
 		registerPanel("optgmod", MenuTab12)
-		AddTreeNode(tree, "Opt.Gmod", "optgmod", "icon16/cog_add.png", showPanel)
+		AddTreeNode(tree, L("Opt.Gmod", "Opt.Gmod"), "optgmod", "icon16/cog_add.png", showPanel)
 		end -- Opt.Gmod panel
 
 		-- ========================================
@@ -929,10 +929,10 @@ hook.Add(
 		quickmenudefault.DoClick = function()
 			VRModResetCategory("quickmenu")
 		end
-		quickMenuSheet:AddSheet("Settings", quickMenuSettings, "icon16/cog.png")
+		quickMenuSheet:AddSheet(L("Settings", "Settings"), quickMenuSettings, "icon16/cog.png")
 		frame.quickmenuBtnSheet = quickMenuSheet
 		registerPanel("quickmenu", quickMenuSheet)
-		AddTreeNode(tree, "Quick Menu", "quickmenu", "icon16/application_view_tile.png", showPanel)
+		AddTreeNode(tree, L("Quick Menu", "Quick Menu"), "quickmenu", "icon16/application_view_tile.png", showPanel)
 		end -- Quick Menu panel
 
 		-- ========================================
@@ -982,7 +982,7 @@ hook.Add(
 		emergFpsForm:Help(L("Stops VR if FPS stays below threshold for the specified duration.", "Stops VR if FPS stays below threshold for the specified duration."))
 
 		registerPanel("vrstop", stopScroll)
-		AddTreeNode(tree, "VRStop Key", "vrstop", "icon16/stop.png", showPanel)
+		AddTreeNode(tree, L("VRStop Key", "VRStop Key"), "vrstop", "icon16/stop.png", showPanel)
 		end -- VRStop Key panel
 
 		-- ========================================
@@ -1026,7 +1026,7 @@ hook.Add(
 			VRModResetCategory("misc")
 		end
 		registerPanel("misc", generalSettings)
-		AddTreeNode(tree, "Misc", "misc", "icon16/cog.png", showPanel)
+		AddTreeNode(tree, L("Misc", "Misc"), "misc", "icon16/cog.png", showPanel)
 		end -- Misc panel
 
 		-- ========================================
@@ -1052,7 +1052,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_jump_act", "ACT_HL2MP_WALK")
 		end
 		registerPanel("animation", animationSettings)
-		AddTreeNode(tree, "Animation", "animation", "icon16/user_edit.png", showPanel)
+		AddTreeNode(tree, L("Animation", "Animation"), "animation", "icon16/user_edit.png", showPanel)
 		end -- Animation panel
 
 		-- ========================================
@@ -1088,7 +1088,7 @@ hook.Add(
 			RunConsoleCommand("vrmod_restart")
 		end
 		registerPanel("graphics02", advancedSettings)
-		AddTreeNode(tree, "Graphics02", "graphics02", "icon16/wrench.png", showPanel)
+		AddTreeNode(tree, L("Graphics02", "Graphics02"), "graphics02", "icon16/wrench.png", showPanel)
 		end -- Graphics02 panel
 
 		-- ========================================
@@ -1108,7 +1108,7 @@ hook.Add(
 			VRModResetCategory("network")
 		end
 		registerPanel("network", networkSettings)
-		AddTreeNode(tree, "Network(Server)", "network", "icon16/connect.png", showPanel)
+		AddTreeNode(tree, L("Network(Server)", "Network(Server)"), "network", "icon16/connect.png", showPanel)
 		end -- Network panel
 
 		-- ========================================
@@ -1197,7 +1197,7 @@ hook.Add(
 		commandsForm:Help(L("VRE addon must be installed for these commands to work", "VRE addon must be installed for these commands to work"))
 
 		registerPanel("commands", commandsTab)
-		AddTreeNode(tree, "Commands", "commands", "icon16/application_xp_terminal.png", showPanel)
+		AddTreeNode(tree, L("Commands", "Commands"), "commands", "icon16/application_xp_terminal.png", showPanel)
 		end -- Commands panel
 
 		-- ========================================
@@ -1284,7 +1284,7 @@ hook.Add(
 			chat.AddText(Color(0, 255, 0), "[VRMod] ", Color(255, 255, 255), L("Vehicle settings reset to defaults", "Vehicle settings reset to defaults"))
 		end
 		registerPanel("vehicle", vehicleTab)
-		AddTreeNode(tree, "Vehicle", "vehicle", "icon16/car.png", showPanel)
+		AddTreeNode(tree, L("Vehicle", "Vehicle"), "vehicle", "icon16/car.png", showPanel)
 		end -- Vehicle panel
 
 		-- ========================================
@@ -1351,7 +1351,7 @@ hook.Add(
 		arc9Form:CheckBox(L("ARC9 Mag Bone: Follow Left Hand / Hide Only", "ARC9 Mag Bone: Follow Left Hand / Hide Only"), "vrmod_arc9_magbone_track")
 
 		registerPanel("magazine", magScroll)
-		AddTreeNode(tree, "Magazine", "magazine", "icon16/basket.png", showPanel)
+		AddTreeNode(tree, L("Magazine", "Magazine"), "magazine", "icon16/basket.png", showPanel)
 		end -- Magazine panel
 
 		-- ========================================
@@ -1360,7 +1360,7 @@ hook.Add(
 		do
 		local utilityPanel = CreateUtilityPanel()
 		registerPanel("utility", utilityPanel)
-		AddTreeNode(tree, "Utility", "utility", "icon16/wrench.png", showPanel)
+		AddTreeNode(tree, L("Utility", "Utility"), "utility", "icon16/wrench.png", showPanel)
 		end -- Utility panel
 
 		-- ========================================
@@ -1369,7 +1369,7 @@ hook.Add(
 		do
 		local cardboardPanel = CreateCardboardPanel()
 		registerPanel("cardboard", cardboardPanel)
-		AddTreeNode(tree, "Cardboard", "cardboard", "icon16/phone.png", showPanel)
+		AddTreeNode(tree, L("Cardboard", "Cardboard"), "cardboard", "icon16/phone.png", showPanel)
 		end -- Cardboard panel
 
 		-- ========================================
@@ -1420,23 +1420,23 @@ hook.Add(
 			draw.RoundedBox(6, 0, 0, w, h, statusColor)
 		end
 
-		local statusText
+		local statusKey
 		if isInstalled then
-			statusText = "Installed"
+			statusKey = "installed"
 		elseif moduleVer == 0 then
-			statusText = "Error (loaded but failed)"
+			statusKey = "error"
 		else
-			statusText = "Not installed"
+			statusKey = "notinstalled"
 		end
 
 		local infoLines = {
-			{ "Status:", statusText },
-			{ "Version:", isInstalled and ("v" .. tostring(moduleVer)) or "N/A" },
-			{ "Type:", isInstalled and moduleName or "N/A" },
-			{ "Latest:", latestVer and ("v" .. tostring(latestVer)) or "N/A" },
-			{ (isLinux and "linux" or "win32") .. " DLL:", win32Exists and "Found" or "Missing" },
-			{ (isLinux and "linux64" or "win64") .. " DLL:", win64Exists and "Found" or "Missing" },
-			{ "Extracted .dat:", datExtracted and "Found" or "Missing" },
+			{ L("Status:", "Status:"), statusKey == "installed" and L("Installed", "Installed") or statusKey == "error" and L("Error (loaded but failed)", "Error (loaded but failed)") or L("Not installed", "Not installed"), statusKey },
+			{ L("Version:", "Version:"), isInstalled and ("v" .. tostring(moduleVer)) or "N/A", "info" },
+			{ L("Type:", "Type:"), isInstalled and moduleName or "N/A", "info" },
+			{ L("Latest:", "Latest:"), latestVer and ("v" .. tostring(latestVer)) or "N/A", "info" },
+			{ (isLinux and "linux" or "win32") .. " DLL:", win32Exists and L("Found", "Found") or L("Missing", "Missing"), win32Exists and "found" or "missing" },
+			{ (isLinux and "linux64" or "win64") .. " DLL:", win64Exists and L("Found", "Found") or L("Missing", "Missing"), win64Exists and "found" or "missing" },
+			{ L("Extracted .dat:", "Extracted .dat:"), datExtracted and L("Found", "Found") or L("Missing", "Missing"), datExtracted and "found" or "missing" },
 		}
 
 		local yPos = 8
@@ -1451,11 +1451,12 @@ hook.Add(
 			local val = vgui.Create("DLabel", statusPanel)
 			val:SetPos(130, yPos)
 			val:SetText(line[2])
-			if line[2] == "Missing" or line[2] == "Error (loaded but failed)" then
+			local k = line[3]
+			if k == "missing" or k == "error" then
 				val:SetTextColor(Color(255, 100, 100))
-			elseif line[2] == "Found" or line[2] == "Installed" then
+			elseif k == "found" or k == "installed" then
 				val:SetTextColor(Color(100, 255, 100))
-			elseif line[2] == "Not installed" then
+			elseif k == "notinstalled" then
 				val:SetTextColor(Color(255, 220, 100))
 			else
 				val:SetTextColor(Color(255, 255, 255))
@@ -1585,7 +1586,15 @@ hook.Add(
 		local troubleText = vgui.Create("DLabel", scrollPanel)
 		troubleText:Dock(TOP)
 		troubleText:DockMargin(14, 2, 10, 4)
-		troubleText:SetText(
+		troubleText:SetText(L(
+			"If module is not working:\n" ..
+			"1. Go to garrysmod/data/vrmod_module/\n" ..
+			"2. Rename install.txt -> install.bat\n" ..
+			"3. Run install.bat, then restart Gmod\n" ..
+			"4. If antivirus blocks it, add GarrysMod\n" ..
+			"   folder to your AV exclusions\n" ..
+			"5. Windows Defender: Settings > Virus\n" ..
+			"   protection > Exclusions",
 			"If module is not working:\n" ..
 			"1. Go to garrysmod/data/vrmod_module/\n" ..
 			"2. Rename install.txt -> install.bat\n" ..
@@ -1594,13 +1603,13 @@ hook.Add(
 			"   folder to your AV exclusions\n" ..
 			"5. Windows Defender: Settings > Virus\n" ..
 			"   protection > Exclusions"
-		)
+		))
 		troubleText:SetAutoStretchVertical(true)
 		troubleText:SetWrap(true)
 		troubleText:SetTextColor(Color(200, 200, 180))
 
 		registerPanel("cppmodule", scrollPanel)
-		AddTreeNode(tree, "C++ Module", "cppmodule", "icon16/brick.png", showPanel)
+		AddTreeNode(tree, L("C++ Module", "C++ Module"), "cppmodule", "icon16/brick.png", showPanel)
 		end -- C++ Module panel
 
 		-- ========================================
@@ -1708,7 +1717,7 @@ hook.Add(
 		end
 
 		registerPanel("keymapping", keyMapScroll)
-		AddTreeNode(tree, "Key Mapping", "keymapping", "icon16/keyboard.png", showPanel)
+		AddTreeNode(tree, L("Key Mapping", "Key Mapping"), "keymapping", "icon16/keyboard.png", showPanel)
 		end -- Key Mapping panel
 
 		-- ========================================
@@ -1778,7 +1787,7 @@ hook.Add(
 		local restartWarning = vgui.Create("DLabel", modulesScroll)
 		restartWarning:Dock(TOP)
 		restartWarning:DockMargin(10, 8, 10, 4)
-		restartWarning:SetText("Changes require Gmod restart to take effect.")
+		restartWarning:SetText(L("Changes require Gmod restart to take effect.", "Changes require Gmod restart to take effect."))
 		restartWarning:SetFont("DermaDefaultBold")
 		restartWarning:SetTextColor(Color(255, 80, 80))
 		restartWarning:SetAutoStretchVertical(true)
@@ -1787,21 +1796,21 @@ hook.Add(
 		local addonOnlySectionLabel = vgui.Create("DLabel", modulesScroll)
 		addonOnlySectionLabel:Dock(TOP)
 		addonOnlySectionLabel:DockMargin(10, 10, 10, 2)
-		addonOnlySectionLabel:SetText("=== Addon-Only Mode ===")
+		addonOnlySectionLabel:SetText(L("=== Addon-Only Mode ===", "=== Addon-Only Mode ==="))
 		addonOnlySectionLabel:SetFont("DermaDefaultBold")
 		addonOnlySectionLabel:SizeToContents()
 
 		local addonOnlyCheck = vgui.Create("DCheckBoxLabel", modulesScroll)
 		addonOnlyCheck:Dock(TOP)
 		addonOnlyCheck:DockMargin(10, 4, 10, 2)
-		addonOnlyCheck:SetText("Addon-Only Mode (skip root files, use external VRMod)")
+		addonOnlyCheck:SetText(L("Addon-Only Mode (skip root files, use external VRMod)", "Addon-Only Mode (skip root files, use external VRMod)"))
 		addonOnlyCheck:SetConVar("vrmod_unoff_addon_only_mode")
 		addonOnlyCheck:SizeToContents()
 
 		local addonOnlyDesc = vgui.Create("DLabel", modulesScroll)
 		addonOnlyDesc:Dock(TOP)
 		addonOnlyDesc:DockMargin(20, 0, 10, 8)
-		addonOnlyDesc:SetText("ON = Root files (vrmod.lua, input, character, etc.) are not loaded.\nUse this with legacy/original VRMod as your base VRMod.\nOnly numbered folder modules are loaded as add-on features.")
+		addonOnlyDesc:SetText(L("ON = Root files (vrmod.lua, input, character, etc.) are not loaded.\nUse this with legacy/original VRMod as your base VRMod.\nOnly numbered folder modules are loaded as add-on features.", "ON = Root files (vrmod.lua, input, character, etc.) are not loaded.\nUse this with legacy/original VRMod as your base VRMod.\nOnly numbered folder modules are loaded as add-on features."))
 		addonOnlyDesc:SetAutoStretchVertical(true)
 		addonOnlyDesc:SetWrap(true)
 		addonOnlyDesc:SetTextColor(Color(180, 180, 180))
@@ -1810,21 +1819,21 @@ hook.Add(
 		local legacySectionLabel = vgui.Create("DLabel", modulesScroll)
 		legacySectionLabel:Dock(TOP)
 		legacySectionLabel:DockMargin(10, 10, 10, 2)
-		legacySectionLabel:SetText("=== Legacy Mode ===")
+		legacySectionLabel:SetText(L("=== Legacy Mode ===", "=== Legacy Mode ==="))
 		legacySectionLabel:SetFont("DermaDefaultBold")
 		legacySectionLabel:SizeToContents()
 
 		local legacyCheck = vgui.Create("DCheckBoxLabel", modulesScroll)
 		legacyCheck:Dock(TOP)
 		legacyCheck:DockMargin(10, 4, 10, 2)
-		legacyCheck:SetText("Legacy Mode (load only core features)")
+		legacyCheck:SetText(L("Legacy Mode (load only core features)", "Legacy Mode (load only core features)"))
 		legacyCheck:SetConVar("vrmod_unoff_legacy_mode")
 		legacyCheck:SizeToContents()
 
 		local legacyDesc = vgui.Create("DLabel", modulesScroll)
 		legacyDesc:Dock(TOP)
 		legacyDesc:DockMargin(20, 0, 10, 8)
-		legacyDesc:SetText("ON = only folders 0 (Core) and 1 (Auto-settings) load.\nAll features below are disabled regardless of their individual setting.")
+		legacyDesc:SetText(L("ON = only folders 0 (Core) and 1 (Auto-settings) load.\nAll features below are disabled regardless of their individual setting.", "ON = only folders 0 (Core) and 1 (Auto-settings) load.\nAll features below are disabled regardless of their individual setting."))
 		legacyDesc:SetAutoStretchVertical(true)
 		legacyDesc:SetWrap(true)
 		legacyDesc:SetTextColor(Color(180, 180, 180))
@@ -1833,7 +1842,7 @@ hook.Add(
 		local featureSectionLabel = vgui.Create("DLabel", modulesScroll)
 		featureSectionLabel:Dock(TOP)
 		featureSectionLabel:DockMargin(10, 6, 10, 2)
-		featureSectionLabel:SetText("=== Feature Modules ===")
+		featureSectionLabel:SetText(L("=== Feature Modules ===", "=== Feature Modules ==="))
 		featureSectionLabel:SetFont("DermaDefaultBold")
 		featureSectionLabel:SizeToContents()
 
@@ -1905,7 +1914,7 @@ hook.Add(
 		end)
 
 		registerPanel("modules", modulesScroll)
-		AddTreeNode(tree, "Modules", "modules", "icon16/bricks.png", showPanel)
+		AddTreeNode(tree, L("Modules", "Modules"), "modules", "icon16/bricks.png", showPanel)
 		end -- Modules panel
 		--]]
 

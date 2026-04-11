@@ -438,7 +438,7 @@ local function OpenWeaponBoneConfig()
 			ClearBoneCache()
 		end
 	)
-	sheet:AddSheet("Muzzle", muzzleTab, "icon16/gun.png")
+	sheet:AddSheet(L("Muzzle", "Muzzle"), muzzleTab, "icon16/gun.png")
 
 	--------------------------
 	-- Tab 2: Foregrip
@@ -468,7 +468,7 @@ local function OpenWeaponBoneConfig()
 			CleanupEntry()
 		end
 	)
-	sheet:AddSheet("Foregrip", foregripTab, "icon16/hand.png")
+	sheet:AddSheet(L("Foregrip", "Foregrip"), foregripTab, "icon16/hand.png")
 
 	-- Initialize foregrip preview if there's a current setting
 	if foregripCurrentBone and IsValid(vm) then
@@ -510,7 +510,7 @@ local function OpenWeaponBoneConfig()
 			CleanupEntry()
 		end
 	)
-	sheet:AddSheet("Magazine", magboneTab, "icon16/brick.png")
+	sheet:AddSheet(L("Magazine", "Magazine"), magboneTab, "icon16/brick.png")
 
 	-- Initialize magbone preview if there's a current setting
 	if magboneCurrentBone and IsValid(vm) then

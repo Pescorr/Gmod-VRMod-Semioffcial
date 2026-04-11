@@ -97,11 +97,11 @@ local function OpenMenu()
 	sheet:Dock(FILL)
 	frame.DPropertySheet = sheet
 	local panel1 = vgui.Create("DPanel", sheet)
-	sheet:AddSheet("Settings", panel1)
+	sheet:AddSheet(L("Settings", "Settings"), panel1)
 	local scrollPanel = vgui.Create("DScrollPanel", panel1)
 	scrollPanel:Dock(FILL)
 	local form = vgui.Create("DForm", scrollPanel)
-	form:SetName("Settings")
+	form:SetName(L("Settings", "Settings"))
 	form:Dock(TOP)
 	form.Header:SetVisible(false)
 	form.Paint = function(self, w, h) end
@@ -237,7 +237,7 @@ hook.Add(
 				--DButton Start
 				--vrmod_spawnmenu
 				local vrmod_spawnmenu = vgui.Create("DButton", panel) -- Create the button and parent it to the frame
-				vrmod_spawnmenu:SetText("VRMOD MENU") -- Set the text on the button
+				vrmod_spawnmenu:SetText(L("VRMOD MENU", "VRMOD MENU")) -- Set the text on the button
 				vrmod_spawnmenu:SetPos(20, 30) -- Set the position on the frame
 				vrmod_spawnmenu:SetSize(330, 30) -- Set the size
 				-- A custom function run when clicked ( note the . instead of : )

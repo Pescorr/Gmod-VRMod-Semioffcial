@@ -833,7 +833,7 @@ local L = VRModL or function(_, fb) return fb or "" end
 				btn.isSelected = true
 
 				if IsValid(statusLabel) then
-					statusLabel:SetText("Press a VR controller button to assign to [" .. (btn.keyLabel or "?") .. "]...")
+					statusLabel:SetText(string.format(L("Press a VR controller button to assign to [%s]...", "Press a VR controller button to assign to [%s]..."), btn.keyLabel or "?"))
 				end
 
 				-- Start VR capture
@@ -865,7 +865,7 @@ local L = VRModL or function(_, fb) return fb or "" end
 
 						local shortName = ACTION_SHORT[action] or action
 						if IsValid(statusLabel) then
-							statusLabel:SetText("Assigned [" .. shortName .. "] to [" .. (btn.keyLabel or "?") .. "]. Click another key or switch mode.")
+							statusLabel:SetText(string.format(L("Assigned [%s] to [%s]. Click another key or switch mode.", "Assigned [%s] to [%s]. Click another key or switch mode."), shortName, btn.keyLabel or "?"))
 						end
 					end)
 				end
@@ -882,18 +882,18 @@ local L = VRModL or function(_, fb) return fb or "" end
 			local menu = DermaMenu()
 			for _, act in ipairs(btn.assignedActions) do
 				local shortName = ACTION_SHORT[act] or act
-				menu:AddOption("Remove: " .. shortName, function()
+				menu:AddOption(L("Remove:", "Remove:") .. " " .. shortName, function()
 					if vrmod.InputEmu_RemoveAction then
 						pcall(vrmod.InputEmu_RemoveAction, act)
 					end
 					RefreshAssignments()
 					if IsValid(statusLabel) then
-						statusLabel:SetText("Removed [" .. shortName .. "] from [" .. (btn.keyLabel or "?") .. "].")
+						statusLabel:SetText(string.format(L("Removed [%s] from [%s].", "Removed [%s] from [%s]."), shortName, btn.keyLabel or "?"))
 					end
 				end)
 			end
 			menu:AddSpacer()
-			menu:AddOption("Reassign (new capture)", function()
+			menu:AddOption(L("Reassign (new capture)", "Reassign (new capture)"), function()
 				OnKeyClicked(btn, code, btn.keyDef)
 			end)
 			menu:Open()
