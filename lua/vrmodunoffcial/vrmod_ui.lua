@@ -269,7 +269,7 @@ function vrmod_ui_lua()
 			end
 		end
 
-		-- local VRClipboard = GetConVar("vrmod_Clipboard"):GetString()
+		-- local VRClipboard = GetConVar("vrmod_chat_clipboard"):GetString()
 		-- -- マウスカーソル下にあるパネルを取得する
 		-- local panel = vgui.GetHoveredPanel()
 		-- -- パネルがDTextEntryであるかどうかを確認する

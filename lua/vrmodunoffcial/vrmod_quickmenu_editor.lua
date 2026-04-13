@@ -172,9 +172,16 @@ function PANEL:RefreshList()
     self.itemList:Clear()
 
     for i, item in ipairs(self.items) do
-        local typeStr = item.actionType == "convar_toggle" and "Toggle" or "Cmd"
-        local actionStr = string.sub(item.actionValue, 1, 15)
-        if #item.actionValue > 15 then actionStr = actionStr .. "..." end
+        local typeStr = item.actionType == "convar_toggle" and "Toggle"
+            or item.actionType == "key_press" and "Key"
+            or "Cmd"
+        local actionStr
+        if item.actionType == "key_press" and vrmod and vrmod.InputEmu_GetKeyDisplayName then
+            actionStr = vrmod.InputEmu_GetKeyDisplayName(tonumber(item.actionValue)) or item.actionValue
+        else
+            actionStr = string.sub(item.actionValue, 1, 15)
+            if #item.actionValue > 15 then actionStr = actionStr .. "..." end
+        end
 
         self.itemList:AddLine(item.name, item.slot, item.slotPos, typeStr, actionStr)
     end
@@ -259,7 +266,7 @@ function PANEL:OpenItemDialog(editIndex)
     }
 
     local dialog = vgui.Create("DFrame")
-    dialog:SetSize(350, 250)
+    dialog:SetSize(350, 280)
     dialog:SetTitle(isEdit and L("Edit Item", "Edit Item") or L("Add Item", "Add Item"))
     dialog:Center()
     dialog:MakePopup()
@@ -326,10 +333,17 @@ function PANEL:OpenItemDialog(editIndex)
     typeCombo:SetSize(210, 20)
     typeCombo:AddChoice(L("Console Command", "Console Command"), "command")
     typeCombo:AddChoice(L("ConVar Toggle", "ConVar Toggle"), "convar_toggle")
-    typeCombo:SetValue(item.actionType == "convar_toggle" and L("ConVar Toggle", "ConVar Toggle") or L("Console Command", "Console Command"))
+    typeCombo:AddChoice(L("Key Press", "Key Press"), "key_press")
+    if item.actionType == "convar_toggle" then
+        typeCombo:SetValue(L("ConVar Toggle", "ConVar Toggle"))
+    elseif item.actionType == "key_press" then
+        typeCombo:SetValue(L("Key Press", "Key Press"))
+    else
+        typeCombo:SetValue(L("Console Command", "Console Command"))
+    end
     y = y + 30
 
-    -- Action Value
+    -- Action Value (for command / convar_toggle)
     local valueLabel = vgui.Create("DLabel", dialog)
     valueLabel:SetPos(10, y)
     valueLabel:SetText(L("Action Value:", "Action Value:"))
@@ -339,7 +353,46 @@ function PANEL:OpenItemDialog(editIndex)
     local valueEntry = vgui.Create("DTextEntry", dialog)
     valueEntry:SetPos(120, y)
     valueEntry:SetSize(210, 20)
-    valueEntry:SetText(item.actionValue)
+    valueEntry:SetText(item.actionType ~= "key_press" and item.actionValue or "")
+
+    -- Key picker (for key_press)
+    local keyPickerLabel = vgui.Create("DLabel", dialog)
+    keyPickerLabel:SetPos(10, y)
+    keyPickerLabel:SetText(L("Key:", "Key:"))
+    keyPickerLabel:SetTextColor(Color(255, 255, 255))
+    keyPickerLabel:SizeToContents()
+
+    local keyPicker = vgui.Create("DComboBox", dialog)
+    keyPicker:SetPos(120, y)
+    keyPicker:SetSize(210, 20)
+    if vrmod and vrmod.InputEmu_GetAssignableKeys then
+        for _, entry in ipairs(vrmod.InputEmu_GetAssignableKeys()) do
+            if entry[1] > 0 then
+                keyPicker:AddChoice(entry[2], tostring(entry[1]))
+            end
+        end
+    end
+    if item.actionType == "key_press" and item.actionValue ~= "" then
+        local displayName = vrmod and vrmod.InputEmu_GetKeyDisplayName
+            and vrmod.InputEmu_GetKeyDisplayName(tonumber(item.actionValue)) or item.actionValue
+        keyPicker:SetValue(displayName)
+    end
+
+    -- Toggle visibility based on action type
+    local isKeyPress = (item.actionType == "key_press")
+    keyPickerLabel:SetVisible(isKeyPress)
+    keyPicker:SetVisible(isKeyPress)
+    valueLabel:SetVisible(not isKeyPress)
+    valueEntry:SetVisible(not isKeyPress)
+
+    typeCombo.OnSelect = function(_, _, _, data)
+        local kp = (data == "key_press")
+        keyPickerLabel:SetVisible(kp)
+        keyPicker:SetVisible(kp)
+        valueLabel:SetVisible(not kp)
+        valueEntry:SetVisible(not kp)
+    end
+
     y = y + 40
 
     -- OK Button
@@ -352,7 +405,13 @@ function PANEL:OpenItemDialog(editIndex)
         local newSlot = math.floor(slotSlider:GetValue())
         local newPos = math.floor(posSlider:GetValue())
         local _, newType = typeCombo:GetSelected()
-        local newValue = valueEntry:GetValue()
+        local newValue
+        if newType == "key_press" then
+            local _, keyCode = keyPicker:GetSelected()
+            newValue = keyCode or ""
+        else
+            newValue = valueEntry:GetValue()
+        end
 
         if newName == "" or newValue == "" then
             notification.AddLegacy(L("Name and Action Value are required!", "Name and Action Value are required!"), NOTIFY_ERROR, 2)

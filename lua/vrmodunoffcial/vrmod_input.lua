@@ -6,18 +6,46 @@ local cl_hudonlykey = CreateClientConVar("vrmod_hud_visible_quickmenukey", 0, tr
 if SERVER then return end
 local ply = LocalPlayer()
 local VRKeyStates = {}
--- -- VRの入力状態をシミュレートするための関数
--- local function SimulateKeyPress(key, pressed)
--- 	VRKeyStates[key] = pressed
--- end
 
--- -- input.IsKeyDown をオーバーライド
--- local original_IsKeyDown = input.IsKeyDown
--- function input.IsKeyDown(key)
--- 	if key == KEY_K then return VRKeyStates[KEY_K] or false end
+local cl_auto_vehicle = CreateClientConVar("vrmod_auto_vehicle_scheme", "1", true, FCVAR_ARCHIVE,
+	"Auto-detect vehicle type and switch control scheme", 0, 1)
 
--- 	return original_IsKeyDown(key)
--- end
+-- Detection priority: LVS > Simfphys > Glide > Vanilla
+-- Returns: "lvs_wheel", "lvs_air", "simfphys", "glide", "vanilla", or nil
+local function DetectVehicleType()
+	local ply = LocalPlayer()
+	if not IsValid(ply) or not ply:InVehicle() then return nil end
+
+	-- LVS
+	if ply.lvsGetVehicle then
+		local lvsVeh = ply:lvsGetVehicle()
+		if IsValid(lvsVeh) then
+			local cls = string.lower(lvsVeh:GetClass())
+			if string.find(cls, "wheeldrive") then
+				return "lvs_wheel"
+			end
+			return "lvs_air"
+		end
+	end
+
+	-- Simfphys
+	if ply.GetSimfphys and ply.IsDrivingSimfphys then
+		local simVeh = ply:GetSimfphys()
+		if IsValid(simVeh) and ply:IsDrivingSimfphys() then
+			return "simfphys"
+		end
+	end
+
+	-- Glide
+	if Glide then
+		local glideVeh = ply:GetNWEntity("GlideVehicle")
+		if IsValid(glideVeh) then
+			return "glide"
+		end
+	end
+
+	return "vanilla"
+end
 
 hook.Add(
 	"VRMod_EnterVehicle",
@@ -28,6 +56,24 @@ hook.Add(
 		else
 			VRMOD_SetActiveActionSets("/actions/base", "/actions/driving")
 		end
+
+		if not cl_auto_vehicle:GetBool() then return end
+
+		-- Defer detection to allow vehicle entity to initialize
+		timer.Simple(0.1, function()
+			local vehType = DetectVehicleType()
+			if not vehType then return end
+
+			g_VR._activeVehicleType = vehType
+
+			if vehType == "lvs_wheel" or vehType == "lvs_air" then
+				if not game.SinglePlayer() then
+					RunConsoleCommand("vrmod_lvs_input_mode", "1")
+				end
+			end
+
+			print("[VRMod] Auto-detected vehicle: " .. vehType)
+		end)
 	end
 )
 
@@ -36,6 +82,13 @@ hook.Add(
 	"vrmod_switchactionset",
 	function()
 		VRMOD_SetActiveActionSets("/actions/base", "/actions/main")
+
+		local prevType = g_VR._activeVehicleType
+		g_VR._activeVehicleType = nil
+
+		if prevType then
+			print("[VRMod] Exited " .. prevType .. " vehicle, restored main controls")
+		end
 	end
 )
 

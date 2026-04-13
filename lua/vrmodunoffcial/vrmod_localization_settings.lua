@@ -41,8 +41,8 @@ AddSettings("ja", {
     -- ==============================
     ["Jumpkey Auto Duck"] = "ジャンプキー自動しゃがみ",
     ["Teleport Enable"] = "テレポート有効化",
-    ["Teleport Hand (0=Left 1=Right 2=Head)"] = "テレポート手 (0=左 1=右 2=頭)",
-    ["Flashlight Attachment (0=R 1=L 2=HMD)"] = "懐中電灯取り付け位置 (0=右 1=左 2=HMD)",
+    ["Teleport Hand (0=Left 1=Right 2=Head)"] = "テレポート基準 (0=左 1=右 2=頭)",
+    ["Flashlight Attachment (0=R 1=L 2=HMD)"] = "ライト取り付け位置 (0=右 1=左 2=HMD)",
     ["Toggle Laser Pointer"] = "レーザーポインター切替",
     ["Weapon Viewmodel Setting"] = "武器ビューモデル設定",
     ["Weapon Bone Config"] = "武器ボーン設定",
@@ -60,17 +60,17 @@ AddSettings("ja", {
     ["Crouch Threshold"] = "しゃがみ閾値",
     ["Head to HMD Distance"] = "頭とHMDの距離",
     ["Z Near"] = "Z近接値",
-    ["Seated Mode"] = "座位モード",
-    ["Seated Offset"] = "座位オフセット",
-    ["Alternative Character Yaw"] = "代替キャラクター回転",
-    ["Character Animation Enable"] = "キャラクターアニメーション有効化",
+    ["Seated Mode"] = "座席モード",
+    ["Seated Offset"] = "座席オフセット",
+    ["Alternative Character Yaw"] = "キャラクター回転 変更",
+    ["Character Animation Enable"] = "アニメーション有効化",
     ["Hide Head"] = "頭を非表示",
     ["Idle Animation"] = "待機アニメーション",
     ["Walk Animation"] = "歩行アニメーション",
     ["Run Animation"] = "走行アニメーション",
     ["Jump Animation"] = "ジャンプアニメーション",
-    ["Left Hand"] = "左手",
-    ["Left Hand Fire"] = "左手で射撃",
+    ["Left Hand"] = "左手モード",
+    ["Left Hand Fire"] = "左手モード+左手トリガー射撃",
     ["Left Hand Hold Mode"] = "左手ホールドモード",
     ["Apply VR Settings (Requires VRMod Restart)"] = "VR設定を適用 (VRMod再起動が必要)",
     ["Auto Adjust VR Settings"] = "VR設定を自動調整",
@@ -128,7 +128,7 @@ AddSettings("ja", {
     ["Render Target"] = "レンダーターゲット",
 
     -- Help: Optimize
-    ["0:None 1:No changes 2:Reset 3:VR safe 4:Max(flash warn)"] = "0:なし 1:変更なし 2:リセット 3:VR安全 4:最大(フラッシュ警告)",
+    ["0:None 1:No changes 2:Reset 3:VR safe 4:Max(flash warn)"] = "0:なし 1:変更なし 2:リセット 3:最適化 4:超最適化(!点滅注意!))",
 
     -- ==============================
     -- Opt.VR category items
@@ -156,26 +156,26 @@ AddSettings("ja", {
     ["Root Level of Detail"] = "ルート詳細レベル",
     ["AI Expression Frequency"] = "AI表情更新頻度",
     ["Detail Distance"] = "ディテール表示距離",
-    ["Fast Specular"] = "高速スペキュラー",
+    ["Fast Specular"] = "反射高速描写",
     ["Water Overlay Size"] = "水面オーバーレイサイズ",
-    ["Draw Detail Props"] = "ディテールプロップ描画",
-    ["Specular Reflections"] = "スペキュラー反射",
+    ["Draw Detail Props"] = "物品ディテール描画",
+    ["Specular Reflections"] = "テクスチャ反射",
 
     -- ==============================
     -- Quick Menu category items
     -- ==============================
     ["Map Browser"] = "マップブラウザ",
-    ["VR Exit"] = "VR終了",
-    ["UI Reset"] = "UIリセット",
-    ["VRE GBRadial & Add Menu"] = "VRE GBラジアル&追加メニュー",
+    ["VR Exit"] = "VR EXIT",
+    ["UI Reset"] = "UI RESET",
+    ["VRE GBRadial & Add Menu"] = "VRE GBRadial & addMenu",
     ["Chat"] = "チャット",
-    ["Keyboard"] = "キーボード",
-    ["Toggle Mirror"] = "鏡切替",
+    ["Keyboard"] = "Keyboard",
+    ["Toggle Mirror"] = "Toggle Mirror",
     ["Spawn Menu"] = "スポーンメニュー",
-    ["No Clip"] = "ノークリップ",
+    ["No Clip"] = "No Clip",
     ["Context Menu"] = "コンテキストメニュー",
     ["ArcCW Customize"] = "ArcCWカスタマイズ",
-    ["Toggle Vehicle Mode"] = "車両モード切替",
+    ["Toggle Vehicle Mode"] = "運転できない時に押す",
 
     -- ==============================
     -- VRStop Key category items

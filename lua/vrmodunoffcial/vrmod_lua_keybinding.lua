@@ -84,6 +84,11 @@ cvars.AddChangeCallback("vrmod_unoff_inputmode", function(_, old, new)
 		DbgInfo("[LKB] Mapping entries (on_foot): %d", table.Count(LKB.mapping or {}))
 		DbgInfo("[LKB] Mapping entries (driving): %d", table.Count(LKB.drivingMapping or {}))
 	end
+	-- Reactivate action sets so monkey-patch injects/removes /actions/raw
+	if g_VR and g_VR.active and VRMOD_SetActiveActionSets then
+		VRMOD_SetActiveActionSets("/actions/base",
+			LocalPlayer():InVehicle() and "/actions/driving" or "/actions/main")
+	end
 end, "lkb_mode_trace")
 
 -------------------------------------------------------------------------------
@@ -525,6 +530,14 @@ concommand.Add("vrmod_keybinding_menu", function()
 	modeCombo:SetValue(cv_inputmode:GetInt() == 1 and L("Lua Keybinding (Recommended)", "Lua Keybinding (Recommended)") or L("SteamVR Bindings (Default)", "SteamVR Bindings (Default)"))
 	modeCombo.OnSelect = function(self, index, value, data)
 		RunConsoleCommand("vrmod_unoff_inputmode", tostring(data))
+	end
+
+	local wizardBtn = vgui.Create("DButton", topBar)
+	wizardBtn:SetPos(400, 6)
+	wizardBtn:SetSize(105, 24)
+	wizardBtn:SetText(L("VR Wizard", "VR Wizard"))
+	wizardBtn.DoClick = function()
+		RunConsoleCommand("vrmod_keybinding_wizard")
 	end
 
 	local resetBtn = vgui.Create("DButton", topBar)

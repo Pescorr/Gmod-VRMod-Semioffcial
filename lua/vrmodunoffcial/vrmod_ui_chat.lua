@@ -5,7 +5,7 @@ if CLIENT then
 	local chatLog = {}
 	local chatPanel = nil
 	local nametags = false
-	local VRClipboard = CreateClientConVar("vrmod_Clipboard","",false,false,"")
+	local VRClipboard = CreateClientConVar("vrmod_chat_clipboard","",false,false,"")
 	
 	hook.Add("VRMod_Start","voicepermissions",function(ply)
 

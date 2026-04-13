@@ -143,7 +143,7 @@ local VR_CONVARS = {
     "vrmod_characterEyeHeight",
     "vrmod_characterHeadToHmdDist",
     "vrmod_chatmode",
-    "vrmod_Clipboard",
+    "vrmod_chat_clipboard",
     "vrmod_cmd_contextmenu_close",
     "vrmod_cmd_contextmenu_open",
     "vrmod_cmd_spawnmenu_close",

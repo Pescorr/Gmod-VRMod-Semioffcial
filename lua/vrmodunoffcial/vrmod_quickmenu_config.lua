@@ -30,8 +30,12 @@ local function ValidateMenuItem(item)
     if not isnumber(item.slot) or item.slot < 0 or item.slot > 5 then return false end
     if not isnumber(item.slotPos) or item.slotPos < 0 or item.slotPos > 20 then return false end
     if not isstring(item.actionType) then return false end
-    if item.actionType ~= "convar_toggle" and item.actionType ~= "command" then return false end
+    if item.actionType ~= "convar_toggle" and item.actionType ~= "command" and item.actionType ~= "key_press" then return false end
     if not isstring(item.actionValue) or item.actionValue == "" then return false end
+    if item.actionType == "key_press" then
+        local code = tonumber(item.actionValue)
+        if not code or code < 1 then return false end
+    end
     return true
 end
 
@@ -155,6 +159,13 @@ local function CreateActionFunction(item)
     elseif item.actionType == "command" then
         return function()
             LocalPlayer():ConCommand(item.actionValue)
+        end
+    elseif item.actionType == "key_press" then
+        return function()
+            local code = tonumber(item.actionValue)
+            if code and code > 0 and vrmod and vrmod.InputEmu_TapKey then
+                vrmod.InputEmu_TapKey(code)
+            end
         end
     end
     return function() end

@@ -730,9 +730,16 @@ local L = VRModL or function(_, fb) return fb or "" end
 					heldKeyBtn = btn
 					btn.isHeld = true
 				else
-					-- Page 2: shift combo for keys with shiftLabel
+					-- Page 2: symbol key handling
 					local shiftLabel = keyDef[4]
 					if shiftLabel then
+						-- PostMessage cannot simulate Shift+Key for text input
+						-- (OS keyboard state unchanged → TranslateMessage ignores Shift)
+						-- Hybrid fix: direct insertion for text entries + best-effort injection
+						local activeTE = vgui.GetKeyboardFocus()
+						if IsValid(activeTE) then
+							activeTE:SetText(activeTE:GetText() .. shiftLabel)
+						end
 						InjectShiftCombo(code, btn)
 					else
 						-- Keys without shiftLabel (F1-F12, arrows, modifiers, mouse, numpad): inject normally
@@ -792,6 +799,8 @@ local L = VRModL or function(_, fb) return fb or "" end
 									activeTE:SetText(string.sub(text, 1, #text - 1))
 								end
 							end
+						elseif code == KEY_ENTER then
+							-- no-op for text input (same as Page 1)
 						elseif code == KEY_SPACE then
 							if IsValid(activeTE) then
 								activeTE:SetText(activeTE:GetText() .. " ")
