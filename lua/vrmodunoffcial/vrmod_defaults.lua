@@ -174,18 +174,6 @@ VRMOD_DEFAULTS = {
 		cardboardmod_scale = 39.37008,
 		cardboardmod_sensitivity = 0.01,
 	},
-	-- Adaptive FPS Settings / 適応的FPS設定
-	adaptive = {
-		vrmod_adaptive_enabled = 0,
-		vrmod_adaptive_target_fps = 90,
-		vrmod_adaptive_floor = 0,
-		vrmod_adaptive_ceiling = 6,
-		vrmod_adaptive_degrade_time = 1.5,
-		vrmod_adaptive_recover_time = 7.0,
-		vrmod_adaptive_farz_min = 1500,
-		vrmod_adaptive_hud_indicator = 1,
-		vrmod_adaptive_debug = 0,
-	},
 	-- Vehicle Settings / 車両設定
 	vehicle = {
 		vrmod_lvs_input_mode = 1,

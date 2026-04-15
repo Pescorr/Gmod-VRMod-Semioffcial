@@ -81,6 +81,11 @@ local CLR_ASGN_YES_BG     = Color(25, 85, 35, 235)
 local CLR_ASGN_YES_HOVER  = Color(35, 110, 50, 240)
 local CLR_ASGN_BG         = Color(42, 42, 48, 235)
 local CLR_ASGN_BG_HOVER   = Color(58, 58, 68, 240)
+local CLR_RAW_YES_BG_D    = Color(20, 55, 85, 235)
+local CLR_RAW_YES_HOVER_D = Color(30, 75, 110, 240)
+local CLR_RAW_YES_BORDER_D = Color(50, 120, 180)
+local CLR_RAW_YES_BRD_H_D = Color(70, 160, 220)
+local CLR_RAW_TEXT_D       = Color(100, 180, 255, 210)
 local CLR_SEL_BORDER      = Color(255, 220, 50)
 local CLR_YES_BORDER      = Color(50, 140, 60)
 local CLR_YES_BRD_HOVER   = Color(80, 180, 90)
@@ -92,6 +97,8 @@ local CLR_ACTION_TEXT      = Color(140, 220, 155, 210)
 
 local function PaintKeyButton(self, w, h)
 	local isAssigned = #self.assignedActions > 0
+	local isRawAssigned = self.assignedRawMappings and #self.assignedRawMappings > 0
+	local hasAny = isAssigned or isRawAssigned
 	local isHovered  = self:IsHovered()
 	local isSel      = self.isSelected
 
@@ -104,6 +111,10 @@ local function PaintKeyButton(self, w, h)
 			math.floor(160 * pulse),
 			0, 235
 		)
+	elseif isAssigned and isRawAssigned then
+		bg = isHovered and CLR_ASGN_YES_HOVER or CLR_ASGN_YES_BG
+	elseif isRawAssigned then
+		bg = isHovered and CLR_RAW_YES_HOVER_D or CLR_RAW_YES_BG_D
 	elseif isAssigned then
 		bg = isHovered and CLR_ASGN_YES_HOVER or CLR_ASGN_YES_BG
 	else
@@ -116,6 +127,10 @@ local function PaintKeyButton(self, w, h)
 	local border
 	if isSel then
 		border = CLR_SEL_BORDER
+	elseif isRawAssigned and isAssigned then
+		border = isHovered and CLR_RAW_YES_BRD_H_D or CLR_RAW_YES_BORDER_D
+	elseif isRawAssigned then
+		border = isHovered and CLR_RAW_YES_BRD_H_D or CLR_RAW_YES_BORDER_D
 	elseif isAssigned then
 		border = isHovered and CLR_YES_BRD_HOVER or CLR_YES_BORDER
 	else
@@ -124,8 +139,8 @@ local function PaintKeyButton(self, w, h)
 	surface.SetDrawColor(border)
 	surface.DrawOutlinedRect(0, 0, w, h, 1)
 
-	-- Key label text (centered, or shifted up if action is shown below)
-	local labelY = isAssigned and (h * 0.3) or (h * 0.5)
+	-- Key label text
+	local labelY = hasAny and (h * 0.22) or (h * 0.5)
 	local labelColor = isSel and CLR_LABEL_SEL or CLR_LABEL_NORMAL
 	draw.SimpleText(
 		self.keyLabel, "DermaDefaultBold",
@@ -133,22 +148,45 @@ local function PaintKeyButton(self, w, h)
 		labelColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER
 	)
 
-	-- Assigned action short name (below key label, small green text)
+	-- Assigned action short name (green text)
 	if isAssigned and not isSel then
 		local txt = ""
 		for i, act in ipairs(self.assignedActions) do
 			if i > 1 then txt = txt .. " " end
 			txt = txt .. (ACTION_SHORT[act] or "?")
 		end
-		-- Truncate for narrow keys
+		local maxChars = math.max(3, math.floor(w / 6))
+		if #txt > maxChars then
+			txt = string.sub(txt, 1, maxChars - 1) .. ".."
+		end
+		local actionY = isRawAssigned and (h * 0.52) or (h * 0.65)
+		draw.SimpleText(
+			txt, "DermaDefault",
+			w / 2, actionY,
+			CLR_ACTION_TEXT, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER
+		)
+	end
+
+	-- Raw button assignments (cyan text)
+	if isRawAssigned and not isSel then
+		local AI = g_VR and g_VR.advancedInput
+		local txt = ""
+		for i, rm in ipairs(self.assignedRawMappings) do
+			if i > 1 then txt = txt .. " " end
+			if AI then
+				txt = txt .. AI.GetShortRawName(rm.raw) .. ":" .. AI.GetShortGestureChar(rm.gesture)
+			else
+				txt = txt .. "?"
+			end
+		end
 		local maxChars = math.max(3, math.floor(w / 6))
 		if #txt > maxChars then
 			txt = string.sub(txt, 1, maxChars - 1) .. ".."
 		end
 		draw.SimpleText(
 			txt, "DermaDefault",
-			w / 2, h * 0.72,
-			CLR_ACTION_TEXT, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER
+			w / 2, h * 0.80,
+			CLR_RAW_TEXT_D, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER
 		)
 	end
 end
@@ -216,12 +254,24 @@ local function OpenKeyboardEditor()
 		end
 	end
 
+	-- Raw assignment sub-mode state
+	local rawAssignMode = false
+	local selectedGesture = "short_press"
+
 	local function RefreshKeyStates()
 		local ok, reverseMap = pcall(vrmod.InputEmu_GetReverseMap)
 		if not ok then reverseMap = {} end
+		-- Also get raw button assignments from advanced input
+		local rawReverseMap = {}
+		local AI = g_VR and g_VR.advancedInput
+		if AI and AI.GetKeyReverseMap then
+			local rok, rrm = pcall(AI.GetKeyReverseMap)
+			if rok then rawReverseMap = rrm end
+		end
 		for code, panel in pairs(keyPanels) do
 			if IsValid(panel) then
 				panel.assignedActions = reverseMap[code] or {}
+				panel.assignedRawMappings = rawReverseMap[code] or {}
 			end
 		end
 	end
@@ -232,6 +282,9 @@ local function OpenKeyboardEditor()
 		selectedPanel = nil
 		if vrmod.InputEmu_CancelCapture then
 			pcall(vrmod.InputEmu_CancelCapture)
+		end
+		if vrmod.InputEmu_CancelRawCapture then
+			pcall(vrmod.InputEmu_CancelRawCapture)
 		end
 	end
 
@@ -264,45 +317,121 @@ local function OpenKeyboardEditor()
 	end
 
 	-- ===================================================================
+	-- Show raw button dropdown (fallback for non-VR in raw mode)
+	-- ===================================================================
+	local function ShowRawDropdown(buttonCode, keyLabel)
+		local AI = g_VR and g_VR.advancedInput
+		if not AI then return end
+		local rawBooleans = AI.GetAvailableRawBooleans()
+		if #rawBooleans == 0 then return end
+
+		local menu = DermaMenu()
+		for _, rawName in ipairs(rawBooleans) do
+			menu:AddOption(AI.GetRawDisplayName(rawName), function()
+				AI.AddMapping(rawName, selectedGesture, "key", buttonCode, {})
+				AI.Save()
+				CancelCapture()
+				RefreshKeyStates()
+				local shortName = AI.GetShortRawName(rawName) .. ":" .. AI.GetShortGestureChar(selectedGesture)
+				UpdateStatus(
+					"Assigned: " .. shortName .. " -> [" .. keyLabel .. "]",
+					Color(100, 200, 255)
+				)
+				surface.PlaySound("buttons/button14.wav")
+			end)
+		end
+		menu:AddSpacer()
+		menu:AddOption(L("Cancel", "Cancel"), function()
+			CancelCapture()
+			UpdateStatus(L("Click a key to assign.", "Click a key to assign."))
+		end)
+		menu:Open()
+	end
+
+	-- ===================================================================
 	-- Start capture mode for a selected key
 	-- ===================================================================
 	local function StartCapture(buttonCode, keyLabel)
 		local vrActive = g_VR and g_VR.active
 
-		if vrActive then
-			UpdateStatus(
-				"[" .. keyLabel .. "] selected  --  Press a VR controller button to assign. Right-click for action list.",
-				Color(255, 200, 50)
-			)
-		else
-			UpdateStatus(
-				"[" .. keyLabel .. "] selected  --  VR not active. Choose from action list.",
-				Color(255, 180, 50)
-			)
-		end
-
-		-- Register VR capture (fires on next VRMod_Input boolean press)
-		if vrmod.InputEmu_StartCapture then
-			pcall(vrmod.InputEmu_StartCapture, function(action)
-				-- Safety: frame may have been closed during capture
-				if not IsValid(editorFrame) then return end
-
-				local fullLabel = GetActionFullLabel(action)
-				vrmod.InputEmu_AssignKeyToAction(action, buttonCode)
-
-				CancelCapture()
-				RefreshKeyStates()
+		if rawAssignMode then
+			-- === Raw Button Assignment Mode ===
+			local AI = g_VR and g_VR.advancedInput
+			local gestName = AI and AI.GetGestureDisplayName(selectedGesture) or selectedGesture
+			if vrActive then
 				UpdateStatus(
-					"Assigned: " .. fullLabel .. " -> [" .. keyLabel .. "]",
-					Color(100, 255, 100)
+					"[" .. keyLabel .. "]  --  Press a VR button to assign [" .. gestName .. "]. Right-click for list.",
+					Color(100, 200, 255)
 				)
-				surface.PlaySound("buttons/button14.wav")
-			end)
-		end
+			else
+				UpdateStatus(
+					"[" .. keyLabel .. "]  --  VR not active. Choose from raw button list.",
+					Color(100, 180, 255)
+				)
+			end
 
-		-- VR not active: immediately show dropdown as primary method
-		if not vrActive then
-			ShowActionDropdown(buttonCode, keyLabel)
+			if vrActive and vrmod.InputEmu_StartRawCapture then
+				pcall(vrmod.InputEmu_StartRawCapture, function(rawName)
+					if not IsValid(editorFrame) then return end
+					if not rawName then
+						CancelCapture()
+						UpdateStatus(L("Capture cancelled.", "Capture cancelled."))
+						return
+					end
+
+					if AI and AI.AddMapping then
+						AI.AddMapping(rawName, selectedGesture, "key", buttonCode, {})
+						AI.Save()
+					end
+
+					CancelCapture()
+					RefreshKeyStates()
+					local shortName = AI and (AI.GetShortRawName(rawName) .. ":" .. AI.GetShortGestureChar(selectedGesture)) or rawName
+					UpdateStatus(
+						"Assigned: " .. shortName .. " -> [" .. keyLabel .. "]",
+						Color(100, 200, 255)
+					)
+					surface.PlaySound("buttons/button14.wav")
+				end)
+			end
+
+			if not vrActive then
+				ShowRawDropdown(buttonCode, keyLabel)
+			end
+		else
+			-- === Action Assignment Mode (existing) ===
+			if vrActive then
+				UpdateStatus(
+					"[" .. keyLabel .. "] selected  --  Press a VR controller button to assign. Right-click for action list.",
+					Color(255, 200, 50)
+				)
+			else
+				UpdateStatus(
+					"[" .. keyLabel .. "] selected  --  VR not active. Choose from action list.",
+					Color(255, 180, 50)
+				)
+			end
+
+			if vrmod.InputEmu_StartCapture then
+				pcall(vrmod.InputEmu_StartCapture, function(action)
+					if not IsValid(editorFrame) then return end
+
+					local fullLabel = GetActionFullLabel(action)
+					vrmod.InputEmu_AssignKeyToAction(action, buttonCode)
+
+					CancelCapture()
+					RefreshKeyStates()
+					UpdateStatus(
+						"Assigned: " .. fullLabel .. " -> [" .. keyLabel .. "]",
+						Color(100, 255, 100)
+					)
+					surface.PlaySound("buttons/button14.wav")
+				end)
+			end
+
+			if not vrActive then
+				ShowActionDropdown(buttonCode, keyLabel)
+			end
 		end
 	end
 
@@ -387,6 +516,7 @@ local function OpenKeyboardEditor()
 			btn.keyLabel         = label
 			btn.isSelected       = false
 			btn.assignedActions  = {}
+			btn.assignedRawMappings = {}
 
 			keyPanels[code] = btn
 
@@ -411,13 +541,19 @@ local function OpenKeyboardEditor()
 
 			-- Right click: context menu (remove/assign/clear)
 			btn.DoRightClick = function(self)
-				if #self.assignedActions == 0 then
+				local hasActions = #self.assignedActions > 0
+				local hasRaw = self.assignedRawMappings and #self.assignedRawMappings > 0
+				if not hasActions and not hasRaw then
 					-- No assignments → show dropdown to assign
 					CancelCapture()
 					self.isSelected = true
 					selectedCode  = self.buttonCode
 					selectedPanel = self
-					ShowActionDropdown(self.buttonCode, self.keyLabel)
+					if rawAssignMode then
+						ShowRawDropdown(self.buttonCode, self.keyLabel)
+					else
+						ShowActionDropdown(self.buttonCode, self.keyLabel)
+					end
 					return
 				end
 
@@ -427,11 +563,27 @@ local function OpenKeyboardEditor()
 				-- List each assigned action with "Remove" option
 				for _, act in ipairs(self.assignedActions) do
 					local fullLabel = GetActionFullLabel(act)
-					menu:AddOption("Remove: " .. fullLabel, function()
+					menu:AddOption("Remove Action: " .. fullLabel, function()
 						vrmod.InputEmu_RemoveAction(act)
 						RefreshKeyStates()
 						UpdateStatus("Removed: " .. fullLabel .. " from [" .. self.keyLabel .. "]")
 					end)
+				end
+
+				-- List raw button assignments with "Remove" option
+				if hasRaw then
+					local AI = g_VR and g_VR.advancedInput
+					for _, rm in ipairs(self.assignedRawMappings) do
+						local displayName = AI and (AI.GetShortRawName(rm.raw) .. " [" .. AI.GetGestureDisplayName(rm.gesture) .. "]") or rm.raw
+						menu:AddOption("Remove Raw: " .. displayName, function()
+							if AI and AI.RemoveMapping then
+								AI.RemoveMapping(rm.index)
+								AI.Save()
+							end
+							RefreshKeyStates()
+							UpdateStatus("Removed: " .. displayName .. " from [" .. self.keyLabel .. "]")
+						end)
+					end
 				end
 
 				-- "Clear All" if multiple actions
@@ -613,6 +765,68 @@ local function OpenKeyboardEditor()
 					UpdateStatus(L("Auto assign cancelled.", "Auto assign cancelled."), Color(200, 200, 200))
 				end
 			end)
+		end
+	end
+
+	-- Sub-mode toggle: [Action] / [Raw Button] + gesture selector
+	local modeToggleX = PAD + 100 + btnGap + 130 + btnGap + 130 + btnGap
+	local actionModeBtn = vgui.Create("DButton", frame)
+	actionModeBtn:SetPos(modeToggleX, btnY)
+	actionModeBtn:SetSize(60, btnH)
+	actionModeBtn:SetText("Action")
+	actionModeBtn:SetTextColor(Color(100, 255, 150))
+	actionModeBtn.Paint = function(self, w, h)
+		local bg = (not rawAssignMode) and Color(30, 80, 50, 220) or Color(40, 40, 50, 200)
+		draw.RoundedBox(2, 0, 0, w, h, bg)
+		local bd = (not rawAssignMode) and Color(50, 140, 60) or Color(70, 70, 80)
+		surface.SetDrawColor(bd)
+		surface.DrawOutlinedRect(0, 0, w, h, 1)
+	end
+	actionModeBtn.DoClick = function()
+		rawAssignMode = false
+		CancelCapture()
+		UpdateStatus(L("Click a key to assign a VR controller action.", "Click a key to assign a VR controller action."))
+	end
+
+	local rawModeBtn = vgui.Create("DButton", frame)
+	rawModeBtn:SetPos(modeToggleX + 62, btnY)
+	rawModeBtn:SetSize(70, btnH)
+	rawModeBtn:SetText("Raw Btn")
+	rawModeBtn:SetTextColor(Color(100, 180, 255))
+	rawModeBtn.Paint = function(self, w, h)
+		local bg = rawAssignMode and Color(20, 55, 85, 220) or Color(40, 40, 50, 200)
+		draw.RoundedBox(2, 0, 0, w, h, bg)
+		local bd = rawAssignMode and Color(50, 120, 180) or Color(70, 70, 80)
+		surface.SetDrawColor(bd)
+		surface.DrawOutlinedRect(0, 0, w, h, 1)
+	end
+	rawModeBtn.DoClick = function()
+		rawAssignMode = true
+		CancelCapture()
+		UpdateStatus(L("Click a key to assign a raw VR button.", "Click a key to assign a raw VR button."))
+	end
+
+	-- Gesture selector (next to raw mode button)
+	local gestNames = { {"short_press", "S"}, {"long_press", "L"}, {"double_click", "D"}, {"combo", "C"} }
+	local gestStartX = modeToggleX + 62 + 72
+	for gi, gd in ipairs(gestNames) do
+		local gBtn = vgui.Create("DButton", frame)
+		gBtn:SetPos(gestStartX + (gi - 1) * 24, btnY)
+		gBtn:SetSize(22, btnH)
+		gBtn:SetText(gd[2])
+		gBtn:SetFont("DermaDefaultBold")
+		gBtn:SetTextColor(Color(200, 200, 210))
+		gBtn:SetTooltip(gd[1]:gsub("_", " "))
+		gBtn.Paint = function(self, w, h)
+			if not rawAssignMode then self:SetAlpha(80) else self:SetAlpha(255) end
+			local active = (selectedGesture == gd[1])
+			local bg = active and Color(60, 120, 180, 220) or Color(40, 40, 50, 200)
+			draw.RoundedBox(1, 0, 0, w, h, bg)
+			surface.SetDrawColor(active and Color(50, 120, 180) or Color(70, 70, 80))
+			surface.DrawOutlinedRect(0, 0, w, h, 1)
+		end
+		gBtn.DoClick = function()
+			selectedGesture = gd[1]
 		end
 	end
 

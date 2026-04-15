@@ -296,7 +296,7 @@ if CLIENT then
 		UpdateListView()
 		-- 新規追加ボタン
 		local addButton = vgui.Create("DButton", frame)
-		addButton:SetText(L("New", "New"))
+		addButton:SetText(L("New", "New") or "New")
 		addButton:Dock(BOTTOM)
 		addButton.DoClick = function()
 			local currentWeapon = LocalPlayer():GetActiveWeapon()

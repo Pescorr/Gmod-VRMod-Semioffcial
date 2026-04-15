@@ -124,6 +124,10 @@ local cppAvailable = false
 -- Capture mode: next VRMod_Input press calls this callback (for UI key assignment)
 local captureCallback = nil
 
+-- Raw capture mode: polls LKB.rawValues for raw button press (for advanced input assignment)
+local rawCaptureCallback = nil
+local rawCapturePrev = {}
+
 local function CppInject(key, pressed)
 	if not cppAvailable then return end
 	local vk = KEY_TO_VK[key]
@@ -421,6 +425,9 @@ end)
 hook.Add("VRMod_Exit", "vrmod_unoff_input_emu", function()
 	vrActive = false
 	captureCallback = nil -- Cancel any pending capture
+	rawCaptureCallback = nil -- Cancel any pending raw capture
+	rawCapturePrev = {}
+	hook.Remove("Think", "vrmod_unoff_raw_capture")
 	CppReleaseAll()
 	ClearVRKeys()
 end)
@@ -579,6 +586,93 @@ end
 --- キャプチャ中かどうか
 function vrmod.InputEmu_IsCapturing()
 	return captureCallback ~= nil
+end
+
+--- rawボタンキャプチャ開始（LKB.rawValuesをポーリングしてbooleanのrising edgeを検出）
+--- @param callback function callback(rawName) — rawアクション名を渡す
+--- @param skipMenuUID string|nil メニューUID（カーソルがこの上ならprimaryfire対応rawをスキップ）
+--- @return boolean キャプチャ開始成功
+function vrmod.InputEmu_StartRawCapture(callback, skipMenuUID)
+	if type(callback) ~= "function" then return false end
+
+	rawCaptureCallback = callback
+
+	-- Seed prev values from current raw state
+	rawCapturePrev = {}
+	local LKB = g_VR and g_VR.luaKeybinding
+	local rawValues = LKB and LKB.rawValues
+	if rawValues then
+		for _, rawName in ipairs(g_VR.rawActionNames or {}) do
+			rawCapturePrev[rawName] = rawValues[rawName]
+		end
+	end
+
+	hook.Add("Think", "vrmod_unoff_raw_capture", function()
+		if not rawCaptureCallback then
+			hook.Remove("Think", "vrmod_unoff_raw_capture")
+			return
+		end
+
+		if not g_VR or not g_VR.active then return end
+
+		local lkb = g_VR.luaKeybinding
+		local rv = lkb and lkb.rawValues
+		if not rv then return end
+
+		-- Build skip list: when cursor is on keyboard panel, skip primaryfire trigger
+		local skipRaws = {}
+		if skipMenuUID and g_VR.menuFocus == skipMenuUID then
+			local mapping = lkb and lkb.mapping
+			if mapping then
+				for raw, logical in pairs(mapping) do
+					if logical == "boolean_primaryfire" then
+						skipRaws[raw] = true
+						local pullName = string.gsub(raw, "_bool$", "_pull")
+						if pullName ~= raw then skipRaws[pullName] = true end
+						break
+					end
+				end
+			end
+		end
+
+		for _, rawName in ipairs(g_VR.rawActionNames or {}) do
+			local rawType = g_VR.rawActionTypes and g_VR.rawActionTypes[rawName]
+			if rawType ~= "boolean" then continue end
+			if skipRaws[rawName] then
+				rawCapturePrev[rawName] = rv[rawName]
+				continue
+			end
+
+			local val = rv[rawName]
+			local prev = rawCapturePrev[rawName]
+
+			if val == true and prev ~= true then
+				-- Rising edge detected
+				local cb = rawCaptureCallback
+				rawCaptureCallback = nil
+				rawCapturePrev = {}
+				hook.Remove("Think", "vrmod_unoff_raw_capture")
+				cb(rawName)
+				return
+			end
+
+			rawCapturePrev[rawName] = val
+		end
+	end)
+
+	return true
+end
+
+--- rawキャプチャ中止
+function vrmod.InputEmu_CancelRawCapture()
+	rawCaptureCallback = nil
+	rawCapturePrev = {}
+	hook.Remove("Think", "vrmod_unoff_raw_capture")
+end
+
+--- rawキャプチャ中かどうか
+function vrmod.InputEmu_IsRawCapturing()
+	return rawCaptureCallback ~= nil
 end
 
 --- キーをアクションに割当 + 保存 + リビルド（一括）

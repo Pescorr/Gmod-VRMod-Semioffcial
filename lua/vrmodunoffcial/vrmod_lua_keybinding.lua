@@ -207,6 +207,15 @@ end
 local function ProcessRawInput(input, changedInputs)
 	if not input then return input, changedInputs end
 
+	-- === Advanced Input Processor integration ===
+	-- If enabled, delegate raw buttons with advanced mappings first.
+	-- Consumed buttons are skipped by the simple mapping below.
+	local advConsumed = {}
+	local advInput = g_VR.advancedInput
+	if advInput and advInput.Process and advInput.IsEnabled and advInput.IsEnabled() then
+		input, changedInputs, advConsumed = advInput.Process(input, changedInputs)
+	end
+
 	local inVehicle = g_VR and g_VR.active and LocalPlayer and LocalPlayer():InVehicle()
 	local activeMapping = inVehicle and LKB.drivingMapping or LKB.mapping
 
@@ -219,9 +228,10 @@ local function ProcessRawInput(input, changedInputs)
 		for _, rawName in ipairs(g_VR.rawActionNames or {}) do
 			if input[rawName] ~= nil then rawCount = rawCount + 1 end
 		end
-		DbgDebug("[LKB] ProcessRawInput: mode=%s, raw_actions_received=%d/%d",
+		DbgDebug("[LKB] ProcessRawInput: mode=%s, raw_actions_received=%d/%d, adv_consumed=%d",
 			inVehicle and "driving" or "on_foot",
-			rawCount, #(g_VR.rawActionNames or {}))
+			rawCount, #(g_VR.rawActionNames or {}),
+			table.Count(advConsumed))
 	end
 
 	-- Build new input table: start with non-raw values cleared for mapped targets
@@ -229,8 +239,10 @@ local function ProcessRawInput(input, changedInputs)
 	local newChanged = {}
 
 	-- Step 1: Map raw boolean actions → logical boolean actions
+	-- Skip buttons already consumed by advanced input processor
 	for rawName, logicalName in pairs(activeMapping) do
 		if not logicalName then continue end
+		if advConsumed[rawName] then continue end  -- handled by advanced input
 
 		local rawType = g_VR.rawActionTypes and g_VR.rawActionTypes[rawName]
 		if not rawType then continue end
@@ -317,12 +329,36 @@ local function InstallPatches()
 	end
 
 	-- Patch SetActiveActionSets to always include /actions/raw when in Lua mode
+	-- Also supports SteamVR input disable toggle (advanced input R3)
 	local origSetActive = VRMOD_SetActiveActionSets
 	VRMOD_SetActiveActionSets = function(...)
 		local mode = cv_inputmode:GetInt()
 		if mode == 1 then
 			local args = {...}
-			-- Check if /actions/raw is already in the args
+
+			-- R3: If advanced input's SteamVR disable toggle is on,
+			-- remove /actions/main and /actions/driving to prevent
+			-- SteamVR's native bindings from firing alongside Lua mappings
+			local advInput = g_VR.advancedInput
+			if advInput and advInput.ShouldDisableSteamVRActions and advInput.ShouldDisableSteamVRActions() then
+				local filtered = {}
+				for _, v in ipairs(args) do
+					if v == "/actions/base" or v == "/actions/raw" then
+						filtered[#filtered + 1] = v
+					end
+					-- /actions/main and /actions/driving are intentionally dropped
+				end
+				-- Ensure /actions/raw is present
+				local hasRaw = false
+				for _, v in ipairs(filtered) do
+					if v == "/actions/raw" then hasRaw = true break end
+				end
+				if not hasRaw then filtered[#filtered + 1] = "/actions/raw" end
+				DbgInfo("[LKB] SetActiveActionSets: SteamVR disabled, using only base+raw (%d sets)", #filtered)
+				return origSetActive(unpack(filtered))
+			end
+
+			-- Standard Lua mode: inject /actions/raw alongside existing sets
 			local hasRaw = false
 			for _, v in ipairs(args) do
 				if v == "/actions/raw" then hasRaw = true break end
@@ -533,11 +569,19 @@ concommand.Add("vrmod_keybinding_menu", function()
 	end
 
 	local wizardBtn = vgui.Create("DButton", topBar)
-	wizardBtn:SetPos(400, 6)
-	wizardBtn:SetSize(105, 24)
+	wizardBtn:SetPos(310, 6)
+	wizardBtn:SetSize(95, 24)
 	wizardBtn:SetText(L("VR Wizard", "VR Wizard"))
 	wizardBtn.DoClick = function()
 		RunConsoleCommand("vrmod_keybinding_wizard")
+	end
+
+	local advancedBtn = vgui.Create("DButton", topBar)
+	advancedBtn:SetPos(412, 6)
+	advancedBtn:SetSize(100, 24)
+	advancedBtn:SetText(L("Advanced...", "Advanced..."))
+	advancedBtn.DoClick = function()
+		RunConsoleCommand("vrmod_advanced_input_menu")
 	end
 
 	local resetBtn = vgui.Create("DButton", topBar)

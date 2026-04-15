@@ -209,26 +209,6 @@ VRMOD_SETTINGS02_REGISTRY = {
 	},
 
 	-- ==============================
-	-- Adaptive FPS
-	-- ==============================
-	{
-		key = "adaptive_fps", label = "Adaptive FPS", icon = "icon16/chart_curve.png",
-		items = {
-			{ type = "checkbox", label = "Enable Adaptive FPS", cvar = "vrmod_adaptive_enabled" },
-			{ type = "slider", label = "Target FPS", cvar = "vrmod_adaptive_target_fps", min = 30, max = 144, decimals = 0 },
-			{ type = "slider", label = "Min Quality Tier (Floor)", cvar = "vrmod_adaptive_floor", min = 0, max = 6, decimals = 0 },
-			{ type = "slider", label = "Max Quality Tier (Ceiling)", cvar = "vrmod_adaptive_ceiling", min = 0, max = 6, decimals = 0 },
-			{ type = "slider", label = "Degrade Speed (sec)", cvar = "vrmod_adaptive_degrade_time", min = 0.5, max = 5.0, decimals = 1 },
-			{ type = "slider", label = "Recovery Speed (sec)", cvar = "vrmod_adaptive_recover_time", min = 3.0, max = 15.0, decimals = 1 },
-			{ type = "slider", label = "Min Draw Distance (r_farz)", cvar = "vrmod_adaptive_farz_min", min = 500, max = 10000, decimals = 0 },
-			{ type = "checkbox", label = "HUD Indicator", cvar = "vrmod_adaptive_hud_indicator" },
-			{ type = "checkbox", label = "Debug Output", cvar = "vrmod_adaptive_debug" },
-			{ type = "help", text = "Automatically adjusts quality settings to maintain target FPS in VR." },
-			{ type = "button", label = "Force Reset to Tier 0", command = "vrmod_adaptive_reset" },
-		},
-	},
-
-	-- ==============================
 	-- Misc
 	-- ==============================
 	{
