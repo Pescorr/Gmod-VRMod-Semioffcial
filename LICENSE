@@ -1,4 +1,4 @@
-Copyright (c) 2022-2024 Pescorr Kastelina 
+Copyright (c) 2022-2026 Pescorr Kastelina 
 
 Original Garry's Mod VR Copyright (c) "Catse the Cat"(https://github.com/catsethecat).
 
@@ -18,3 +18,13 @@ freely, subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
+
+
+## Personal Preferences (not legally binding)
+
+The license is zlib — you can fork and reuse without asking.
+
+That said, as the author, I'd ask:
+
+- Forks targeting original_vrmod compatibility are very welcome.
+- Forks built primarily as additions to the x64 ecosystem are something I personally don't support, due to past experiences with that camp (project hijack attempts and personal attacks from the x64 author). The license still allows it, but I'd ask you to consider this before redistributing.
