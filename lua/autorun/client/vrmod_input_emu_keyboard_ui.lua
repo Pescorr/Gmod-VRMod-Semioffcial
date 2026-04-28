@@ -169,7 +169,7 @@ local function PaintKeyButton(self, w, h)
 
 	-- Raw button assignments (cyan text)
 	if isRawAssigned and not isSel then
-		local AI = g_VR and g_VR.advancedInput
+		local AI = g_VR and g_VR.luaKeybinding
 		local txt = ""
 		for i, rm in ipairs(self.assignedRawMappings) do
 			if i > 1 then txt = txt .. " " end
@@ -263,7 +263,7 @@ local function OpenKeyboardEditor()
 		if not ok then reverseMap = {} end
 		-- Also get raw button assignments from advanced input
 		local rawReverseMap = {}
-		local AI = g_VR and g_VR.advancedInput
+		local AI = g_VR and g_VR.luaKeybinding
 		if AI and AI.GetKeyReverseMap then
 			local rok, rrm = pcall(AI.GetKeyReverseMap)
 			if rok then rawReverseMap = rrm end
@@ -320,7 +320,7 @@ local function OpenKeyboardEditor()
 	-- Show raw button dropdown (fallback for non-VR in raw mode)
 	-- ===================================================================
 	local function ShowRawDropdown(buttonCode, keyLabel)
-		local AI = g_VR and g_VR.advancedInput
+		local AI = g_VR and g_VR.luaKeybinding
 		if not AI then return end
 		local rawBooleans = AI.GetAvailableRawBooleans()
 		if #rawBooleans == 0 then return end
@@ -356,7 +356,7 @@ local function OpenKeyboardEditor()
 
 		if rawAssignMode then
 			-- === Raw Button Assignment Mode ===
-			local AI = g_VR and g_VR.advancedInput
+			local AI = g_VR and g_VR.luaKeybinding
 			local gestName = AI and AI.GetGestureDisplayName(selectedGesture) or selectedGesture
 			if vrActive then
 				UpdateStatus(
@@ -572,12 +572,12 @@ local function OpenKeyboardEditor()
 
 				-- List raw button assignments with "Remove" option
 				if hasRaw then
-					local AI = g_VR and g_VR.advancedInput
+					local AI = g_VR and g_VR.luaKeybinding
 					for _, rm in ipairs(self.assignedRawMappings) do
 						local displayName = AI and (AI.GetShortRawName(rm.raw) .. " [" .. AI.GetGestureDisplayName(rm.gesture) .. "]") or rm.raw
 						menu:AddOption("Remove Raw: " .. displayName, function()
 							if AI and AI.RemoveMapping then
-								AI.RemoveMapping(rm.index)
+								AI.RemoveMapping(rm)
 								AI.Save()
 							end
 							RefreshKeyStates()

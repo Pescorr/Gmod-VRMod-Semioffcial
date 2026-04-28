@@ -536,7 +536,7 @@ local L = VRModL or function(_, fb) return fb or "" end
 			if not ok then reverseMap = {} end
 			-- Also get raw button assignments from advanced input
 			local rawReverseMap = {}
-			local AI = g_VR.advancedInput
+			local AI = g_VR.luaKeybinding
 			if AI and AI.GetKeyReverseMap then
 				local rok, rrm = pcall(AI.GetKeyReverseMap)
 				if rok then rawReverseMap = rrm end
@@ -752,7 +752,7 @@ local L = VRModL or function(_, fb) return fb or "" end
 
 			-- Raw button assignments (cyan)
 			if isRawAssigned and not isSel then
-				local AI = g_VR.advancedInput
+				local AI = g_VR.luaKeybinding
 				local txt = ""
 				for i, rm in ipairs(self.assignedRawMappings) do
 					if i > 1 then txt = txt .. " " end
@@ -900,7 +900,7 @@ local L = VRModL or function(_, fb) return fb or "" end
 				if KS.rawAssignMode then
 					-- === Raw Button Assignment Mode ===
 					if IsValid(statusLabel) then
-						local AI = g_VR.advancedInput
+						local AI = g_VR.luaKeybinding
 						local gestName = AI and AI.GetGestureDisplayName(KS.selectedGesture) or KS.selectedGesture
 						statusLabel:SetText(string.format(L("Press a VR button to assign [%s] to [%s]...", "Press a VR button to assign [%s] to [%s]..."), gestName, btn.keyLabel or "?"))
 					end
@@ -917,7 +917,7 @@ local L = VRModL or function(_, fb) return fb or "" end
 								return
 							end
 
-							local AI = g_VR.advancedInput
+							local AI = g_VR.luaKeybinding
 							if AI and AI.AddMapping then
 								AI.AddMapping(rawName, KS.selectedGesture, "key", code, {})
 								AI.Save()
@@ -1000,12 +1000,12 @@ local L = VRModL or function(_, fb) return fb or "" end
 
 			-- Raw button assignments (cyan)
 			if hasRaw then
-				local AI = g_VR.advancedInput
+				local AI = g_VR.luaKeybinding
 				for _, rm in ipairs(btn.assignedRawMappings) do
 					local displayName = AI and (AI.GetShortRawName(rm.raw) .. " [" .. AI.GetGestureDisplayName(rm.gesture) .. "]") or rm.raw
 					menu:AddOption(L("Remove Raw:", "Remove Raw:") .. " " .. displayName, function()
 						if AI and AI.RemoveMapping then
-							AI.RemoveMapping(rm.index)
+							AI.RemoveMapping(rm)
 							AI.Save()
 						end
 						RefreshAssignments()

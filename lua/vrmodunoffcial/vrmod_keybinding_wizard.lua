@@ -37,6 +37,14 @@ local RAW_DISPLAY_NAMES = {
 	raw_left_grip_pull     = "Left Grip (Analog)",
 	raw_right_stick        = "Right Stick",
 	raw_left_stick         = "Left Stick",
+	raw_left_stick_up      = "Left Stick ↑",
+	raw_left_stick_down    = "Left Stick ↓",
+	raw_left_stick_left    = "Left Stick ←",
+	raw_left_stick_right   = "Left Stick →",
+	raw_right_stick_up     = "Right Stick ↑",
+	raw_right_stick_down   = "Right Stick ↓",
+	raw_right_stick_left   = "Right Stick ←",
+	raw_right_stick_right  = "Right Stick →",
 }
 
 local LOGICAL_DISPLAY_NAMES = {
@@ -131,7 +139,38 @@ local function GetRawDisplayName(rawName)
 	return RAW_DISPLAY_NAMES[rawName] or rawName
 end
 
--- Find which raw action maps to a given logical action in pendingMapping
+-- Wizard internal format is v1 (rawName -> logical string, 1:1). Convert
+-- to/from the v2 rule-list format at the LKB.mapping boundary.
+local function V2RuleListToV1String(ruleList)
+	if type(ruleList) == "string" then return ruleList end
+	if type(ruleList) == "table" and ruleList[1] and ruleList[1].target then
+		return ruleList[1].target
+	end
+	return nil
+end
+
+local function CopyV2MappingToV1(v2)
+	local out = {}
+	if not v2 then return out end
+	for rawName, val in pairs(v2) do
+		local s = V2RuleListToV1String(val)
+		if s then out[rawName] = s end
+	end
+	return out
+end
+
+local function V1MappingToV2(v1)
+	local out = {}
+	if not v1 then return out end
+	for rawName, logical in pairs(v1) do
+		if logical and logical ~= "" then
+			out[rawName] = { { target = logical, trigger = "passthrough" } }
+		end
+	end
+	return out
+end
+
+-- Find which raw action maps to a given logical action in pendingMapping (v1)
 local function FindRawForLogical(logicalName)
 	if not wizardState then return nil end
 	for raw, logical in pairs(wizardState.pendingMapping) do
@@ -317,15 +356,20 @@ local function CaptureThink()
 	if g_VR.menuFocus == MENU_UID then
 		local mapping = LKB and LKB.mapping
 		if mapping then
-			for raw, logical in pairs(mapping) do
-				if logical == "boolean_primaryfire" then
-					skipRaws[raw] = true
-					-- Also skip the corresponding analog trigger
-					-- raw_right_trigger_bool -> raw_right_trigger_pull
-					local pullName = string.gsub(raw, "_bool$", "_pull")
-					if pullName ~= raw then
-						skipRaws[pullName] = true
+			-- Rule-list (v2): look for any rule with target = boolean_primaryfire
+			for raw, ruleList in pairs(mapping) do
+				local hit = false
+				if type(ruleList) == "table" and ruleList[1] then
+					for _, rule in ipairs(ruleList) do
+						if rule.target == "boolean_primaryfire" then hit = true break end
 					end
+				elseif ruleList == "boolean_primaryfire" then
+					hit = true
+				end
+				if hit then
+					skipRaws[raw] = true
+					local pullName = string.gsub(raw, "_bool$", "_pull")
+					if pullName ~= raw then skipRaws[pullName] = true end
 					break
 				end
 			end
@@ -402,14 +446,9 @@ local function RenderStep1_Welcome()
 			highlight = true,
 			fn = function()
 				wizardState.isDriving = false
-				-- Pre-populate from current on-foot mapping
+				-- Pre-populate from current on-foot mapping (convert v2 -> v1)
 				local LKB = g_VR.luaKeybinding
-				wizardState.pendingMapping = {}
-				if LKB and LKB.mapping then
-					for k, v in pairs(LKB.mapping) do
-						wizardState.pendingMapping[k] = v
-					end
-				end
+				wizardState.pendingMapping = CopyV2MappingToV1(LKB and LKB.mapping)
 				SetWizardStep(2, {
 					actionIndex = 1,
 					captureActive = true,
@@ -424,12 +463,7 @@ local function RenderStep1_Welcome()
 			fn = function()
 				wizardState.isDriving = true
 				local LKB = g_VR.luaKeybinding
-				wizardState.pendingMapping = {}
-				if LKB and LKB.drivingMapping then
-					for k, v in pairs(LKB.drivingMapping) do
-						wizardState.pendingMapping[k] = v
-					end
-				end
+				wizardState.pendingMapping = CopyV2MappingToV1(LKB and LKB.drivingMapping)
 				SetWizardStep(2, {
 					actionIndex = 1,
 					captureActive = true,
@@ -736,6 +770,23 @@ function vrmod.KeybindWizard.Start()
 		)
 	end
 
+	-- Ensure synthetic stick-direction raws (up/down/left/right per hand) are
+	-- registered so the wizard can capture them as regular boolean buttons.
+	if g_VR.luaKeybinding and g_VR.luaKeybinding.SYNTHETIC_STICK_DIRS then
+		for _, n in ipairs(g_VR.luaKeybinding.SYNTHETIC_STICK_DIRS) do
+			if g_VR.rawActionTypes and not g_VR.rawActionTypes[n] then
+				g_VR.rawActionTypes[n] = "boolean"
+			end
+			local known = false
+			for _, existing in ipairs(g_VR.rawActionNames or {}) do
+				if existing == n then known = true break end
+			end
+			if not known and g_VR.rawActionNames then
+				table.insert(g_VR.rawActionNames, n)
+			end
+		end
+	end
+
 	wizardState = {
 		step = 1,
 		isDriving = false,
@@ -798,10 +849,11 @@ function vrmod.KeybindWizard.Save()
 	local LKB = g_VR.luaKeybinding
 	if not LKB then return end
 
+	-- Convert wizard's v1 pendingMapping to v2 rule-list format before committing.
 	if wizardState.isDriving then
-		LKB.drivingMapping = wizardState.pendingMapping
+		LKB.drivingMapping = V1MappingToV2(wizardState.pendingMapping)
 	else
-		LKB.mapping = wizardState.pendingMapping
+		LKB.mapping = V1MappingToV2(wizardState.pendingMapping)
 	end
 
 	if LKB.SaveMapping then
