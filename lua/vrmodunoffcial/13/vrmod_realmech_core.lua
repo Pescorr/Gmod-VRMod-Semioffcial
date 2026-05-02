@@ -247,54 +247,38 @@ local function DetectSlideDirection(vm, slideIdx)
         return SLIDE_DIR_PRESETS[dirStr]
     end
 
-    if not IsValid(vm) then return Vector(-1, 0, 0) end
+    if not IsValid(vm) then return Vector(0, 0, -1) end
 
-    -- Method 1: Use bone matrix local axes
-    -- ManipulateBonePosition works in bone-local space
-    -- For most viewmodel slide bones, the slide moves along
-    -- the bone's local X axis (backward = negative X)
-    local boneMatrix = vm:GetBoneMatrix(slideIdx)
-    if boneMatrix then
-        -- The bone's local forward direction
-        -- Slides typically move backward along the bone's forward axis
-        local forward = boneMatrix:GetForward()
-        if forward and forward:LengthSqr() > 0.001 then
-            -- ManipulateBonePosition is in bone-LOCAL space
-            -- So we return a local-space direction vector
-            -- Most slide bones: -X is backward (rearward motion)
-            return Vector(-1, 0, 0)
-        end
+    -- Method 1: Use bone matrix to detect slide direction from the model's local space
+    local matrix = vm:GetBoneMatrix(slideIdx)
+    if matrix and isvector(matrix:GetUp()) then
+        -- Most Source Engine viewmodel slide bones move along their local -Z axis
+        return Vector(0, 0, -1)
     end
 
-    -- Method 2: Parent-child position delta (legacy fallback)
+    -- Method 2: Detect from parent-child offset (world space)
     local parentIdx = vm:GetBoneParent(slideIdx)
     if parentIdx and parentIdx >= 0 then
         local slidePos = vm:GetBonePosition(slideIdx)
         local parentPos = vm:GetBonePosition(parentIdx)
-
         if slidePos and parentPos then
-            local dir = (slidePos - parentPos)
-            if dir:LengthSqr() > 0.001 then
-                dir:Normalize()
-                -- Convert world-space direction to bone-local direction
-                -- (approximation: just use the dominant axis)
-                local ax = math.abs(dir.x)
-                local ay = math.abs(dir.y)
-                local az = math.abs(dir.z)
-                if ax >= ay and ax >= az then
-                    return Vector(dir.x > 0 and 1 or -1, 0, 0)
-                elseif ay >= ax and ay >= az then
-                    return Vector(0, dir.y > 0 and 1 or -1, 0)
-                else
-                    return Vector(0, 0, dir.z > 0 and 1 or -1)
-                end
+            local offset = slidePos - parentPos
+            local absX = math.abs(offset.x)
+            local absY = math.abs(offset.y)
+            local absZ = math.abs(offset.z)
+
+            if absX >= absY and absX >= absZ then
+                return Vector(offset.x > 0 and 1 or -1, 0, 0)
+            elseif absY >= absX and absY >= absZ then
+                return Vector(0, offset.y > 0 and 1 or -1, 0)
+            else
+                return Vector(0, 0, offset.z > 0 and 1 or -1, 0)
             end
         end
     end
 
-    -- Fallback: ManipulateBonePosition local space
-    -- Most Source Engine viewmodel slide bones move along -X
-    return Vector(-1, 0, 0)
+   -- Fallback: most Source Engine viewmodel slide bones move along -Z
+     return Vector(0, 0, -1)
 end
 
 -- ============================================================================

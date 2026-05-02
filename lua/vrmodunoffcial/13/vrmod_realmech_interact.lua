@@ -38,7 +38,7 @@ local function TrySlideGrab(ply, wep, cache, vm)
         state.slideGrabbed = true
         state.slideGrabOffset = state.slidePos
 
-        -- Store initial grab hand position for delta tracking
+        -- Store initial grab positions for delta tracking
         state._grabStartPos = leftHandPos
         state._grabSlideWorldPos = slideWorldPos
 
@@ -113,7 +113,7 @@ hook.Add("VRMod_Input", "VRRealMech_Input", function(action, pressed)
 
     -- ===== FIRE MODE SWITCH =====
     if cv.selector_enable:GetBool() and cache.hasSafety then
-        if action == "boolean_secondaryfire" and pressed then
+        if action == "boolean_chat" and pressed then
             -- Cycle firemode: 1 -> 2 -> 3 -> 1 (Safe/Semi/Auto)
             state.firemodeIndex = state.firemodeIndex + 1
             if state.firemodeIndex > 3 then
@@ -131,7 +131,7 @@ hook.Add("VRMod_Input", "VRRealMech_Input", function(action, pressed)
 
     -- ===== SLIDE RELEASE (optional: use reload button) =====
     if cache.hasSlide then
-        if action == "boolean_reload" and pressed then
+        if action == "boolean_secondaryfire" and pressed then
             if state.slideLockedBack then
                 state.slideLockedBack = false
                 state.slidePos = cache.blowbackAmount * 0.3
@@ -178,19 +178,21 @@ hook.Add("VRMod_Tracking", "VRRealMech_Tracking", function()
         return
     end
 
-    -- Calculate hand movement along slide axis
+   -- Calculate hand movement along slide axis
     local leftHandPos = g_VR.tracking.pose_lefthand.pos
 
     if state._grabStartPos then
-        -- Movement delta from grab start position
+        -- Movement delta in world space
         local delta = leftHandPos - state._grabStartPos
-        -- Project onto slide direction
-        local projection = delta:Dot(cache.slideDir)
 
-        -- Slide moves in the negative direction of slideDir
-        -- (pulling back = moving along negative slideDir)
+        -- Extract the component along the slide direction axis
+        -- slideDir is a unit vector along one axis (e.g., -X, +Z)
+        local projection = math.abs(delta.x * cache.slideDir.x +
+                                      delta.y * cache.slideDir.y +
+                                      delta.z * cache.slideDir.z)
+
         state.slidePos = math.Clamp(
-            state.slideGrabOffset + math.abs(projection),
+            state.slideGrabOffset + projection,
             0,
             cache.blowbackAmount
         )

@@ -14,6 +14,7 @@ local L = VRModL or function(_, fb) return fb or "" end
 ------------------------------------------------------------------------
 local cv_enabled         = CreateClientConVar("vrmod_unoff_timecrisis", "0", true, FCVAR_ARCHIVE, "Enable Time Crisis cover system", 0, 1)
 local cv_block_movement  = CreateClientConVar("vrmod_unoff_tc_block_movement", "0", true, FCVAR_ARCHIVE, "Block movement while in cover", 0, 1)
+local cv_autoreload      = CreateClientConVar("vrmod_unoff_tc_autoreload", "1", true, FCVAR_ARCHIVE, "Auto-reload when entering cover (uses reserve ammo)", 0, 1)
 local cv_holster_dist    = CreateClientConVar("vrmod_unoff_tc_holster_dist", "18", true, FCVAR_ARCHIVE, "Ground holster distance from player", 5, 40)
 local cv_holster_radius  = CreateClientConVar("vrmod_unoff_tc_holster_radius", "8", true, FCVAR_ARCHIVE, "Ground holster detection radius", 3, 20)
 
@@ -49,6 +50,17 @@ local prevCrouching  = false  -- Previous frame's crouch state (for edge detecti
 local equipCooldownRight = 0
 local equipCooldownLeft  = 0
 local EQUIP_COOLDOWN     = 0.3  -- seconds
+
+-- Weapon cycling state (trigger while crouching)
+local cycleCurrentSlot   = 1    -- Current active slot index (1..4)
+local cycleLastSwitch    = 0    -- Last switch time for rate limiting
+local CYCLE_COOLDOWN     = 0.25 -- Minimum seconds between switches
+
+-- UI message display
+local uiMessageText      = ""   -- Text to show near HMD
+local uiMessageTime      = 0    -- Time when message expires
+local UI_MSG_DURATION    = 1.5  -- Seconds to display messages
+local COLOR_UI_MESSAGE   = Color(255, 200, 60, 240)
 
 -- Ground holster positions (updated every VR frame while crouching)
 local holsterPositions = {}   -- [1..4] = Vector
@@ -136,6 +148,68 @@ local function UpdateHolsterPositions()
 end
 
 ------------------------------------------------------------------------
+-- UI: Show message near HMD for a few seconds
+------------------------------------------------------------------------
+local function ShowUIMessage(msg)
+    uiMessageText = msg
+    uiMessageTime = CurTime() + UI_MSG_DURATION
+end
+
+------------------------------------------------------------------------
+-- Utility: Get weapon display name
+------------------------------------------------------------------------
+local function GetWeaponDisplayName(wepclass)
+    if not wepclass or wepclass == "" then return "[ Empty ]" end
+    local wepInfo = weapons.Get(wepclass)
+    if wepInfo and wepInfo.PrintName then
+        return wepInfo.PrintName
+    end
+    return wepclass
+end
+
+------------------------------------------------------------------------
+-- Auto-reload: fill clip from reserve ammo when entering cover
+------------------------------------------------------------------------
+local function AutoReloadOnCover()
+    if not cv_autoreload:GetBool() then return end
+
+    local ply = LocalPlayer()
+    if not IsValid(ply) then return end
+
+    local wep = ply:GetActiveWeapon()
+    if not IsValid(wep) then return end
+    if wep:GetClass() == "weapon_vrmod_empty" then return end
+
+    local ammoType    = wep:GetPrimaryAmmoType()
+    if ammoType < 0 then return end
+
+    local clipSize    = wep:GetMaxClip1()
+    local currentClip = wep:Clip1()
+    if currentClip >= clipSize then return end
+
+    local ammoCount  = ply:GetAmmoCount(ammoType)
+    if ammoCount <= 0 then return end
+
+    local ammoNeeded = clipSize - currentClip
+    local toGive     = math.min(ammoNeeded, ammoCount)
+
+    wep:SetClip1(currentClip + toGive)
+    ply:RemoveAmmo(toGive, ammoType)
+
+    -- Notify server for sync
+    net.Start("VRMod_TC_Reload")
+    net.WriteString(wep:GetClass())
+    net.WriteFloat(currentClip + toGive)
+    net.WriteInt(ammoType, 8)
+    net.WriteInt(toGive, 16)
+    net.SendToServer()
+
+    local wname = GetWeaponDisplayName(wep:GetClass())
+    ShowUIMessage(string.format("RELOAD  %s  +%d", wname, toGive))
+    surface.PlaySound("items/ammocrate_open.wav")
+end
+
+------------------------------------------------------------------------
 -- Network: Send cover state change to server
 ------------------------------------------------------------------------
 local function SendCoverState(inCover)
@@ -158,6 +232,7 @@ local function EnterCover()
 
     UpdateHolsterPositions()
     SendCoverState(true)
+    AutoReloadOnCover()
 end
 
 local function ExitCover()
@@ -239,6 +314,10 @@ local function TimeCrisis_OnVRStart()
     holsterPositions = {}
     equipCooldownRight = 0
     equipCooldownLeft  = 0
+    cycleCurrentSlot   = 1
+    cycleLastSwitch    = 0
+    uiMessageText      = ""
+    uiMessageTime      = 0
 
     -- VRMod_AllowDefaultAction: block attacks while in cover
     -- This hook exists in BOTH original VRMod (vrmod_input.lua:14) and semiofficial
@@ -269,13 +348,58 @@ local function TimeCrisis_OnVRStart()
         cmd:SetButtons(buttons)
     end)
 
-    -- VRMod_Input: holster interaction while crouching
+    -- VRMod_Input: holster interaction + weapon cycling while crouching
     hook.Add("VRMod_Input", "VRMod_TimeCrisis_Input", function(action, pressed)
         if not cv_enabled:GetBool() then return end
         if not isCoverMode then return end
         if not g_VR or not g_VR.active then return end
 
         local now = CurTime()
+
+        -- Weapon cycling on trigger press while in cover
+        if action == "boolean_primaryfire" and pressed then
+            if (now - cycleLastSwitch) < CYCLE_COOLDOWN then return end
+            cycleLastSwitch = now
+
+            -- Cycle to next slot: 1→2→3→4→1
+            cycleCurrentSlot = cycleCurrentSlot % TC_SLOTS + 1
+
+            local ply = LocalPlayer()
+            if not IsValid(ply) then return end
+
+            local wepclass = cv_slots[cycleCurrentSlot]:GetString()
+
+            if wepclass == "" or not IsValidWeaponClass(wepclass) then
+                -- Empty slot: switch to empty hands
+                ply:ConCommand("use weapon_vrmod_empty")
+                ShowUIMessage(string.format("Slot %d  [ Empty ]", cycleCurrentSlot))
+                surface.PlaySound("buttons/button14.wav")
+            else
+                -- Check weapon still in inventory
+                if not IsValid(ply:GetWeapon(wepclass)) then
+                    RunConsoleCommand("vrmod_unoff_tc_slot_" .. cycleCurrentSlot, "")
+                    ply:ConCommand("use weapon_vrmod_empty")
+                    ShowUIMessage(string.format("Slot %d  [ Removed ]", cycleCurrentSlot))
+                    surface.PlaySound("buttons/button14.wav")
+                else
+                    -- Equip weapon from slot
+                    ply:ConCommand("use " .. wepclass)
+                    timer.Simple(0.1, function()
+                        if not IsValid(ply) then return end
+                        local awep = ply:GetActiveWeapon()
+                        if IsValid(awep) and awep:GetClass() == wepclass then
+                            if vrmod and vrmod.Pickup then
+                                vrmod.Pickup(false, false)
+                            end
+                        end
+                    end)
+                    ShowUIMessage(string.format("Slot %d  %s", cycleCurrentSlot, GetWeaponDisplayName(wepclass)))
+                    surface.PlaySound("buttons/button14.wav")
+                end
+            end
+
+            return true -- Block default attack action
+        end
 
         -- Right hand pickup
         if action == "boolean_right_pickup" then
@@ -323,6 +447,7 @@ local function TimeCrisis_OnVRStart()
         if not isCoverMode then return end
         if not g_VR or not g_VR.active then return end
 
+        local now = CurTime()
         render.SetColorMaterial()
 
         local radius = cv_holster_radius:GetFloat()
@@ -362,12 +487,16 @@ local function TimeCrisis_OnVRStart()
             end
         end
 
-        -- Cover mode indicator near HMD
+        -- Cover mode indicator + UI messages near HMD
         if g_VR.tracking and g_VR.tracking.hmd then
             local indicatorPos = g_VR.tracking.hmd.pos + VEC_HMD_OFFSET
             local indicatorAng = Angle(0, g_VR.tracking.hmd.ang.yaw - 90, 90)
             cam.Start3D2D(indicatorPos, indicatorAng, 0.08)
                 draw.SimpleText(L("COVER", "COVER"), "DermaLarge", 0, 0, COLOR_COVER_TEXT, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                -- UI message (weapon switch / reload feedback)
+                if now < uiMessageTime and uiMessageText ~= "" then
+                    draw.SimpleText(uiMessageText, "DermaDefaultBold", 0, 28, COLOR_UI_MESSAGE, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                end
             cam.End3D2D()
         end
     end)
@@ -388,6 +517,10 @@ local function TimeCrisis_OnVRExit()
     tcInitialized      = false
     equipCooldownRight = 0
     equipCooldownLeft  = 0
+    cycleCurrentSlot   = 1
+    cycleLastSwitch    = 0
+    uiMessageText      = ""
+    uiMessageTime      = 0
 
     -- Remove all dynamic hooks
     hook.Remove("VRMod_AllowDefaultAction", "VRMod_TimeCrisis_BlockAttack")

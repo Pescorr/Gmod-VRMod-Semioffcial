@@ -40,6 +40,8 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
         L("Crouch in VR to enter cover mode:", "Crouch in VR to enter cover mode:") .. "\n" ..
         "  - " .. L("You become invincible while crouching", "You become invincible while crouching") .. "\n" ..
         "  - " .. L("You CANNOT attack while in cover", "You CANNOT attack while in cover") .. "\n" ..
+        "  - " .. L("Pull trigger while crouching to cycle weapons (Slot 1→2→3→4)", "Pull trigger while crouching to cycle weapons (Slot 1→2→3→4)") .. "\n" ..
+        "  - " .. L("Crouching auto-reloads weapon from reserve ammo", "Crouching auto-reloads weapon from reserve ammo") .. "\n" ..
         "  - " .. L("4 ground holsters appear in a fan pattern", "4 ground holsters appear in a fan pattern") .. "\n" ..
         "  - " .. L("Stand up to fight normally", "Stand up to fight normally") .. "\n\n" ..
         L("Inspired by TIME CRISIS arcade game.", "Inspired by TIME CRISIS arcade game.")
@@ -78,6 +80,15 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
     moveCheck:Dock(TOP)
     moveCheck:DockMargin(8, 4, 8, 4)
     moveCheck:SizeToContents()
+
+    -- Auto-reload toggle
+    local reloadCheck = vgui.Create("DCheckBoxLabel", scroll)
+    reloadCheck:SetText(L("Auto-reload when crouching (uses reserve)", "Auto-reload when crouching (uses reserve)"))
+    reloadCheck:SetConVar("vrmod_unoff_tc_autoreload")
+    reloadCheck:SetDark(true)
+    reloadCheck:Dock(TOP)
+    reloadCheck:DockMargin(8, 4, 8, 4)
+    reloadCheck:SizeToContents()
 
     -- Separator
     local sep2 = vgui.Create("DPanel", scroll)
@@ -235,6 +246,7 @@ hook.Add("VRMod_Menu", "addsettingsTimeCrisis", function(frame)
     cmdDesc:SetText(
         "vrmod_unoff_timecrisis 0/1 — Enable/Disable\n" ..
         "vrmod_unoff_tc_block_movement 0/1 — Movement restriction\n" ..
+        "vrmod_unoff_tc_autoreload 0/1 — Auto-reload on crouch\n" ..
         "vrmod_unoff_tc_holster_dist <5-40> — Holster distance\n" ..
         "vrmod_unoff_tc_holster_radius <3-20> — Detection radius\n" ..
         "vrmod_unoff_tc_slot_1..4 <class> — Set slot weapon"
