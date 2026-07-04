@@ -1,15 +1,35 @@
 -- lua/autorun/server/vrmodUnoffcial/glide_server_handlers.lua
 AddCSLuaFile()
 if CLIENT then return end
+
+-- 安全なAPI呼び出しラッパー（pcall保護）
+local function SafeSetInputFloat(vehicle, seat, name, val)
+    local ok, err = pcall(function()
+        vehicle:SetInputFloat(seat, name, val)
+    end)
+    if not ok then
+        MsgN("[VRMod] SetInputFloat failed:", name, "=", val, "|", err)
+    end
+end
+
+local function SafeSetInputBool(vehicle, seat, name, val)
+    local ok, err = pcall(function()
+        vehicle:SetInputBool(seat, name, val)
+    end)
+    if not ok then
+        MsgN("[VRMod] SetInputBool failed:", name, "=", val, "|", err)
+    end
+end
+
 util.AddNetworkString("glide_input_batch_extended")
 util.AddNetworkString("glide_input_bool_extended")
 util.AddNetworkString("glide_turret_target_angle_extended") -- 砲塔目標角度用NetMessage
--- アナログ/バッチ入力処理 (変更なし)
+-- アナログ/バッチ入力処理
 net.Receive(
     "glide_input_batch_extended",
     function(len, ply)
         if not IsValid(ply) then return end
-        local vehicle = ply:GetNWEntity("GlideVehicle")
+        local vehicle = ply:GlideGetVehicle()
         if not IsValid(vehicle) or not vehicle.IsGlideVehicle then return end
         local vType = vehicle.VehicleType
         if vType == Glide.VEHICLE_TYPE.CAR or vType == Glide.VEHICLE_TYPE.MOTORCYCLE then return end
@@ -18,24 +38,24 @@ net.Receive(
         local seatIndex = ply:GetNWInt("GlideSeatIndex", 1)
         for inputName, inputValue in pairs(receivedStates) do
             if vehicle.SetInputFloat then
-                vehicle:SetInputFloat(seatIndex, inputName, inputValue)
+                SafeSetInputFloat(vehicle, seatIndex, inputName, inputValue)
             elseif vehicle.SetInputBool and (inputValue == 0 or inputValue == 1 or inputValue == -1) then
                 if inputValue == 0 then
-                    vehicle:SetInputBool(seatIndex, inputName, false)
+                    SafeSetInputBool(vehicle, seatIndex, inputName, false)
                 else
-                    vehicle:SetInputBool(seatIndex, inputName, true)
+                    SafeSetInputBool(vehicle, seatIndex, inputName, true)
                     if inputName == "steer" then
-                        vehicle:SetInputBool(seatIndex, "steer_left", inputValue < 0)
-                        vehicle:SetInputBool(seatIndex, "steer_right", inputValue > 0)
+                        SafeSetInputBool(vehicle, seatIndex, "steer_left", inputValue < 0)
+                        SafeSetInputBool(vehicle, seatIndex, "steer_right", inputValue > 0)
                     elseif inputName == "pitch" then
-                        vehicle:SetInputBool(seatIndex, "pitch_up", inputValue < 0)
-                        vehicle:SetInputBool(seatIndex, "pitch_down", inputValue > 0)
+                        SafeSetInputBool(vehicle, seatIndex, "pitch_up", inputValue < 0)
+                        SafeSetInputBool(vehicle, seatIndex, "pitch_down", inputValue > 0)
                     elseif inputName == "roll" then
-                        vehicle:SetInputBool(seatIndex, "roll_left", inputValue < 0)
-                        vehicle:SetInputBool(seatIndex, "roll_right", inputValue > 0)
+                        SafeSetInputBool(vehicle, seatIndex, "roll_left", inputValue < 0)
+                        SafeSetInputBool(vehicle, seatIndex, "roll_right", inputValue > 0)
                     elseif inputName == "yaw" then
-                        vehicle:SetInputBool(seatIndex, "yaw_left", inputValue < 0)
-                        vehicle:SetInputBool(seatIndex, "yaw_right", inputValue > 0)
+                        SafeSetInputBool(vehicle, seatIndex, "yaw_left", inputValue < 0)
+                        SafeSetInputBool(vehicle, seatIndex, "yaw_right", inputValue > 0)
                     end
                 end
             end
@@ -48,7 +68,7 @@ net.Receive(
     "glide_input_bool_extended",
     function(len, ply)
         if not IsValid(ply) then return end
-        local vehicle = ply:GetNWEntity("GlideVehicle")
+        local vehicle = ply:GlideGetVehicle()
         if not IsValid(vehicle) or not vehicle.IsGlideVehicle then return end
         local vType = vehicle.VehicleType
         if vType == Glide.VEHICLE_TYPE.CAR or vType == Glide.VEHICLE_TYPE.MOTORCYCLE then return end
@@ -56,7 +76,7 @@ net.Receive(
         local actionValue = net.ReadBool()
         local seatIndex = ply:GetNWInt("GlideSeatIndex", 1)
         if vehicle.SetInputBool then
-            vehicle:SetInputBool(seatIndex, actionName, actionValue)
+            SafeSetInputBool(vehicle, seatIndex, actionName, actionValue)
         end
     end
 )
@@ -66,7 +86,7 @@ net.Receive(
     "glide_turret_target_angle_extended",
     function(len, ply)
         if not IsValid(ply) then return end
-        local vehicle = ply:GetNWEntity("GlideVehicle")
+        local vehicle = ply:GlideGetVehicle()
         if not IsValid(vehicle) or not vehicle.IsGlideVehicle or vehicle.VehicleType ~= Glide.VEHICLE_TYPE.TANK then return end
         if not vehicle.SetTurretAngle then return end -- GetTurretAngleは不要になった --print("[Glide Extended Input] Warning: Vehicle "..tostring(vehicle).." does not support SetTurretAngle.")
         local targetPitch = net.ReadFloat()
@@ -85,6 +105,11 @@ net.Receive(
             -- newYaw = math.Clamp(newYaw, minYaw, maxYaw)
         end
 
-        vehicle:SetTurretAngle(Angle(newPitch, newYaw, 0))
+        local ok, err = pcall(function()
+            vehicle:SetTurretAngle(Angle(newPitch, newYaw, 0))
+        end)
+        if not ok then
+            MsgN("[VRMod] SetTurretAngle failed:", err)
+        end
     end
 )

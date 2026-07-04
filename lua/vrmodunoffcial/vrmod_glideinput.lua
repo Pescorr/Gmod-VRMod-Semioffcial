@@ -30,7 +30,7 @@ if CLIENT then
     }
     hook.Add("VRMod_Input", "glide_vr_input", function(action, pressed)
         if not g_VR.active then return end
-        local vehicle = LocalPlayer():GetNWEntity("GlideVehicle")
+        local vehicle = LocalPlayer():GlideGetVehicle()
         if not isGroundVehicle(vehicle) then return end
         local control = VR_CONTROLS[action]
         if control then
@@ -43,7 +43,7 @@ if CLIENT then
 
     hook.Add("Think", "glide_vr_update", function()
         if not g_VR or not g_VR.active or not g_VR.input then return end -- g_VR.input のチェックを追加
-        local vehicle = LocalPlayer():GetNWEntity("GlideVehicle")
+        local vehicle = LocalPlayer():GlideGetVehicle()
         -- isGroundVehicle のチェックは適切か確認 (元のコードでは Think フックの先頭にあった)
         if not isGroundVehicle(vehicle) or not g_VR.net[LocalPlayer():SteamID()] then return end
 
@@ -92,7 +92,7 @@ if CLIENT then
 elseif SERVER then
     util.AddNetworkString("glide_vr_input")
     net.Receive("glide_vr_input", function(len, ply)
-        local vehicle = ply:GetNWEntity("GlideVehicle")
+        local vehicle = ply:GlideGetVehicle()
         if not IsValid(vehicle) then return end
         local vType = vehicle.VehicleType
         if vType ~= Glide.VEHICLE_TYPE.CAR and
@@ -128,7 +128,13 @@ elseif SERVER then
             vehicle:SetInputBool(1, "switch_weapon", true)
         end
         if headlights ~= (vehicle:GetHeadlightState() > 0) then
-            vehicle:ChangeHeadlightState(headlights and 2 or 0)
+            local ok, err = pcall(function()
+                vehicle:ChangeHeadlightState(headlights and 2 or 0)
+            end)
+            if not ok then
+                -- フォールバック: SetInputBool で代替
+                vehicle:SetInputBool(1, "headlights", headlights)
+            end
         end
     end)
 end

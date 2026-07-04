@@ -72,22 +72,6 @@ VRMOD_LANG.en = {
 	msg_beam_pickup_reset = "Beam pickup settings reset to defaults",
 	msg_language_set = "Language set to: ",
 	msg_unknown_category = "Error: Unknown category",
-	-- ViewModel Config UI
-	frame_vm_config = "Weapon ViewModel Configuration",
-	frame_vm_edit = "Edit ViewModel Config",
-	frame_vm_add = "Add ViewModel Config",
-	col_vm_class = "Weapon Class",
-	col_vm_offset_pos = "Offset Position",
-	col_vm_offset_ang = "Offset Angle",
-	btn_vm_new = "New",
-	btn_vm_reset_current = "Reset Current Weapon",
-	btn_vm_auto_adjust = "Auto Adjust",
-	btn_vm_reset_zero = "Reset to Zero",
-	btn_vm_apply = "Apply",
-	btn_vm_cancel = "Cancel",
-	label_vm_offset_pos = "Offset Position:",
-	label_vm_offset_ang = "Offset Angle:",
-	tooltip_vm_slider_drag = "Tip: Drag slider labels for fine adjustment",
 }
 
 -- Japanese strings / 日本語文字列
@@ -155,22 +139,6 @@ VRMOD_LANG.ja = {
 	msg_beam_pickup_reset = "ビームピックアップ設定をデフォルトにリセットしました",
 	msg_language_set = "言語を設定しました: ",
 	msg_unknown_category = "エラー: 不明なカテゴリ",
-	-- ViewModel Config UI
-	frame_vm_config = "武器ビューモデル設定一覧",
-	frame_vm_edit = "ビューモデル設定編集",
-	frame_vm_add = "ビューモデル設定追加",
-	col_vm_class = "武器クラス",
-	col_vm_offset_pos = "オフセット位置",
-	col_vm_offset_ang = "オフセット角度",
-	btn_vm_new = "新規",
-	btn_vm_reset_current = "現在武器をリセット",
-	btn_vm_auto_adjust = "自動調整",
-	btn_vm_reset_zero = "ゼロにリセット",
-	btn_vm_apply = "適用",
-	btn_vm_cancel = "破棄",
-	label_vm_offset_pos = "オフセット位置:",
-	label_vm_offset_ang = "オフセット角度:",
-	tooltip_vm_slider_drag = "ヒント: スライダーラベルをドラッグして微調整",
 }
 
 -- Chinese Simplified strings / 简体中文
@@ -238,22 +206,6 @@ VRMOD_LANG.zh = {
 	msg_beam_pickup_reset = "光束拾取设置已恢复为默认值",
 	msg_language_set = "语言已设置为: ",
 	msg_unknown_category = "错误: 未知类别",
-	-- ViewModel Config UI
-	frame_vm_config = "武器视角模型配置",
-	frame_vm_edit = "编辑视角模型配置",
-	frame_vm_add = "添加视角模型配置",
-	col_vm_class = "武器类别",
-	col_vm_offset_pos = "偏移位置",
-	col_vm_offset_ang = "偏移角度",
-	btn_vm_new = "新增",
-	btn_vm_reset_current = "重置当前武器",
-	btn_vm_auto_adjust = "自动调整",
-	btn_vm_reset_zero = "重置为零",
-	btn_vm_apply = "应用",
-	btn_vm_cancel = "取消",
-	label_vm_offset_pos = "偏移位置:",
-	label_vm_offset_ang = "偏移角度:",
-	tooltip_vm_slider_drag = "提示：拖动滑块标签进行微调",
 }
 
 -- Russian strings / Русский
@@ -321,22 +273,6 @@ VRMOD_LANG.ru = {
 	msg_beam_pickup_reset = "Настройки подбора сброшены",
 	msg_language_set = "Язык установлен: ",
 	msg_unknown_category = "Ошибка: Неизвестная категория",
-	-- ViewModel Config UI
-	frame_vm_config = "Настройка модели оружия",
-	frame_vm_edit = "Редактирование модели",
-	frame_vm_add = "Добавление модели",
-	col_vm_class = "Класс оружия",
-	col_vm_offset_pos = "Смещение позиции",
-	col_vm_offset_ang = "Смещение угла",
-	btn_vm_new = "Новый",
-	btn_vm_reset_current = "Сброс текущего оружия",
-	btn_vm_auto_adjust = "Автонастройка",
-	btn_vm_reset_zero = "Сброс в ноль",
-	btn_vm_apply = "Применить",
-	btn_vm_cancel = "Отмена",
-	label_vm_offset_pos = "Смещение позиции:",
-	label_vm_offset_ang = "Смещение угла:",
-	tooltip_vm_slider_drag = "Подсказка: Перетащите метки для точной настройки",
 }
 
 -- Get localized string with fallback chain

@@ -38,7 +38,7 @@ if CLIENT then
         end
 
         local ply = LocalPlayer()
-        local vehicle = ply:GetNWEntity("GlideVehicle")
+        local vehicle = ply:GlideGetVehicle()
         if not IsValid(vehicle) or not vehicle.IsGlideVehicle then
             return
         end
@@ -119,7 +119,7 @@ if CLIENT then
         if not g_VR or not g_VR.active or not LocalPlayer():InVehicle() then return end
 
         local ply = LocalPlayer()
-        local vehicle = ply:GetNWEntity("GlideVehicle")
+        local vehicle = ply:GlideGetVehicle()
         if not IsValid(vehicle) or not vehicle.IsGlideVehicle then return end
 
         local vType = vehicle.VehicleType

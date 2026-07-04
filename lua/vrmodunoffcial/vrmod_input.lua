@@ -38,7 +38,7 @@ local function DetectVehicleType()
 
 	-- Glide
 	if Glide then
-		local glideVeh = ply:GetNWEntity("GlideVehicle")
+		local glideVeh = ply:GlideGetVehicle()
 		if IsValid(glideVeh) then
 			return "glide"
 		end

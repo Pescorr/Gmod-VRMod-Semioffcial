@@ -8,7 +8,7 @@ net.Receive(
     function(len, ply)
         local action = net.ReadString()
         local state = net.ReadBool()
-        local vehicle = ply:GetNWEntity("GlideVehicle")
+        local vehicle = ply:GlideGetVehicle()
         if IsValid(vehicle) then
             local seatIndex = ply:GetNWInt("GlideSeatIndex", 1)
             if vehicle.SetInputBool then
