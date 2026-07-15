@@ -111,29 +111,40 @@ elseif SERVER then
         local shiftDown = net.ReadBool()
         local shiftNeutral = net.ReadBool()
         local switchWeapon = net.ReadBool()
-        vehicle:SetInputFloat(1, "accelerate", throttle)
-        vehicle:SetInputFloat(1, "brake", brake)
-        vehicle:SetInputFloat(1, "steer", steering)
-        vehicle:SetInputBool(1, "handbrake", handbrake)
-        vehicle:SetInputBool(1, "horn", horn)
-        vehicle:SetInputBool(1, "reduce_throttle", reducedThrottle)
+        local ok, err
+        ok, err = pcall(function() vehicle:SetInputFloat(1, "accelerate", throttle) end)
+        if not ok then MsgN("[VRMod] Glide SetInputFloat failed: accelerate=", throttle, "|", err) end
+        ok, err = pcall(function() vehicle:SetInputFloat(1, "brake", brake) end)
+        if not ok then MsgN("[VRMod] Glide SetInputFloat failed: brake=", brake, "|", err) end
+        ok, err = pcall(function() vehicle:SetInputFloat(1, "steer", steering) end)
+        if not ok then MsgN("[VRMod] Glide SetInputFloat failed: steer=", steering, "|", err) end
+        ok, err = pcall(function() vehicle:SetInputBool(1, "handbrake", handbrake) end)
+        if not ok then MsgN("[VRMod] Glide SetInputBool failed: handbrake=", tostring(handbrake), "|", err) end
+        ok, err = pcall(function() vehicle:SetInputBool(1, "horn", horn) end)
+        if not ok then MsgN("[VRMod] Glide SetInputBool failed: horn=", tostring(horn), "|", err) end
+        ok, err = pcall(function() vehicle:SetInputBool(1, "reduce_throttle", reducedThrottle) end)
+        if not ok then MsgN("[VRMod] Glide SetInputBool failed: reduce_throttle=", tostring(reducedThrottle), "|", err) end
         if shiftUp then
-            vehicle:SetInputBool(1, "shift_up", true)
+            ok, err = pcall(function() vehicle:SetInputBool(1, "shift_up", true) end)
+            if not ok then MsgN("[VRMod] Glide SetInputBool failed: shift_up=true|", err) end
         elseif shiftDown then
-            vehicle:SetInputBool(1, "shift_down", true)
+            ok, err = pcall(function() vehicle:SetInputBool(1, "shift_down", true) end)
+            if not ok then MsgN("[VRMod] Glide SetInputBool failed: shift_down=true|", err) end
         elseif shiftNeutral then
-            vehicle:SetInputBool(1, "shift_neutral", true)
+            ok, err = pcall(function() vehicle:SetInputBool(1, "shift_neutral", true) end)
+            if not ok then MsgN("[VRMod] Glide SetInputBool failed: shift_neutral=true|", err) end
         end
         if switchWeapon then
-            vehicle:SetInputBool(1, "switch_weapon", true)
+            ok, err = pcall(function() vehicle:SetInputBool(1, "switch_weapon", true) end)
+            if not ok then MsgN("[VRMod] Glide SetInputBool failed: switch_weapon=true|", err) end
         end
         if headlights ~= (vehicle:GetHeadlightState() > 0) then
-            local ok, err = pcall(function()
+            local ok2, err2 = pcall(function()
                 vehicle:ChangeHeadlightState(headlights and 2 or 0)
             end)
-            if not ok then
+            if not ok2 then
                 -- フォールバック: SetInputBool で代替
-                vehicle:SetInputBool(1, "headlights", headlights)
+                pcall(function() vehicle:SetInputBool(1, "headlights", headlights) end)
             end
         end
     end)

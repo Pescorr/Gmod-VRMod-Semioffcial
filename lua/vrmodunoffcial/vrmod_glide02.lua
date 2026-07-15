@@ -12,7 +12,12 @@ net.Receive(
         if IsValid(vehicle) then
             local seatIndex = ply:GetNWInt("GlideSeatIndex", 1)
             if vehicle.SetInputBool then
-                vehicle:SetInputBool(seatIndex, action, state)
+                local ok, err = pcall(function()
+                    vehicle:SetInputBool(seatIndex, action, state)
+                end)
+                if not ok then
+                    MsgN("[VRMod] Glide SetInputBool failed:", action, "=", tostring(state), "|", err)
+                end
             end
         end
     end

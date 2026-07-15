@@ -89,10 +89,13 @@ if CLIENT then
             -- 戦車砲塔制御 (目標角度を直接送信)
             if vType == Glide.VEHICLE_TYPE.TANK then
                 local aimRayStart = vrmod.GetRightHandPos(ply)
-                local aimRayDir = vrmod.GetRightHandAng(ply):Forward()
+                local aimRayAng = vrmod.GetRightHandAng(ply)
+                if not aimRayAng then return end  -- ハンドデータ取得失敗時はスキップ
+                local aimRayDir = aimRayAng:Forward()
 
                 -- サーバーに送る砲塔の目標角度を計算
                 local vehicleTransform = vehicle:GetWorldTransformMatrix()
+                if not vehicleTransform then return end  -- 変換行列取得失敗時はスキップ
                 local localAimDir = vehicleTransform:VectorToObjectSpace(aimRayDir)
                 local targetAng = localAimDir:Angle() -- 車両ローカルな目標角度
 

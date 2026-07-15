@@ -1,6 +1,7 @@
 -- lua/autorun/server/vrmodUnoffcial/glide_server_handlers.lua
 AddCSLuaFile()
 if CLIENT then return end
+if not Glide then return end  -- Glide未インストール時は早期return
 
 -- 安全なAPI呼び出しラッパー（pcall保護）
 local function SafeSetInputFloat(vehicle, seat, name, val)
