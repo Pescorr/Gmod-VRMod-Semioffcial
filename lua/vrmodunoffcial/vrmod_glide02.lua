@@ -1,5 +1,5 @@
 if not Glide then return end
-
+if not SERVER then return end
  
 
 util.AddNetworkString("glide_vrsetinput")
